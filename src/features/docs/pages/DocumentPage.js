@@ -8,7 +8,7 @@ import {
 } from "../../../shared/utils/categories";
 import { formatName } from "../../../shared/utils/format";
 
-export default function DocumentPage({ selectedLanguage }) {
+export default function DocumentPage({ selectedLanguage, theme }) {
   const paramsUrl = useParams();
   const id = paramsUrl["*"];
   const [doc, setDoc] = useState(null);
@@ -84,6 +84,7 @@ export default function DocumentPage({ selectedLanguage }) {
           fileType={doc.fileType}
           title={doc.title}
           relatedCode={doc.relatedCode}
+          theme={theme}
         />
       </div>
     </article>

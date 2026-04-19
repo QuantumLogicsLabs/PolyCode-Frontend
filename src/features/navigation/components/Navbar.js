@@ -1,7 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 
-export default function Navbar({ toggleSidebar }) {
+export default function Navbar({
+  toggleSidebar,
+  theme = "dark",
+  onToggleTheme,
+}) {
   const [query, setQuery] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
@@ -73,6 +77,15 @@ export default function Navbar({ toggleSidebar }) {
         >
           ▶ Playground
         </NavLink>
+        <button
+          type="button"
+          className="theme-toggle-btn"
+          onClick={onToggleTheme}
+          aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
+          title={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
+        >
+          {theme === "dark" ? "☀ Light" : "🌙 Dark"}
+        </button>
       </div>
     </nav>
   );

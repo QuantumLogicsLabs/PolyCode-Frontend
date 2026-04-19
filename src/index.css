@@ -18,8 +18,8 @@ body {
   font-family: 'Inter', 'DM Sans', 'Outfit', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #03050a;
-  color: #f0f0ff;
+  background: var(--ink);
+  color: var(--txt-0);
   overflow-x: hidden;
   line-height: 1.6;
   scroll-behavior: smooth;
@@ -69,7 +69,7 @@ textarea {
 }
 
 ::-webkit-scrollbar-track {
-  background: #09090f;
+  background: var(--ink-2);
 }
 
 ::-webkit-scrollbar-thumb {

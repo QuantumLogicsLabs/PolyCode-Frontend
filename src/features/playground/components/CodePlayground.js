@@ -89,6 +89,7 @@ export default function CodePlayground({
   initialLanguage = "javascript",
   onToggleSidebar,
   sidebarOpen,
+  theme,
 }) {
   const normalizedInitialLanguage = normalizeLanguage(initialLanguage);
   const [language, setLanguage] = useState(normalizedInitialLanguage);
@@ -215,6 +216,7 @@ export default function CodePlayground({
   const langInfo = resolveEngine(language);
   const isServerBased = langInfo.engine === "server";
   const hasPreview = previewHTML !== null;
+  const isLightTheme = theme === "light";
 
   return (
     <div className="playground-root">
@@ -371,7 +373,8 @@ export default function CodePlayground({
               language={langInfo.mono}
               value={code}
               onChange={(v) => updateWorkspace(language, { code: v || "" })}
-              theme="vs-dark"
+              theme={isLightTheme ? "vs" : "vs-dark"}
+              key={`editor-${theme}-${language}`}
               options={{
                 fontSize,
                 fontFamily:

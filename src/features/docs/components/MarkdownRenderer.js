@@ -39,7 +39,13 @@ function extensionFromLanguage(lang) {
   return map[lang] || lang;
 }
 
-export default function MarkdownRenderer({ content, fileType, relatedCode, title }) {
+export default function MarkdownRenderer({
+  content,
+  fileType,
+  relatedCode,
+  title,
+  theme,
+}) {
   if (fileType !== 'markdown' && fileType !== 'md') {
     const normalizedFileType = normalizeDocLanguage(fileType);
     return (
@@ -48,6 +54,7 @@ export default function MarkdownRenderer({ content, fileType, relatedCode, title
           language={normalizedFileType}
           code={content}
           filename={title && normalizedFileType ? `${title}.${extensionFromLanguage(normalizedFileType)}` : title}
+          theme={theme}
         />
       </div>
     );
@@ -64,7 +71,7 @@ export default function MarkdownRenderer({ content, fileType, relatedCode, title
             const codeStr = String(children).replace(/\n$/, '');
 
             if (!inline && (match || codeStr.length > 60)) {
-              return <CodeBlock language={lang} code={codeStr} />;
+              return <CodeBlock language={lang} code={codeStr} theme={theme} />;
             }
             return <code className={className} {...props}>{children}</code>;
           },
@@ -113,6 +120,7 @@ export default function MarkdownRenderer({ content, fileType, relatedCode, title
                       language={codeLang}
                       code={codeDoc.content}
                       filename={`${codeDoc.title}.${ext}`}
+                      theme={theme}
                     />
                   </div>
                 </div>

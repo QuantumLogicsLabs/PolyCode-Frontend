@@ -1,16 +1,17 @@
 import React, { useState, useCallback, useRef } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
 import {
   executeCode,
   resolveEngine,
 } from "../../playground/services/BrowserExecutor";
 import "../../playground/components/IDE.css";
 
-const customStyle = {
-  ...vscDarkPlus,
+const makeSyntaxStyle = (baseStyle) => ({
+  ...baseStyle,
   'pre[class*="language-"]': {
-    ...vscDarkPlus['pre[class*="language-"]'],
+    ...baseStyle['pre[class*="language-"]'],
     background: "transparent",
     margin: 0,
     padding: "20px",
@@ -18,15 +19,16 @@ const customStyle = {
     lineHeight: "1.75",
   },
   'code[class*="language-"]': {
-    ...vscDarkPlus['code[class*="language-"]'],
+    ...baseStyle['code[class*="language-"]'],
     background: "transparent",
   },
-};
+});
 
 export default function CodeBlock({
   code: initialCode,
   language = "python",
   filename,
+  theme,
 }) {
   const [code, setCode] = useState(initialCode);
   const [editMode, setEditMode] = useState(false);
@@ -38,6 +40,8 @@ export default function CodeBlock({
 
   const langInfo = resolveEngine(language);
   const hasOutput = output !== null || previewHTML !== null;
+  const isLightTheme = theme === "light";
+  const syntaxStyle = makeSyntaxStyle(isLightTheme ? oneLight : vscDarkPlus);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(code).then(() => {
@@ -200,10 +204,12 @@ export default function CodeBlock({
           ) : (
             <SyntaxHighlighter
               language={langInfo.mono || language}
-              style={customStyle}
+              style={syntaxStyle}
               showLineNumbers
               lineNumberStyle={{
-                color: "rgba(255,255,255,0.12)",
+                color: isLightTheme
+                  ? "rgba(71, 85, 105, 0.65)"
+                  : "rgba(255,255,255,0.12)",
                 fontSize: "0.7rem",
                 minWidth: "2.5em",
                 paddingRight: "1em",
