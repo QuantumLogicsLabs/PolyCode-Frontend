@@ -41,9 +41,7 @@ export default function Navbar({
 
       {/* ── Brand ── */}
       <Link to="/hub" className="navbar-brand">
-        <div className="logo">
-          <span style={{ position: 'relative', zIndex: 1 }}>PC</span>
-        </div>
+        <img src="/logo.png" alt="PolyCode Logo" className="navbar-logo" />
         <div className="navbar-brand-text">
           <span className="logo-text">PolyCode</span>
           <span className="logo-sub">v2.0 docs</span>
