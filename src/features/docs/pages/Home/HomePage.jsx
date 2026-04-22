@@ -6,10 +6,7 @@ import {
   getCategoryMeta,
   formatCategory,
 } from "../../../shared/utils/categories";
-import {
-  SkeletonGrid,
-  PageSkeleton,
-} from "../../../shared/components/SkeletonLoader";
+import { PageSkeleton } from "../../../shared/components/SkeletonLoader";
 import LoadingPage from "./LoadingPage";
 
 export default function HomePage({ selectedLanguage }) {
