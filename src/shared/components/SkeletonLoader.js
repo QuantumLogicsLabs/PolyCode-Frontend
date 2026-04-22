@@ -1,5 +1,5 @@
-import React from 'react';
-import './SkeletonLoader.css';
+import React from "react";
+import "./SkeletonLoader.css";
 
 export const SkeletonCard = () => (
   <div className="skeleton-card">
@@ -18,11 +18,11 @@ export const SkeletonDocCard = () => (
   </div>
 );
 
-export const SkeletonGrid = ({ count = 6, type = 'card' }) => (
+export const SkeletonGrid = ({ count = 6, type = "card" }) => (
   <div className="skeleton-grid">
-    {Array.from({ length: count }).map((_, i) => (
-      type === 'card' ? <SkeletonCard key={i} /> : <SkeletonDocCard key={i} />
-    ))}
+    {Array.from({ length: count }).map((_, i) =>
+      type === "card" ? <SkeletonCard key={i} /> : <SkeletonDocCard key={i} />,
+    )}
   </div>
 );
 
@@ -47,11 +47,3 @@ export const PageSkeleton = () => (
     </div>
   </div>
 );
-
-export default {
-  SkeletonCard,
-  SkeletonDocCard,
-  SkeletonGrid,
-  SkeletonList,
-  PageSkeleton
-};

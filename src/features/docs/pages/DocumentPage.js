@@ -21,7 +21,7 @@ export default function DocumentPage({ selectedLanguage, theme }) {
       .then((r) => setDoc(r.data))
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, selectedLanguage]);
 
   if (loading)
     return (

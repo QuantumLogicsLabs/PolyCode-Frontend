@@ -2,10 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { getDocuments } from "../services/api";
 import DocCard from "../components/DocCard";
-import {
-  getCategoryMeta,
-  formatCategory,
-} from "../../../shared/utils/categories";
+import { formatCategory } from "../../../shared/utils/categories";
 
 export default function CategoryPage({ selectedLanguage }) {
   const paramsUrl = useParams();

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { getStats, getTree, getLanguages } from "../../docs/services/api";
+import { getTree, getLanguages } from "../../docs/services/api";
 import { formatName } from "../../../shared/utils/format";
 
 const FolderIcon = ({ color = "currentColor" }) => (
@@ -82,8 +82,7 @@ export default function Sidebar({
   selectedLanguage,
   onLanguageSelect,
 }) {
-  const [stats, setStats] = useState(null);
-  const [tree, setTree] = useState([]);
+    const [tree, setTree] = useState([]);
   const [languages, setLanguages] = useState([]);
   const [showLangMenu, setShowLangMenu] = useState(false);
   const location = useLocation();
@@ -91,14 +90,11 @@ export default function Sidebar({
 
   useEffect(() => {
     const params = selectedLanguage ? { language: selectedLanguage } : {};
-    getStats(params)
-      .then((r) => setStats(r.data))
-      .catch(() => {});
     getTree(params)
       .then((r) => setTree(r.data.tree || []))
       .catch(() => {});
     getLanguages()
-      .then((r) => setLanguages(r.data.languages || []))
+      .then((r) => setLanguages(r.data))
       .catch(() => {});
   }, [selectedLanguage]);
 

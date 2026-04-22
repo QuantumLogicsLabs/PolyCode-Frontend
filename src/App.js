@@ -8,7 +8,7 @@ import {
 import Navbar from "./features/navigation/components/Navbar";
 import Sidebar from "./features/navigation/components/Sidebar";
 import LanguageSelectPage from "./features/language/pages/LanguageSelectPage";
-import HomePage from "./features/docs/pages/HomePage";
+import HomePage from "./features/docs/pages/Home/HomePage";
 import DocumentPage from "./features/docs/pages/DocumentPage";
 import CategoryPage from "./features/docs/pages/CategoryPage";
 import SearchPage from "./features/docs/pages/SearchPage";

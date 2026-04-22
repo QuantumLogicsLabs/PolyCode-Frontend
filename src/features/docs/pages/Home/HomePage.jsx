@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getDocuments, getStats, getCategories } from "../services/api";
-import LazyDocCard from "../components/LazyDocCard";
+import { getDocuments, getStats, getCategories } from "../../services/api";
+import LazyDocCard from "../../components/LazyDocCard";
 import {
   getCategoryMeta,
   formatCategory,
-} from "../../../shared/utils/categories";
-import { PageSkeleton } from "../../../shared/components/SkeletonLoader";
+} from "../../../../shared/utils/categories";
+import { PageSkeleton } from "../../../../shared/components/SkeletonLoader";
 import LoadingPage from "./LoadingPage";
 
 export default function HomePage({ selectedLanguage }) {
