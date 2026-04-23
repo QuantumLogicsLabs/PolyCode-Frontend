@@ -1,25 +1,28 @@
 /* PlaygroundPage.css */
 
 .playground-page {
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 60px);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: calc(100vh - var(--nav-h));
+  min-height: calc(100dvh - var(--nav-h));
+  height: calc(100vh - var(--nav-h));
+  height: calc(100dvh - var(--nav-h));
   overflow: auto;
 }
 
 .playground-page-header {
-  flex-shrink: 0;
+  display: grid;
+  gap: 14px;
   padding: 16px 24px 14px;
   background: linear-gradient(to bottom, rgba(167, 139, 250, 0.04) 0%, transparent 100%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .pph-top {
-  display: flex;
-  align-items: baseline;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(220px, 0.8fr);
+  align-items: start;
   gap: 14px;
-  flex-wrap: wrap;
-  margin-bottom: 12px;
 }
 
 .playground-page-header h1 {
@@ -67,15 +70,15 @@
 }
 
 .pph-sections {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 10px;
 }
 
 .pph-section {
-  display: flex;
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
   gap: 12px;
-  align-items: flex-start;
+  align-items: start;
 }
 
 .pph-section-title {
@@ -127,7 +130,7 @@
 }
 
 .playground-page-body {
-  flex: 1;
+  display: grid;
   overflow: auto;
   padding: 14px 24px 18px;
   min-height: 0;
@@ -150,20 +153,43 @@
 
   .playground-page-body .playground-root {
     height: auto;
-    min-height: 700px;
+    min-height: auto;
   }
 
   .playground-page-header {
     padding: 12px 14px;
   }
 
+  .pph-top {
+    grid-template-columns: 1fr;
+  }
+
   .pph-section {
-    flex-direction: column;
+    grid-template-columns: 1fr;
     gap: 6px;
   }
 
   .pph-section-title {
     width: auto;
     padding-top: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .playground-page-header {
+    padding: 12px;
+  }
+
+  .playground-page-body {
+    padding: 8px;
+  }
+
+  .pph-top {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .playground-page-header h1 {
+    font-size: 1rem;
   }
 }
