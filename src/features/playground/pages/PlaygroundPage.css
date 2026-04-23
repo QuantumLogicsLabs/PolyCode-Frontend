@@ -3,7 +3,10 @@
 .playground-page {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 60px);
+  min-height: calc(100vh - var(--nav-h));
+  min-height: calc(100dvh - var(--nav-h));
+  height: calc(100vh - var(--nav-h));
+  height: calc(100dvh - var(--nav-h));
   overflow: auto;
 }
 
@@ -150,7 +153,7 @@
 
   .playground-page-body .playground-root {
     height: auto;
-    min-height: 700px;
+    min-height: auto;
   }
 
   .playground-page-header {
@@ -165,5 +168,24 @@
   .pph-section-title {
     width: auto;
     padding-top: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .playground-page-header {
+    padding: 12px;
+  }
+
+  .playground-page-body {
+    padding: 8px;
+  }
+
+  .pph-top {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .playground-page-header h1 {
+    font-size: 1rem;
   }
 }

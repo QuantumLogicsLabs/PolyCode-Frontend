@@ -631,3 +631,70 @@
     display: none;
   }
 }
+
+@media (max-width: 768px) {
+  .playground-root {
+    min-height: 68vh;
+  }
+
+  .pg-toolbar {
+    padding: 7px 10px;
+    gap: 5px;
+  }
+
+  .pg-lang-select {
+    min-width: 96px;
+    max-width: 160px;
+    font-size: 0.68rem;
+  }
+
+  .pg-run-btn {
+    padding: 5px 12px;
+    font-size: 0.68rem;
+  }
+
+  .pg-editor-pane {
+    min-height: 200px;
+  }
+
+  .pg-output-pane {
+    min-height: 140px;
+    flex-basis: 30%;
+  }
+}
+
+@media (max-width: 480px) {
+  .playground-root {
+    min-height: 56vh;
+    border-radius: 8px;
+  }
+
+  .pg-toolbar {
+    padding: 6px 8px;
+    gap: 4px;
+  }
+
+  .pg-lang-select {
+    min-width: 84px;
+    max-width: 132px;
+    font-size: 0.64rem;
+  }
+
+  .pg-run-btn {
+    padding: 5px 10px;
+    font-size: 0.64rem;
+  }
+
+  .pg-editor-pane {
+    min-height: 160px;
+  }
+
+  .pg-output-pane {
+    min-height: 120px;
+    flex-basis: 28%;
+  }
+
+  .pg-pane-title {
+    font-size: 0.58rem;
+  }
+}
