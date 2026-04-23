@@ -1,0 +1,28 @@
+src/App.test.js|old:False|any:True|src\tests\app\App.test.js
+src/components/CodeBlock.js|old:False|any:True|src\features\docs\components\CodeBlock.js
+src/components/CodePlayground.css|old:False|any:True|src\features\playground\components\CodePlayground.css
+src/components/CodePlayground.js|old:False|any:True|src\features\playground\components\CodePlayground.js
+src/components/DocCard.js|old:False|any:True|src\features\docs\components\DocCard.js
+src/components/IDE.css|old:False|any:True|src\features\playground\components\IDE.css
+src/components/LazyDocCard.js|old:False|any:True|src\features\docs\components\LazyDocCard.js
+src/components/LazyImage.js|old:False|any:True|src\shared\components\LazyImage.js
+src/components/MarkdownRenderer.js|old:False|any:True|node_modules\monaco-editor\esm\vs\base\browser\markdownRenderer.js; node_modules\monaco-editor\esm\vs\platform\markdown\browser\markdownRenderer.js; src\features\docs\components\MarkdownRenderer.js
+src/components/Navbar.js|old:False|any:True|src\features\navigation\components\Navbar.js
+src/components/Sidebar.js|old:False|any:True|node_modules\lucide-react\dist\esm\icons\sidebar.js; src\features\navigation\components\Sidebar.js
+src/components/SkeletonLoader.css|old:False|any:True|src\shared\components\SkeletonLoader.css
+src/components/SkeletonLoader.js|old:False|any:True|src\shared\components\SkeletonLoader.js
+src/constants/playgroundStarters.js|old:False|any:True|src\features\playground\constants\playgroundStarters.js
+src/context/PlaygroundContext.js|old:False|any:True|src\features\playground\context\PlaygroundContext.js
+src/logo.svg|old:False|any:True|src\shared\assets\logo.svg
+src/pages/CategoryPage.js|old:False|any:True|src\features\docs\pages\CategoryPage.js
+src/pages/DocumentPage.js|old:False|any:True|src\features\docs\pages\DocumentPage.js
+src/pages/HomePage.js|old:False|any:True|src\features\docs\pages\HomePage.js
+src/pages/LanguageSelectPage.js|old:False|any:True|src\features\language\pages\LanguageSelectPage.js
+src/pages/PlaygroundPage.css|old:False|any:True|src\features\playground\pages\PlaygroundPage.css
+src/pages/PlaygroundPage.js|old:False|any:True|src\features\playground\pages\PlaygroundPage.js
+src/pages/SearchPage.js|old:False|any:True|src\features\docs\pages\SearchPage.js
+src/pages/StatsPage.js|old:False|any:True|src\features\docs\pages\StatsPage.js
+src/utils/BrowserExecutor.js|old:False|any:True|src\features\playground\services\BrowserExecutor.js
+src/utils/api.js|old:False|any:True|node_modules\@humanwhocodes\config-array\api.js; node_modules\css-loader\dist\runtime\api.js; node_modules\eslint\lib\api.js; node_modules\faye-websocket\lib\faye\websocket\api.js; node_modules\jake\lib\api.js; node_modules\jsdom\lib\api.js; src\features\docs\services\api.js
+src/utils/categories.js|old:False|any:True|src\shared\utils\categories.js
+src/utils/format.js|old:False|any:True|node_modules\@sinclair\typebox\format\format.js; node_modules\@typescript-eslint\eslint-plugin\dist\rules\naming-convention-utils\format.js; node_modules\ajv\lib\dotjs\format.js; node_modules\ajv-formats\node_modules\ajv\dist\vocabularies\format\format.js; node_modules\clean-css\lib\options\format.js; node_modules\format\format.js; node_modules\monaco-editor\esm\external\jsonc-parser\lib\esm\impl\format.js; node_modules\monaco-editor\esm\external\vscode-json-languageservice\lib\esm\utils\format.js; node_modules\monaco-editor\esm\vs\editor\contrib\format\browser\format.js; node_modules\regenerate-unicode-properties\General_Category\Format.js; node_modules\relateurl\lib\format.js; node_modules\schema-utils\node_modules\ajv\dist\vocabularies\format\format.js; node_modules\workbox-build\node_modules\ajv\dist\vocabularies\format\format.js; src\shared\utils\format.js
