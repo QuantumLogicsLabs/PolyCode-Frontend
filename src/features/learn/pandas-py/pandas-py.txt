@@ -1,0 +1,2992 @@
+================================================================================
+START OF FOLDER: pandas-py
+================================================================================
+
+================================================================================
+PROJECT STRUCTURE
+================================================================================
+Root: C:\QuantumLogics\PolyCode\frontend\src\features\learn\pandas-py
+
+pandas-py/
+├── data/
+│   ├── pandasCurriculum.js
+│   └── pandasVideoLinks.js
+├── hooks/
+│   └── usePandasProgress.js
+├── pages/
+│   ├── PandasHub.jsx
+│   └── PandasLessonPage.jsx
+
+Total files: 5
+
+================================================================================
+FILE CONTENTS
+================================================================================
+
+--------------------------------------------------------------------------------
+FILE: /data/pandasCurriculum.js
+--------------------------------------------------------------------------------
+// PolyCode — Pandas (Python) full curriculum
+// 8 chapters · 20 lessons · Python coding challenges
+// YouTube links: edit pandasVideoLinks.js (not this file).
+
+import { applyLessonVideoLinks } from "../../shared/applyLessonVideoLinks";
+import { PANDAS_VIDEO_LINKS } from "./pandasVideoLinks";
+
+export const PANDAS_CHAPTERS = [
+  {
+    id: "intro",
+    title: "What is Pandas?",
+    icon: "📊",
+    color: "#059669",
+    lessons: [
+      {
+        id: "pandas-0",
+        title: "What is Pandas?",
+        xp: 10,
+        theory: [
+          {
+            type: "text",
+            content:
+              "**Pandas** is Python's go-to library for **tabular data** — rows and columns like a spreadsheet. If NumPy is about fast number arrays, Pandas is about labeled tables you can filter, sort, and summarize.",
+          },
+          {
+            type: "text",
+            content:
+              "The two core objects are a **Series** (one labeled column) and a **DataFrame** (a table of many columns). Most real data work — CSV files, sales reports, survey results — lives in DataFrames.",
+          },
+          {
+            type: "diagram",
+            title: "Where Pandas fits",
+            nodes: [
+              {
+                id: "csv",
+                label: "Real files",
+                color: "#059669",
+                items: ["CSV exports", "Excel sheets", "API tables"],
+              },
+              {
+                id: "clean",
+                label: "Data cleaning",
+                color: "#10b981",
+                items: ["Missing values", "Type fixes", "Filters"],
+              },
+              {
+                id: "analyze",
+                label: "Analysis",
+                color: "#34d399",
+                items: ["Group totals", "Averages", "Joins"],
+              },
+            ],
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "A tiny table in Pandas",
+            content: `import pandas as pd
+
+students = pd.DataFrame({
+    "name": ["Ali", "Sara", "Mo"],
+    "score": [88, 92, 75]
+})
+print(students)`,
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "Standard import: `import pandas as pd`. Everyone uses `pd` — same idea as `np` for NumPy.",
+          },
+          {
+            type: "quiz",
+            question: "What is a DataFrame?",
+            options: [
+              "A Python game engine",
+              "A spreadsheet-like table",
+              "A database server",
+              "A web browser",
+            ],
+            answer: 1,
+            explanation:
+              "A DataFrame is Pandas' table structure containing rows and columns.",
+          },
+          {
+            type: "quiz",
+            question: "What does Pandas mainly help with?",
+            options: [
+              "Building games",
+              "Creating websites",
+              "Working with tabular data",
+              "Compiling programs",
+            ],
+            answer: 2,
+            explanation:
+              "Pandas is designed for tables of data such as CSV files, spreadsheets, and reports.",
+          },
+        ],
+        challenge: {
+          title: "Your First DataFrame",
+          description:
+            'Import pandas as `pd`, create a DataFrame `df` with columns `fruit` and `qty` (values `["apple", "banana"]` and `[3, 5]`), and print `df`.',
+          starterCode: `# Import pandas as pd
+# Create df and print it
+
+`,
+          solutionCode: `import pandas as pd
+
+df = pd.DataFrame({"fruit": ["apple", "banana"], "qty": [3, 5]})
+print(df)`,
+          tests: [
+            {
+              id: 1,
+              label: "Imports pandas as pd",
+              keywords: [{ pattern: "import\\s+pandas\\s+as\\s+pd" }],
+            },
+            {
+              id: 2,
+              label: "Creates pd.DataFrame",
+              keywords: [{ pattern: "pd\\.DataFrame\\s*\\(" }],
+            },
+            {
+              id: 3,
+              label: "Prints df",
+              keywords: [{ pattern: "print\\s*\\(\\s*df\\s*\\)" }],
+            },
+          ],
+        },
+      },
+      {
+        id: "pandas-1",
+        title: "Series vs DataFrame",
+        xp: 10,
+        theory: [
+          {
+            type: "text",
+            content:
+              "Pandas has **two main data structures**: a **Series** and a **DataFrame**. Learning these two objects is the foundation of working with Pandas.",
+          },
+          {
+            type: "text",
+            content:
+              "Think of a **Series** as a single column in a spreadsheet. It stores one type of information, such as student scores, product prices, or temperatures.",
+          },
+          {
+            type: "text",
+            content:
+              "A **DataFrame** is a complete table made up of multiple Series. Each column contains related data, and together the columns form a structured dataset.",
+          },
+          {
+            type: "diagram",
+            title: "Series vs DataFrame",
+            nodes: [
+              {
+                id: "series",
+                label: "Series",
+                color: "#14b8a6",
+                items: [
+                  "One column of data",
+                  "Has row labels (index)",
+                  "Example: student scores",
+                ],
+              },
+              {
+                id: "dataframe",
+                label: "DataFrame",
+                color: "#0891b2",
+                items: [
+                  "Multiple columns",
+                  "Rows and columns",
+                  "Example: student records",
+                ],
+              },
+            ],
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Creating a Series and a DataFrame",
+            content: `import pandas as pd
+
+scores = pd.Series([90, 85, 78], index=["Ali", "Sara", "Mo"])
+table = pd.DataFrame(
+    {"math": [90, 85, 78], "english": [88, 91, 80]},
+    index=["Ali", "Sara", "Mo"]
+)
+
+print(scores)
+print(table)`,
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "A DataFrame is essentially a collection of Series that share the same row index.",
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              'Selecting a single column from a DataFrame returns a Series: `students["Math"]`.',
+          },
+          {
+            type: "quiz",
+            question: "Which Pandas object represents a single column of data?",
+            options: ["DataFrame", "Series", "Dictionary", "List"],
+            answer: 1,
+            explanation:
+              "A Series stores one column of data with labels, while a DataFrame stores multiple columns.",
+          },
+        ],
+        challenge: {
+          title: "Build a Series",
+          description:
+            'Create a Series called `prices` containing the values `10`, `20`, and `30` with index labels `"a"`, `"b"`, and `"c"`. Then print the Series.',
+          starterCode: `import pandas as pd
+
+# Create prices Series here
+
+`,
+          solutionCode: `import pandas as pd
+
+prices = pd.Series(
+    [10, 20, 30],
+    index=["a", "b", "c"]
+)
+
+print(prices)`,
+          tests: [
+            {
+              id: 1,
+              label: "Uses pd.Series",
+              keywords: [{ pattern: "pd\\.Series\\s*\\(" }],
+            },
+            {
+              id: 2,
+              label: "Has index a, b, c",
+              keywords: ['"a"', '"b"', '"c"'],
+            },
+            {
+              id: 3,
+              label: "Prints prices",
+              keywords: [{ pattern: "print\\s*\\(\\s*prices\\s*\\)" }],
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: "series",
+    title: "Series Basics",
+    icon: "📈",
+    color: "#0d9488",
+    lessons: [
+      {
+        id: "pandas-2",
+        title: "Creating Series",
+        xp: 10,
+        theory: [
+          {
+            type: "text",
+            content:
+              "A **Series** is one of the most important data structures in Pandas. Think of it as a smart list: it stores values and gives each value a label called an **index**. This makes it easy to find and work with data.",
+          },
+          {
+            type: "text",
+            content:
+              "You can create a Series from a list, dictionary, or NumPy array. When using a dictionary, the keys automatically become the index labels.",
+          },
+          {
+            type: "diagram",
+            title: "Ways to create a Series",
+            nodes: [
+              {
+                id: "from-list",
+                label: "From a list",
+                color: "#0d9488",
+                items: ["pd.Series([1, 2, 3])", "Auto index 0, 1, 2"],
+              },
+              {
+                id: "from-dict",
+                label: "From a dict",
+                color: "#14b8a6",
+                items: ["pd.Series({'a': 1})", "Keys become index"],
+              },
+              {
+                id: "custom-index",
+                label: "Custom index",
+                color: "#2dd4bf",
+                items: ["index=['Mon','Tue']", "Any hashable labels"],
+              },
+            ],
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Create a Series from a dictionary",
+            content: `import pandas as pd
+
+temps = pd.Series({
+    "Mon": 18,
+    "Tue": 22,
+    "Wed": 19
+})
+
+print(temps)
+print(temps["Tue"])`,
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "In this example, 'Mon', 'Tue', and 'Wed' are index labels. You can use them to access values directly instead of remembering positions.",
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "Use `.values` to see the raw data stored inside a Series.",
+          },
+          {
+            type: "quiz",
+            question:
+              "When you create a Series from a dictionary, what becomes the index?",
+            options: [
+              "The values",
+              "The dictionary keys",
+              "Numbers 0, 1, 2 …",
+              "Nothing — Series have no index",
+            ],
+            answer: 1,
+            explanation:
+              "Dictionary keys automatically become the index labels of the resulting Series.",
+          },
+        ],
+        challenge: {
+          title: "Favorite Colors",
+          description:
+            'Create a Series named `colors` using a dictionary with keys `"r"`, `"g"`, and `"b"` and values `"red"`, `"green"`, and `"blue"`. Then print the value for `"g"`.',
+          starterCode: `import pandas as pd
+
+`,
+          solutionCode: `import pandas as pd
+
+colors = pd.Series({
+    "r": "red",
+    "g": "green",
+    "b": "blue"
+})
+
+print(colors["g"])`,
+          tests: [
+            {
+              id: 1,
+              label: "Uses pd.Series",
+              keywords: [{ pattern: "pd\\.Series\\s*\\(" }],
+            },
+            {
+              id: 2,
+              label: "Has keys r, g, b",
+              keywords: ['"r"', '"g"', '"b"'],
+            },
+            {
+              id: 3,
+              label: "Prints colors[g]",
+              keywords: [{ pattern: 'colors\\s*\\[\\s*"g"\\s*\\]' }],
+            },
+          ],
+        },
+      },
+      {
+        id: "pandas-3",
+        title: "Series Math",
+        xp: 10,
+        theory: [
+          {
+            type: "text",
+            content:
+              "Series support **vectorized math** — add, multiply, compare — applied to every element at once without a loop. Operations align by index label, so missing labels produce **NaN**.",
+          },
+          {
+            type: "text",
+            content:
+              "You can also combine two Series with `+`, `-`, `*`, or `/`. Pandas lines up matching index labels and computes element-by-element.",
+          },
+          {
+            type: "diagram",
+            title: "Vectorized operations",
+            nodes: [
+              {
+                id: "scalar",
+                label: "Scalar math",
+                color: "#0d9488",
+                items: ["s + 5", "s * 2", "s ** 2"],
+              },
+              {
+                id: "series-ops",
+                label: "Series + Series",
+                color: "#14b8a6",
+                items: ["Aligned by index", "Missing → NaN"],
+              },
+              {
+                id: "compare",
+                label: "Comparisons",
+                color: "#2dd4bf",
+                items: ["s > 10 → bool Series", "Use to filter rows"],
+              },
+            ],
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Add 5 to every value",
+            content: `import pandas as pd
+
+s = pd.Series([1, 2, 3])
+print(s + 5)`,
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "Vectorized operations are much faster than Python loops on large datasets because they run in optimized C code under the hood.",
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "Use `s.abs()` to get absolute values, and `s.round(2)` to round to 2 decimal places.",
+          },
+          {
+            type: "quiz",
+            question:
+              "What happens when you add two Series with different index labels?",
+            options: [
+              "An error is raised",
+              "Matching labels are added; unmatched become NaN",
+              "The shorter Series is ignored",
+              "Labels are ignored and positions are used",
+            ],
+            answer: 1,
+            explanation:
+              "Pandas aligns by index label. Labels present in one but not the other result in NaN.",
+          },
+        ],
+        challenge: {
+          title: "Double the Series",
+          description: "Create `s = pd.Series([4, 8, 12])` and print `s * 2`.",
+          starterCode: `import pandas as pd
+
+`,
+          solutionCode: `import pandas as pd
+
+s = pd.Series([4, 8, 12])
+print(s * 2)`,
+          tests: [
+            { id: 1, label: "Creates Series", keywords: ["pd.Series"] },
+            { id: 2, label: "Multiplies by 2", keywords: ["s * 2", "s*2"] },
+          ],
+        },
+      },
+      {
+        id: "pandas-4",
+        title: "Series Methods",
+        xp: 10,
+        theory: [
+          {
+            type: "text",
+            content:
+              "Series come with built-in **aggregation methods** for quick statistics. These skip `NaN` values by default, so missing data does not skew your results.",
+          },
+          {
+            type: "text",
+            content:
+              "The most common ones are `.sum()`, `.mean()`, `.max()`, `.min()`, `.count()`, and `.std()`. You can also use `.describe()` to get all of them at once.",
+          },
+          {
+            type: "diagram",
+            title: "Common Series methods",
+            nodes: [
+              {
+                id: "stats",
+                label: "Statistics",
+                color: "#0d9488",
+                items: [".sum()", ".mean()", ".std()"],
+              },
+              {
+                id: "shape",
+                label: "Extremes & count",
+                color: "#14b8a6",
+                items: [".max()", ".min()", ".count()"],
+              },
+              {
+                id: "overview",
+                label: "Full summary",
+                color: "#2dd4bf",
+                items: [".describe()", "All stats at once"],
+              },
+            ],
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Quick stats on sales",
+            content: `import pandas as pd
+
+sales = pd.Series([100, 150, 120])
+print(sales.mean())
+print(sales.max())
+print(sales.describe())`,
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "`.count()` returns the number of **non-NaN** values, not the total length. Use `len(s)` for total length.",
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "Chain methods: `s.dropna().mean()` drops missing values first, then computes the mean.",
+          },
+          {
+            type: "quiz",
+            question: "Which method returns all summary statistics at once?",
+            options: [".summary()", ".info()", ".describe()", ".stats()"],
+            answer: 2,
+            explanation:
+              "`.describe()` outputs count, mean, std, min, quartiles, and max for a numeric Series.",
+          },
+        ],
+        challenge: {
+          title: "Average Score",
+          description:
+            "Create `scores = pd.Series([70, 85, 90])` and print `scores.mean()`.",
+          starterCode: `import pandas as pd
+
+`,
+          solutionCode: `import pandas as pd
+
+scores = pd.Series([70, 85, 90])
+print(scores.mean())`,
+          tests: [
+            { id: 1, label: "pd.Series", keywords: ["pd.Series"] },
+            { id: 2, label: "Uses .mean()", keywords: [".mean()"] },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: "dataframe",
+    title: "DataFrames",
+    icon: "🗂️",
+    color: "#0891b2",
+    lessons: [
+      {
+        id: "pandas-5",
+        title: "Building DataFrames",
+        xp: 10,
+        theory: [
+          {
+            type: "text",
+            content:
+              "Pass a **dict of column name → list** to `pd.DataFrame()`. Each list is one column; all lists must be the same length.",
+          },
+          {
+            type: "text",
+            content:
+              "You can also build a DataFrame from a **list of dicts** (one dict per row), from a 2-D NumPy array, or by reading a file. All methods produce the same structure.",
+          },
+          {
+            type: "diagram",
+            title: "Ways to build a DataFrame",
+            nodes: [
+              {
+                id: "dict-of-lists",
+                label: "Dict of lists",
+                color: "#0891b2",
+                items: ['{"col": [vals]}', "Most common"],
+              },
+              {
+                id: "list-of-dicts",
+                label: "List of dicts",
+                color: "#0ea5e9",
+                items: ["[{row1}, {row2}]", "Natural for JSON"],
+              },
+              {
+                id: "numpy",
+                label: "NumPy array",
+                color: "#38bdf8",
+                items: ["np.array([[…]])", "Provide column names"],
+              },
+            ],
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "From a dict of lists",
+            content: `import pandas as pd
+
+df = pd.DataFrame({
+    "city": ["London", "Paris"],
+    "pop": [9_000_000, 2_100_000]
+})
+print(df.columns)`,
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "All lists in the dict must have the same length, or Pandas will raise a `ValueError`.",
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "Use `df.shape` to quickly check how many rows and columns your DataFrame has.",
+          },
+          {
+            type: "quiz",
+            question:
+              "What does `pd.DataFrame({'a': [1, 2], 'b': [3, 4]})` create?",
+            options: [
+              "A 4-row, 1-column table",
+              "A 2-row, 2-column table",
+              "A Series with 4 values",
+              "A dictionary",
+            ],
+            answer: 1,
+            explanation:
+              "Each key becomes a column name and each list provides that column's values, giving 2 rows and 2 columns.",
+          },
+        ],
+        challenge: {
+          title: "Two-Column Table",
+          description:
+            'Create `df` with `item` = `["pen", "book"]` and `price` = `[2, 8]`. Print `df.shape`.',
+          starterCode: `import pandas as pd
+
+`,
+          solutionCode: `import pandas as pd
+
+df = pd.DataFrame({"item": ["pen", "book"], "price": [2, 8]})
+print(df.shape)`,
+          tests: [
+            { id: 1, label: "pd.DataFrame", keywords: ["pd.DataFrame"] },
+            { id: 2, label: "Prints shape", keywords: [".shape"] },
+          ],
+        },
+      },
+      {
+        id: "pandas-6",
+        title: "head, info, describe",
+        xp: 10,
+        theory: [
+          {
+            type: "text",
+            content:
+              "The first thing to do with any new DataFrame is **explore it**. Three methods cover the essentials: `.head()`, `.info()`, and `.describe()`.",
+          },
+          {
+            type: "text",
+            content:
+              "`.head(n)` shows the first `n` rows (default 5). `.info()` lists column names, data types, and non-null counts. `.describe()` gives numeric statistics like mean and standard deviation.",
+          },
+          {
+            type: "diagram",
+            title: "Exploration methods",
+            nodes: [
+              {
+                id: "head",
+                label: ".head(n)",
+                color: "#0891b2",
+                items: ["First n rows", "Quick preview"],
+              },
+              {
+                id: "info",
+                label: ".info()",
+                color: "#0ea5e9",
+                items: ["Column dtypes", "Non-null counts", "Memory use"],
+              },
+              {
+                id: "describe",
+                label: ".describe()",
+                color: "#38bdf8",
+                items: ["mean, std, min", "quartiles, max"],
+              },
+            ],
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Peek at a table",
+            content: `import pandas as pd
+
+df = pd.DataFrame(
+       {"Name": ["Ali", "Sara", "Ahmed"],
+       "Age": [20, 22, 19]})
+print(df.head(2))`,
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "Use `.tail(n)` to see the **last** n rows — handy for checking that a file loaded completely.",
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "`.info()` prints to stdout directly and does not return a value, so you cannot wrap it in `print()`.",
+          },
+          {
+            type: "quiz",
+            question:
+              "Which method shows column names, dtypes, and null counts?",
+            options: [".head()", ".describe()", ".info()", ".shape"],
+            answer: 2,
+            explanation:
+              "`.info()` gives a concise summary of column names, types, and how many non-null values each column has.",
+          },
+        ],
+        challenge: {
+          title: "First Three Rows",
+          description: "Create any 5-row DataFrame and print `df.head(3)`.",
+          starterCode: `import pandas as pd
+
+df = pd.DataFrame({
+    "Name": ["Ali", "Sara", "Ahmed", "John", "Emma"],
+    "Age": [20, 22, 19, 25, 21],
+    "Grade": [85, 92, 78, 88, 95]
+})
+
+# Show only the first 3 rows
+
+`,
+          solutionCode: `import pandas as pd
+
+df = pd.DataFrame({
+    "Name": ["Ali", "Sara", "Ahmed", "John", "Emma"],
+    "Age": [20, 22, 19, 25, 21],
+    "Grade": [85, 92, 78, 88, 95]
+})
+print(df.head(3))`,
+          tests: [
+            {
+              id: 1,
+              label: "Uses head(3)",
+              keywords: [{ pattern: "\\.head\\s*\\(\\s*3\\s*\\)" }],
+            },
+          ],
+        },
+      },
+      {
+        id: "pandas-7",
+        title: "Columns & dtypes",
+        xp: 10,
+        theory: [
+          {
+            type: "text",
+            content:
+              "Every column in a DataFrame has a **dtype** (data type). Common ones are `int64`, `float64`, `object` (strings), and `bool`. Knowing dtypes helps you avoid type errors in calculations.",
+          },
+          {
+            type: "text",
+            content:
+              'Access a column with `df["col"]` (bracket notation, always works) or `df.col` (dot notation, only for names without spaces). Check all types with `df.dtypes`. Convert with `.astype()`.',
+          },
+          {
+            type: "diagram",
+            title: "Working with columns",
+            nodes: [
+              {
+                id: "access",
+                label: "Access",
+                color: "#0891b2",
+                items: ['df["col"]', "df.col"],
+              },
+              {
+                id: "inspect",
+                label: "Inspect",
+                color: "#0ea5e9",
+                items: ["df.dtypes", "df.columns"],
+              },
+              {
+                id: "convert",
+                label: "Convert",
+                color: "#38bdf8",
+                items: [".astype(int)", ".astype(str)", ".astype(float)"],
+              },
+            ],
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Select one column",
+            content: `import pandas as pd
+
+df = pd.DataFrame({"name": ["A", "B"], "age": [20, 21]})
+print(df["age"])
+print(df.dtypes)`,
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "Strings are stored as `object` dtype in Pandas. Use `.astype(str)` or the `pd.StringDtype()` for explicit string columns.",
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "To select **multiple** columns, pass a list: `df[['name', 'age']]` — note the double brackets.",
+          },
+          {
+            type: "quiz",
+            question: "What does `df['score'].astype(float)` do?",
+            options: [
+              "Deletes the score column",
+              "Converts the score column values to floats",
+              "Rounds score values",
+              "Renames the column",
+            ],
+            answer: 1,
+            explanation:
+              "`.astype(float)` returns a new Series with each value converted to a floating-point number.",
+          },
+        ],
+        challenge: {
+          title: "Pick a Column",
+          description:
+            'Given `df = pd.DataFrame({"name": ["Ann"], "score": [95]})`, print `df["score"]`.',
+          starterCode: `import pandas as pd
+
+df = pd.DataFrame({"name": ["Ann"], "score": [95]})
+
+`,
+          solutionCode: `import pandas as pd
+
+df = pd.DataFrame({"name": ["Ann"], "score": [95]})
+print(df["score"])`,
+          tests: [
+            {
+              id: 1,
+              label: "Selects score column",
+              keywords: [{ pattern: 'df\\s*\\[\\s*"score"\\s*\\]' }],
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: "selection",
+    title: "Selecting Data",
+    icon: "🎯",
+    color: "#0284c7",
+    lessons: [
+      {
+        id: "pandas-8",
+        title: "loc — label-based",
+        xp: 15,
+        theory: [
+          {
+            type: "text",
+            content:
+              "**`loc`** selects rows and columns by their **labels** (index names and column names). It is the most readable way to pinpoint data when your index is meaningful.",
+          },
+          {
+            type: "text",
+            content:
+              "Syntax: `df.loc[row_label, col_label]`. You can pass a single label, a list of labels, or a slice. Slices with `loc` are **inclusive** on both ends.",
+          },
+          {
+            type: "diagram",
+            title: "loc patterns",
+            nodes: [
+              {
+                id: "single",
+                label: "Single cell",
+                color: "#0284c7",
+                items: ['df.loc["Ali", "score"]'],
+              },
+              {
+                id: "row",
+                label: "Full row",
+                color: "#0369a1",
+                items: ['df.loc["Ali"]', "Returns a Series"],
+              },
+              {
+                id: "slice",
+                label: "Slice",
+                color: "#0ea5e9",
+                items: ['df.loc["Ali":"Mo", "score"]', "Both ends included"],
+              },
+            ],
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Select one cell by label",
+            content: `import pandas as pd
+
+df = pd.DataFrame({"score": [88, 92]}, index=["Ali", "Sara"])
+print(df.loc["Ali", "score"])`,
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "Unlike Python slices, `loc` slices are **inclusive** — `df.loc['Ali':'Mo']` includes the 'Mo' row.",
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "Pass `:` for a dimension to select everything: `df.loc[:, 'score']` selects the score column for all rows.",
+          },
+          {
+            type: "quiz",
+            question:
+              "Which correctly selects the 'price' column for the row labelled 'apple'?",
+            options: [
+              "df.iloc['apple', 'price']",
+              "df.loc['apple', 'price']",
+              "df['apple']['price']",
+              "df.select('apple', 'price')",
+            ],
+            answer: 1,
+            explanation:
+              "`df.loc['apple', 'price']` uses label-based selection — the row label first, then the column label.",
+          },
+        ],
+        challenge: {
+          title: "loc One Row",
+          description:
+            'Create `df` with index `["x", "y"]` and column `val` = `[1, 2]`. Print `df.loc["y", "val"]`.',
+          starterCode: `import pandas as pd
+
+`,
+          solutionCode: `import pandas as pd
+
+df = pd.DataFrame({"val": [1, 2]}, index=["x", "y"])
+print(df.loc["y", "val"])`,
+          tests: [{ id: 1, label: "Uses .loc", keywords: [".loc"] }],
+        },
+      },
+      {
+        id: "pandas-9",
+        title: "iloc — position-based",
+        xp: 15,
+        theory: [
+          {
+            type: "text",
+            content:
+              "**`iloc`** selects by **integer position** (0-based), like list indexing. It ignores index labels entirely and counts rows and columns from zero.",
+          },
+          {
+            type: "text",
+            content:
+              "`df.iloc[0, 1]` = first row, second column. You can also pass slices: `df.iloc[0:3, :]` = first 3 rows, all columns. Unlike `loc`, `iloc` slices are **exclusive** on the right end.",
+          },
+          {
+            type: "diagram",
+            title: "iloc patterns",
+            nodes: [
+              {
+                id: "cell",
+                label: "Single cell",
+                color: "#0284c7",
+                items: ["df.iloc[0, 1]", "Row 0, Col 1"],
+              },
+              {
+                id: "row",
+                label: "Full row",
+                color: "#0369a1",
+                items: ["df.iloc[2]", "Third row as Series"],
+              },
+              {
+                id: "slice",
+                label: "Slice (exclusive end)",
+                color: "#0ea5e9",
+                items: ["df.iloc[0:3]", "Rows 0, 1, 2 only"],
+              },
+            ],
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "First row, all columns",
+            content: `import pandas as pd
+
+df = pd.DataFrame({"a": [1, 2], "b": [3, 4]})
+print(df.iloc[0])`,
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "`iloc` slices behave like Python list slices — `df.iloc[0:3]` returns rows at positions 0, 1, 2 (not 3).",
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "Use negative indices: `df.iloc[-1]` gives the last row, just like Python lists.",
+          },
+          {
+            type: "quiz",
+            question: "What does `df.iloc[1, 0]` select?",
+            options: [
+              "First row, second column",
+              "Second row, first column",
+              "Row labelled 1, column labelled 0",
+              "The cell at (0, 1)",
+            ],
+            answer: 1,
+            explanation:
+              "`iloc` uses 0-based integer positions: row index 1 is the second row, column index 0 is the first column.",
+          },
+        ],
+        challenge: {
+          title: "First Cell",
+          description: "Create a 2×2 DataFrame and print `df.iloc[0, 0]`.",
+          starterCode: `import pandas as pd
+
+df = pd.DataFrame({"a": [10, 20], "b": [30, 40]})
+
+`,
+          solutionCode: `import pandas as pd
+
+df = pd.DataFrame({"a": [10, 20], "b": [30, 40]})
+print(df.iloc[0, 0])`,
+          tests: [
+            {
+              id: 1,
+              label: "Uses iloc[0, 0]",
+              keywords: [{ pattern: "iloc\\s*\\[\\s*0\\s*,\\s*0\\s*\\]" }],
+            },
+          ],
+        },
+      },
+      {
+        id: "pandas-10",
+        title: "Boolean filtering",
+        xp: 15,
+        theory: [
+          {
+            type: "text",
+            content:
+              "**Boolean filtering** lets you keep only the rows that satisfy a condition. The condition produces a boolean Series (True/False per row), and you pass that into the DataFrame to filter.",
+          },
+          {
+            type: "text",
+            content:
+              "You can combine conditions with `&` (and) and `|` (or) — always wrap each condition in parentheses when combining.",
+          },
+          {
+            type: "diagram",
+            title: "Boolean filtering flow",
+            nodes: [
+              {
+                id: "condition",
+                label: "Create condition",
+                color: "#0284c7",
+                items: ['df["score"] >= 90', "Returns bool Series"],
+              },
+              {
+                id: "filter",
+                label: "Apply filter",
+                color: "#0369a1",
+                items: ["df[condition]", "Keeps True rows only"],
+              },
+              {
+                id: "combine",
+                label: "Combine conditions",
+                color: "#0ea5e9",
+                items: ["(cond1) & (cond2)", "(cond1) | (cond2)"],
+              },
+            ],
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "High scores only",
+            content: `import pandas as pd
+
+df = pd.DataFrame({"name": ["A", "B"], "score": [95, 70]})
+high = df[df["score"] >= 90]
+print(high)`,
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "Always use `&` and `|` (not Python's `and`/`or`) when combining boolean Series, because they operate element-wise.",
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "Use `.isin([val1, val2])` to filter by a set of allowed values: `df[df['city'].isin(['London','Paris'])]`.",
+          },
+          {
+            type: "quiz",
+            question:
+              "Which syntax correctly filters rows where age > 18 AND score > 80?",
+            options: [
+              "df[df['age'] > 18 and df['score'] > 80]",
+              "df[(df['age'] > 18) & (df['score'] > 80)]",
+              "df[df['age'] > 18 & df['score'] > 80]",
+              "df.filter(age > 18, score > 80)",
+            ],
+            answer: 1,
+            explanation:
+              "Use `&` with each condition wrapped in parentheses. Python's `and` keyword does not work on Series.",
+          },
+        ],
+        challenge: {
+          title: "Filter Rows",
+          description:
+            'Given `df` with `age` = `[17, 22, 15]`, create `adults = df[df["age"] >= 18]` and print `adults`.',
+          starterCode: `import pandas as pd
+
+df = pd.DataFrame({"age": [17, 22, 15]})
+
+`,
+          solutionCode: `import pandas as pd
+
+df = pd.DataFrame({"age": [17, 22, 15]})
+adults = df[df["age"] >= 18]
+print(adults)`,
+          tests: [
+            {
+              id: 1,
+              label: "Boolean filter",
+              keywords: [{ pattern: 'df\\s*\\[\\s*df\\s*\\[\\s*"age"\\s*\\]' }],
+            },
+            { id: 2, label: "Variable adults", keywords: ["adults"] },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: "cleaning",
+    title: "Cleaning Data",
+    icon: "🧹",
+    color: "#2563eb",
+    lessons: [
+      {
+        id: "pandas-11",
+        title: "Missing values",
+        xp: 15,
+        theory: [
+          {
+            type: "text",
+            content:
+              "Real-world data is rarely perfect. Missing entries appear as **NaN** (Not a Number) in Pandas. Ignoring them can silently corrupt your calculations, so always check and handle them early.",
+          },
+          {
+            type: "text",
+            content:
+              "Use `.isna()` to get a boolean mask of missing cells. `.isna().sum()` tallies missing values per column. Then either **fill** them with `.fillna(value)` or **drop** the affected rows with `.dropna()`.",
+          },
+          {
+            type: "diagram",
+            title: "Handling missing values",
+            nodes: [
+              {
+                id: "detect",
+                label: "Detect",
+                color: "#2563eb",
+                items: [".isna()", ".isna().sum()", ".notna()"],
+              },
+              {
+                id: "fill",
+                label: "Fill",
+                color: "#3b82f6",
+                items: [".fillna(0)", ".fillna(mean)", ".ffill()"],
+              },
+              {
+                id: "drop",
+                label: "Drop",
+                color: "#60a5fa",
+                items: [".dropna()", "axis=0 (rows)", "axis=1 (cols)"],
+              },
+            ],
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Fill missing with zero",
+            content: `import pandas as pd
+import numpy as np
+
+s = pd.Series([1, np.nan, 3])
+print(s.fillna(0))`,
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "`.fillna()` does not modify the original Series by default — it returns a new one. Add `inplace=True` to modify in place.",
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "Fill with the column mean: `df['col'].fillna(df['col'].mean())` — a common strategy for numeric columns.",
+          },
+          {
+            type: "quiz",
+            question: "Which method detects missing values in a Series?",
+            options: [".missing()", ".isna()", ".nan()", ".check()"],
+            answer: 1,
+            explanation:
+              "`.isna()` returns a boolean Series where True marks each missing (NaN) position.",
+          },
+        ],
+        challenge: {
+          title: "Fill NaN",
+          description:
+            "Create `s = pd.Series([5, None, 8])` and print `s.fillna(0)`.",
+          starterCode: `import pandas as pd
+
+`,
+          solutionCode: `import pandas as pd
+
+s = pd.Series([5, None, 8])
+print(s.fillna(0))`,
+          tests: [{ id: 1, label: "Uses fillna", keywords: [".fillna"] }],
+        },
+      },
+      {
+        id: "pandas-12",
+        title: "dropna & astype",
+        xp: 15,
+        theory: [
+          {
+            type: "text",
+            content:
+              "Sometimes the cleanest approach is to remove rows or columns with missing data using **`.dropna()`**. Other times you need to fix column types with **`.astype()`**.",
+          },
+          {
+            type: "text",
+            content:
+              "Data imported from CSV often arrives with numbers stored as strings. `.astype(int)` or `.astype(float)` converts them so math operations work correctly.",
+          },
+          {
+            type: "diagram",
+            title: "dropna & astype options",
+            nodes: [
+              {
+                id: "dropna-rows",
+                label: "Drop rows",
+                color: "#2563eb",
+                items: ["df.dropna()", "axis=0 (default)"],
+              },
+              {
+                id: "dropna-cols",
+                label: "Drop columns",
+                color: "#3b82f6",
+                items: ["df.dropna(axis=1)", "Removes sparse cols"],
+              },
+              {
+                id: "astype",
+                label: "Type cast",
+                color: "#60a5fa",
+                items: [".astype(int)", ".astype(float)", ".astype(str)"],
+              },
+            ],
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Drop rows with missing values",
+            content: `import pandas as pd
+
+df = pd.DataFrame({"x": [1, None, 3]})
+print(df.dropna())`,
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "`.dropna(thresh=n)` keeps rows that have at least `n` non-NaN values — useful for partially filled rows.",
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "Always cast after dropping NaNs — `None` in a column blocks integer casting until it is removed.",
+          },
+          {
+            type: "quiz",
+            question: "What does `df.dropna(axis=1)` do?",
+            options: [
+              "Drops rows with NaN",
+              "Drops columns that contain any NaN",
+              "Fills NaN with zeros",
+              "Counts missing values",
+            ],
+            answer: 1,
+            explanation:
+              "`axis=1` targets columns; any column containing at least one NaN is removed.",
+          },
+        ],
+        challenge: {
+          title: "Drop Missing Rows",
+          description:
+            'Create `df = pd.DataFrame({"v": [1, None, 2]})` and print `df.dropna()`.',
+          starterCode: `import pandas as pd
+
+`,
+          solutionCode: `import pandas as pd
+
+df = pd.DataFrame({"v": [1, None, 2]})
+print(df.dropna())`,
+          tests: [{ id: 1, label: "Uses dropna", keywords: [".dropna()"] }],
+        },
+      },
+      {
+        id: "pandas-13",
+        title: "Adding columns",
+        xp: 15,
+        theory: [
+          {
+            type: "text",
+            content:
+              'Assign new columns by name: `df["new_col"] = ...`. The right-hand side can be a list, a scalar, or a computation on existing columns. All values are aligned by index.',
+          },
+          {
+            type: "text",
+            content:
+              "Computing derived columns is one of the most common data tasks — for example, calculating a total from price and quantity, or creating a label from a numeric score.",
+          },
+          {
+            type: "diagram",
+            title: "Adding new columns",
+            nodes: [
+              {
+                id: "constant",
+                label: "Constant value",
+                color: "#2563eb",
+                items: ['df["flag"] = True', "Same value for all rows"],
+              },
+              {
+                id: "derived",
+                label: "Derived column",
+                color: "#3b82f6",
+                items: ['df["total"] = df["qty"] * df["price"]'],
+              },
+              {
+                id: "conditional",
+                label: "Conditional",
+                color: "#60a5fa",
+                items: ["np.where(cond, a, b)", "If-else per row"],
+              },
+            ],
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Derived column",
+            content: `import pandas as pd
+
+df = pd.DataFrame({"price": [10, 20]})
+df["tax"] = df["price"] * 0.1
+print(df)`,
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "Assigning to a new column name creates it; assigning to an existing name overwrites it in place.",
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "Use `df.assign(col=expr)` for a chainable, non-mutating alternative that returns a new DataFrame.",
+          },
+          {
+            type: "quiz",
+            question:
+              "Which line adds a column 'bonus' equal to 10% of 'salary'?",
+            options: [
+              "df.add('bonus', df['salary'] * 0.1)",
+              "df['bonus'] = df['salary'] * 0.1",
+              "df.insert('bonus', df['salary'] * 0.1)",
+              "df.new_col('bonus') = df['salary'] * 0.1",
+            ],
+            answer: 1,
+            explanation:
+              "Direct assignment `df['bonus'] = df['salary'] * 0.1` is the standard idiomatic way to add a derived column.",
+          },
+        ],
+        challenge: {
+          title: "New Column",
+          description:
+            'Given `df` with `qty` = `[2, 3]`, add `df["double"] = df["qty"] * 2` and print `df`.',
+          starterCode: `import pandas as pd
+
+df = pd.DataFrame({"qty": [2, 3]})
+
+`,
+          solutionCode: `import pandas as pd
+
+df = pd.DataFrame({"qty": [2, 3]})
+df["double"] = df["qty"] * 2
+print(df)`,
+          tests: [
+            {
+              id: 1,
+              label: "Adds double column",
+              keywords: [{ pattern: 'df\\s*\\[\\s*"double"\\s*\\]' }],
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: "groupby",
+    title: "Group & Aggregate",
+    icon: "📦",
+    color: "#4f46e5",
+    lessons: [
+      {
+        id: "pandas-14",
+        title: "groupby basics",
+        xp: 15,
+        theory: [
+          {
+            type: "text",
+            content:
+              '**`groupby("col")`** splits the DataFrame into groups based on unique values in a column, then you apply an aggregation function like `.sum()` or `.mean()` to each group.',
+          },
+          {
+            type: "text",
+            content:
+              "This mirrors the SQL `GROUP BY` clause. It is the fastest way to compute per-category totals or averages without writing loops.",
+          },
+          {
+            type: "diagram",
+            title: "Split → Apply → Combine",
+            nodes: [
+              {
+                id: "split",
+                label: "Split",
+                color: "#4f46e5",
+                items: ['groupby("city")', "One group per city"],
+              },
+              {
+                id: "apply",
+                label: "Apply",
+                color: "#6366f1",
+                items: [".sum()", ".mean()", ".count()"],
+              },
+              {
+                id: "combine",
+                label: "Combine",
+                color: "#818cf8",
+                items: ["One row per group", "Result DataFrame"],
+              },
+            ],
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Total sales per city",
+            content: `import pandas as pd
+
+df = pd.DataFrame({"city": ["A", "A", "B"], "sales": [10, 20, 5]})
+print(df.groupby("city")["sales"].sum())`,
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "The result of a groupby aggregation has the grouped column as its index. Use `.reset_index()` to turn it back into a regular column.",
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "Group by multiple columns: `df.groupby(['dept', 'region'])['sales'].sum()` — pass a list of column names.",
+          },
+          {
+            type: "quiz",
+            question: "What does `df.groupby('team')['pts'].sum()` return?",
+            options: [
+              "The total of all pts values",
+              "The sum of pts for each unique team",
+              "A new column called pts_sum",
+              "The number of rows per team",
+            ],
+            answer: 1,
+            explanation:
+              "groupby splits by team, then `.sum()` totals the pts column within each team group.",
+          },
+        ],
+        challenge: {
+          title: "Sum by Group",
+          description:
+            'Create `df` with `team` = `["red", "red", "blue"]` and `pts` = `[3, 5, 2]`. Print `df.groupby("team")["pts"].sum()`.',
+          starterCode: `import pandas as pd
+
+`,
+          solutionCode: `import pandas as pd
+
+df = pd.DataFrame({"team": ["red", "red", "blue"], "pts": [3, 5, 2]})
+print(df.groupby("team")["pts"].sum())`,
+          tests: [
+            { id: 1, label: "Uses groupby", keywords: [".groupby"] },
+            { id: 2, label: "Uses .sum()", keywords: [".sum()"] },
+          ],
+        },
+      },
+      {
+        id: "pandas-15",
+        title: "agg & multiple stats",
+        xp: 15,
+        theory: [
+          {
+            type: "text",
+            content:
+              '**`.agg()`** lets you compute **several statistics at once** for each group. Pass a list of function names like `["mean", "max", "count"]` to get all of them in one call.',
+          },
+          {
+            type: "text",
+            content:
+              "You can also pass a dict to compute different stats for different columns: `df.groupby('dept').agg({'salary': 'mean', 'age': 'max'})`.",
+          },
+          {
+            type: "diagram",
+            title: "agg options",
+            nodes: [
+              {
+                id: "list",
+                label: "List of funcs",
+                color: "#4f46e5",
+                items: ['agg(["mean","max"])', "Both for every col"],
+              },
+              {
+                id: "dict",
+                label: "Dict of funcs",
+                color: "#6366f1",
+                items: ["agg({'col': 'sum'})", "Per-column control"],
+              },
+              {
+                id: "named",
+                label: "Named agg",
+                color: "#818cf8",
+                items: ["agg(avg=('col','mean'))", "Custom output names"],
+              },
+            ],
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Mean and max per group",
+            content: `import pandas as pd
+
+df = pd.DataFrame({"g": ["x", "x", "y"], "v": [1, 3, 10]})
+print(df.groupby("g")["v"].agg(["mean", "max"]))`,
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "When you pass a list to `.agg()`, the result is a DataFrame with one column per aggregation function.",
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "Use `.agg(total=('salary', 'sum'), headcount=('name', 'count'))` (named aggregation) for clean, self-documenting output columns.",
+          },
+          {
+            type: "quiz",
+            question: "What type does `.agg(['mean','max'])` return?",
+            options: [
+              "A Series with two values",
+              "A DataFrame with one column per aggregation",
+              "A list of numbers",
+              "A dict",
+            ],
+            answer: 1,
+            explanation:
+              "Passing a list to `.agg()` produces a DataFrame where each aggregation function becomes a column.",
+          },
+        ],
+        challenge: {
+          title: "Group Mean",
+          description:
+            'Given `df` with `dept` and `salary`, print `df.groupby("dept")["salary"].mean()`.',
+          starterCode: `import pandas as pd
+
+df = pd.DataFrame({"dept": ["IT", "IT", "HR"], "salary": [50, 60, 45]})
+
+`,
+          solutionCode: `import pandas as pd
+
+df = pd.DataFrame({"dept": ["IT", "IT", "HR"], "salary": [50, 60, 45]})
+print(df.groupby("dept")["salary"].mean())`,
+          tests: [
+            {
+              id: 1,
+              label: "groupby dept",
+              keywords: [{ pattern: 'groupby\\s*\\(\\s*"dept"\\s*\\)' }],
+            },
+            { id: 2, label: "mean salary", keywords: [".mean()"] },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: "merge",
+    title: "Combining Tables",
+    icon: "🔗",
+    color: "#7c3aed",
+    lessons: [
+      {
+        id: "pandas-16",
+        title: "concat rows",
+        xp: 15,
+        theory: [
+          {
+            type: "text",
+            content:
+              "**`pd.concat([df1, df2])`** stacks tables vertically — adding more rows — when the columns match. This is how you combine monthly reports or batches of the same data.",
+          },
+          {
+            type: "text",
+            content:
+              "Pass `ignore_index=True` to reset the row index on the result. Without it, the original indices are preserved, which can cause duplicate index values.",
+          },
+          {
+            type: "diagram",
+            title: "concat directions",
+            nodes: [
+              {
+                id: "vertical",
+                label: "Vertical (default)",
+                color: "#7c3aed",
+                items: ["axis=0", "More rows", "Same columns"],
+              },
+              {
+                id: "horizontal",
+                label: "Horizontal",
+                color: "#8b5cf6",
+                items: ["axis=1", "More columns", "Same rows"],
+              },
+              {
+                id: "index",
+                label: "Index options",
+                color: "#a78bfa",
+                items: ["ignore_index=True", "keys=['jan','feb']"],
+              },
+            ],
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Stack two tables",
+            content: `import pandas as pd
+
+a = pd.DataFrame({"x": [1]})
+b = pd.DataFrame({"x": [2]})
+print(pd.concat([a, b], ignore_index=True))`,
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "Columns present in one DataFrame but not the other will be filled with NaN for the rows where they are absent.",
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "Use `keys=['jan', 'feb']` to create a multi-level index that tracks which original table each row came from.",
+          },
+          {
+            type: "quiz",
+            question:
+              "What does `pd.concat([a, b], ignore_index=True)` do differently from `pd.concat([a, b])`?",
+            options: [
+              "It sorts the result",
+              "It resets the row index to 0, 1, 2 … in the output",
+              "It merges on a shared key",
+              "It drops duplicate rows",
+            ],
+            answer: 1,
+            explanation:
+              "`ignore_index=True` discards the original indices and gives the combined DataFrame a fresh 0-based integer index.",
+          },
+        ],
+        challenge: {
+          title: "Concat Two Frames",
+          description:
+            "Create `a` and `b` with column `n` = `[1]` and `[2]`. Print `pd.concat([a, b])`.",
+          starterCode: `import pandas as pd
+
+`,
+          solutionCode: `import pandas as pd
+
+a = pd.DataFrame({"n": [1]})
+b = pd.DataFrame({"n": [2]})
+print(pd.concat([a, b]))`,
+          tests: [{ id: 1, label: "Uses pd.concat", keywords: ["pd.concat"] }],
+        },
+      },
+      {
+        id: "pandas-17",
+        title: "merge on a key",
+        xp: 15,
+        theory: [
+          {
+            type: "text",
+            content:
+              '**`pd.merge(left, right, on="key")`** joins two tables on a shared column, exactly like a SQL `JOIN`. Matching rows are combined side by side.',
+          },
+          {
+            type: "text",
+            content:
+              "The default is an **inner join** — only rows with matching keys appear. You can change this with `how='left'`, `how='right'`, or `how='outer'`.",
+          },
+          {
+            type: "diagram",
+            title: "Join types",
+            nodes: [
+              {
+                id: "inner",
+                label: "Inner (default)",
+                color: "#7c3aed",
+                items: ["how='inner'", "Only matching keys"],
+              },
+              {
+                id: "left",
+                label: "Left join",
+                color: "#8b5cf6",
+                items: ["how='left'", "All left rows kept", "NaN for no match"],
+              },
+              {
+                id: "outer",
+                label: "Outer join",
+                color: "#a78bfa",
+                items: [
+                  "how='outer'",
+                  "All rows from both",
+                  "NaN where missing",
+                ],
+              },
+            ],
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Join orders with customers",
+            content: `import pandas as pd
+
+orders = pd.DataFrame({"id": [1], "item": ["book"]})
+names = pd.DataFrame({"id": [1], "name": ["Ali"]})
+print(pd.merge(orders, names, on="id"))`,
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "If key columns have different names in each table, use `left_on='col_a', right_on='col_b'` instead of `on`.",
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "Use `suffixes=('_left', '_right')` to distinguish same-named non-key columns that appear in both tables after the merge.",
+          },
+          {
+            type: "quiz",
+            question:
+              "What does a left join (`how='left'`) do with unmatched rows from the left table?",
+            options: [
+              "Drops them",
+              "Keeps them and fills right-side columns with NaN",
+              "Duplicates them",
+              "Raises an error",
+            ],
+            answer: 1,
+            explanation:
+              "A left join keeps every row from the left DataFrame; columns from the right that have no match are filled with NaN.",
+          },
+        ],
+        challenge: {
+          title: "Simple Merge",
+          description:
+            'Merge `left` and `right` on `id` where left has `id=[1], val=[10]` and right has `id=[1], tag=["a"]`. Print result.',
+          starterCode: `import pandas as pd
+
+left = pd.DataFrame({"id": [1], "val": [10]})
+right = pd.DataFrame({"id": [1], "tag": ["a"]})
+
+`,
+          solutionCode: `import pandas as pd
+
+left = pd.DataFrame({"id": [1], "val": [10]})
+right = pd.DataFrame({"id": [1], "tag": ["a"]})
+print(pd.merge(left, right, on="id"))`,
+          tests: [
+            { id: 1, label: "Uses pd.merge", keywords: ["pd.merge"] },
+            {
+              id: 2,
+              label: "on id",
+              keywords: [{ pattern: 'on\\s*=\\s*"id"' }],
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: "io",
+    title: "Reading & Writing",
+    icon: "💾",
+    color: "#9333ea",
+    lessons: [
+      {
+        id: "pandas-18",
+        title: "read_csv concept",
+        xp: 15,
+        theory: [
+          {
+            type: "text",
+            content:
+              "**`pd.read_csv('file.csv')`** loads a CSV file into a DataFrame in one line. It automatically detects headers, infers column types, and handles common separators.",
+          },
+          {
+            type: "text",
+            content:
+              "To save a DataFrame back to CSV use **`df.to_csv('out.csv', index=False)`**. The `index=False` flag prevents Pandas from writing the row numbers as an extra column.",
+          },
+          {
+            type: "diagram",
+            title: "Common read_csv options",
+            nodes: [
+              {
+                id: "basic",
+                label: "Basic load",
+                color: "#9333ea",
+                items: ["pd.read_csv('file.csv')", "Auto header & dtypes"],
+              },
+              {
+                id: "options",
+                label: "Key options",
+                color: "#a855f7",
+                items: ["sep=';'", "header=None", "usecols=['a','b']"],
+              },
+              {
+                id: "inspect",
+                label: "After loading",
+                color: "#c084fc",
+                items: ["df.head()", "df.info()", "df.shape"],
+              },
+            ],
+          },
+
+          // ── NEW browser-friendly concept example ──────────────────────────
+          {
+            type: "text",
+            content:
+              "In a real project `pd.read_csv()` points to a file on disk. In the browser we build the same DataFrame directly from a dictionary — the result is **identical** to what `read_csv` would produce.",
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Equivalent DataFrame (browser-safe)",
+            content: `import pandas as pd
+  
+  # This is what pd.read_csv("students.csv") would give you
+  # if the file contained:  name,score\\nAli,90\\nSara,85
+  
+df = pd.DataFrame({
+      "name":  ["Ali", "Sara"],
+      "score": [90,    85   ]
+  })
+  
+print(df)
+print("\\nColumn types:")
+print(df.dtypes)`,
+          },
+          // ─────────────────────────────────────────────────────────────────
+
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "Always inspect with `df.head()` and `df.info()` after loading a new file to catch type mismatches early.",
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "For Excel files use `pd.read_excel('file.xlsx')`. The API is nearly identical to `read_csv`.",
+          },
+
+          // ── NEW: show read_csv options using the dict pattern ─────────────
+          {
+            type: "text",
+            content:
+              "You can also use `usecols` to load only specific columns, and `sep=';'` for semicolon-separated files. Here is how those options map to a dict-based DataFrame so you can practise the concept in the browser:",
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "usecols equivalent — select only certain columns",
+            content: `import pandas as pd
+  
+  # Imagine the CSV has three columns but we only need two.
+  # pd.read_csv("data.csv", usecols=["product", "price"])
+  # is equivalent to building:
+  
+df = pd.DataFrame({
+      "product": ["Apple", "Banana", "Cherry"],
+      "price":   [1.2,    0.5,     2.8   ]
+  })
+  
+print(df)
+print("Shape:", df.shape)   # (3, 2)`,
+          },
+          // ─────────────────────────────────────────────────────────────────
+
+          {
+            type: "quiz",
+            question: "Which method loads a CSV file into a DataFrame?",
+            options: [
+              "pd.load_csv",
+              "pd.read_csv",
+              "pd.open_csv",
+              "pd.import_csv",
+            ],
+            answer: 1,
+            explanation:
+              "`pd.read_csv(path)` is the standard function for loading CSV files into a Pandas DataFrame.",
+          },
+        ],
+
+        // ── Challenge: no StringIO needed ────────────────────────────────────
+        challenge: {
+          title: "Recreate a CSV as a DataFrame",
+          description: [
+            {
+              type: "text",
+              content:
+                "In real projects, you load data from a CSV file using **`pd.read_csv('data.csv')`**. The file would look like this:",
+            },
+            {
+              type: "code",
+              lang: "text",
+              label: "data.csv",
+              content: `a,b\n1,2\n3,4`,
+            },
+            {
+              type: "text",
+              content:
+                "Since we can't access files in the browser, **build the exact same DataFrame by hand** — same columns, same rows, same values. Store it in `df` and print it.",
+            },
+            {
+              type: "callout",
+              variant: "tip",
+              content:
+                "Every time `pd.read_csv()` runs, Pandas builds a dictionary-backed DataFrame under the hood — column name mapped to a list of values. This is exactly that structure.",
+            },
+            {
+              type: "expected",
+              label: "Expected output",
+              content: `   a  b\n0  1  2\n1  3  4`,
+            },
+          ],
+          starterCode: `import pandas as pd
+
+# Build df with columns a and b
+# a -> [1, 3]   b -> [2, 4]
+
+`,
+          solutionCode: `import pandas as pd
+
+df = pd.DataFrame({
+    "a": [1, 3],
+    "b": [2, 4]
+})
+print(df)`,
+          tests: [
+            { id: 1, label: "DataFrame created", keywords: ["pd.DataFrame"] },
+          ],
+        },
+        // ─────────────────────────────────────────────────────────────────────
+      },
+
+      {
+        id: "pandas-19",
+        title: "Export & recap",
+        xp: 20,
+        theory: [
+          {
+            type: "text",
+            content:
+              "You now know Series, DataFrames, selection, cleaning, groupby, merge, and I/O — the core Pandas toolkit. This final lesson ties it all together with a mini data pipeline.",
+          },
+          {
+            type: "text",
+            content:
+              "A typical pipeline loads data, cleans it, transforms it, groups it for insight, then exports the result. Each step uses the skills from earlier chapters.",
+          },
+          {
+            type: "diagram",
+            title: "Full data pipeline",
+            nodes: [
+              {
+                id: "load",
+                label: "Load",
+                color: "#9333ea",
+                items: ["pd.read_csv()", "pd.read_excel()"],
+              },
+              {
+                id: "clean",
+                label: "Clean & transform",
+                color: "#a855f7",
+                items: ["fillna / dropna", "astype, new cols"],
+              },
+              {
+                id: "analyze",
+                label: "Analyze",
+                color: "#c084fc",
+                items: ["groupby + agg", "merge tables"],
+              },
+              {
+                id: "export",
+                label: "Export",
+                color: "#d8b4fe",
+                items: ["to_csv(index=False)", "to_excel()"],
+              },
+            ],
+          },
+
+          // ── NEW: show to_csv output without writing a real file ────────────
+          {
+            type: "text",
+            content:
+              "In the browser we cannot write to disk, but `df.to_csv(index=False)` **returns the CSV text as a string** when you don't pass a file path. You can `print()` that string to see exactly what the file would contain:",
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "to_csv — preview the output string",
+            content: `import pandas as pd
+  
+df = pd.DataFrame({
+      "cat": ["A", "A", "B"],
+      "val": [10,  20,  30]
+  })
+  
+  # Returns the CSV as a string — no file needed!
+csv_text = df.to_csv(index=False)
+print(csv_text)
+  
+  # Output:
+  # cat,val
+  # A,10
+  # A,20
+  # B,30`,
+          },
+
+          {
+            type: "text",
+            content:
+              "Now combine that with `groupby` to see the full pipeline in action:",
+          },
+
+          // ─────────────────────────────────────────────────────────────────
+
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "Next steps: combine with NumPy for numeric work and Matplotlib / Seaborn for charts.",
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "Use method chaining to write concise pipelines: `df.dropna().assign(tax=df['price']*0.1).groupby('cat')['tax'].sum()`.",
+          },
+          {
+            type: "quiz",
+            question:
+              "Which method saves a DataFrame to CSV without writing row numbers?",
+            options: [
+              "df.to_csv('out.csv')",
+              "df.to_csv('out.csv', index=False)",
+              "df.save_csv('out.csv')",
+              "df.export('out.csv', rows=False)",
+            ],
+            answer: 1,
+            explanation:
+              "`index=False` tells Pandas not to write the DataFrame's row index as a column in the output file.",
+          },
+        ],
+
+        // ── Challenge: no StringIO, still covers groupby + to_csv ────────────
+        challenge: {
+          title: "Mini Pipeline",
+          description:
+            'Create `df = pd.DataFrame({"cat": ["A", "A", "B"], "val": [1, 2, 3]})`, print `df.groupby("cat")["val"].sum()`, then print `df.to_csv(index=False)` to preview the CSV output.',
+          starterCode: `import pandas as pd
+  
+  `,
+          solutionCode: `import pandas as pd
+  
+df = pd.DataFrame({"cat": ["A", "A", "B"], "val": [1, 2, 3]})
+print(df.groupby("cat")["val"].sum())
+print(df.to_csv(index=False))`,
+          tests: [
+            { id: 1, label: "groupby sum", keywords: [".groupby", ".sum()"] },
+            { id: 2, label: "to_csv", keywords: [".to_csv"] },
+            { id: 3, label: "index=False", keywords: ["index=False"] },
+          ],
+        },
+        // ─────────────────────────────────────────────────────────────────────
+      },
+    ],
+  },
+];
+
+export const PANDAS_LESSONS = applyLessonVideoLinks(
+  PANDAS_CHAPTERS.flatMap((ch) =>
+    ch.lessons.map((l) => ({
+      ...l,
+      chapterId: ch.id,
+      chapterTitle: ch.title,
+      chapterColor: ch.color,
+    })),
+  ),
+  PANDAS_VIDEO_LINKS,
+);
+
+export const PANDAS_TOTAL_XP = PANDAS_LESSONS.reduce((s, l) => s + l.xp, 0);
+
+
+--------------------------------------------------------------------------------
+FILE: /data/pandasVideoLinks.js
+--------------------------------------------------------------------------------
+/**
+ * Pandas course — YouTube video links (edit this file only)
+ *
+ * Paste your YouTube URL for each lesson. Leave "" if no video yet.
+ * Linked from: pandasCurriculum.js → PANDAS_LESSONS
+ */
+
+export const PANDAS_VIDEO_LINKS = {
+  // ── Ch 1: Intro ────────────────────────────────────────────────────────
+  "pandas-0":
+    "https://www.youtube.com/watch?v=lVNggwi9cUU&list=PL-6ebHRQo24KfQQVkbi-Fhm3Eolw9Dn_z&index=1", // What is Pandas?
+  "pandas-1":
+    "https://www.youtube.com/watch?v=bzPPmQjLymA&list=PL-6ebHRQo24KfQQVkbi-Fhm3Eolw9Dn_z&index=2", // Series vs DataFrame
+
+  // ── Ch 2: Series ─────────────────────────────────────────────────────
+  "pandas-2":
+    "https://www.youtube.com/watch?v=vPJ22OA19Uc&list=PL-6ebHRQo24KfQQVkbi-Fhm3Eolw9Dn_z&index=3", // Creating Series
+  "pandas-3":
+    "https://www.youtube.com/watch?v=2k7cKAEfQzw&list=PL-6ebHRQo24KfQQVkbi-Fhm3Eolw9Dn_z&index=6", // Series Math
+  "pandas-4":
+    "https://www.youtube.com/watch?v=kDIjyf1yZoI&list=PL-6ebHRQo24KfQQVkbi-Fhm3Eolw9Dn_z&index=7", // Series Methods
+
+  // ── Ch 3: DataFrames ───────────────────────────────────────────────────
+  "pandas-5":
+    "https://www.youtube.com/watch?v=PVDK2WiWY6s&list=PL-6ebHRQo24KfQQVkbi-Fhm3Eolw9Dn_z&index=8", // Building DataFrames
+  "pandas-6":
+    "https://www.youtube.com/watch?v=eo_tVEo2zR4&list=PL-6ebHRQo24KfQQVkbi-Fhm3Eolw9Dn_z&index=9", // head, info, describe
+  "pandas-7":
+    "https://www.youtube.com/watch?v=Dv4jqogs1D0&list=PL-6ebHRQo24KfQQVkbi-Fhm3Eolw9Dn_z&index=4", // Columns & dtypes
+
+  // ── Ch 4: Selection ────────────────────────────────────────────────────
+  "pandas-8":
+    "https://www.youtube.com/watch?v=o6dX-s0Qsm0&list=PL-6ebHRQo24KfQQVkbi-Fhm3Eolw9Dn_z&index=5", // loc — label-based
+  "pandas-9":
+    "https://www.youtube.com/watch?v=yqFowPWrV0A&list=PL-6ebHRQo24KfQQVkbi-Fhm3Eolw9Dn_z&index=13", // iloc — position-based
+  "pandas-10":
+    "https://www.youtube.com/watch?v=SIjVvlbC1Rw&list=PL-6ebHRQo24KfQQVkbi-Fhm3Eolw9Dn_z&index=11", // Boolean filtering
+
+  // ── Ch 5: Cleaning ─────────────────────────────────────────────────────
+  "pandas-11":
+    "https://www.youtube.com/watch?v=R6MuNvirroY&list=PL-6ebHRQo24KfQQVkbi-Fhm3Eolw9Dn_z&index=14", // Missing values
+  "pandas-12":
+    "https://www.youtube.com/watch?v=dO6qfMnM4dY&list=PL-6ebHRQo24KfQQVkbi-Fhm3Eolw9Dn_z&index=12", // dropna & astype
+
+  // ── Ch 6: Transform ──────────────────────────────────────────────────────
+  "pandas-13":
+    "https://www.youtube.com/watch?v=eMhyHPqKB50&list=PL-6ebHRQo24KfQQVkbi-Fhm3Eolw9Dn_z&index=10", // Adding columns
+
+  // ── Ch 7: Group & Merge ──────────────────────────────────────────────────
+  "pandas-14":
+    "https://www.youtube.com/watch?v=t8HE0sdkn2Y&list=PL-6ebHRQo24KfQQVkbi-Fhm3Eolw9Dn_z&index=18", // groupby basics
+  "pandas-15":
+    "https://www.youtube.com/watch?v=pqSqcg2myrk&list=PL-6ebHRQo24KfQQVkbi-Fhm3Eolw9Dn_z&index=16", // agg & multiple stats
+  "pandas-16":
+    "https://www.youtube.com/watch?v=04atx91ytXI&list=PL-6ebHRQo24KfQQVkbi-Fhm3Eolw9Dn_z&index=17", // concat rows
+  "pandas-17":
+    "https://www.youtube.com/watch?v=_7mqjhZyKdY&list=PL-6ebHRQo24KfQQVkbi-Fhm3Eolw9Dn_z&index=15", // merge on a key
+
+  // ── Ch 8: Files & Wrap-up ────────────────────────────────────────────────
+  "pandas-18":
+    "https://www.youtube.com/watch?v=8r4Cv3Cgh-4&list=PL-6ebHRQo24KfQQVkbi-Fhm3Eolw9Dn_z&index=19", // read_csv concept
+  "pandas-19":
+    "https://www.youtube.com/watch?v=yx6o9963LPQ&list=PL-6ebHRQo24KfQQVkbi-Fhm3Eolw9Dn_z&index=20", // Export & recap
+};
+
+
+--------------------------------------------------------------------------------
+FILE: /hooks/usePandasProgress.js
+--------------------------------------------------------------------------------
+import { useCallback, useMemo, useState } from "react";
+import { useAuth } from "../../../auth/context/AuthContext";
+
+const LOCAL_KEY = "pandas_py_progress";
+const LOCAL_CODE_KEY = "pandas_py_saved_code";
+const LOCAL_NOTES_KEY = "pandas_py_notes";
+const LOCAL_BOOKMARKS_KEY = "pandas_py_bookmarks";
+const LOCAL_LAST_KEY = "pandas_py_last_lesson";
+
+function readJson(key, fallback) {
+  try {
+    return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
+  } catch {
+    return fallback;
+  }
+}
+
+export default function usePandasProgress() {
+  const { user, isAuthenticated } = useAuth();
+  const [localVersion, setLocalVersion] = useState(0);
+  const refreshLocal = useCallback(() => setLocalVersion((v) => v + 1), []);
+
+  const localSnapshot = useMemo(() => {
+    void localVersion;
+    return {
+      completed: readJson(LOCAL_KEY, {}),
+      savedCode: readJson(LOCAL_CODE_KEY, {}),
+      notes: readJson(LOCAL_NOTES_KEY, {}),
+      bookmarks: readJson(LOCAL_BOOKMARKS_KEY, []),
+    };
+  }, [localVersion]);
+
+  const completedMap = isAuthenticated ? localSnapshot.completed : {};
+  const savedCodeMap = isAuthenticated ? localSnapshot.savedCode : {};
+  const notesMap = localSnapshot.notes;
+  const bookmarks = localSnapshot.bookmarks;
+  const lastLessonId = localStorage.getItem(LOCAL_LAST_KEY);
+
+  const getLessonNote = useCallback(
+    (id) => localSnapshot.notes[id] || "",
+    [localSnapshot],
+  );
+
+  const completeLesson = useCallback(
+    async (lesson) => {
+      if (!isAuthenticated) return;
+      const current = readJson(LOCAL_KEY, {});
+      current[lesson.id] = { xp: lesson.xp, at: Date.now() };
+      localStorage.setItem(LOCAL_KEY, JSON.stringify(current));
+      localStorage.setItem(LOCAL_LAST_KEY, lesson.id);
+      refreshLocal();
+    },
+    [isAuthenticated, refreshLocal],
+  );
+
+  const rememberLesson = useCallback(
+    async (lessonId) => {
+      localStorage.setItem(LOCAL_LAST_KEY, lessonId);
+      refreshLocal();
+    },
+    [refreshLocal],
+  );
+
+  const saveCode = useCallback(
+    async (lessonId, code) => {
+      if (!isAuthenticated) return;
+      const current = readJson(LOCAL_CODE_KEY, {});
+      current[lessonId] = code;
+      localStorage.setItem(LOCAL_CODE_KEY, JSON.stringify(current));
+      refreshLocal();
+    },
+    [isAuthenticated, refreshLocal],
+  );
+
+  const saveNote = useCallback(
+    async (lessonId, note) => {
+      const current = readJson(LOCAL_NOTES_KEY, {});
+      current[lessonId] = note;
+      localStorage.setItem(LOCAL_NOTES_KEY, JSON.stringify(current));
+      refreshLocal();
+    },
+    [refreshLocal],
+  );
+
+  const toggleBookmark = useCallback(
+    async (lessonId) => {
+      const current = readJson(LOCAL_BOOKMARKS_KEY, []);
+      const next = current.includes(lessonId)
+        ? current.filter((id) => id !== lessonId)
+        : [...current, lessonId];
+      localStorage.setItem(LOCAL_BOOKMARKS_KEY, JSON.stringify(next));
+      refreshLocal();
+    },
+    [refreshLocal],
+  );
+
+  const addTime = useCallback(async () => {}, []);
+
+  return {
+    user,
+    isAuthenticated,
+    syncState: isAuthenticated ? "local" : "guest",
+    remoteProgress: null,
+    completedMap,
+    savedCodeMap,
+    notesMap,
+    bookmarks,
+    lastLessonId,
+    completeLesson,
+    rememberLesson,
+    saveCode,
+    saveNote,
+    toggleBookmark,
+    addTime,
+    getLessonNote,
+  };
+}
+
+
+--------------------------------------------------------------------------------
+FILE: /pages/PandasHub.jsx
+--------------------------------------------------------------------------------
+import React, { useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  PANDAS_CHAPTERS,
+  PANDAS_LESSONS,
+  PANDAS_TOTAL_XP,
+} from "../data/pandasCurriculum";
+import usePandasProgress from "../hooks/usePandasProgress";
+const BASE_PATH = "/learn/pandas-py";
+
+function lessonPlainText(lesson) {
+  return lesson.theory
+    .filter((block) => block.type === "text" || block.type === "callout")
+    .map((block) => block.content.replace(/\*\*/g, "").replace(/`/g, ""))
+    .join(" ");
+}
+
+export default function PandasHub() {
+  const navigate = useNavigate();
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("all");
+  const {
+    isAuthenticated,
+    completedMap: progress,
+    bookmarks,
+    lastLessonId,
+  } = usePandasProgress();
+
+  const completedCount = Object.keys(progress).length;
+  const earnedXP = PANDAS_LESSONS.filter(
+    (lesson) => progress[lesson.id],
+  ).reduce((sum, lesson) => sum + lesson.xp, 0);
+  const pct = Math.round((completedCount / PANDAS_LESSONS.length) * 100) || 0;
+  const nextLesson =
+    PANDAS_LESSONS.find((lesson) => !progress[lesson.id]) || PANDAS_LESSONS[0];
+  const resumeLesson =
+    PANDAS_LESSONS.find((lesson) => lesson.id === lastLessonId) || nextLesson;
+  const completedChapters = PANDAS_CHAPTERS.filter((chapter) =>
+    chapter.lessons.every((lesson) => progress[lesson.id]),
+  ).length;
+  const bookmarkedLessons = bookmarks
+    .map((id) => PANDAS_LESSONS.find((lesson) => lesson.id === id))
+    .filter(Boolean);
+
+  const filteredLessons = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return PANDAS_LESSONS.filter((lesson) => {
+      const matchesQuery =
+        !query ||
+        lesson.title.toLowerCase().includes(query) ||
+        lesson.chapterTitle.toLowerCase().includes(query) ||
+        lessonPlainText(lesson).toLowerCase().includes(query);
+      const matchesFilter =
+        filter === "all" ||
+        (filter === "todo" && !progress[lesson.id]) ||
+        (filter === "done" && progress[lesson.id]) ||
+        (filter === "bookmarked" && bookmarks.includes(lesson.id));
+      return matchesQuery && matchesFilter;
+    });
+  }, [bookmarks, filter, progress, search]);
+
+  return (
+    <div className="oops-hub pandas-hub">
+      <div className="oops-hero pandas-hero">
+        <Link
+          to="/language/Python"
+          className="oops-back-btn"
+          style={{ marginBottom: "0.75rem", display: "inline-flex" }}
+        >
+          ← Python courses
+        </Link>
+        <div className="oops-hero-badge">PANDAS · PYTHON TRACK</div>
+        <h1 className="oops-hero-title">
+          Pandas
+          <br />
+          <span className="oops-hero-accent">for Python</span>
+        </h1>
+        <p className="oops-hero-sub">
+          Learn Series, DataFrames, filtering, cleaning, groupby, and real
+          tabular data workflows with hands-on Python challenges.
+        </p>
+
+        <div className="oops-hero-grid">
+          <div className="oops-xp-bar-wrap">
+            <div className="oops-xp-meta">
+              <span>
+                {isAuthenticated
+                  ? `${completedCount}/${PANDAS_LESSONS.length} lessons · ${earnedXP}/${PANDAS_TOTAL_XP} XP`
+                  : `Sign in to track progress · ${PANDAS_LESSONS.length} lessons`}
+              </span>
+              <span>{isAuthenticated ? `${pct}%` : "—"}</span>
+            </div>
+            <div className="oops-xp-track">
+              <div
+                className="oops-xp-fill"
+                style={{ width: isAuthenticated ? `${pct}%` : "0%" }}
+              />
+            </div>
+          </div>
+
+          {!isAuthenticated && (
+            <div className="oops-auth-gate oops-auth-gate-hub">
+              <p>
+                Create a free account to run challenges, earn XP, and save your
+                place in the course.
+              </p>
+              <div className="oops-auth-gate-actions">
+                <Link to="/login" className="oops-auth-gate-btn">
+                  Sign in
+                </Link>
+                <Link
+                  to="/signup"
+                  className="oops-auth-gate-btn oops-auth-gate-btn-primary"
+                >
+                  Sign up
+                </Link>
+              </div>
+            </div>
+          )}
+
+          <div className="oops-resume-panel">
+            <span className="oops-sync-pill">
+              {isAuthenticated
+                ? "Progress saved to your account"
+                : "Browse lessons — sign in to save progress"}
+            </span>
+            <h2>{resumeLesson.title}</h2>
+            <p>
+              {resumeLesson.chapterTitle} · {resumeLesson.xp} XP
+            </p>
+            <button
+              type="button"
+              onClick={() => navigate(`${BASE_PATH}/lesson/${resumeLesson.id}`)}
+            >
+              {completedCount > 0 ? "Resume Pandas" : "Start Pandas"}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="oops-guide-tools">
+        <div className="oops-tool-panel oops-tool-panel-main">
+          <span className="oops-interactive-label">Find a Pandas topic</span>
+          <div className="oops-search-row">
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search DataFrame, loc, groupby..."
+              aria-label="Search Pandas lessons"
+            />
+            <div
+              className="oops-filter-tabs"
+              aria-label="Filter Pandas lessons"
+            >
+              {[
+                ["all", "All"],
+                ["todo", "To do"],
+                ["done", "Done"],
+                ["bookmarked", "Saved"],
+              ].map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  className={filter === value ? "active" : ""}
+                  onClick={() => setFilter(value)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="oops-search-results">
+            {filteredLessons.slice(0, 6).map((lesson) => (
+              <button
+                key={lesson.id}
+                type="button"
+                className="oops-search-result"
+                style={{ "--ch-color": lesson.chapterColor }}
+                onClick={() => navigate(`${BASE_PATH}/lesson/${lesson.id}`)}
+              >
+                <span>{progress[lesson.id] ? "✓" : "○"}</span>
+                <strong>{lesson.title}</strong>
+                <small>{lesson.chapterTitle}</small>
+              </button>
+            ))}
+            {filteredLessons.length === 0 && (
+              <p className="oops-empty-copy">No lessons match that search.</p>
+            )}
+          </div>
+        </div>
+
+        <div className="oops-tool-panel">
+          <span className="oops-interactive-label">Recommended</span>
+          <h2>{nextLesson.title}</h2>
+          <p>
+            Next in {nextLesson.chapterTitle}. Earn {nextLesson.xp} XP.
+          </p>
+          <button
+            type="button"
+            onClick={() => navigate(`${BASE_PATH}/lesson/${nextLesson.id}`)}
+          >
+            Open next lesson
+          </button>
+        </div>
+
+        <div className="oops-tool-panel">
+          <span className="oops-interactive-label">Bookmarks</span>
+          {bookmarkedLessons.length > 0 ? (
+            <div className="oops-bookmark-list">
+              {bookmarkedLessons.slice(0, 3).map((lesson) => (
+                <button
+                  key={lesson.id}
+                  type="button"
+                  onClick={() => navigate(`${BASE_PATH}/lesson/${lesson.id}`)}
+                >
+                  <strong>{lesson.title}</strong>
+                  <small>{lesson.chapterTitle}</small>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p>Bookmark lessons to review them here.</p>
+          )}
+        </div>
+      </div>
+
+      <div className="oops-dashboard-strip">
+        <div className="oops-stat-tile">
+          <span>Lessons</span>
+          <strong>
+            {completedCount}/{PANDAS_LESSONS.length}
+          </strong>
+        </div>
+        <div className="oops-stat-tile">
+          <span>Chapters</span>
+          <strong>
+            {completedChapters}/{PANDAS_CHAPTERS.length}
+          </strong>
+        </div>
+        <div className="oops-stat-tile">
+          <span>XP</span>
+          <strong>
+            {earnedXP}/{PANDAS_TOTAL_XP}
+          </strong>
+        </div>
+        <div className="oops-stat-tile">
+          <span>Bookmarks</span>
+          <strong>{bookmarks.length}</strong>
+        </div>
+      </div>
+
+      <div className="oops-path-overview">
+        {PANDAS_CHAPTERS.map((chapter, index) => {
+          const done = chapter.lessons.filter((l) => progress[l.id]).length;
+          const active = done > 0 && done < chapter.lessons.length;
+          return (
+            <button
+              key={chapter.id}
+              type="button"
+              className={`oops-path-step ${active ? "active" : ""} ${
+                done === chapter.lessons.length ? "done" : ""
+              }`}
+              style={{ "--ch-color": chapter.color }}
+              onClick={() =>
+                navigate(`${BASE_PATH}/lesson/${chapter.lessons[0].id}`)
+              }
+            >
+              <span>{index + 1}</span>
+              <strong>{chapter.title}</strong>
+              <small>
+                {done}/{chapter.lessons.length}
+              </small>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="oops-chapters">
+        {PANDAS_CHAPTERS.map((chapter, index) => {
+          const done = chapter.lessons.filter((l) => progress[l.id]).length;
+          const chapterPct =
+            Math.round((done / chapter.lessons.length) * 100) || 0;
+          const firstUnfinished = chapter.lessons.find((l) => !progress[l.id]);
+          const allDone = done === chapter.lessons.length;
+
+          return (
+            <div
+              key={chapter.id}
+              className={`oops-chapter-card ${allDone ? "oops-chapter-done" : ""}`}
+              style={{ "--ch-color": chapter.color }}
+            >
+              <div className="oops-chapter-header">
+                <span className="oops-chapter-icon">{chapter.icon}</span>
+                <div>
+                  <div className="oops-chapter-num">Chapter {index + 1}</div>
+                  <div className="oops-chapter-title">{chapter.title}</div>
+                </div>
+                {allDone && <span className="oops-done-badge">✓ Done</span>}
+              </div>
+              <div className="oops-chapter-progress-track">
+                <div
+                  className="oops-chapter-progress-fill"
+                  style={{ width: `${chapterPct}%` }}
+                />
+              </div>
+              <div className="oops-chapter-meta">
+                {done}/{chapter.lessons.length} lessons · {chapterPct}%
+              </div>
+              <ul className="oops-lesson-list">
+                {chapter.lessons.map((lesson) => (
+                  <li
+                    key={lesson.id}
+                    className={`oops-lesson-item ${progress[lesson.id] ? "done" : ""}`}
+                    onClick={() => navigate(`${BASE_PATH}/lesson/${lesson.id}`)}
+                  >
+                    <span className="oops-lesson-status">
+                      {progress[lesson.id] ? "✓" : "○"}
+                    </span>
+                    <span className="oops-lesson-name">{lesson.title}</span>
+                    <span className="oops-lesson-xp">+{lesson.xp} XP</span>
+                  </li>
+                ))}
+              </ul>
+              <button
+                type="button"
+                className="oops-chapter-cta"
+                onClick={() =>
+                  navigate(
+                    `${BASE_PATH}/lesson/${
+                      firstUnfinished
+                        ? firstUnfinished.id
+                        : chapter.lessons[0].id
+                    }`,
+                  )
+                }
+              >
+                {allDone
+                  ? "Review Chapter →"
+                  : done > 0
+                    ? "Continue →"
+                    : "Start →"}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+
+--------------------------------------------------------------------------------
+FILE: /pages/PandasLessonPage.jsx
+--------------------------------------------------------------------------------
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import NumpyIntroTheory from "../../numpy-py/components/NumpyIntroTheory";
+import OopsSidebar from "../../oops-cpp/components/OopsSidebar";
+import LearnProfileMenu from "../../shared/LearnProfileMenu";
+import LessonContentShell from "../../shared/LessonContentShell";
+import PythonCodeChallenge from "../../numpy-py/components/PythonCodeChallenge";
+import {
+  PANDAS_CHAPTERS,
+  PANDAS_LESSONS,
+  PANDAS_TOTAL_XP,
+} from "../data/pandasCurriculum";
+import usePandasProgress from "../hooks/usePandasProgress";
+import useLessonReadGate from "../../shared/useLessonReadGate";
+import LessonChallengeTab from "../../shared/LessonChallengeTab";
+import { useLessonAssistantContext } from "../../../assistant/hooks/useLessonAssistantContext";
+
+const BASE_PATH = "/learn/pandas-py";
+const READ_GATE_PREFIX = "pandas_py";
+
+export default function PandasLessonPage() {
+  const { lessonId } = useParams();
+  const navigate = useNavigate();
+  const [tab, setTab] = useState("theory");
+  const [focusMode, setFocusMode] = useState(false);
+  const {
+    markedAsRead,
+    markAsRead,
+    confidence,
+    handleConfidenceChange,
+    createGoToChallenge,
+    challengeTabLocked,
+  } = useLessonReadGate(READ_GATE_PREFIX, lessonId);
+  const goToChallenge = createGoToChallenge(setTab);
+  const {
+    user,
+    isAuthenticated,
+    completedMap: progress,
+    savedCodeMap,
+    getLessonNote,
+    bookmarks,
+    completeLesson,
+    rememberLesson,
+    saveCode,
+    saveNote,
+    toggleBookmark,
+  } = usePandasProgress();
+  const [noteDraft, setNoteDraft] = useState("");
+  const codeSaveTimer = useRef(null);
+
+  const lesson = PANDAS_LESSONS.find((item) => item.id === lessonId);
+  const lessonIdx = PANDAS_LESSONS.findIndex((item) => item.id === lessonId);
+  const prev = PANDAS_LESSONS[lessonIdx - 1];
+  const next = PANDAS_LESSONS[lessonIdx + 1];
+
+  useLessonAssistantContext({
+    course: "Pandas",
+    language: "Python",
+    lesson,
+    chapter: lesson?.chapterTitle,
+    tab,
+    code: savedCodeMap[lessonId] || "",
+  });
+
+  useEffect(() => {
+    setTab("theory");
+  }, [lessonId]);
+
+  useEffect(() => {
+    if (lessonId) rememberLesson(lessonId);
+  }, [lessonId, rememberLesson]);
+
+  useEffect(() => {
+    setNoteDraft(getLessonNote(lessonId));
+  }, [lessonId, getLessonNote]);
+
+  useEffect(
+    () => () => {
+      window.clearTimeout(codeSaveTimer.current);
+    },
+    [],
+  );
+
+  if (!lesson) {
+    return (
+      <div className="oops-not-found">
+        <p>Pandas lesson not found.</p>
+        <button type="button" onClick={() => navigate(BASE_PATH)}>
+          ← Back to Pandas
+        </button>
+      </div>
+    );
+  }
+
+  const isCompleted = isAuthenticated && !!progress[lessonId];
+  const isBookmarked = bookmarks.includes(lessonId);
+  const completedCount = Object.keys(progress).length;
+  const earnedXP = PANDAS_LESSONS.filter((item) => progress[item.id]).reduce(
+    (sum, item) => sum + item.xp,
+    0,
+  );
+
+  async function handleChallengeComplete() {
+    await completeLesson(lesson);
+  }
+
+  function handleSaveNote() {
+    saveNote(lessonId, noteDraft);
+  }
+
+  function handleCodeChange(code) {
+    window.clearTimeout(codeSaveTimer.current);
+    codeSaveTimer.current = window.setTimeout(() => {
+      saveCode(lessonId, code).catch(() => {});
+    }, 700);
+  }
+
+  return (
+    <div className={`oops-lesson-page ${focusMode ? "oops-focus-mode" : ""}`}>
+      <OopsSidebar
+        currentLessonId={lessonId}
+        progress={progress}
+        chapters={PANDAS_CHAPTERS}
+        basePath={BASE_PATH}
+        title="Pandas · py"
+      />
+
+      <div className="oops-lesson-main">
+        <div className="oops-lesson-topbar">
+          <button
+            type="button"
+            className="oops-back-btn"
+            onClick={() => navigate(BASE_PATH)}
+          >
+            ← Pandas · Python
+          </button>
+          <div className="oops-lesson-breadcrumb">
+            <span style={{ color: lesson.chapterColor }}>
+              {lesson.chapterTitle}
+            </span>
+            <span className="oops-bc-sep">›</span>
+            <span>{lesson.title}</span>
+          </div>
+          {isCompleted && (
+            <span className="oops-completed-badge">✓ Completed</span>
+          )}
+          <button
+            type="button"
+            className={`oops-bookmark-btn ${isBookmarked ? "active" : ""}`}
+            onClick={() => toggleBookmark(lessonId)}
+          >
+            {isBookmarked ? "★" : "☆"}
+          </button>
+          <button
+            type="button"
+            className={`oops-focus-btn ${focusMode ? "active" : ""}`}
+            onClick={() => setFocusMode((v) => !v)}
+          >
+            {focusMode ? "Exit Focus" : "Focus"}
+          </button>
+          <LearnProfileMenu
+            user={user}
+            trackTitle="Pandas · py"
+            syncLabel={
+              isAuthenticated
+                ? "Pandas progress saved to your account"
+                : "Sign in to save progress"
+            }
+            completedCount={completedCount}
+            totalLessons={PANDAS_LESSONS.length}
+            earnedXP={earnedXP}
+            totalXP={PANDAS_TOTAL_XP}
+            bookmarksCount={bookmarks.length}
+            streak={0}
+          />
+        </div>
+
+        <div className="oops-tabs">
+          <button
+            type="button"
+            className={`oops-tab ${tab === "theory" ? "active" : ""}`}
+            onClick={() => setTab("theory")}
+          >
+            Theory
+          </button>
+          <LessonChallengeTab
+            active={tab === "challenge"}
+            locked={challengeTabLocked}
+            xp={lesson.xp}
+            onClick={goToChallenge}
+          />
+        </div>
+
+        <LessonContentShell
+          storageKey={`pandas-py:${lessonId}`}
+          videoUrl={lesson.videoUrl}
+          videoTitle={`${lesson.title} — Pandas`}
+        >
+          {tab === "theory" ? (
+            <NumpyIntroTheory
+              lesson={lesson}
+              noteDraft={noteDraft}
+              onNoteChange={setNoteDraft}
+              onSaveNote={handleSaveNote}
+              confidence={confidence}
+              onConfidenceChange={handleConfidenceChange}
+              markedAsRead={markedAsRead}
+              onMarkAsRead={markAsRead}
+              onGoChallenge={goToChallenge}
+            />
+          ) : (
+            <PythonCodeChallenge
+              challenge={lesson.challenge}
+              accentColor={lesson.chapterColor}
+              isCompleted={isCompleted}
+              onComplete={handleChallengeComplete}
+              initialCode={savedCodeMap[lessonId]}
+              onCodeChange={handleCodeChange}
+            />
+          )}
+        </LessonContentShell>
+
+        <div className="oops-lesson-nav">
+          {prev ? (
+            <button
+              type="button"
+              className="oops-nav-btn"
+              onClick={() => navigate(`${BASE_PATH}/lesson/${prev.id}`)}
+            >
+              ← {prev.title}
+            </button>
+          ) : (
+            <div />
+          )}
+          {next ? (
+            <button
+              type="button"
+              className="oops-nav-btn oops-nav-next"
+              onClick={() => navigate(`${BASE_PATH}/lesson/${next.id}`)}
+            >
+              {next.title} →
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="oops-nav-btn oops-nav-next"
+              onClick={() => navigate(BASE_PATH)}
+            >
+              Finish Course →
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+================================================================================
+END OF FOLDER: pandas-py
+================================================================================

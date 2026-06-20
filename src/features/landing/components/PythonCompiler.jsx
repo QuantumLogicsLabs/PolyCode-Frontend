@@ -2,7 +2,23 @@ import { useState } from "react";
 import {
   runPythonCode,
   formatPythonOutput,
+  getPythonRuntimeError,
 } from "../../learn/shared/runPython.js";
+import {
+  runJavaScriptCode,
+  formatJavaScriptOutput,
+  getJavaScriptRuntimeError,
+} from "../../learn/shared/runJavaScript.js";
+import {
+  runCppCode,
+  formatCppOutput,
+  getCppRuntimeError,
+} from "../../learn/shared/runCpp.js";
+import {
+  runCsharpCode,
+  formatCsharpOutput,
+  getCsharpRuntimeError,
+} from "../../learn/shared/runCsharp.js";
 
 const LANGUAGES = [
   {
@@ -29,7 +45,43 @@ const LANGUAGES = [
     desc: "High-performance systems language used in games, operating systems, and embedded software.",
     code: `// C++ Example\n#include <iostream>\nusing namespace std;\n\nint main() {\n  cout << "Welcome to PolyCode!" << endl;\n  return 0;\n}`,
   },
+  {
+    id: "csharp",
+    label: "C#",
+    accent: "#9b4f96",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/csharp/csharp-original.svg",
+    desc: "A modern, object-oriented language by Microsoft, widely used for apps, games, and enterprise software.",
+    code: `// C# Example\nstring name = "PolyCode";\nConsole.WriteLine("Welcome to " + name + "!");`,
+  },
 ];
+
+async function runForLanguage(langId, code) {
+  if (langId === "python") {
+    const { result } = await runPythonCode(code);
+    const err = getPythonRuntimeError(result);
+    if (err) throw new Error(err);
+    return formatPythonOutput(result) || "(no output)";
+  }
+  if (langId === "javascript") {
+    const { result } = await runJavaScriptCode(code);
+    const err = getJavaScriptRuntimeError(result);
+    if (err) throw new Error(err);
+    return formatJavaScriptOutput(result) || "(no output)";
+  }
+  if (langId === "cpp") {
+    const { result } = await runCppCode(code);
+    const err = getCppRuntimeError(result);
+    if (err) throw new Error(err);
+    return formatCppOutput(result) || "(no output)";
+  }
+  if (langId === "csharp") {
+    const { result } = await runCsharpCode(code);
+    const err = getCsharpRuntimeError(result);
+    if (err) throw new Error(err);
+    return formatCsharpOutput(result) || "(no output)";
+  }
+  throw new Error("Unsupported language");
+}
 
 export default function TryItSection() {
   const [activeLang, setActiveLang] = useState(LANGUAGES[0]);
@@ -44,15 +96,11 @@ export default function TryItSection() {
   };
 
   const run = async () => {
-    if (activeLang.id !== "python") {
-      setOutput("// This language runner is coming soon!");
-      return;
-    }
     setRunning(true);
     setOutput("");
     try {
-      const { result } = await runPythonCode(code);
-      setOutput(formatPythonOutput(result) || "(no output)");
+      const out = await runForLanguage(activeLang.id, code);
+      setOutput(out);
     } catch (e) {
       setOutput("Error: " + e.message);
     } finally {
@@ -118,7 +166,7 @@ export default function TryItSection() {
               <span className="landing-dot landing-dot-y" />
               <span className="landing-dot landing-dot-g" />
               <span className="tryit-terminal-title">
-                {activeLang.label.toLowerCase()}_playground.py
+                {activeLang.label.toLowerCase()}_playground
               </span>
             </div>
 

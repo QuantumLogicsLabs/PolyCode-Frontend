@@ -77,7 +77,7 @@ export default function LearnProfileMenu({
           <button
             type="button"
             className="learn-profile-view-btn"
-            onClick={() => navigate("/profile")}
+            onClick={() => navigate(user?.username ? `/@${user.username}` : "/profile")}
           >
             View full profile
           </button>

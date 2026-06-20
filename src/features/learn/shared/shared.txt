@@ -8,23 +8,50 @@ PROJECT STRUCTURE
 Root: C:\QuantumLogics\PolyCode\frontend\src\features\learn\shared
 
 shared/
+├── allCourses.js
 ├── annotationCursors.js
 ├── applyLessonVideoLinks.js
+├── challenge-complete.css
+├── ChallengeCompleteCelebration.jsx
+├── CourseCertificate.jsx
 ├── LearnNavContext.js
 ├── LearnProfileMenu.jsx
 ├── LessonAnnotator.jsx
+├── LessonChallengeTab.jsx
 ├── LessonContentShell.jsx
+├── LessonReadGate.jsx
 ├── LessonVideo.jsx
 ├── runCpp.js
+├── runCsharp.js
+├── runJavaScript.js
 ├── RunnableCodeBlock.jsx
 ├── runPython.js
+├── useChallengeCelebration.js
+├── useLessonReadGate.js
+├── VerifyCertificatePage.jsx
 └── youtubeUtils.js
 
-Total files: 11
+Total files: 22
 
 ================================================================================
 FILE CONTENTS
 ================================================================================
+
+--------------------------------------------------------------------------------
+FILE: /allCourses.js
+--------------------------------------------------------------------------------
+import { languageCourses } from "../../language/courseCatalog";
+
+/** Flattens every course across all languages into one list,
+ *  de-duplicated by href, for use in Navbar + landing slider.
+ *  Add a new course only in courseCatalog.js -> it appears here automatically. */
+export const ALL_COURSES = Object.values(languageCourses)
+  .flat()
+  .reduce((acc, course) => {
+    if (!acc.some((c) => c.href === course.href)) acc.push(course);
+    return acc;
+  }, []);
+
 
 --------------------------------------------------------------------------------
 FILE: /annotationCursors.js
@@ -32,16 +59,6 @@ FILE: /annotationCursors.js
 export const DEFAULT_PENCIL_COLOR = "#ffe566";
 export const DEFAULT_HIGHLIGHTER_COLOR = "#ffe566";
 export const DEFAULT_LASER_COLOR = "#ff3344";
-
-export const PENCIL_SIZE = 4;
-export const HIGHLIGHTER_SIZE = 16;
-export const LASER_SIZE = 1;
-
-export const BRUSH_SIZES = {
-  small: 3,
-  medium: 5,
-  large: 8,
-};
 
 function svgCursor(svg, hotspotX, hotspotY, fallback = "crosshair") {
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}") ${hotspotX} ${hotspotY}, ${fallback}`;
@@ -53,33 +70,56 @@ function svgCursor(svg, hotspotX, hotspotY, fallback = "crosshair") {
 
 export function getPencilCursor(color = DEFAULT_PENCIL_COLOR) {
   return svgCursor(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
-        <g transform="translate(20 20) rotate(-45) translate(-20 -20)">
-          
-          <rect x="17" y="6" width="6" height="18" rx="1"
-            fill="${color}" stroke="#9a6a1f" stroke-width="0.8"/>
-  
-          <rect x="17" y="4" width="6" height="3"
-            fill="#ff9bb3" stroke="#7a4554" stroke-width="0.6"/>
-  
-          <rect x="17" y="7" width="6" height="2"
-            fill="#d9d9d9" stroke="#777" stroke-width="0.3"/>
-  
-          <path
-            d="M17 24 L20 33 L23 24 Z"
-            fill="#e3c19a"
-            stroke="#7a5a36"
-            stroke-width="0.6"
-          />
-  
-          <path
-            d="M19 29 L20 33 L21 29 Z"
-            fill="#111"
-          />
-        </g>
-      </svg>`,
-    7,
-    31,
+    `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">
+      <g transform="translate(18 18) rotate(-45) translate(-18 -18)">
+        
+        <rect
+          x="15"
+          y="6"
+          width="6"
+          height="18"
+          rx="1"
+          fill="${color}"
+          stroke="#8a6528"
+          stroke-width="0.8"
+        />
+
+        <rect
+          x="15"
+          y="4"
+          width="6"
+          height="3"
+          rx="0.6"
+          fill="#ff9bb3"
+          stroke="#7a4554"
+          stroke-width="0.6"
+        />
+
+        <rect
+          x="15"
+          y="7"
+          width="6"
+          height="2"
+          fill="#cfcfcf"
+          stroke="#666"
+          stroke-width="0.4"
+        />
+
+        <path
+          d="M15 24 L18 31 L21 24 Z"
+          fill="#e3c19a"
+          stroke="#7a5a36"
+          stroke-width="0.6"
+        />
+
+        <path
+          d="M17 28 L18 31 L19 28 Z"
+          fill="#111"
+        />
+      </g>
+    </svg>`,
+    6,
+    30,
   );
 }
 
@@ -133,21 +173,19 @@ export const ERASER_CURSOR = svgCursor(
 
 export function getHighlighterCursor(color = DEFAULT_HIGHLIGHTER_COLOR) {
   return svgCursor(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="0 0 38 38">
+    `<svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 38 38">
       <g transform="translate(19 19) rotate(-45) translate(-19 -19)">
 
         <rect
-  <rect
-  x="13"
-  y="7"
-  width="12"
-  height="16"
-  rx="2.5"
-  fill="${color}"
-  stroke="#222"
-  stroke-width="0.8"
-/>
-/>
+          x="14"
+          y="8"
+          width="10"
+          height="14"
+          rx="2"
+          fill="${color}"
+          stroke="#666"
+          stroke-width="0.8"
+        />
 
         <rect
           x="15"
@@ -177,23 +215,39 @@ export const HIGHLIGHTER_CURSOR = getHighlighterCursor();
 
 export function getLaserCursor(color = DEFAULT_LASER_COLOR) {
   return svgCursor(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">
-        <circle cx="18" cy="18" r="4" fill="${color}" opacity="1"/>
-  
-        <circle cx="18" cy="18" r="8"
-          fill="none"
-          stroke="${color}"
-          stroke-width="1"
-          opacity="0.4"/>
-  
-        <circle cx="18" cy="18" r="12"
-          fill="none"
-          stroke="${color}"
-          stroke-width="0.8"
-          opacity="0.2"/>
-      </svg>`,
-    18,
-    18,
+    `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+      
+      <circle
+        cx="16"
+        cy="16"
+        r="4"
+        fill="${color}"
+        opacity="0.95"
+      />
+
+      <circle
+        cx="16"
+        cy="16"
+        r="8"
+        fill="none"
+        stroke="${color}"
+        stroke-width="1"
+        opacity="0.35"
+      />
+
+      <circle
+        cx="16"
+        cy="16"
+        r="12"
+        fill="none"
+        stroke="${color}"
+        stroke-width="0.8"
+        opacity="0.15"
+      />
+      
+    </svg>`,
+    16,
+    16,
   );
 }
 
@@ -223,12 +277,11 @@ export const TOOL_CURSORS = {
 
 export const MAIN_COLOR_PRESETS = [
   "#ffe566",
-  "#4ade80",
-  "#67e8f9",
-  "#ff8fab",
-  "#c084fc",
   "#ff4757",
   "#3794ff",
+  "#4ade80",
+  "#c084fc",
+  "#ff8fab",
 ];
 
 /* =========================
@@ -297,6 +350,473 @@ export function applyLessonVideoLinks(lessons, videoLinks = {}) {
     if (!url) return lesson;
     return { ...lesson, videoUrl: url };
   });
+}
+
+
+--------------------------------------------------------------------------------
+FILE: /challenge-complete.css
+--------------------------------------------------------------------------------
+.oops-challenge {
+  position: relative;
+}
+
+.challenge-complete-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(6, 10, 18, 0.72);
+  backdrop-filter: blur(6px);
+  border-radius: 14px;
+}
+
+.challenge-complete-card {
+  --celebrate-accent: #22c55e;
+  --celebrate-accent-soft: #86efac;
+  --celebrate-accent-glow: rgba(34, 197, 94, 0.35);
+  width: min(100%, 320px);
+  padding: 28px 24px 22px;
+  text-align: center;
+  border-radius: 18px;
+  border: 1px solid rgba(34, 197, 94, 0.22);
+  background: linear-gradient(
+    165deg,
+    rgba(22, 28, 42, 0.98) 0%,
+    rgba(12, 16, 26, 0.98) 100%
+  );
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+    0 0 40px var(--celebrate-accent-glow);
+}
+
+.challenge-complete-icon {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 14px;
+}
+
+.challenge-complete-svg {
+  width: 88px;
+  height: 88px;
+  display: block;
+}
+
+.challenge-complete-circle {
+  stroke: var(--celebrate-accent-soft);
+}
+
+.challenge-complete-check {
+  stroke: var(--celebrate-accent);
+}
+
+.challenge-complete-spark {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid rgba(34, 197, 94, 0.35);
+  pointer-events: none;
+}
+
+.challenge-complete-title {
+  margin: 0 0 6px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #f4f7ff;
+  letter-spacing: -0.02em;
+}
+
+.challenge-complete-message {
+  margin: 0 0 18px;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--celebrate-accent);
+}
+
+.challenge-complete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 140px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #052e16;
+  background: var(--celebrate-accent);
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.challenge-complete-btn:hover {
+  transform: translateY(-1px);
+  opacity: 0.92;
+}
+
+.challenge-complete-btn:active {
+  transform: translateY(0);
+}
+
+.daily-challenges-container .challenge-complete-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  border-radius: 0;
+}
+
+
+--------------------------------------------------------------------------------
+FILE: /ChallengeCompleteCelebration.jsx
+--------------------------------------------------------------------------------
+import React from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import "./challenge-complete.css";
+
+export default function ChallengeCompleteCelebration({
+  show,
+  title = "Challenge complete!",
+  message = "Go ahead!",
+  onDismiss,
+}) {
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.div
+          className="challenge-complete-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.25 }}
+          onClick={onDismiss}
+          role="presentation"
+        >
+          <motion.div
+            className="challenge-complete-card"
+            initial={{ opacity: 0, scale: 0.82, y: 24 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 12 }}
+            transition={{ type: "spring", stiffness: 320, damping: 24 }}
+            onClick={(event) => event.stopPropagation()}
+            role="status"
+            aria-live="polite"
+          >
+            <div className="challenge-complete-icon" aria-hidden="true">
+              <motion.svg
+                viewBox="0 0 72 72"
+                className="challenge-complete-svg"
+                initial={{ scale: 0.6, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 280, damping: 18 }}
+              >
+                <motion.circle
+                  cx="36"
+                  cy="36"
+                  r="32"
+                  className="challenge-complete-circle"
+                  fill="none"
+                  strokeWidth="3"
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  animate={{ pathLength: 1, opacity: 1 }}
+                  transition={{ duration: 0.55, ease: "easeOut" }}
+                />
+                <motion.path
+                  d="M22 37 L32 47 L50 27"
+                  className="challenge-complete-check"
+                  fill="none"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  animate={{ pathLength: 1, opacity: 1 }}
+                  transition={{ duration: 0.4, delay: 0.35, ease: "easeOut" }}
+                />
+              </motion.svg>
+              <motion.span
+                className="challenge-complete-spark"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: [0, 1.2, 1], opacity: [0, 1, 0.85] }}
+                transition={{ delay: 0.55, duration: 0.45 }}
+              />
+            </div>
+
+            <motion.h3
+              className="challenge-complete-title"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.45, duration: 0.3 }}
+            >
+              {title}
+            </motion.h3>
+
+            <motion.p
+              className="challenge-complete-message"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.58, duration: 0.35 }}
+            >
+              {message}
+            </motion.p>
+
+            <motion.button
+              type="button"
+              className="challenge-complete-btn"
+              onClick={onDismiss}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.72, duration: 0.3 }}
+            >
+              Go ahead
+            </motion.button>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+
+--------------------------------------------------------------------------------
+FILE: /CourseCertificate.jsx
+--------------------------------------------------------------------------------
+import { useEffect, useRef, useState } from "react";
+import { useAuth } from "../../auth/context/AuthContext";
+
+function generateLocalCertId(userId, courseName) {
+  const slug = courseName
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "-")
+    .slice(0, 20);
+  const suffix = String(userId || "guest")
+    .slice(-6)
+    .toUpperCase();
+  return `PC-${slug}-${suffix}-${Date.now().toString(36).toUpperCase()}`;
+}
+
+export default function CourseCertificate({
+  courseName,
+  totalLessons,
+  completedCount,
+  earnedXP,
+}) {
+  const { user } = useAuth();
+  const certificateRef = useRef();
+  const certId = useRef(null);
+
+  const [qrDataUrl, setQrDataUrl] = useState(null);
+  const [downloading, setDownloading] = useState(false);
+
+  const isComplete = completedCount >= totalLessons;
+
+  const userName =
+    user?.firstName && user?.lastName
+      ? `${user.firstName} ${user.lastName}`
+      : user?.username || "Learner";
+
+  const issueDate = new Date().toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+  useEffect(() => {
+    if (!isComplete) return;
+    let cancelled = false;
+
+    if (!certId.current) {
+      certId.current = generateLocalCertId(user?._id || user?.id, courseName);
+    }
+
+    const queryParams = new URLSearchParams({
+      id: certId.current,
+      name: userName,
+      course: courseName,
+      date: issueDate,
+      lessons: totalLessons.toString(),
+      xp: earnedXP.toString(),
+    }).toString();
+
+    const qrUrl = `https://poly-code-frontend-tau.vercel.app//verify-certificate?${queryParams}`;
+
+    async function generateQrCode() {
+      try {
+        const qrcodeModule = await import("qrcode");
+        const toDataURL =
+          qrcodeModule.toDataURL || qrcodeModule.default?.toDataURL;
+        if (!toDataURL) throw new Error("QR generator unavailable");
+
+        const dataUrl = await toDataURL(qrUrl, {
+          width: 120,
+          margin: 1,
+          color: { dark: "#1e293b", light: "#ffffff" },
+        });
+        if (!cancelled) setQrDataUrl(dataUrl);
+      } catch (err) {
+        console.error("QR Generation Error:", err);
+      }
+    }
+
+    generateQrCode();
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    isComplete,
+    courseName,
+    user,
+    userName,
+    issueDate,
+    totalLessons,
+    earnedXP,
+  ]);
+
+  async function downloadPDF() {
+    if (!certificateRef.current) return;
+    setDownloading(true);
+    try {
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+        import("html2canvas"),
+        import("jspdf"),
+      ]);
+      const canvas = await html2canvas(certificateRef.current, {
+        scale: 4,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+      });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: "a4",
+      });
+      pdf.addImage(
+        imgData,
+        "PNG",
+        0,
+        0,
+        pdf.internal.pageSize.getWidth(),
+        pdf.internal.pageSize.getHeight(),
+      );
+      pdf.setProperties({
+        title: `${courseName} Certificate`,
+        subject: `Certificate ID: ${certId.current}`,
+        author: "PolyCode",
+      });
+      pdf.save(`${courseName.replace(/\s+/g, "-")}-${certId.current}.pdf`);
+    } catch (err) {
+      console.error("PDF error:", err.message);
+    } finally {
+      setDownloading(false);
+    }
+  }
+
+  if (!isComplete) return null;
+
+  return (
+    <div className="certificate-wrapper">
+      <div className="certificate" ref={certificateRef}>
+        <div className="certificate-watermark">
+          <img src="/images/polycode-logo.png" alt="" />
+        </div>
+
+        <div className="certificate-header">
+          <img
+            src="/images/polycode-logo.png"
+            alt="PolyCode"
+            className="certificate-logo1"
+          />
+          <img
+            src="/images/logo.png"
+            alt="QuantumLogics"
+            className="certificate-logo2"
+          />
+        </div>
+
+        <div className="certificate-company">
+          PolyCode powered by QuantumLogics
+        </div>
+        <h1 className="certificate-title">CERTIFICATE OF COMPLETION</h1>
+        <div className="cert-divider">✦ ✦ ✦</div>
+        <p className="certificate-awarded">
+          This certificate is proudly awarded to
+        </p>
+        <h2 className="certificate-name">{userName}</h2>
+        <p className="certificate-text">For successfully completing</p>
+        <h3 className="certificate-course">{courseName}</h3>
+
+        <div className="certificate-stats">
+          <div>
+            <strong>{completedCount}</strong>
+            <span>Lessons Completed</span>
+          </div>
+          <div>
+            <strong>{earnedXP}</strong>
+            <span>XP Earned</span>
+          </div>
+        </div>
+
+        <div className="certificate-info">
+          <div>
+            <strong>Issued On</strong>
+            <p>{issueDate}</p>
+          </div>
+          <div>
+            <strong>Certificate ID</strong>
+            <p style={{ fontSize: "0.7em", wordBreak: "break-all" }}>
+              {certId.current}
+            </p>
+          </div>
+        </div>
+
+        <div className="certificate-footer">
+          <div className="signature-block">
+            <img
+              src="/images/aminasign.png"
+              alt="Signature"
+              className="signature-image"
+            />
+            <div className="signature-line" />
+            <p className="signature-name">Amina</p>
+            <p className="signature-role">Course Instructor</p>
+          </div>
+
+          {qrDataUrl && (
+            <div className="certificate-qr-footer">
+              <img
+                src={qrDataUrl}
+                alt="Scan to verify"
+                width={80}
+                height={80}
+              />
+              <p>Scan to verify</p>
+            </div>
+          )}
+
+          <img
+            src="/images/stamp.png"
+            alt="Official Stamp"
+            className="official-stamp"
+          />
+        </div>
+      </div>
+
+      <div className="certificate-actions">
+        <button
+          className="download-btn"
+          onClick={downloadPDF}
+          disabled={downloading}
+        >
+          {downloading ? "Generating PDF…" : "⬇ Download PDF"}
+        </button>
+      </div>
+    </div>
+  );
 }
 
 
@@ -405,7 +925,7 @@ export default function LearnProfileMenu({
           <button
             type="button"
             className="learn-profile-view-btn"
-            onClick={() => navigate("/profile")}
+            onClick={() => navigate(user?.username ? `/@${user.username}` : "/profile")}
           >
             View full profile
           </button>
@@ -419,7 +939,13 @@ export default function LearnProfileMenu({
 --------------------------------------------------------------------------------
 FILE: /LessonAnnotator.jsx
 --------------------------------------------------------------------------------
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   Eraser,
   GripVertical,
@@ -439,6 +965,9 @@ import {
   saveAnnotationPrefs,
   TOOL_CURSORS,
 } from "./annotationCursors";
+
+const STAGE_INTERACTIVE_SELECTOR =
+  ".lesson-annotator-text-input, .lesson-annotator-label, .lesson-annotator-fab-wrap, .numpy-notes-panel, .oops-notes-panel, .numpy-confidence-panel, .numpy-mark-read-panel, .numpy-theory-actions, .lesson-read-gate, .lesson-confidence-panel, .lesson-read-actions, textarea, input, select, button, a";
 
 const TOOLS = {
   POINTER: "pointer",
@@ -863,7 +1392,9 @@ export default function LessonAnnotator({ storageKey, children }) {
       prev.filter((stroke) => !strokeNearPoint(stroke, point, ERASER_RADIUS)),
     );
     setLabels((prev) =>
-      prev.filter((label) => Math.hypot(label.x - point.x, label.y - point.y) > 24),
+      prev.filter(
+        (label) => Math.hypot(label.x - point.x, label.y - point.y) > 24,
+      ),
     );
   }, []);
 
@@ -877,7 +1408,8 @@ export default function LessonAnnotator({ storageKey, children }) {
     return undefined;
   }, [tool, pencilColor]);
 
-  const activeToolItem = TOOL_ITEMS.find((item) => item.id === tool) || TOOL_ITEMS[0];
+  const activeToolItem =
+    TOOL_ITEMS.find((item) => item.id === tool) || TOOL_ITEMS[0];
   const ActiveIcon = activeToolItem.Icon;
 
   const selectTool = (nextTool) => {
@@ -886,11 +1418,7 @@ export default function LessonAnnotator({ storageKey, children }) {
   };
 
   const handleStageMove = (event) => {
-    if (
-      event.target.closest(
-        ".lesson-annotator-text-input, .lesson-annotator-label, .lesson-annotator-fab-wrap",
-      )
-    ) {
+    if (event.target.closest(STAGE_INTERACTIVE_SELECTOR)) {
       return;
     }
 
@@ -909,11 +1437,7 @@ export default function LessonAnnotator({ storageKey, children }) {
 
   const handlePointerDown = (event) => {
     if (tool === TOOLS.POINTER) return;
-    if (
-      event.target.closest(
-        ".lesson-annotator-fab-wrap, .lesson-annotator-text-input, .lesson-annotator-label",
-      )
-    ) {
+    if (event.target.closest(STAGE_INTERACTIVE_SELECTOR)) {
       return;
     }
 
@@ -1136,7 +1660,11 @@ export default function LessonAnnotator({ storageKey, children }) {
               autoFocus
             />
             <div className="lesson-annotator-label-actions">
-              <button type="button" onClick={handleAddLabel} disabled={!textDraft.trim()}>
+              <button
+                type="button"
+                onClick={handleAddLabel}
+                disabled={!textDraft.trim()}
+              >
                 Add
               </button>
               <button type="button" onClick={() => setPendingTextPoint(null)}>
@@ -1159,7 +1687,11 @@ export default function LessonAnnotator({ storageKey, children }) {
         </button>
 
         {menuOpen ? (
-          <div className="lesson-annotator-fab-menu" role="menu" aria-label="Markup tools">
+          <div
+            className="lesson-annotator-fab-menu"
+            role="menu"
+            aria-label="Markup tools"
+          >
             <div className="lesson-annotator-fab-menu-head">
               <span>Markup</span>
               <button
@@ -1190,11 +1722,15 @@ export default function LessonAnnotator({ storageKey, children }) {
 
             {tool === TOOLS.PENCIL || tool === TOOLS.LASER ? (
               <div className="lesson-annotator-fab-colors">
-                <span>{tool === TOOLS.PENCIL ? "Pencil color" : "Laser color"}</span>
+                <span>
+                  {tool === TOOLS.PENCIL ? "Pencil color" : "Laser color"}
+                </span>
                 <ColorPicker
                   label={tool === TOOLS.PENCIL ? "Pencil" : "Laser"}
                   value={tool === TOOLS.PENCIL ? pencilColor : laserColor}
-                  onChange={tool === TOOLS.PENCIL ? setPencilColor : setLaserColor}
+                  onChange={
+                    tool === TOOLS.PENCIL ? setPencilColor : setLaserColor
+                  }
                   compact
                 />
               </div>
@@ -1223,6 +1759,33 @@ export default function LessonAnnotator({ storageKey, children }) {
 
 
 --------------------------------------------------------------------------------
+FILE: /LessonChallengeTab.jsx
+--------------------------------------------------------------------------------
+import React from "react";
+
+export default function LessonChallengeTab({
+  active,
+  locked,
+  xp,
+  onClick,
+}) {
+  return (
+    <button
+      type="button"
+      className={`oops-tab${active ? " active" : ""}${locked ? " oops-tab-locked" : ""}`}
+      onClick={onClick}
+      disabled={locked}
+      title={
+        locked ? "Mark the lesson as read on the Theory tab first" : undefined
+      }
+    >
+      Challenge <span className="oops-tab-xp">+{xp} XP</span>
+    </button>
+  );
+}
+
+
+--------------------------------------------------------------------------------
 FILE: /LessonContentShell.jsx
 --------------------------------------------------------------------------------
 import React from "react";
@@ -1246,6 +1809,83 @@ export default function LessonContentShell({
         <LessonVideo url={videoUrl} title={videoTitle} placement="end" />
       ) : null}
     </div>
+  );
+}
+
+
+--------------------------------------------------------------------------------
+FILE: /LessonReadGate.jsx
+--------------------------------------------------------------------------------
+import React from "react";
+
+const CONFIDENCE_OPTIONS = [
+  ["review", "😅 Need another read"],
+  ["almost", "🙂 Getting it"],
+  ["ready", "🚀 Ready for the challenge"],
+];
+
+/**
+ * Mark-as-read gate, then confidence check + challenge CTA.
+ * Used at the end of theory content across all courses.
+ */
+export default function LessonReadGate({
+  markedAsRead = false,
+  onMarkAsRead,
+  confidence = "",
+  onConfidenceChange,
+  onGoChallenge,
+  accentColor = "#818cf8",
+  challengeLabel = "Ready? Try the coding challenge →",
+}) {
+  if (!markedAsRead) {
+    return (
+      <div
+        className="lesson-read-gate"
+        style={{ "--lesson-accent": accentColor }}
+      >
+        <p className="lesson-read-gate-hint">
+          Finished reading? Mark this lesson as read to unlock the next steps.
+        </p>
+        <button
+          type="button"
+          className="lesson-mark-read-btn"
+          onClick={onMarkAsRead}
+        >
+          Mark as read
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="lesson-confidence-panel">
+        <h3>How do you feel about this lesson?</h3>
+        <div className="lesson-confidence-options">
+          {CONFIDENCE_OPTIONS.map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              className={confidence === value ? "active" : ""}
+              onClick={() => onConfidenceChange(value)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="lesson-read-actions">
+        <button
+          type="button"
+          className="lesson-challenge-cta"
+          style={{ "--lesson-accent": accentColor }}
+          onClick={onGoChallenge}
+        >
+          {challengeLabel}
+        </button>
+      </div>
+    </>
   );
 }
 
@@ -1352,6 +1992,386 @@ export function getCppRuntimeError(runResult) {
 
 
 --------------------------------------------------------------------------------
+FILE: /runCsharp.js
+--------------------------------------------------------------------------------
+/**
+ * Evaluates a string of C# code line-by-line using a simulated runtime environment.
+ * Handles variables, assignments, basic updates, and Console.WriteLine output.
+ */
+export async function runCsharpCode(source) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const lines = source.split("\n");
+      const variables = {}; // Local memory store: key -> evaluated primitive value
+      let stdoutLines = [];
+      let openBraces = 0;
+
+      for (let i = 0; i < lines.length; i++) {
+        let line = lines[i].trim();
+
+        // Skip comments and empty lines
+        if (!line || line.startsWith("//")) continue;
+
+        // Keep a basic count of scope blocks
+        if (line.includes("{")) openBraces += (line.match(/{/g) || []).length;
+        if (line.includes("}")) openBraces -= (line.match(/}/g) || []).length;
+
+        // Ignore boilerplate infrastructure statements for client-side processing
+        if (
+          line.startsWith("using ") ||
+          line.startsWith("class ") ||
+          line.startsWith("namespace ") ||
+          line.match(/(public|private|static|void|int)\s+Main/)
+        ) {
+          continue;
+        }
+
+        // Clean trailing syntax markers if present
+        const hasSemicolon = line.endsWith(";");
+        const cleanLine = hasSemicolon ? line.slice(0, -1).trim() : line;
+
+        // 1. Check for missing semicolons on expressions (excluding block brackets)
+        if (!hasSemicolon && !line.endsWith("{") && !line.endsWith("}")) {
+          resolve({
+            result: {
+              error: `Compilation Error (CS1002): ; expected on line ${i + 1}`,
+            },
+            runtime: "browser",
+          });
+          return;
+        }
+
+        // 2. Parse Console.WriteLine(...)
+        if (cleanLine.startsWith("Console.WriteLine")) {
+          const match = cleanLine.match(/Console\.WriteLine\s*\((.*)\)/);
+          if (match) {
+            const expression = match[1].trim();
+            try {
+              const outputValue = evaluateExpression(expression, variables);
+              stdoutLines.push(String(outputValue));
+            } catch (err) {
+              resolve({
+                result: {
+                  error: `Runtime Error on line ${i + 1}: ${err.message}`,
+                },
+                runtime: "browser",
+              });
+              return;
+            }
+          }
+          continue;
+        }
+
+        // 3. Parse Variable Declarations (e.g., int x = 5; string name = "Poly"; var flag = true;)
+        const declMatch = cleanLine.match(
+          /^(int|string|bool|double|char|var)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*(.*)$/,
+        );
+        if (declMatch) {
+          const [, , varName, expression] = declMatch;
+          try {
+            variables[varName] = evaluateExpression(
+              expression.trim(),
+              variables,
+            );
+          } catch (err) {
+            resolve({
+              result: {
+                error: `Runtime Error on line ${i + 1}: ${err.message}`,
+              },
+              runtime: "browser",
+            });
+            return;
+          }
+          continue;
+        }
+
+        // 4. Parse Variable Re-assignments (e.g., x = 10; score += 5;)
+        const assignMatch = cleanLine.match(
+          /^([a-zA-Z_][a-zA-Z0-9_]*)\s*(\+?=|-\s*=)\s*(.*)$/,
+        );
+        if (assignMatch) {
+          const [, varName, operator, expression] = assignMatch;
+          if (!(varName in variables)) {
+            resolve({
+              result: {
+                error: `Compilation Error (CS0103): The name '${varName}' does not exist in the current context on line ${i + 1}`,
+              },
+              runtime: "browser",
+            });
+            return;
+          }
+
+          try {
+            const value = evaluateExpression(expression.trim(), variables);
+            if (operator === "+=") variables[varName] += value;
+            else if (operator === "-=") variables[varName] -= value;
+            else variables[varName] = value;
+          } catch (err) {
+            resolve({
+              result: {
+                error: `Runtime Error on line ${i + 1}: ${err.message}`,
+              },
+              runtime: "browser",
+            });
+            return;
+          }
+          continue;
+        }
+      }
+
+      // 5. Scope validation check
+      if (openBraces > 0) {
+        resolve({
+          result: { error: "Compilation Error (CS1513): } expected" },
+          runtime: "browser",
+        });
+        return;
+      }
+
+      resolve({
+        result: {
+          stdout:
+            stdoutLines.join("\n") ||
+            "Process exited with code 0 (no printed output).",
+        },
+        runtime: "browser",
+      });
+    }, 400);
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Safe expression evaluator — no eval / Function constructor
+// Recursive-descent parser supporting: string/number/boolean literals,
+// variable references, parentheses, unary +/-, and binary operators with
+// correct precedence (*, /, % before +, -).
+// ---------------------------------------------------------------------------
+
+function evaluateExpression(expr, variables) {
+  // Fast path: plain string literal
+  if (expr.startsWith('"') && expr.endsWith('"')) {
+    return expr.slice(1, -1);
+  }
+
+  const parser = new SafeExpressionParser(expr, variables);
+  return parser.parse();
+}
+
+class SafeExpressionParser {
+  constructor(expr, variables) {
+    this.expr = expr;
+    this.variables = variables;
+    this.tokens = tokenizeExpression(expr);
+    this.index = 0;
+  }
+
+  parse() {
+    const value = this.parseAddition();
+    if (!this.isAtEnd()) {
+      throw new Error(`Unexpected token '${this.peek().value}'`);
+    }
+    return value;
+  }
+
+  parseAddition() {
+    let value = this.parseMultiplication();
+
+    while (this.match("+", "-")) {
+      const operator = this.previous().value;
+      const right = this.parseMultiplication();
+      if (operator === "+") {
+        value =
+          typeof value === "string" || typeof right === "string"
+            ? `${value}${right}`
+            : value + right;
+      } else {
+        value = toNumber(value) - toNumber(right);
+      }
+    }
+
+    return value;
+  }
+
+  parseMultiplication() {
+    let value = this.parseUnary();
+
+    while (this.match("*", "/", "%")) {
+      const operator = this.previous().value;
+      const right = toNumber(this.parseUnary());
+      const left = toNumber(value);
+      if (operator === "*") value = left * right;
+      else if (operator === "/") {
+        if (right === 0) throw new Error("DivideByZeroException");
+        value = left / right;
+      } else value = left % right;
+    }
+
+    return value;
+  }
+
+  parseUnary() {
+    if (this.match("-")) return -toNumber(this.parseUnary());
+    if (this.match("+")) return toNumber(this.parseUnary());
+    return this.parsePrimary();
+  }
+
+  parsePrimary() {
+    if (this.matchType("number", "string", "boolean")) {
+      return this.previous().value;
+    }
+
+    if (this.matchType("identifier")) {
+      const name = this.previous().value;
+      if (Object.prototype.hasOwnProperty.call(this.variables, name)) {
+        return this.variables[name];
+      }
+      throw new Error(
+        `The name '${name}' does not exist in the current context`,
+      );
+    }
+
+    if (this.match("(")) {
+      const value = this.parseAddition();
+      if (!this.match(")")) throw new Error("Missing closing parenthesis");
+      return value;
+    }
+
+    throw new Error(
+      `Unexpected token '${this.peek()?.value || "end of expression"}'`,
+    );
+  }
+
+  match(...values) {
+    if (this.isAtEnd()) return false;
+    if (!values.includes(this.peek().value)) return false;
+    this.index += 1;
+    return true;
+  }
+
+  matchType(...types) {
+    if (this.isAtEnd()) return false;
+    if (!types.includes(this.peek().type)) return false;
+    this.index += 1;
+    return true;
+  }
+
+  previous() {
+    return this.tokens[this.index - 1];
+  }
+
+  peek() {
+    return this.tokens[this.index];
+  }
+
+  isAtEnd() {
+    return this.index >= this.tokens.length;
+  }
+}
+
+function tokenizeExpression(expr) {
+  const tokens = [];
+  let index = 0;
+
+  while (index < expr.length) {
+    const char = expr[index];
+
+    if (/\s/.test(char)) {
+      index += 1;
+      continue;
+    }
+
+    if (char === '"') {
+      let value = "";
+      index += 1;
+      while (index < expr.length && expr[index] !== '"') {
+        if (expr[index] === "\\" && index + 1 < expr.length) {
+          const escaped = expr[index + 1];
+          value += escaped === "n" ? "\n" : escaped === "t" ? "\t" : escaped;
+          index += 2;
+        } else {
+          value += expr[index];
+          index += 1;
+        }
+      }
+      if (expr[index] !== '"') throw new Error("Unterminated string literal");
+      tokens.push({ type: "string", value });
+      index += 1;
+      continue;
+    }
+
+    if (/[0-9.]/.test(char)) {
+      const match = expr.slice(index).match(/^\d+(?:\.\d+)?/);
+      if (!match) throw new Error(`Invalid number near '${expr.slice(index)}'`);
+      tokens.push({ type: "number", value: Number(match[0]) });
+      index += match[0].length;
+      continue;
+    }
+
+    if (/[A-Za-z_]/.test(char)) {
+      const match = expr.slice(index).match(/^[A-Za-z_][A-Za-z0-9_]*/);
+      const value = match[0];
+      if (value === "true" || value === "false") {
+        tokens.push({ type: "boolean", value: value === "true" });
+      } else {
+        tokens.push({ type: "identifier", value });
+      }
+      index += value.length;
+      continue;
+    }
+
+    if ("+-*/%()".includes(char)) {
+      tokens.push({ type: "operator", value: char });
+      index += 1;
+      continue;
+    }
+
+    throw new Error(`Unsupported character '${char}'`);
+  }
+
+  return tokens;
+}
+
+function toNumber(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) {
+    throw new Error(`Expected a number but got '${value}'`);
+  }
+  return number;
+}
+
+export function formatCsharpOutput(result) {
+  return result?.stdout || "";
+}
+
+export function getCsharpRuntimeError(result) {
+  return result?.error || null;
+}
+
+
+--------------------------------------------------------------------------------
+FILE: /runJavaScript.js
+--------------------------------------------------------------------------------
+import { executeCode } from "../../playground/services/BrowserExecutor";
+
+export async function runJavaScriptCode(source) {
+  const result = await executeCode(source, "javascript");
+  return { result, runtime: "browser" };
+}
+
+export function formatJavaScriptOutput(result = {}) {
+  return [result.stdout, result.stderr].filter(Boolean).join("\n").trim();
+}
+
+export function getJavaScriptRuntimeError(runResult) {
+  return (
+    runResult?.error ||
+    (runResult?.stderr && String(runResult.stderr).trim()) ||
+    ""
+  );
+}
+
+
+--------------------------------------------------------------------------------
 FILE: /RunnableCodeBlock.jsx
 --------------------------------------------------------------------------------
 import React, { useEffect, useState } from "react";
@@ -1369,36 +2389,61 @@ import {
   runCppCode,
 } from "./runCpp";
 import {
+  formatJavaScriptOutput,
+  getJavaScriptRuntimeError,
+  runJavaScriptCode,
+} from "./runJavaScript";
+import {
   formatPythonOutput,
   getPythonRuntimeError,
   runPythonCode,
 } from "./runPython";
+import {
+  formatCsharpOutput,
+  getCsharpRuntimeError,
+  runCsharpCode,
+} from "./runCsharp";
 
 function normalizeLang(lang = "python") {
   const value = lang.toLowerCase();
   if (value === "c++" || value === "cpp") return "cpp";
+  if (value === "javascript" || value === "js") return "javascript";
+  if (value === "csharp" || value === "c#") return "csharp";
   return value;
 }
 
 function monacoLanguage(lang) {
-  return lang === "cpp" ? "cpp" : "python";
+  if (lang === "cpp") return "cpp";
+  if (lang === "javascript") return "javascript";
+  if (lang === "csharp") return "csharp";
+  return "python";
 }
 
 async function executeTheoryCode(source, lang) {
   if (lang === "cpp") {
     return runCppCode(source);
   }
+  if (lang === "javascript") {
+    return runJavaScriptCode(source);
+  }
+  if (lang === "csharp") {
+    return runCsharpCode(source); 
+  }
   return runPythonCode(source);
 }
 
 function formatTheoryOutput(result, lang) {
-  return lang === "cpp" ? formatCppOutput(result) : formatPythonOutput(result);
+  if (lang === "cpp") return formatCppOutput(result);
+  if (lang === "javascript") return formatJavaScriptOutput(result);
+  if (lang === "csharp") return formatCsharpOutput(result);
+  return formatPythonOutput(result);
 }
 
 function getTheoryRuntimeError(result, lang) {
-  return lang === "cpp"
-    ? getCppRuntimeError(result)
-    : getPythonRuntimeError(result);
+  if (lang === "cpp") return getCppRuntimeError(result);
+  if (lang === "javascript") return getJavaScriptRuntimeError(result);
+  if (lang === "csharp") return getCsharpRuntimeError(result);
+  return getPythonRuntimeError(result);
 }
 
 export default function RunnableCodeBlock({
@@ -1653,6 +2698,269 @@ export function getPythonRuntimeError(runResult) {
     (runResult?.exitCode != null && runResult.exitCode !== 0
       ? runResult.stderr || "Python exited with an error"
       : "")
+  );
+}
+
+
+--------------------------------------------------------------------------------
+FILE: /useChallengeCelebration.js
+--------------------------------------------------------------------------------
+import { useCallback, useEffect, useState } from "react";
+
+const AUTO_DISMISS_MS = 3800;
+
+export function useChallengeCelebration(challengeId) {
+  const [showCelebration, setShowCelebration] = useState(false);
+
+  useEffect(() => {
+    setShowCelebration(false);
+  }, [challengeId]);
+
+  useEffect(() => {
+    if (!showCelebration) return undefined;
+    const timer = window.setTimeout(() => setShowCelebration(false), AUTO_DISMISS_MS);
+    return () => window.clearTimeout(timer);
+  }, [showCelebration]);
+
+  const triggerCelebration = useCallback(() => {
+    setShowCelebration(true);
+  }, []);
+
+  const dismissCelebration = useCallback(() => {
+    setShowCelebration(false);
+  }, []);
+
+  return { showCelebration, triggerCelebration, dismissCelebration };
+}
+
+
+--------------------------------------------------------------------------------
+FILE: /useLessonReadGate.js
+--------------------------------------------------------------------------------
+import { useCallback, useEffect, useState } from "react";
+
+function readStorageKey(prefix, lessonId) {
+  return `${prefix}_read_${lessonId}`;
+}
+
+function confidenceStorageKey(prefix, lessonId) {
+  return `${prefix}_confidence_${lessonId}`;
+}
+
+/**
+ * Shared read gate + confidence state for all learn courses.
+ * @param {string} storagePrefix - e.g. "numpy_py", "oops", "pointers_cpp"
+ * @param {string} lessonId
+ */
+export default function useLessonReadGate(storagePrefix, lessonId) {
+  const [markedAsRead, setMarkedAsRead] = useState(false);
+  const [confidence, setConfidence] = useState("");
+
+  useEffect(() => {
+    if (!lessonId || !storagePrefix) return;
+    setMarkedAsRead(
+      localStorage.getItem(readStorageKey(storagePrefix, lessonId)) === "true",
+    );
+    setConfidence(
+      localStorage.getItem(confidenceStorageKey(storagePrefix, lessonId)) || "",
+    );
+  }, [lessonId, storagePrefix]);
+
+  const markAsRead = useCallback(() => {
+    if (!lessonId || !storagePrefix) return;
+    setMarkedAsRead(true);
+    localStorage.setItem(readStorageKey(storagePrefix, lessonId), "true");
+  }, [lessonId, storagePrefix]);
+
+  const handleConfidenceChange = useCallback(
+    (value) => {
+      if (!lessonId || !storagePrefix) return;
+      setConfidence(value);
+      localStorage.setItem(confidenceStorageKey(storagePrefix, lessonId), value);
+    },
+    [lessonId, storagePrefix],
+  );
+
+  const createGoToChallenge = useCallback(
+    (setTab) => () => {
+      if (!markedAsRead) return;
+      setTab("challenge");
+    },
+    [markedAsRead],
+  );
+
+  const challengeTabLocked = !markedAsRead;
+
+  return {
+    markedAsRead,
+    markAsRead,
+    confidence,
+    handleConfidenceChange,
+    createGoToChallenge,
+    challengeTabLocked,
+  };
+}
+
+
+--------------------------------------------------------------------------------
+FILE: /VerifyCertificatePage.jsx
+--------------------------------------------------------------------------------
+import { useSearchParams } from "react-router-dom";
+import { useRef, useState } from "react";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
+
+export default function VerifyCertificatePage() {
+  const [searchParams] = useSearchParams();
+  const certificateRef = useRef();
+  const [downloading, setDownloading] = useState(false);
+
+  const certId = searchParams.get("id");
+  const userName = searchParams.get("name");
+  const courseName = searchParams.get("course");
+  const issueDate = searchParams.get("date");
+  const completedCount = searchParams.get("lessons");
+  const earnedXP = searchParams.get("xp");
+
+  if (!certId || !userName || !courseName) {
+    return (
+      <div className="error-page">
+        Invalid or missing certificate credentials.
+      </div>
+    );
+  }
+
+  async function downloadPDF() {
+    if (!certificateRef.current) return;
+    setDownloading(true);
+    try {
+      const canvas = await html2canvas(certificateRef.current, {
+        scale: 4,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+      });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: "a4",
+      });
+      pdf.addImage(
+        imgData,
+        "PNG",
+        0,
+        0,
+        pdf.internal.pageSize.getWidth(),
+        pdf.internal.pageSize.getHeight(),
+      );
+      pdf.save(`${courseName.replace(/\s+/g, "-")}-${certId}.pdf`);
+    } catch (err) {
+      console.error("PDF error:", err.message);
+    } finally {
+      setDownloading(false);
+    }
+  }
+
+  return (
+    <div className="verification-container">
+      <div
+        className="verification-banner"
+        style={{
+          backgroundColor: "#22c55e",
+          color: "#fff",
+          padding: "10px",
+          textAlign: "center",
+        }}
+      >
+        ✓ This is an officially verified PolyCode certificate.
+      </div>
+
+      <div className="certificate-wrapper">
+        <div className="certificate" ref={certificateRef}>
+          <div className="certificate-watermark">
+            <img src="/images/polycode-logo.png" alt="" />
+          </div>
+
+          <div className="certificate-header">
+            <img
+              src="/images/polycode-logo.png"
+              alt="PolyCode"
+              className="certificate-logo1"
+            />
+            <img
+              src="/images/logo.png"
+              alt="QuantumLogics"
+              className="certificate-logo2"
+            />
+          </div>
+
+          <div className="certificate-company">
+            PolyCode powered by QuantumLogics
+          </div>
+          <h1 className="certificate-title">CERTIFICATE OF COMPLETION</h1>
+          <div className="cert-divider">✦ ✦ ✦</div>
+          <p className="certificate-awarded">
+            This certificate is proudly awarded to
+          </p>
+          <h2 className="certificate-name">{userName}</h2>
+          <p className="certificate-text">For successfully completing</p>
+          <h3 className="certificate-course">{courseName}</h3>
+
+          <div className="certificate-stats">
+            <div>
+              <strong>{completedCount}</strong>
+              <span>Lessons Completed</span>
+            </div>
+            <div>
+              <strong>{earnedXP}</strong>
+              <span>XP Earned</span>
+            </div>
+          </div>
+
+          <div className="certificate-info">
+            <div>
+              <strong>Issued On</strong>
+              <p>{issueDate}</p>
+            </div>
+            <div>
+              <strong>Certificate ID</strong>
+              <p style={{ fontSize: "0.7em", wordBreak: "break-all" }}>
+                {certId}
+              </p>
+            </div>
+          </div>
+
+          <div className="certificate-footer">
+            <div className="signature-block">
+              <img
+                src="/images/aminasign.png"
+                alt="Signature"
+                className="signature-image"
+              />
+              <div className="signature-line" />
+              <p className="signature-name">Amina</p>
+              <p className="signature-role">Course Instructor</p>
+            </div>
+
+            <img
+              src="/images/stamp.png"
+              alt="Official Stamp"
+              className="official-stamp"
+            />
+          </div>
+        </div>
+
+        <div className="certificate-actions">
+          <button
+            className="download-btn"
+            onClick={downloadPDF}
+            disabled={downloading}
+          >
+            {downloading ? "Generating PDF…" : "⬇ Download PDF"}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 

@@ -43,7 +43,7 @@ function resolveRouteContext(pathname) {
   if (pathname.startsWith("/hub") || pathname.startsWith("/docs")) {
     return { page: "docs", route: pathname, language: null, course: null };
   }
-  if (pathname.startsWith("/profile")) {
+  if (pathname.startsWith("/profile") || /^\/@[^/]+$/.test(pathname)) {
     return { page: "profile", route: pathname, language: null, course: null };
   }
   if (pathname.startsWith("/language/")) {

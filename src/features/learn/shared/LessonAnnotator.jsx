@@ -26,7 +26,7 @@ import {
 } from "./annotationCursors";
 
 const STAGE_INTERACTIVE_SELECTOR =
-  ".lesson-annotator-text-input, .lesson-annotator-label, .lesson-annotator-fab-wrap, .numpy-notes-panel, .oops-notes-panel, .numpy-confidence-panel, textarea, input, select, button, a";
+  ".lesson-annotator-text-input, .lesson-annotator-label, .lesson-annotator-fab-wrap, .numpy-notes-panel, .oops-notes-panel, .numpy-confidence-panel, .numpy-mark-read-panel, .numpy-theory-actions, .lesson-read-gate, .lesson-confidence-panel, .lesson-read-actions, textarea, input, select, button, a";
 
 const TOOLS = {
   POINTER: "pointer",

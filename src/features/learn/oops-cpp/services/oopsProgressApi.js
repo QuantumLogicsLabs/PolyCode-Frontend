@@ -1,32 +1,4 @@
-import { getApiBase } from "../../../../config/apiBase";
-
-async function request(path, token, options = {}) {
-  const res = await fetch(`${getApiBase()}/auth/learn/oops-cpp/progress${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-      ...(options.headers || {}),
-    },
-  });
-
-  const text = await res.text();
-  let data = {};
-
-  if (text) {
-    try {
-      data = JSON.parse(text);
-    } catch {
-      data = { error: text };
-    }
-  }
-
-  if (!res.ok) {
-    throw new Error(data.error || "Unable to sync OOP C++ progress");
-  }
-
-  return data.progress;
-}
+import { apiFetch } from "../../../../lib/apiClient";
 
 export function getOopsProgress(token) {
   return request("", token);
@@ -72,6 +44,15 @@ export function addOopsTime(token, minutes) {
     method: "POST",
     body: JSON.stringify({ minutes }),
   });
+}
+
+async function request(path, token, options = {}) {
+  const data = await apiFetch(`/auth/learn/oops-cpp/progress${path}`, {
+    token,
+    fallbackMessage: "Unable to sync OOP C++ progress",
+    ...options,
+  });
+  return data.progress;
 }
 
 export function progressToMap(progress) {

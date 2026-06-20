@@ -6,8 +6,13 @@ import CodeChallenge from "../components/CodeChallenge";
 import OopsSidebar from "../components/OopsSidebar";
 import LearnProfileMenu from "../../shared/LearnProfileMenu";
 import LessonContentShell from "../../shared/LessonContentShell";
+import LessonReadGate from "../../shared/LessonReadGate";
+import useLessonReadGate from "../../shared/useLessonReadGate";
+import LessonChallengeTab from "../../shared/LessonChallengeTab";
 import useOopsProgress from "../hooks/useOopsProgress";
 import { useLessonAssistantContext } from "../../../assistant/hooks/useLessonAssistantContext";
+
+const READ_GATE_PREFIX = "oops";
 
 function plainLessonText(text = "") {
   return text.replace(/\*\*/g, "").replace(/`/g, "");
@@ -70,7 +75,15 @@ export default function LessonPage() {
   const navigate = useNavigate();
   const [tab, setTab] = useState("theory"); // "theory" | "challenge"
   const [focusMode, setFocusMode] = useState(false);
-  const [confidence, setConfidence] = useState("");
+  const {
+    markedAsRead,
+    markAsRead,
+    confidence,
+    handleConfidenceChange,
+    createGoToChallenge,
+    challengeTabLocked,
+  } = useLessonReadGate(READ_GATE_PREFIX, lessonId);
+  const goToChallenge = createGoToChallenge(setTab);
   const {
     user,
     syncState,
@@ -130,10 +143,6 @@ export default function LessonPage() {
   }, [lessonId, getLessonNote]);
 
   useEffect(() => {
-    setConfidence(localStorage.getItem(`oops_confidence_${lessonId}`) || "");
-  }, [lessonId]);
-
-  useEffect(() => {
     if (!lessonId) return undefined;
     const id = setInterval(() => addTime(1), 60000);
     return () => clearInterval(id);
@@ -186,11 +195,6 @@ export default function LessonPage() {
     codeSaveTimer.current = window.setTimeout(() => {
       saveCode(lessonId, code).catch(() => {});
     }, 700);
-  }
-
-  function handleConfidenceChange(value) {
-    setConfidence(value);
-    localStorage.setItem(`oops_confidence_${lessonId}`, value);
   }
 
   return (
@@ -254,12 +258,12 @@ export default function LessonPage() {
           >
             📖 Theory
           </button>
-          <button
-            className={`oops-tab ${tab === "challenge" ? "active" : ""}`}
-            onClick={() => setTab("challenge")}
-          >
-            ⚡ Challenge <span className="oops-tab-xp">+{lesson.xp} XP</span>
-          </button>
+          <LessonChallengeTab
+            active={tab === "challenge"}
+            locked={challengeTabLocked}
+            xp={lesson.xp}
+            onClick={goToChallenge}
+          />
         </div>
 
         <LessonContentShell
@@ -365,6 +369,17 @@ export default function LessonPage() {
                   runnableCodeLangs={["cpp", "c++"]}
                 />
               ))}
+
+              <LessonReadGate
+                markedAsRead={markedAsRead}
+                onMarkAsRead={markAsRead}
+                confidence={confidence}
+                onConfidenceChange={handleConfidenceChange}
+                onGoChallenge={goToChallenge}
+                accentColor={lesson.chapterColor}
+                challengeLabel="Ready? Take the Challenge →"
+              />
+
               <div className="oops-notes-panel">
                 <div>
                   <span className="oops-interactive-label">Lesson Notes</span>
@@ -377,36 +392,6 @@ export default function LessonPage() {
                 />
                 <button type="button" onClick={handleSaveNote}>
                   Save Note
-                </button>
-              </div>
-              <div className="oops-confidence-panel">
-                <div>
-                  <span className="oops-interactive-label">Confidence Check</span>
-                  <h3>How well did this click?</h3>
-                </div>
-                <div className="oops-confidence-options">
-                  {[
-                    ["review", "Need review"],
-                    ["almost", "Almost there"],
-                    ["ready", "Ready to code"],
-                  ].map(([value, label]) => (
-                    <button
-                      key={value}
-                      type="button"
-                      className={confidence === value ? "active" : ""}
-                      onClick={() => handleConfidenceChange(value)}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="oops-theory-footer">
-                <button
-                  className="oops-cta-btn"
-                  onClick={() => setTab("challenge")}
-                >
-                  Ready? Take the Challenge →
                 </button>
               </div>
             </div>

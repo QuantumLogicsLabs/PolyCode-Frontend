@@ -9,9 +9,13 @@ import {
 export default function ProfileHero({
   user,
   isAuthenticated,
+  canEdit = false,
   totalStreak,
   editOpen,
   onToggleEdit,
+  isFollowing = false,
+  followSaving = false,
+  onToggleFollow,
 }) {
   const [socialNotice, setSocialNotice] = useState("");
 
@@ -38,32 +42,32 @@ export default function ProfileHero({
           {username && <p className="profile-hero-username">{username}</p>}
           {bio ? (
             <p className="profile-hero-bio">{bio}</p>
-          ) : isAuthenticated ? (
+          ) : canEdit ? (
             <p className="profile-hero-bio profile-hero-bio--empty">
               Add a bio in Edit profile.
             </p>
           ) : null}
 
-          {isAuthenticated && (
-            <div className="profile-hero-social">
-              <div className="profile-hero-stats">
-                <button
-                  type="button"
-                  className="profile-hero-stat"
-                  onClick={() => showComingSoon("Following list")}
-                >
-                  <strong>{following}</strong>
-                  <span>Following</span>
-                </button>
-                <button
-                  type="button"
-                  className="profile-hero-stat"
-                  onClick={() => showComingSoon("Followers list")}
-                >
-                  <strong>{followers}</strong>
-                  <span>Followers</span>
-                </button>
-              </div>
+          <div className="profile-hero-social">
+            <div className="profile-hero-stats">
+              <button
+                type="button"
+                className="profile-hero-stat"
+                onClick={() => showComingSoon("Following list")}
+              >
+                <strong>{following}</strong>
+                <span>Following</span>
+              </button>
+              <button
+                type="button"
+                className="profile-hero-stat"
+                onClick={() => showComingSoon("Followers list")}
+              >
+                <strong>{followers}</strong>
+                <span>Followers</span>
+              </button>
+            </div>
+            {canEdit ? (
               <button
                 type="button"
                 className="profile-hero-message-btn"
@@ -71,8 +75,21 @@ export default function ProfileHero({
               >
                 Message
               </button>
-            </div>
-          )}
+            ) : isAuthenticated ? (
+              <button
+                type="button"
+                className="profile-hero-message-btn"
+                onClick={onToggleFollow}
+                disabled={followSaving}
+              >
+                {followSaving
+                  ? "Saving..."
+                  : isFollowing
+                    ? "Unfollow"
+                    : "Follow"}
+              </button>
+            ) : null}
+          </div>
 
           {socialNotice && (
             <p className="profile-hero-notice" role="status">
@@ -86,7 +103,7 @@ export default function ProfileHero({
             <span>Current Streak</span>
             <strong>{totalStreak} days</strong>
           </div>
-          {isAuthenticated && (
+          {canEdit && (
             <button
               type="button"
               className="profile-hero-edit-btn"

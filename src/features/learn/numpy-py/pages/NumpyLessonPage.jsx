@@ -12,9 +12,12 @@ import {
   NUMPY_TOTAL_XP,
 } from "../data/numpyCurriculum";
 import useNumpyProgress from "../hooks/useNumpyProgress";
+import useLessonReadGate from "../../shared/useLessonReadGate";
+import LessonChallengeTab from "../../shared/LessonChallengeTab";
 import { useLessonAssistantContext } from "../../../assistant/hooks/useLessonAssistantContext";
 
 const BASE_PATH = "/learn/numpy-py";
+const READ_GATE_PREFIX = "numpy_py";
 
 function plainLessonText(text = "") {
   return text.replace(/\*\*/g, "").replace(/`/g, "");
@@ -59,7 +62,15 @@ export default function NumpyLessonPage() {
   const navigate = useNavigate();
   const [tab, setTab] = useState("theory");
   const [focusMode, setFocusMode] = useState(false);
-  const [confidence, setConfidence] = useState("");
+  const {
+    markedAsRead,
+    markAsRead,
+    confidence,
+    handleConfidenceChange,
+    createGoToChallenge,
+    challengeTabLocked,
+  } = useLessonReadGate(READ_GATE_PREFIX, lessonId);
+  const goToChallenge = createGoToChallenge(setTab);
   const {
     user,
     isAuthenticated,
@@ -116,10 +127,6 @@ export default function NumpyLessonPage() {
     setNoteDraft(getLessonNote(lessonId));
   }, [lessonId, getLessonNote]);
 
-  useEffect(() => {
-    setConfidence(localStorage.getItem(`numpy_py_confidence_${lessonId}`) || "");
-  }, [lessonId]);
-
   useEffect(
     () => () => {
       window.clearTimeout(codeSaveTimer.current);
@@ -161,11 +168,6 @@ export default function NumpyLessonPage() {
     codeSaveTimer.current = window.setTimeout(() => {
       saveCode(lessonId, code).catch(() => {});
     }, 700);
-  }
-
-  function handleConfidenceChange(value) {
-    setConfidence(value);
-    localStorage.setItem(`numpy_py_confidence_${lessonId}`, value);
   }
 
   return (
@@ -234,13 +236,12 @@ export default function NumpyLessonPage() {
           >
             Theory
           </button>
-          <button
-            type="button"
-            className={`oops-tab ${tab === "challenge" ? "active" : ""}`}
-            onClick={() => setTab("challenge")}
-          >
-            Challenge <span className="oops-tab-xp">+{lesson.xp} XP</span>
-          </button>
+          <LessonChallengeTab
+            active={tab === "challenge"}
+            locked={challengeTabLocked}
+            xp={lesson.xp}
+            onClick={goToChallenge}
+          />
         </div>
 
         <LessonContentShell
@@ -257,7 +258,9 @@ export default function NumpyLessonPage() {
                 onSaveNote={handleSaveNote}
                 confidence={confidence}
                 onConfidenceChange={handleConfidenceChange}
-                onGoChallenge={() => setTab("challenge")}
+                markedAsRead={markedAsRead}
+                onMarkAsRead={markAsRead}
+                onGoChallenge={goToChallenge}
               />
             ) : (
             <div className="oops-theory-pane">

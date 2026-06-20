@@ -2,17 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../../auth/context/AuthContext";
 import ProfileAvatar from "./ProfileAvatar";
 import ProfilePictureCropper from "./ProfilePictureCropper";
-
-const LANGUAGE_OPTIONS = [
-  "Python",
-  "JavaScript",
-  "Java",
-  "C++",
-  "C",
-  "C#",
-  "Go",
-  "Rust",
-];
+import {
+  PROFILE_LANGUAGE_OPTIONS,
+  getProfileLanguageMeta,
+  hexToRgba,
+} from "../utils/profileLanguageMeta";
 
 export default function ProfileEditSection({ open, onClose }) {
   const { user, token, updateProfile, uploadAvatar, avatarPreview } = useAuth();
@@ -205,16 +199,41 @@ export default function ProfileEditSection({ open, onClose }) {
           <fieldset className="profile-edit-languages">
             <legend>Preferred languages</legend>
             <div className="profile-edit-lang-grid">
-              {LANGUAGE_OPTIONS.map((lang) => (
-                <label key={lang} className="profile-edit-lang-chip">
-                  <input
-                    type="checkbox"
-                    checked={form.preferredLanguages.includes(lang)}
-                    onChange={() => toggleLanguage(lang)}
-                  />
-                  {lang}
-                </label>
-              ))}
+              {PROFILE_LANGUAGE_OPTIONS.map((lang) => {
+                const selected = form.preferredLanguages.includes(lang);
+                const meta = getProfileLanguageMeta(lang);
+                return (
+                  <label
+                    key={lang}
+                    className={`profile-edit-lang-chip${selected ? " is-selected" : ""}`}
+                    style={
+                      selected
+                        ? {
+                            borderColor: hexToRgba(meta.color, 0.55),
+                            background: hexToRgba(meta.color, 0.14),
+                          }
+                        : undefined
+                    }
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selected}
+                      onChange={() => toggleLanguage(lang)}
+                    />
+                    {meta.icon ? (
+                      <img
+                        src={meta.icon}
+                        alt=""
+                        className="profile-edit-lang-icon"
+                        width={18}
+                        height={18}
+                        loading="lazy"
+                      />
+                    ) : null}
+                    <span>{lang}</span>
+                  </label>
+                );
+              })}
             </div>
           </fieldset>
 

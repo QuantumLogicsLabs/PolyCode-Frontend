@@ -2707,55 +2707,88 @@ print(m.sum(axis=1))`,
           {
             type: "text",
             content:
-              "Real data is messy. A weather sensor might **miss a reading**. In NumPy, a missing value shows up as **`NaN`** (Not a Number). If you use normal `.mean()` on data with NaN, the answer becomes **NaN** too — not helpful!",
-            code: {
-              lang: "python",
-              label: "Missing reading breaks normal .mean()",
-              content: `import numpy as np
-
-temps = np.array([72, np.nan, 68, 75])
-print(temps.mean())      # nan — whole answer ruined!
-print(np.nanmean(temps)) # 71.666... — skips the gap`,
-            },
+              "Sometimes data has **gaps**. A weather sensor stops working. A student misses a test. A survey question is left blank. In NumPy, a missing value is written as **`NaN`** — it simply means *we don't know this number*.",
+          },
+          {
+            type: "array",
+            title: "Daily steps — one day is missing",
+            label: "steps",
+            values: [8000, 7500, "NaN", 9000],
+            colLabels: ["Mon", "Tue", "Wed", "Thu"],
+            missingIndexes: [2],
+            accentColor: "#6366f1",
+            missingAccent: "#f43f5e",
+            footnote:
+              "Wednesday is **NaN** (highlighted red). You still have Mon, Tue, Thu — but normal `.mean()` gives up on the whole array.",
+          },
+          {
+            type: "array",
+            title: "Same data — two different averages",
+            rows: [
+              {
+                label: ".mean()",
+                values: ["nan"],
+                colLabels: ["result"],
+                missingIndexes: [0],
+              },
+              {
+                label: "np.nanmean()",
+                values: ["8166.67"],
+                colLabels: ["result"],
+                okIndexes: [0],
+              },
+            ],
+            footnote:
+              "`.mean()` → **nan** (one gap breaks it). `np.nanmean()` → **8166.67** (average of 8000, 7500, 9000 only).",
           },
           {
             type: "text",
             content:
-              "Use **`np.nanmean`**, **`np.nansum`**, **`np.nanmax`**, and similar **`nan*`** functions when your data has holes. They **ignore NaN** and calculate from the numbers that are still there — like averaging test scores when one student was absent.",
+              "**Fix missing data** with **`nan*`** functions. Use **`np.isnan`** to see which spots are empty.",
             code: {
               lang: "python",
-              label: "Check which values are missing",
+              label: "Missing value breaks normal .mean()",
               content: `import numpy as np
 
-temps = np.array([72, np.nan, 68, 75, np.nan])
+steps = np.array([8000, 7500, np.nan, 9000])
 
-print(np.isnan(temps))
-# [False  True False False  True]
-# True = this spot is missing`,
+print(steps.mean())      # nan
+print(np.nanmean(steps)) # 8166.67`,
             },
           },
           {
+            type: "array",
+            title: "np.isnan() — True means missing",
+            label: "missing?",
+            values: ["False", "False", "True", "False"],
+            colLabels: ["Mon", "Tue", "Wed", "Thu"],
+            missingIndexes: [2],
+            accentColor: "#6366f1",
+            missingAccent: "#f43f5e",
+            footnote: "**True** = that day has NaN. **False** = real number.",
+          },
+          {
             type: "diagram",
-            title: "NaN vs normal mean",
+            title: "Quick pick",
             nodes: [
               {
                 id: "normal",
-                label: ".mean() — strict",
+                label: ".mean()",
                 color: "#f43f5e",
                 items: [
-                  "One NaN ruins everything",
-                  "Answer becomes nan",
-                  "Use only when data is complete",
+                  "Every value must exist",
+                  "One NaN → whole answer is NaN",
+                  "Use when data is complete",
                 ],
               },
               {
                 id: "nanmean",
-                label: "np.nanmean() — forgiving",
-                color: "#ec4899",
+                label: "np.nanmean()",
+                color: "#22c55e",
                 items: [
                   "Skips missing values",
                   "Uses the rest",
-                  "Best for real-world data",
+                  "Use for real-world data",
                 ],
               },
             ],
@@ -2763,7 +2796,38 @@ print(np.isnan(temps))
           {
             type: "text",
             content:
-              "A **percentile** answers: *“What score is higher than X% of the rest?”* The **50th percentile** is the **middle** value (the median). The **90th percentile** means only 10% of values are above it — like “top 10% hottest days.”",
+              "A **percentile** shows **where a number ranks** in a group — like asking *\"How many people scored below this?\"*",
+          },
+          {
+            type: "table",
+            title: "Class test scores — who stands where?",
+            showTotals: false,
+            columns: ["Score", "Plain English"],
+            rows: [
+              { label: "Ali", values: [55, "Lowest in class"] },
+              { label: "Ben", values: [70, "Below middle"] },
+              { label: "Cara", values: [85, "Middle — 50th percentile"] },
+              { label: "Dan", values: [90, "Above most students"] },
+              { label: "Eve", values: [100, "Highest in class"] },
+            ],
+            highlightRows: [2],
+            footnote:
+              "Highlighted row = **50th percentile** (middle). **90th percentile** ≈ 97 — the score line where only 10% scored higher.",
+          },
+          {
+            type: "array",
+            title: "Same scores as a NumPy array",
+            label: "scores",
+            values: [55, 70, 85, 90, 100],
+            colLabels: ["low →", "", "middle", "", "→ high"],
+            accentColor: "#22c55e",
+            footnote:
+              "Sorted lowest to highest. `np.percentile(scores, 50)` → **85**. `np.percentile(scores, 90)` → **97**.",
+          },
+          {
+            type: "text",
+            content:
+              "**Real-life uses:** salary reports (90th percentile pay), child growth charts (height vs age), weather alerts (95th percentile = unusually hot day).",
             code: {
               lang: "python",
               label: "Percentiles on test scores",
@@ -2771,21 +2835,15 @@ print(np.isnan(temps))
 
 scores = np.array([55, 70, 85, 90, 100])
 
-print(np.percentile(scores, 50))   # 85.0 — middle score
-print(np.percentile(scores, 90))   # 97.0 — beat 90% of class`,
+print(np.percentile(scores, 50))   # 85.0 — middle
+print(np.percentile(scores, 90))   # 97.0 — top 10% line`,
             },
           },
           {
             type: "callout",
             variant: "info",
             content:
-              "**When to use what:** complete data → `.mean()`. Missing values → `np.nanmean()`. “Where do most scores sit?” or “What’s the top 10%?” → `np.percentile()`.",
-          },
-          {
-            type: "callout",
-            variant: "tip",
-            content:
-              "Think of **percentile** as a **ranking line**. 90th percentile = “better than 90% of everyone else.” Weather apps use this for “unusually hot day” alerts.",
+              "**Cheat sheet:** All values present → `.mean()`. Some missing → `np.nanmean()`. Need a ranking or cutoff line → `np.percentile()`.",
           },
           {
             type: "quiz",
@@ -2839,45 +2897,85 @@ print(np.nanmean(data))`,
           {
             type: "text",
             content:
-              "**`reshape`** changes the layout of your data without adding or removing values — like turning a line of **12 eggs** into a **3×4** carton. The total count must stay the same.",
+              "Imagine you have **12 chocolates in a line**. You can place them in a **3×4 box** — same chocolates, just arranged differently. **`reshape`** does that for numbers: it changes the **shape** without adding or removing any values.",
+          },
+          {
+            type: "text",
+            content:
+              "**Real life:** A long list of **daily temperatures** (7 days) can become a **calendar row**. A stream of **photo pixels** can become a **small image grid** for editing.",
+          },
+          {
+            type: "array",
+            title: "One line → small table (same 6 numbers)",
+            label: "values",
+            values: [10, 20, 30, 40, 50, 60],
+            colLabels: ["1", "2", "3", "4", "5", "6"],
+            footnote:
+              "Before reshape: **one row** of 6 numbers. After `reshape(2, 3)`: **2 rows, 3 columns** — still 6 numbers total.",
           },
           {
             type: "code",
             lang: "python",
-            label: "Line of numbers → photo grid",
+            label: "Weekly pocket money → 2 weeks × 3 days",
             content: `import numpy as np
 
-pixels = np.arange(12)
-image = pixels.reshape(3, 4)
-print(image.shape)   # (3, 4)`,
+# 6 days of pocket money in one line
+money = np.array([50, 60, 55, 70, 65, 80])
+
+# Turn into 2 rows (weeks) × 3 columns (days)
+table = money.reshape(2, 3)
+print(table)
+print(table.shape)   # (2, 3)`,
+          },
+          {
+            type: "table",
+            title: "The one rule you must remember",
+            showTotals: false,
+            columns: ["Check", "Example"],
+            rows: [
+              { label: "Count elements", values: ["6 numbers in the array", ""] },
+              { label: "Pick a shape", values: ["2 rows × 3 columns", "2 × 3 = 6 ✓"] },
+              { label: "Bad shape", values: ["2 rows × 4 columns", "2 × 4 = 8 ✗ (only have 6)"] },
+            ],
+            footnote: "Rows × columns must equal the **total number of values**. No magic — just counting.",
           },
           {
             type: "code",
             lang: "python",
-            label: "Let NumPy pick one side with -1",
+            label: "Use -1 when NumPy should figure out one side",
             content: `import numpy as np
 
-data = np.arange(20)
-table = data.reshape(4, -1)   # 4 rows, auto columns
-print(table.shape)   # (4, 5)`,
+# 20 quiz scores in one long list
+scores = np.arange(20)
+
+# I want 4 rows — let NumPy work out columns
+class_table = scores.reshape(4, -1)
+print(class_table.shape)   # (4, 5) because 20 ÷ 4 = 5`,
           },
           {
             type: "callout",
             variant: "tip",
             content:
-              "Only one dimension can be `-1`. NumPy fills in that size from the total element count.",
+              "Only **one** size can be `-1`. Think: *\"I know I want 4 rows — NumPy, please fill in how many columns.\"*",
           },
           {
             type: "quiz",
-            question: "Can you reshape 6 elements into (2, 4)?",
-            options: ["Yes", "No — 2×4=8 ≠ 6", "Only if 1D", "Only with stack"],
+            question: "You have 6 numbers. Can you reshape to (2, 4)?",
+            options: [
+              "Yes, always",
+              "No — 2×4 needs 8 numbers, you only have 6",
+              "Only if they are even",
+              "Only with stack",
+            ],
             answer: 1,
-            explanation: "Rows × columns must equal the number of elements.",
+            explanation:
+              "Multiply rows × columns. 2×4 = 8, but you only have 6 values.",
           },
         ],
         challenge: {
           title: "Make a 2×3 Grid",
-          description: "Reshape `np.arange(6)` to `(2, 3)` and print.",
+          description:
+            "Create 6 numbers with `np.arange(6)`, reshape them into 2 rows and 3 columns, and print the result.",
           starterCode: `import numpy as np
 
 `,
@@ -2915,41 +3013,97 @@ print(a.reshape(2, 3))`,
           {
             type: "text",
             content:
-              "**.T** (transpose) swaps rows and columns — handy when a **timetable** is stored with days as rows but you need days as columns for a chart.",
+              "Sometimes your data is saved **the wrong way round** for what you need. A **school timetable** might list *periods as rows* and *days as columns* — but your chart app wants *days as rows*. **`.T`** (transpose) **flips rows and columns**, like turning a page sideways.",
+          },
+          {
+            type: "table",
+            title: "Class schedule — before and after .T",
+            showTotals: false,
+            columns: ["Mon", "Tue", "Wed"],
+            rows: [
+              { label: "Period 1", values: ["Math", "English", "Science"] },
+              { label: "Period 2", values: ["Art", "Math", "PE"] },
+            ],
+            footnote:
+              "Original: each **row** is a period. After `.T`, each **row** becomes a day — easier for a \"hours per day\" chart.",
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Flip a simple number timetable",
+            content: `import numpy as np
+
+# rows = periods, columns = Mon–Wed
+schedule = np.array([[1, 2, 3],
+                     [4, 5, 6]])
+
+flipped = schedule.T
+print(flipped)
+# [[1, 4],
+#  [2, 5],
+#  [3, 6]]`,
           },
           {
             type: "text",
             content:
-              "**`ravel()`** flattens any shape into one long 1D list, reading row by row. It is quick and often shares memory with the original (a view).",
+              "**`ravel()`** means *\"make it one long line\"*. Read the grid **left to right, top to bottom** — like reading a book line by line into a single shopping list.",
+          },
+          {
+            type: "array",
+            title: "2×2 game board → one line with ravel()",
+            label: "board",
+            values: [9, 8, 7, 6],
+            colLabels: ["cell 1", "cell 2", "cell 3", "cell 4"],
+            footnote:
+              "Grid `[[9, 8], [7, 6]]` becomes `[9, 8, 7, 6]` — same numbers, no longer a square.",
           },
           {
             type: "code",
             lang: "python",
-            label: "Transpose a class schedule",
+            label: "Flatten a score board, then reshape back",
             content: `import numpy as np
 
-# rows = periods, cols = Mon–Wed
-schedule = np.array([[1, 2, 3],
-                     [4, 5, 6]])
-print(schedule.T)
-# now rows = days, cols = periods`,
-          },
-          {
-            type: "code",
-            lang: "python",
-            label: "Ravel then reshape again",
-            content: `import numpy as np
+# 2×2 tic-tac-toe scores
+board = np.array([[9, 8],
+                  [7, 6]])
 
-board = np.array([[9, 8], [7, 6]])
 flat = board.ravel()
+print(flat)          # [9, 8, 7, 6]
+
 back = flat.reshape(2, 2)
-print(back)`,
+print(back)          # same 2×2 again`,
           },
           {
             type: "callout",
             variant: "info",
             content:
-              "Need a flat copy you can edit safely? Use `flatten()` — it always copies. `ravel()` is for speed when you only read the data.",
+              "**`ravel()`** is fast and often shares memory with the original. **`flatten()`** always makes a **separate copy** — use it when you will change the flat list and do not want to affect the grid.",
+          },
+          {
+            type: "diagram",
+            title: "Which tool when?",
+            nodes: [
+              {
+                id: "transpose",
+                label: ".T transpose",
+                color: "#f97316",
+                items: [
+                  "Rows ↔ columns swap",
+                  "Same total numbers",
+                  "Timetables, spreadsheets",
+                ],
+              },
+              {
+                id: "ravel",
+                label: "ravel()",
+                color: "#fb923c",
+                items: [
+                  "Any shape → one line",
+                  "Read row by row",
+                  "Before saving or reshaping",
+                ],
+              },
+            ],
           },
           {
             type: "quiz",
@@ -2957,17 +3111,18 @@ print(back)`,
             options: [
               "Sorts smallest to largest",
               "Swaps rows and columns",
-              "Removes duplicates",
-              "Adds a new row",
+              "Deletes the last row",
+              "Adds up every number",
             ],
             answer: 1,
-            explanation: "Transpose flips the grid along the diagonal.",
+            explanation:
+              "Transpose turns rows into columns and columns into rows — like rotating a table.",
           },
         ],
         challenge: {
           title: "Flip and Flatten",
           description:
-            "Create `grid = np.array([[1,2,3],[4,5,6]])`, print `grid.T`, then print `grid.ravel()`.",
+            "Make `grid = np.array([[1,2,3],[4,5,6]])`. Print the transpose (`grid.T`), then print one flat line with `grid.ravel()`.",
           starterCode: `import numpy as np
 
 grid = np.array([[1, 2, 3], [4, 5, 6]])
@@ -3007,40 +3162,116 @@ print(grid.ravel())`,
           {
             type: "text",
             content:
-              "Join arrays like stacking **game score** sheets: **`np.vstack`** stacks rows (vertical), **`np.hstack`** stacks columns (horizontal). **`np.concatenate`** is the general version along any axis.",
+              "Often you get data in **pieces** and want **one bigger table**. Like combining **Week 1** and **Week 2** sales, or putting **names** next to **scores**. NumPy has simple tools to **glue arrays together**.",
+          },
+          {
+            type: "diagram",
+            title: "Two ways to stack (picture it)",
+            nodes: [
+              {
+                id: "vstack",
+                label: "vstack — vertical",
+                color: "#f97316",
+                items: [
+                  "Stack on top of each other",
+                  "Each piece becomes a new row",
+                  "Week 1 above Week 2",
+                ],
+              },
+              {
+                id: "hstack",
+                label: "hstack — horizontal",
+                color: "#fb923c",
+                items: [
+                  "Place side by side",
+                  "Each piece becomes new columns",
+                  "Names beside scores",
+                ],
+              },
+            ],
           },
           {
             type: "code",
             lang: "python",
-            label: "Vertical stack",
+            label: "vstack — two weeks of test scores",
             content: `import numpy as np
 
-week1 = np.array([80, 90, 85])
+week1 = np.array([80, 90, 85])   # Ali, Ben, Cara
 week2 = np.array([88, 92, 78])
-combined = np.vstack([week1, week2])
-print(combined.shape)  # (2, 3)`,
+
+# Stack as rows: row 1 = week 1, row 2 = week 2
+both_weeks = np.vstack([week1, week2])
+print(both_weeks)
+print(both_weeks.shape)   # (2, 3)`,
           },
           {
             type: "code",
             lang: "python",
-            label: "Horizontal stack",
+            label: "hstack — student ID + score in one table",
             content: `import numpy as np
 
-names_col = np.array([[1], [2]])
-scores_col = np.array([[95], [87]])
-print(np.hstack([names_col, scores_col]))`,
+ids = np.array([[101],
+                [102]])           # two students
+scores = np.array([[95],
+                   [87]])
+
+# Put ID column next to score column
+report = np.hstack([ids, scores])
+print(report)
+# [[101, 95],
+#  [102, 87]]`,
+          },
+          {
+            type: "text",
+            content:
+              "**`np.concatenate`** is the general glue — you choose **which direction** with `axis`. **`axis=0`** is like vstack (down). **`axis=1`** is like hstack (across).",
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "concatenate — same idea, more control",
+            content: `import numpy as np
+
+a = np.array([1, 2, 3])
+b = np.array([4, 5, 6])
+
+# Join into one long list
+line = np.concatenate([a, b])
+print(line)   # [1, 2, 3, 4, 5, 6]`,
+          },
+          {
+            type: "table",
+            title: "Quick cheat sheet",
+            showTotals: false,
+            columns: ["Function", "Plain English", "Real-life example"],
+            rows: [
+              {
+                label: "vstack",
+                values: ["Stack as new rows", "Put Week 2 under Week 1"],
+              },
+              {
+                label: "hstack",
+                values: ["Stack as new columns", "Put scores beside names"],
+              },
+              {
+                label: "concatenate",
+                values: ["Join along any axis", "Merge playlists end-to-end"],
+              },
+            ],
           },
           {
             type: "quiz",
-            question: "Which stacks arrays as new rows?",
-            options: ["hstack", "vstack", "concatenate axis=1 only", "dot"],
+            question: "You have Monday's sales and Tuesday's sales. You want one table with Monday on top and Tuesday below. Which do you use?",
+            options: ["hstack", "vstack", "reshape only", "transpose only"],
             answer: 1,
-            explanation: "vstack vertically stacks — each input becomes a row.",
+            explanation:
+              "vstack adds rows — each array becomes a new row underneath the previous one.",
           },
         ],
         challenge: {
           title: "Stack Vertically",
-          description: "Vertically stack `[1,2]` and `[3,4]` with `np.vstack` and print.",
+          description:
+            "You have two short lists: `[1, 2]` and `[3, 4]`. Use `np.vstack` to stack them as rows and print the result.",
           starterCode: `import numpy as np
 
 `,

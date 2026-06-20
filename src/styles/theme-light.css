@@ -20,14 +20,27 @@
 }
 
 .app.theme-light .auth-field input {
-  background: #ffffff;
-  border-color: var(--border);
-  color: var(--txt-0);
+  background: #080d16;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
 }
 
 .app.theme-light .auth-field input:focus {
-  border-color: #047857;
-  box-shadow: 0 0 0 3px var(--acid-dim);
+  border-color: var(--acid, #ffe566);
+  box-shadow: 0 0 0 3px rgba(255, 229, 102, 0.18);
+}
+
+.app.theme-light .auth-field input::placeholder {
+  color: #64748b;
+}
+
+.app.theme-light .auth-field input:-webkit-autofill,
+.app.theme-light .auth-field input:-webkit-autofill:hover,
+.app.theme-light .auth-field input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f8fafc;
+  caret-color: #f8fafc;
+  box-shadow: 0 0 0 1000px #080d16 inset;
+  transition: background-color 9999s ease-out;
 }
 
 .app.theme-light .auth-link {

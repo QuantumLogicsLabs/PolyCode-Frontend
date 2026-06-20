@@ -449,9 +449,22 @@ textarea {
 }
 
 .app.theme-light .auth-field input {
-  background: #f1f5f9;
-  color: var(--txt-0);
-  border-color: var(--border);
+  background: #080d16;
+  color: #f8fafc;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.app.theme-light .auth-field input::placeholder {
+  color: #64748b;
+}
+
+.app.theme-light .auth-field input:-webkit-autofill,
+.app.theme-light .auth-field input:-webkit-autofill:hover,
+.app.theme-light .auth-field input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f8fafc;
+  caret-color: #f8fafc;
+  box-shadow: 0 0 0 1000px #080d16 inset;
+  transition: background-color 9999s ease-out;
 }
 
 .app.theme-light .navbar-dropdown {

@@ -1,59 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  ArrowRight,
-  ChevronDown,
-  Boxes,
-  Layers3,
-  Grid3x3,
-  Table2,
-  FileText,
-  Moon,
-  Sun,
-} from "lucide-react";
+import { ArrowRight, ChevronDown, Moon, Sun } from "lucide-react";
 import { getLanguages } from "../../docs/services/api";
+import { ALL_COURSES as COURSES } from "../../learn/shared/allCourses";
 
 const NAV_LINKS = [
   { href: "#modules", label: "Features" },
   { href: "/hub", label: "Docs" },
-];
-
-const COURSES = [
-  {
-    label: "OOPs C++",
-    sub: "Classes · Inheritance · Polymorphism",
-    href: "/learn/oops-cpp",
-    icon: Boxes,
-    accent: "#ffe566",
-  },
-  {
-    label: "Pointers C++",
-    sub: "Memory · Smart Pointers · Safety",
-    href: "/learn/pointers-cpp",
-    icon: Layers3,
-    accent: "#00d4ff",
-  },
-  {
-    label: "NumPy · Python",
-    sub: "Arrays · Vector Math · Data",
-    href: "/learn/numpy-py",
-    icon: Grid3x3,
-    accent: "#4dabdc",
-  },
-  {
-    label: "Pandas · Python",
-    sub: "DataFrames · Groupby · CSV",
-    href: "/learn/pandas-py",
-    icon: Table2,
-    accent: "#059669",
-  },
-  {
-    label: "JS Fundamentals",
-    sub: "Variables · Functions · Arrays",
-    href: "/learn/js-fundamentals",
-    icon: FileText,
-    accent: "#f59e0b",
-  },
 ];
 
 export default function Navbar({ theme = "dark", onToggleTheme }) {
@@ -165,9 +118,8 @@ export default function Navbar({ theme = "dark", onToggleTheme }) {
                         </div>
                         <div className="ln-dropdown-text">
                           <span className="ln-dropdown-name">
-                            {course.label}
+                            {course.title}
                           </span>
-                          <span className="ln-dropdown-sub">{course.sub}</span>
                         </div>
                         <ArrowRight size={13} className="ln-dropdown-arrow" />
                       </button>

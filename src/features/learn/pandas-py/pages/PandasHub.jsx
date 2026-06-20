@@ -6,7 +6,6 @@ import {
   PANDAS_TOTAL_XP,
 } from "../data/pandasCurriculum";
 import usePandasProgress from "../hooks/usePandasProgress";
-import CourseCertificate from "../../shared/CourseCertificate";
 const BASE_PATH = "/learn/pandas-py";
 
 function lessonPlainText(lesson) {
@@ -346,13 +345,6 @@ export default function PandasHub() {
           );
         })}
       </div>
-      <CourseCertificate
-        courseName="Pandas for Python"
-        totalLessons={PANDAS_LESSONS.length}
-        completedCount={completedCount}
-        earnedXP={earnedXP}
-        totalXP={PANDAS_TOTAL_XP}
-      />
     </div>
   );
 }

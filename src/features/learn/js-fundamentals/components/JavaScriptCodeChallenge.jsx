@@ -12,6 +12,8 @@ import {
   getJavaScriptRuntimeError,
   runJavaScriptCode,
 } from "../../shared/runJavaScript";
+import ChallengeCompleteCelebration from "../../shared/ChallengeCompleteCelebration";
+import { useChallengeCelebration } from "../../shared/useChallengeCelebration";
 
 function normalizeWhitespace(value = "") {
   return value.replace(/\s+/g, "");
@@ -63,6 +65,8 @@ export default function JavaScriptCodeChallenge({
   const [running, setRunning] = useState(false);
   const activeChallengeId = useRef(challenge.id);
   const runTestsRef = useRef(null);
+  const { showCelebration, triggerCelebration, dismissCelebration } =
+    useChallengeCelebration(challenge.id);
 
   useEffect(() => {
     const challengeChanged = activeChallengeId.current !== challenge.id;
@@ -167,10 +171,13 @@ export default function JavaScriptCodeChallenge({
         expected: expectedOutput,
       });
 
-      if (allPassed && !isCompleted) {
-        Promise.resolve(onComplete()).catch((error) => {
-          console.error("Unable to save lesson progress:", error);
-        });
+      if (allPassed) {
+        triggerCelebration();
+        if (!isCompleted) {
+          Promise.resolve(onComplete()).catch((error) => {
+            console.error("Unable to save lesson progress:", error);
+          });
+        }
       }
 
       setRunning(false);
@@ -197,6 +204,10 @@ export default function JavaScriptCodeChallenge({
 
   return (
     <div className="oops-challenge">
+      <ChallengeCompleteCelebration
+        show={showCelebration}
+        onDismiss={dismissCelebration}
+      />
       <div className="oops-problem-panel">
         <div className="oops-problem-header">
           <h3 className="oops-problem-title">{challenge.title}</h3>

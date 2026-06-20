@@ -12,6 +12,7 @@ landing/
 │   ├── AnimatedBackground.jsx
 │   ├── AssistantAvatar.jsx
 │   ├── AssistantFab.jsx
+│   ├── CourseSlider.jsx
 │   ├── CTASection.jsx
 │   ├── FloatingCode.jsx
 │   ├── Footer.jsx
@@ -23,17 +24,19 @@ landing/
 │   ├── Navbar.jsx
 │   ├── OpenAssistantButton.jsx
 │   ├── PolyCodeLogo.jsx
-│   ├── StatsSection.jsx
-│   └── Untitled
+│   ├── PythonCompiler.jsx
+│   └── StatsSection.jsx
 ├── lib/
 │   ├── assistantApi.js
 │   ├── assistantConfig.js
+│   ├── lib.txt
 │   └── useTypewriter.js
 ├── pages/
 │   └── LandingPage.jsx
 ├── landing.css
+└── LandingShell.jsx
 
-Total files: 21
+Total files: 24
 
 ================================================================================
 FILE CONTENTS
@@ -61,8 +64,12 @@ const PARTICLES = Array.from({ length: 18 }, (_, i) => ({
   delay: i * 0.4,
 }));
 
-export default function AnimatedBackground() {
+export default function AnimatedBackground({ theme = "dark" }) {
   const reduceMotion = useReducedMotion();
+
+  if (theme === "light") {
+    return null;
+  }
 
   if (reduceMotion) {
     return <div className="landing-bg-wrap" />;
@@ -176,8 +183,18 @@ FILE: /components/AssistantFab.jsx
 --------------------------------------------------------------------------------
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ChevronRight, Minus, Sparkles, Trash2, Zap } from "lucide-react";
+import {
+  ChevronRight,
+  Minus,
+  Sparkles,
+  ThumbsDown,
+  ThumbsUp,
+  Trash2,
+  Zap,
+} from "lucide-react";
+import { useAuth } from "../../auth/context/AuthContext";
 import { useAssistant } from "../../assistant/context/AssistantContext";
+import ProfileAvatar from "../../profile/components/ProfileAvatar";
 import {
   getContextLabel,
   getQuickPrompts,
@@ -187,6 +204,7 @@ import {
   clearAssistantSession,
   fetchAssistantSession,
   postAssistantChat,
+  postAssistantFeedback,
 } from "../lib/assistantApi";
 import { ASSISTANT_CONFIG } from "../lib/assistantConfig";
 import { useTypewriter } from "../lib/useTypewriter";
@@ -236,9 +254,10 @@ function saveSession(session) {
               .slice(-(MAX_STORED_MESSAGES - 1)),
           ]
         : session.messages;
+    const messagesForStorage = trimmed.map(({ stream, ...message }) => message);
     localStorage.setItem(
       ASSISTANT_CONFIG.storageKey,
-      JSON.stringify({ ...session, messages: trimmed }),
+      JSON.stringify({ ...session, messages: messagesForStorage }),
     );
   } catch {
     /* ignore */
@@ -269,11 +288,57 @@ function renderMarkdown(text) {
   });
 }
 
-function MentorReply({ msg, reduceMotion }) {
-  const isNew = msg.id.startsWith("assistant-");
-  const shouldStream = isNew && !reduceMotion;
+function ReplyFeedback({ feedback, onRate, disabled, required }) {
+  return (
+    <div
+      className={`assistant-feedback${required && !feedback ? " assistant-feedback--required" : ""}`}
+    >
+      {required && !feedback ? (
+        <span className="assistant-feedback-hint">Rate this answer to continue</span>
+      ) : null}
+      <button
+        type="button"
+        className={`assistant-feedback-btn${feedback === "like" ? " assistant-feedback-btn--active-like" : ""}`}
+        onClick={() => onRate("like")}
+        disabled={disabled}
+        aria-label="Helpful reply"
+        aria-pressed={feedback === "like"}
+      >
+        <ThumbsUp size={14} />
+      </button>
+      <button
+        type="button"
+        className={`assistant-feedback-btn${feedback === "dislike" ? " assistant-feedback-btn--active-dislike" : ""}`}
+        onClick={() => onRate("dislike")}
+        disabled={disabled}
+        aria-label="Not helpful reply"
+        aria-pressed={feedback === "dislike"}
+      >
+        <ThumbsDown size={14} />
+      </button>
+    </div>
+  );
+}
+
+function MentorReply({
+  msg,
+  reduceMotion,
+  showFeedback,
+  onRate,
+  feedbackSaving,
+  onStreamComplete,
+  feedbackRequired,
+}) {
+  const shouldStream = Boolean(msg.stream) && !reduceMotion;
   const { displayed, done } = useTypewriter(msg.content, shouldStream);
   const visible = shouldStream ? displayed : msg.content;
+  const canRate = showFeedback && done && msg.content && msg.id !== "welcome";
+
+  useEffect(() => {
+    if (shouldStream && done && onStreamComplete) {
+      onStreamComplete(msg.id);
+    }
+  }, [shouldStream, done, msg.id, onStreamComplete]);
 
   return (
     <article style={{ position: "relative", paddingLeft: "1.25rem" }}>
@@ -299,17 +364,8 @@ function MentorReply({ msg, reduceMotion }) {
       >
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
           <AssistantAvatar size="sm" />
-          <span
-            style={{
-              fontFamily: "ui-monospace, monospace",
-              fontSize: "10px",
-              fontWeight: 700,
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              color: "var(--acid)",
-            }}
-          >
-            mentor.output
+          <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--acid)" }}>
+            {ASSISTANT_CONFIG.name}
           </span>
         </div>
         <p style={{ fontSize: "13px", lineHeight: 1.6, color: "#e2e8f0", margin: 0 }}>
@@ -328,6 +384,14 @@ function MentorReply({ msg, reduceMotion }) {
             />
           ) : null}
         </p>
+        {canRate ? (
+          <ReplyFeedback
+            feedback={msg.feedback}
+            onRate={onRate}
+            disabled={feedbackSaving}
+            required={feedbackRequired}
+          />
+        ) : null}
       </div>
     </article>
   );
@@ -353,7 +417,37 @@ function ThinkingIndicator() {
   );
 }
 
+function UserReply({ content, user }) {
+  return (
+    <div className="assistant-user-row">
+      {user ? (
+        <div className="assistant-user-avatar" aria-hidden>
+          <ProfileAvatar user={user} size="sm" />
+        </div>
+      ) : null}
+      <div className="assistant-user-bubble">
+        <p>{content}</p>
+      </div>
+    </div>
+  );
+}
+
+function getPendingFeedbackMessage(messages) {
+  for (let i = messages.length - 1; i >= 0; i -= 1) {
+    const message = messages[i];
+    if (
+      message.role === "assistant" &&
+      message.id !== "welcome" &&
+      message.content?.trim()
+    ) {
+      return message.feedback ? null : message;
+    }
+  }
+  return null;
+}
+
 export default function AssistantFab() {
+  const { user } = useAuth();
   const { context: assistantContext } = useAssistant();
   const reduceMotion = useReducedMotion();
   const [open, setOpen] = useState(false);
@@ -361,6 +455,7 @@ export default function AssistantFab() {
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(null);
+  const [feedbackSavingId, setFeedbackSavingId] = useState(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const sessionRef = useRef(session);
@@ -373,20 +468,27 @@ export default function AssistantFab() {
     let cancelled = false;
 
     async function hydrateFromServer() {
-      const current = loadSession();
-      const data = await fetchAssistantSession(current.sessionId);
-      if (cancelled || !data?.messages?.length) return;
+      try {
+        const current = loadSession();
+        const data = await fetchAssistantSession(current.sessionId);
+        if (cancelled || !data?.messages?.length) return;
 
-      const serverMessages = data.messages.map((m, index) => ({
-        id: `server-${index}-${m.createdAt || Date.now()}`,
-        role: m.role,
-        content: m.content,
-      }));
+        const serverMessages = data.messages.map((m, index) => ({
+          id:
+            m.clientMessageId ||
+            `server-${index}-${m.createdAt || Date.now()}`,
+          role: m.role,
+          content: m.content,
+          feedback: m.feedback || null,
+        }));
 
-      setSession({
-        sessionId: current.sessionId,
-        messages: [WELCOME_MESSAGE, ...serverMessages],
-      });
+        setSession({
+          sessionId: current.sessionId,
+          messages: [WELCOME_MESSAGE, ...serverMessages],
+        });
+      } catch {
+        /* use local session from localStorage */
+      }
     }
 
     hydrateFromServer();
@@ -433,11 +535,65 @@ export default function AssistantFab() {
     clearAssistantSession(previousSessionId).catch(() => {});
   }, []);
 
+  const handleFeedback = useCallback(
+    async (messageId, rating, assistantContent) => {
+      const msgs = sessionRef.current.messages;
+      const msgIndex = msgs.findIndex((m) => m.id === messageId);
+      if (msgIndex < 0) return;
+
+      const userMsg = [...msgs.slice(0, msgIndex)]
+        .reverse()
+        .find((m) => m.role === "user" && m.content?.trim());
+      if (!userMsg) return;
+
+      const previousFeedback = msgs[msgIndex]?.feedback;
+      setSession((prev) => ({
+        ...prev,
+        messages: prev.messages.map((m) =>
+          m.id === messageId ? { ...m, feedback: rating } : m,
+        ),
+      }));
+      setFeedbackSavingId(messageId);
+
+      try {
+        await postAssistantFeedback({
+          session_id: sessionRef.current.sessionId,
+          message_id: messageId,
+          rating,
+          user_message: userMsg.content,
+          assistant_message: assistantContent,
+          context: assistantContext,
+        });
+      } catch {
+        setSession((prev) => ({
+          ...prev,
+          messages: prev.messages.map((m) =>
+            m.id === messageId ? { ...m, feedback: previousFeedback || null } : m,
+          ),
+        }));
+      } finally {
+        setFeedbackSavingId(null);
+      }
+    },
+    [assistantContext],
+  );
+
+  const handleStreamComplete = useCallback((messageId) => {
+    setSession((prev) => ({
+      ...prev,
+      messages: prev.messages.map((message) =>
+        message.id === messageId ? { ...message, stream: false } : message,
+      ),
+    }));
+  }, []);
+
   const sendText = useCallback(
     async (text) => {
       if (!text.trim() || sending) return;
+      if (getPendingFeedbackMessage(sessionRef.current.messages)) return;
 
       const userMsg = { id: `user-${Date.now()}`, role: "user", content: text };
+      const assistantId = `assistant-${Date.now()}`;
       const pendingId = `pending-${Date.now()}`;
       const pendingMsg = { id: pendingId, role: "assistant", content: "" };
       setSession((prev) => ({
@@ -459,11 +615,14 @@ export default function AssistantFab() {
           history,
           session_id: currentSession.sessionId,
           context: assistantContext,
+          assistant_message_id: assistantId,
         });
         const assistantMsg = {
-          id: `assistant-${Date.now()}`,
+          id: assistantId,
           role: "assistant",
           content: res.response,
+          feedback: null,
+          stream: true,
         };
         setSession((prev) => ({
           ...prev,
@@ -493,12 +652,15 @@ export default function AssistantFab() {
     }
   };
 
+  const pendingFeedback = getPendingFeedbackMessage(session.messages);
+  const inputLocked = sending || Boolean(pendingFeedback);
+
   const quickPrompts = getQuickPrompts(assistantContext);
   const contextLabel = getContextLabel(assistantContext);
 
   const showQuickPrompts =
     session.messages.length <= 1 &&
-    !sending &&
+    !inputLocked &&
     session.messages.every((m) => m.id === "welcome");
 
   const messageContent = (msg) =>
@@ -595,26 +757,21 @@ export default function AssistantFab() {
                   {msg.role === "assistant" && msg.content === "" ? (
                     <ThinkingIndicator />
                   ) : msg.role === "user" ? (
-                    <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                      <div
-                        style={{
-                          maxWidth: "92%",
-                          borderRadius: "0.75rem",
-                          border: "1px solid rgba(100,116,139,0.3)",
-                          background: "rgba(30,41,59,0.5)",
-                          padding: "0.75rem 1rem",
-                        }}
-                      >
-                        <p style={{ margin: "0 0 0.25rem", fontFamily: "ui-monospace, monospace", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.1em", color: "#64748b" }}>
-                          you.input
-                        </p>
-                        <p style={{ margin: 0, fontSize: "13px", color: "#f1f5f9" }}>{messageContent(msg)}</p>
-                      </div>
-                    </div>
+                    <UserReply
+                      content={messageContent(msg)}
+                      user={user}
+                    />
                   ) : (
                     <MentorReply
                       msg={{ ...msg, content: messageContent(msg) }}
                       reduceMotion={reduceMotion}
+                      showFeedback
+                      feedbackSaving={feedbackSavingId === msg.id}
+                      feedbackRequired={msg.id === pendingFeedback?.id}
+                      onStreamComplete={handleStreamComplete}
+                      onRate={(rating) =>
+                        handleFeedback(msg.id, rating, messageContent(msg))
+                      }
                     />
                   )}
                 </div>
@@ -675,7 +832,15 @@ export default function AssistantFab() {
                 padding: "1rem",
               }}
             >
-              <div style={{ display: "flex", alignItems: "flex-end", gap: "0.5rem", borderRadius: "0.75rem", border: "1px solid var(--border)", background: "#0a1018", padding: "0.5rem" }}>
+              {pendingFeedback ? (
+                <p className="assistant-feedback-lock-notice" role="status">
+                  Like or dislike the last answer before sending another message.
+                </p>
+              ) : null}
+              <div
+                className={`assistant-composer${inputLocked && !sending ? " assistant-composer--locked" : ""}`}
+                style={{ display: "flex", alignItems: "flex-end", gap: "0.5rem", borderRadius: "0.75rem", border: "1px solid var(--border)", background: "#0a1018", padding: "0.5rem" }}
+              >
                 <span style={{ paddingBottom: "0.5rem", paddingLeft: "0.25rem", fontFamily: "ui-monospace, monospace", fontWeight: 700, color: "var(--acid)" }}>
                   &gt;
                 </span>
@@ -684,9 +849,13 @@ export default function AssistantFab() {
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder={ASSISTANT_CONFIG.inputPlaceholder}
+                  placeholder={
+                    pendingFeedback
+                      ? "Rate the reply above to continue…"
+                      : ASSISTANT_CONFIG.inputPlaceholder
+                  }
                   rows={1}
-                  disabled={sending}
+                  disabled={inputLocked}
                   aria-label="Ask PolyMentor"
                   style={{
                     flex: 1,
@@ -704,7 +873,7 @@ export default function AssistantFab() {
                 <button
                   type="button"
                   onClick={send}
-                  disabled={!draft.trim() || sending}
+                  disabled={!draft.trim() || inputLocked}
                   aria-label="Send"
                   style={{
                     display: "flex",
@@ -717,7 +886,7 @@ export default function AssistantFab() {
                     background: "var(--acid)",
                     color: "#fff",
                     cursor: "pointer",
-                    opacity: !draft.trim() || sending ? 0.3 : 1,
+                    opacity: !draft.trim() || inputLocked ? 0.3 : 1,
                   }}
                 >
                   <ChevronRight size={20} />
@@ -773,6 +942,228 @@ export default function AssistantFab() {
 
 
 --------------------------------------------------------------------------------
+FILE: /components/CourseSlider.jsx
+--------------------------------------------------------------------------------
+import React, { useRef, useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Boxes,
+  Layers3,
+  Grid3x3,
+  Table2,
+  Play,
+  Brain,
+  FileText,
+} from "lucide-react";
+
+/* ─── Course data ───────────────────────────────────────────────
+   Add new courses here — they appear in the slider automatically.
+   Pull from courseCatalog.js values so it's one source of truth.
+──────────────────────────────────────────────────────────────── */
+const COURSES = [
+  {
+    title: "OOPs C++",
+    tag: "C++ · Interactive",
+    icon: Boxes,
+    description:
+      "Classes, constructors, inheritance, polymorphism, design principles, and real coding challenges.",
+    href: "/learn/oops-cpp",
+    accent: "#ffe566",
+    level: "Intermediate",
+  },
+  {
+    title: "Pointers C++",
+    tag: "C++ · Memory",
+    icon: Layers3,
+    description:
+      "Addresses, dereferencing, nullptr, arrays, smart pointers, callbacks, and safety.",
+    href: "/learn/pointers-cpp",
+    accent: "#00d4ff",
+    level: "Intermediate",
+  },
+  {
+    title: "NumPy · Python",
+    tag: "Python · Data",
+    icon: Grid3x3,
+    description:
+      "ndarray basics, shape, dtype, vector math, and hands-on Python challenges with NumPy.",
+    href: "/learn/numpy-py",
+    accent: "#4dabdc",
+    level: "Beginner",
+  },
+  {
+    title: "Pandas · Python",
+    tag: "Python · Data",
+    icon: Table2,
+    description:
+      "Series, DataFrames, filtering, cleaning, groupby, merges, and CSV workflows.",
+    href: "/learn/pandas-py",
+    accent: "#059669",
+    level: "Beginner",
+  },
+  {
+    title: "Daily Challenge",
+    tag: "All Levels · Routine",
+    icon: Brain,
+    description:
+      "A fresh coding problem every day. Build consistency, sharpen problem-solving skills.",
+    href: "/daily-challenge",
+    accent: "#a78bfa",
+    level: "All Levels",
+  },
+  {
+    title: "Playground",
+    tag: "All Languages · Hands-on",
+    icon: Play,
+    description:
+      "Experiment freely — write, run, and test code in the browser with zero setup.",
+    href: "/playground",
+    accent: "#fb923c",
+    level: "All Levels",
+  },
+  {
+    title: "Documentation",
+    tag: "Reference · Guides",
+    icon: FileText,
+    description:
+      "Curated guides, syntax notes, examples, and reference material for every language.",
+    href: "/hub",
+    accent: "#38bdf8",
+    level: "All Levels",
+  },
+];
+
+const CARD_WIDTH = 300; // px — keep in sync with CSS
+const GAP = 20;
+const AUTO_SCROLL_INTERVAL = 3500; // ms
+
+export default function CoursesSlider() {
+  const trackRef = useRef(null);
+  const autoRef = useRef(null);
+  const navigate = useNavigate();
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const total = COURSES.length;
+
+  /* ── scroll helpers ── */
+  const scrollTo = useCallback(
+    (index) => {
+      if (!trackRef.current) return;
+      const clamped = Math.max(0, Math.min(index, total - 1));
+      trackRef.current.scrollTo({
+        left: clamped * (CARD_WIDTH + GAP),
+        behavior: "smooth",
+      });
+      setActiveIndex(clamped);
+    },
+    [total],
+  );
+
+  const prev = () => scrollTo(activeIndex === 0 ? total - 1 : activeIndex - 1);
+  const next = useCallback(
+    () => scrollTo(activeIndex === total - 1 ? 0 : activeIndex + 1),
+    [activeIndex, scrollTo, total],
+  );
+
+  /* ── auto-scroll ── */
+  useEffect(() => {
+    if (isPaused) return;
+    autoRef.current = setInterval(next, AUTO_SCROLL_INTERVAL);
+    return () => clearInterval(autoRef.current);
+  }, [next, isPaused]);
+
+  /* ── sync dot indicator on manual scroll ── */
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    const onScroll = () => {
+      const index = Math.round(track.scrollLeft / (CARD_WIDTH + GAP));
+      setActiveIndex(index);
+    };
+    track.addEventListener("scroll", onScroll, { passive: true });
+    return () => track.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
+    <section
+      id="courses"
+      className="cs-section"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
+      <div className="landing-container">
+        {/* Header */}
+        <div className="cs-header">
+          <div>
+            <p className="landing-sec-label">Courses &amp; Resources</p>
+            <h2 className="cs-title">Pick Something. Start Today.</h2>
+          </div>
+          <div className="cs-controls">
+            <button className="cs-btn" aria-label="Previous" onClick={prev}>
+              <ChevronLeft size={18} />
+            </button>
+            <button className="cs-btn" aria-label="Next" onClick={next}>
+              <ChevronRight size={18} />
+            </button>
+          </div>
+        </div>
+
+        {/* Track */}
+        <div className="cs-track" ref={trackRef}>
+          {COURSES.map((course, i) => {
+            const Icon = course.icon;
+            const isActive = i === activeIndex;
+            return (
+              <article
+                key={course.title}
+                className={`cs-card${isActive ? " cs-card--active" : ""}`}
+                style={{ "--accent": course.accent }}
+                onClick={() => navigate(course.href)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === "Enter" && navigate(course.href)}
+                aria-label={`Open ${course.title}`}
+              >
+                <div className="cs-card-top">
+                  <div className="cs-icon">
+                    <Icon size={20} aria-hidden />
+                  </div>
+                  <span className="cs-level">{course.level}</span>
+                </div>
+                <span className="cs-tag">{course.tag}</span>
+                <h3 className="cs-card-title">{course.title}</h3>
+                <p className="cs-card-desc">{course.description}</p>
+                <div className="cs-card-footer">
+                  <span className="cs-cta">Start now →</span>
+                </div>
+                <div className="cs-card-glow" aria-hidden />
+              </article>
+            );
+          })}
+        </div>
+
+        {/* Dot indicators */}
+        <div className="cs-dots" role="tablist" aria-label="Course slides">
+          {COURSES.map((course, i) => (
+            <button
+              key={course.title}
+              role="tab"
+              aria-selected={i === activeIndex}
+              aria-label={`Go to ${course.title}`}
+              className={`cs-dot${i === activeIndex ? " cs-dot--active" : ""}`}
+              onClick={() => scrollTo(i)}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
+--------------------------------------------------------------------------------
 FILE: /components/CTASection.jsx
 --------------------------------------------------------------------------------
 import React, { useRef } from "react";
@@ -821,12 +1212,12 @@ import React from "react";
 import { motion, useReducedMotion } from "framer-motion";
 
 const SNIPPETS = [
-  { text: "def learn():", x: "4%", y: "18%", duration: 14 },
-  { text: "{ code }", x: "88%", y: "22%", duration: 16 },
-  { text: "async/await", x: "92%", y: "58%", duration: 12 },
-  { text: "<PolyCode />", x: "6%", y: "68%", duration: 18 },
-  { text: "import ai", x: "78%", y: "78%", duration: 15 },
-  { text: "git push", x: "14%", y: "42%", duration: 13 },
+  { text: "🐍 Python", x: "4%", y: "18%", duration: 14 },
+  { text: "📊 Pandas", x: "88%", y: "22%", duration: 16 },
+  { text: "🔢 NumPy", x: "92%", y: "58%", duration: 12 },
+  { text: "⚙️ C++", x: "6%", y: "68%", duration: 18 },
+  { text: "🤖 PolyMentor", x: "78%", y: "78%", duration: 15 },
+  { text: "💻 Playground", x: "14%", y: "42%", duration: 13 },
 ];
 
 export default function FloatingCode() {
@@ -864,14 +1255,87 @@ export default function FloatingCode() {
 FILE: /components/Footer.jsx
 --------------------------------------------------------------------------------
 import React from "react";
-import PolyCodeLogo from "./PolyCodeLogo";
+import { Github, Mail, BookOpen, Shield, Bot } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="landing-footer">
-      <div className="landing-container landing-footer-inner">
-        <PolyCodeLogo height={48} />
-        <p>PolyMentor · PolyCode Website · PolyGuard</p>
+    <footer className="footer-pro">
+      <div className="footer-main">
+        {/* Brand */}
+        <div className="footer-brand">
+          <div className="footer-logo">
+            <span className="footer-logo-gradient">Poly</span>Code
+          </div>
+
+          <p className="footer-description">
+            AI-powered programming education platform with interactive courses,
+            coding challenges, personal mentorship, and security analysis.
+          </p>
+
+          <div className="footer-socials">
+            <a
+              href="https://github.com/QuantumLogicsLabs/PolyCode"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Github size={18} />
+            </a>
+
+            <a href="mailto:support@quantumlogicslimited.com">
+              <Mail size={18} />
+            </a>
+          </div>
+        </div>
+
+        {/* Platform */}
+        <div className="footer-links">
+          <h4>Platform</h4>
+
+          <a href="#modules">
+            <Bot size={16} />
+            PolyMentor
+          </a>
+
+          <a href="#modules">
+            <BookOpen size={16} />
+            Courses
+          </a>
+
+          <a href="#modules">
+            <Shield size={16} />
+            PolyGuard
+          </a>
+        </div>
+
+        {/* Resources */}
+        <div className="footer-links">
+          <h4>Resources</h4>
+
+          <a href="https://code.quantumlogicslimited.com/hub">Documentation</a>
+
+          <a href="#get-started">Learning Paths</a>
+
+          <a href="#modules">Challenges</a>
+        </div>
+
+        {/* Pages */}
+        <div className="footer-links">
+          <h4>Pages</h4>
+
+          <a href="#top">About</a>
+
+          <a href="mailto:support@quantumlogicslimited.com">Contact</a>
+
+          <a href="/privacy">Privacy Policy</a>
+
+          <a href="/terms">Terms of Service</a>
+        </div>
+      </div>
+
+      <div className="footer-bottom">
+        <p>© {new Date().getFullYear()} PolyCode. All rights reserved.</p>
+
+        <span>Learn • Build • Secure</span>
       </div>
     </footer>
   );
@@ -883,8 +1347,7 @@ FILE: /components/Hero.jsx
 --------------------------------------------------------------------------------
 import React from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
-import OpenAssistantButton from "./OpenAssistantButton";
+import { Sparkles } from "lucide-react";
 
 export default function Hero() {
   const reduceMotion = useReducedMotion();
@@ -911,15 +1374,10 @@ export default function Hero() {
             Structured programming courses, interactive exercises, real-time AI
             mentoring, and built-in security analysis in one platform.
           </p>
-          opers ship safer code.
           <div className="landing-hero-actions">
-            <a href="#get-started" className="landing-btn-accent">
-              Start Learning
-              <ArrowRight size={16} aria-hidden />
+            <a href="#get-started" className="landing-btn-primary">
+              Get Started
             </a>
-            <OpenAssistantButton className="landing-btn-secondary">
-              Try PolyMentor
-            </OpenAssistantButton>
           </div>
         </motion.div>
 
@@ -929,7 +1387,7 @@ export default function Hero() {
           animate={{ opacity: 1, scale: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
         >
-          <div className="landing-hero-image-glow" />
+          <div className="landing-hero-image" />
           <motion.div
             className="landing-hero-image"
             animate={reduceMotion ? {} : { y: [0, -8, 0] }}
@@ -1179,7 +1637,6 @@ export default function LanguagePickerSection({
 }) {
   const [languages, setLanguages] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [hoveredLanguage, setHoveredLanguage] = useState(null);
   const [selectedLanguage, setSelectedLanguage] = useState(null);
   const navigate = useNavigate();
 
@@ -1235,23 +1692,32 @@ export default function LanguagePickerSection({
   return (
     <section id="get-started" className="landing-get-started">
       <div className="landing-container">
-        <p className="landing-section-label">Get started</p>
-        <h2>Choose your programming language</h2>
-        <p className="landing-section-desc">
-          Pick a stack to open docs, courses, playground, and daily challenges.
-        </p>
+        <div className="landing-lang-header">
+          <p className="landing-sec-label">START YOUR JOURNEY</p>
+
+          <h2 className="landing-sec-title">
+            Choose Your Programming Language
+          </h2>
+
+          <p className="landing-sec-sub">
+            Explore structured learning paths, interactive exercises, AI-powered
+            mentoring, coding playgrounds, and real-world projects.
+          </p>
+        </div>
 
         {continueLanguage ? (
-          <button
-            type="button"
-            className="btn-secondary continue-stack-btn"
-            onClick={() =>
-              navigate(`/language/${encodeURIComponent(continueLanguage)}`)
-            }
-            style={{ marginBottom: "1.5rem" }}
-          >
-            Continue with {continueLanguage} →
-          </button>
+          <div className="continue-stack-wrap">
+            <button
+              type="button"
+              className="continue-stack-btn"
+              onClick={() =>
+                navigate(`/language/${encodeURIComponent(continueLanguage)}`)
+              }
+            >
+              Continue Learning {continueLanguage}
+              <span>→</span>
+            </button>
+          </div>
         ) : null}
 
         <div className="lang-grid">
@@ -1261,68 +1727,27 @@ export default function LanguagePickerSection({
               color: "#64748b",
             };
             const rgba = meta.color.startsWith("#")
-              ? hexToRgba(meta.color, 0.2)
+              ? hexToRgba(meta.color, 0.15)
               : "rgba(255,255,255,0.1)";
-            const isHovered = hoveredLanguage === language;
-            const isSelected = selectedLanguage === language;
 
             return (
               <div
                 key={language}
                 onClick={() => handleLanguageSelect(language)}
-                className={`lang-card fade-up ${isSelected ? "selected" : ""}`}
+                className={`lang-card ${selectedLanguage === language ? "selected" : ""}`}
                 style={{
                   "--lang-color": meta.color,
                   "--lang-color-alpha": rgba,
-                  animationDelay: `${i * 0.1}s`,
-                  transform: isHovered
-                    ? "translateY(-12px) scale(1.03)"
-                    : "translateY(0) scale(1)",
-                  opacity: isSelected ? 0.8 : 1,
-                }}
-                onMouseEnter={() => setHoveredLanguage(language)}
-                onMouseLeave={() => setHoveredLanguage(null)}
-                onMouseMove={(e) => {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  const x = e.clientX - rect.left;
-                  const y = e.clientY - rect.top;
-                  e.currentTarget.style.setProperty("--mouse-x", `${x}px`);
-                  e.currentTarget.style.setProperty("--mouse-y", `${y}px`);
                 }}
               >
-                <div
-                  className="lang-icon-wrapper"
-                  style={{
-                    transform: isHovered
-                      ? "scale(1.15) rotate(8deg)"
-                      : "scale(1) rotate(0deg)",
-                  }}
-                >
+                <div className="lang-icon-wrapper">
                   {meta.icon.startsWith("http") ? (
                     <img src={meta.icon} alt={language} />
                   ) : (
-                    <span style={{ fontSize: "2.5rem" }}>{meta.icon}</span>
+                    <span>{meta.icon}</span>
                   )}
                 </div>
-                <span
-                  className="lang-name"
-                  style={{
-                    transform: isHovered ? "translateY(-2px)" : "translateY(0)",
-                    color: isHovered ? meta.color : "#fff",
-                  }}
-                >
-                  {language}
-                </span>
-                <span
-                  className="lang-explorer"
-                  style={{
-                    opacity: isHovered ? 1 : 0,
-                    transform: isHovered ? "translateY(0)" : "translateY(10px)",
-                    color: isHovered ? meta.color : "var(--txt-3)",
-                  }}
-                >
-                  {isSelected ? "Loading..." : "Explore Docs →"}
-                </span>
+                <span className="lang-name">{language}</span>
               </div>
             );
           })}
@@ -1370,21 +1795,21 @@ FILE: /components/ModulesSection.jsx
 import React, { useRef } from "react";
 import { motion, useReducedMotion, useInView } from "framer-motion";
 import { BookOpen, Bot, Shield } from "lucide-react";
-import OpenAssistantButton from "./OpenAssistantButton";
 
 const MODULES = [
   {
     id: "polym_mentor",
     icon: Bot,
+    image: "/images/assistnat2.png",
     name: "PolyMentor",
-    tagline: "AI Coding Assistant",
+    tagline: "Your Personal AI Mentor",
     description:
-      "Your intelligent programming mentor. Debug code, understand errors, learn best practices, and get step-by-step guidance.",
+      "Get instant explanations, debugging help, coding guidance, and personalized learning support whenever you need it.",
     features: [
-      "Answers programming questions",
-      "Explains errors & exceptions",
-      "Suggests optimized solutions",
-      "Improves from user feedback",
+      "AI coding guidance",
+      "Error explanations",
+      "Code optimization",
+      "Personalized learning",
     ],
     cardClass: "landing-module-card--indigo",
     iconClass: "landing-module-icon--indigo",
@@ -1393,15 +1818,16 @@ const MODULES = [
   {
     id: "polycode-website",
     icon: BookOpen,
-    name: "PolyCode Website",
-    tagline: "Learning Platform",
+    image: "images/courses.png",
+    name: "Interactive Learning",
+    tagline: "Courses & Challenges",
     description:
-      "The main educational hub with courses, video lectures, exercises, progress tracking, and AI-powered chat.",
+      "Master programming through structured courses, hands-on exercises, coding challenges, and progress tracking.",
     features: [
-      "Course management system",
-      "Video lectures & tutorials",
-      "Programming exercises",
-      "Student progress tracking",
+      "Interactive courses",
+      "Coding exercises",
+      "Progress tracking",
+      "Video tutorials",
     ],
     cardClass: "landing-module-card--violet",
     iconClass: "landing-module-icon--violet",
@@ -1410,15 +1836,16 @@ const MODULES = [
   {
     id: "polyguard",
     icon: Shield,
+    image: "/images/polyguard.png",
     name: "PolyGuard",
-    tagline: "Security Analyzer",
+    tagline: "AI Security Review",
     description:
-      "AI/ML-based code security analysis that detects vulnerabilities, scores risk, and suggests improvements.",
+      "Analyze code for vulnerabilities, receive security insights, and improve software quality before deployment.",
     features: [
       "Vulnerability detection",
       "Security scoring",
-      "Unsafe practice alerts",
-      "Risk assessment reports",
+      "Risk analysis",
+      "Improvement suggestions",
     ],
     cardClass: "landing-module-card--cyan",
     iconClass: "landing-module-icon--cyan",
@@ -1435,32 +1862,51 @@ export default function ModulesSection() {
     <section id="modules" ref={ref} className="landing-section">
       <div className="landing-container">
         <motion.div
+          className="landing-modules-header"
           initial={reduceMotion ? {} : { opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
         >
-          <p className="landing-section-label">Three pillars</p>
-          <h2>One ecosystem for learning and security</h2>
-          <p className="landing-section-desc">
-            PolyCode brings together mentorship, structured learning, and automated
-            security analysis in a single platform built for students and developers.
+          <p className="landing-sec-label">Complete Learning Ecosystem</p>
+
+          <h2 className="landing-sec-title">
+            Everything You Need To Become A Better Developer
+          </h2>
+
+          <p className="landing-sec-sub">
+            Learn programming through interactive courses, AI-powered mentoring,
+            coding challenges, and built-in security analysis.
           </p>
         </motion.div>
-
         <div className="landing-modules-grid">
           {MODULES.map((module, index) => {
             const Icon = module.icon;
+
             const cardContent = (
               <>
+                <div className="landing-module-image-wrap">
+                  <img
+                    src={module.image}
+                    alt={module.name}
+                    className="landing-module-image"
+                  />
+                </div>
+
                 <div className={`landing-module-icon ${module.iconClass}`}>
                   <Icon size={24} aria-hidden />
                 </div>
+
                 <p className="landing-module-tagline">{module.tagline}</p>
+
                 <h3>{module.name}</h3>
+
                 <p>{module.description}</p>
+
                 <ul className="landing-module-features">
                   {module.features.map((feature) => (
-                    <li key={feature}>{feature}</li>
+                    <li key={feature} className="landing-feature-pill">
+                      {feature}
+                    </li>
                   ))}
                 </ul>
               </>
@@ -1473,13 +1919,15 @@ export default function ModulesSection() {
                   className={`landing-module-card ${module.cardClass}`}
                   initial={reduceMotion ? {} : { opacity: 0, y: 30 }}
                   animate={inView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.55, delay: index * 0.15 }}
+                  transition={{
+                    duration: 0.55,
+                    delay: index * 0.15,
+                  }}
                 >
                   {cardContent}
+
                   <div style={{ marginTop: "1.25rem" }}>
-                    <OpenAssistantButton className="landing-btn-indigo">
-                      Talk to PolyMentor
-                    </OpenAssistantButton>
+                    <div className="landing-module-action"></div>
                   </div>
                 </motion.article>
               );
@@ -1493,7 +1941,10 @@ export default function ModulesSection() {
                   className={`landing-module-card landing-module-card--clickable ${module.cardClass}`}
                   initial={reduceMotion ? {} : { opacity: 0, y: 30 }}
                   animate={inView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.55, delay: index * 0.15 }}
+                  transition={{
+                    duration: 0.55,
+                    delay: index * 0.15,
+                  }}
                 >
                   {cardContent}
                 </motion.a>
@@ -1506,7 +1957,10 @@ export default function ModulesSection() {
                 className={`landing-module-card ${module.cardClass}`}
                 initial={reduceMotion ? {} : { opacity: 0, y: 30 }}
                 animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.55, delay: index * 0.15 }}
+                transition={{
+                  duration: 0.55,
+                  delay: index * 0.15,
+                }}
               >
                 {cardContent}
               </motion.article>
@@ -1522,54 +1976,250 @@ export default function ModulesSection() {
 --------------------------------------------------------------------------------
 FILE: /components/Navbar.jsx
 --------------------------------------------------------------------------------
-import React from "react";
-import { ArrowRight } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  ArrowRight,
+  ChevronDown,
+  Boxes,
+  Layers3,
+  Grid3x3,
+  Table2,
+  FileText,
+  Moon,
+  Sun,
+} from "lucide-react";
+import { getLanguages } from "../../docs/services/api";
 
 const NAV_LINKS = [
+  { href: "#modules", label: "Features" },
+  { href: "/hub", label: "Docs" },
+];
+
+const COURSES = [
   {
-    href: "#modules",
-    label: "Features",
+    label: "OOPs C++",
+    sub: "Classes · Inheritance · Polymorphism",
+    href: "/learn/oops-cpp",
+    icon: Boxes,
+    accent: "#ffe566",
   },
   {
-    href: "#get-started",
-    label: "Languages",
+    label: "Pointers C++",
+    sub: "Memory · Smart Pointers · Safety",
+    href: "/learn/pointers-cpp",
+    icon: Layers3,
+    accent: "#00d4ff",
   },
   {
-    href: "/docs",
-    label: "Documentation",
+    label: "NumPy · Python",
+    sub: "Arrays · Vector Math · Data",
+    href: "/learn/numpy-py",
+    icon: Grid3x3,
+    accent: "#4dabdc",
+  },
+  {
+    label: "Pandas · Python",
+    sub: "DataFrames · Groupby · CSV",
+    href: "/learn/pandas-py",
+    icon: Table2,
+    accent: "#059669",
+  },
+  {
+    label: "JS Fundamentals",
+    sub: "Variables · Functions · Arrays",
+    href: "/learn/js-fundamentals",
+    icon: FileText,
+    accent: "#f59e0b",
   },
 ];
 
-export default function Navbar() {
+export default function Navbar({ theme = "dark", onToggleTheme }) {
+  const [coursesOpen, setCoursesOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
+  const [languages, setLanguages] = useState([]);
+  const coursesRef = useRef(null);
+  const langRef = useRef(null);
+  const navigate = useNavigate();
+
+  // Frosted glass on scroll
+  useEffect(() => {
+    const nav = document.querySelector(".landing-navbar");
+    const onScroll = () =>
+      nav?.classList.toggle("landing-navbar--scrolled", window.scrollY > 20);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Fetch languages from API
+  useEffect(() => {
+    getLanguages()
+      .then(({ data }) => {
+        setLanguages(Array.isArray(data.languages) ? data.languages : []);
+      })
+      .catch(() => setLanguages([]));
+  }, []);
+
+  // Close dropdowns on outside click
+  useEffect(() => {
+    const handler = (e) => {
+      if (!coursesRef.current?.contains(e.target)) setCoursesOpen(false);
+      if (!langRef.current?.contains(e.target)) setLangOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const handleNav = (href) => {
+    setCoursesOpen(false);
+    setLangOpen(false);
+    if (href.startsWith("#")) {
+      document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      navigate(href);
+    }
+  };
+
   return (
     <header className="landing-navbar">
-      {" "}
       <div className="landing-container">
-        {" "}
         <div className="landing-navbar-inner">
-          ```
+          {/* Brand */}
           <a href="#top" className="landing-brand">
             <div className="landing-brand-mark">
-              <span>P</span>
+              <img
+                src="/images/polycode-logo.png"
+                alt="PolyCode Logo"
+                className="landing-logo"
+              />
             </div>
-
             <div className="landing-brand-text">
               <span className="landing-logo-text">PolyCode</span>
-
               <span className="landing-logo-sub">AI Learning Platform</span>
             </div>
           </a>
+
+          {/* Nav */}
           <nav className="landing-nav-links">
+            {/* Static links */}
             {NAV_LINKS.map((link) => (
-              <a key={link.label} href={link.href} className="landing-nav-link">
+              <button
+                key={link.label}
+                className="landing-nav-link"
+                onClick={() => handleNav(link.href)}
+              >
                 {link.label}
-              </a>
+              </button>
             ))}
+
+            {/* Courses dropdown */}
+            <div className="ln-dropdown-wrap" ref={coursesRef}>
+              <button
+                className={`landing-nav-link ln-dropdown-trigger${coursesOpen ? " ln-dropdown-trigger--open" : ""}`}
+                onClick={() => {
+                  setCoursesOpen((o) => !o);
+                  setLangOpen(false);
+                }}
+                aria-expanded={coursesOpen}
+              >
+                Courses
+                <ChevronDown size={13} className="ln-chevron" />
+              </button>
+
+              {coursesOpen && (
+                <div className="ln-dropdown">
+                  <p className="ln-dropdown-label">Available Courses</p>
+                  {COURSES.map((course) => {
+                    const Icon = course.icon;
+                    return (
+                      <button
+                        key={course.label}
+                        className="ln-dropdown-item"
+                        style={{ "--lang-accent": course.accent }}
+                        onClick={() => handleNav(course.href)}
+                      >
+                        <div className="ln-dropdown-icon">
+                          <Icon size={16} />
+                        </div>
+                        <div className="ln-dropdown-text">
+                          <span className="ln-dropdown-name">
+                            {course.label}
+                          </span>
+                          <span className="ln-dropdown-sub">{course.sub}</span>
+                        </div>
+                        <ArrowRight size={13} className="ln-dropdown-arrow" />
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Languages dropdown */}
+            <div className="ln-dropdown-wrap" ref={langRef}>
+              <button
+                className={`landing-nav-link ln-dropdown-trigger${langOpen ? " ln-dropdown-trigger--open" : ""}`}
+                onClick={() => {
+                  setLangOpen((o) => !o);
+                  setCoursesOpen(false);
+                }}
+                aria-expanded={langOpen}
+              >
+                Languages
+                <ChevronDown size={13} className="ln-chevron" />
+              </button>
+
+              {langOpen && (
+                <div className="ln-dropdown ln-dropdown--languages">
+                  <p className="ln-dropdown-label">Pick a Language</p>
+                  {languages.length === 0 ? (
+                    <p className="ln-dropdown-empty">Loading…</p>
+                  ) : (
+                    <div className="ln-lang-grid">
+                      {languages.map((lang) => (
+                        <button
+                          key={lang}
+                          className="ln-lang-item"
+                          onClick={() =>
+                            handleNav(`/language/${encodeURIComponent(lang)}`)
+                          }
+                        >
+                          <span className="ln-lang-name">{lang}</span>
+                          <ArrowRight size={11} className="ln-lang-arrow" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </nav>
-          <a href="#get-started" className="landing-btn-primary">
-            Start Learning
-            <ArrowRight size={16} />
-          </a>
+
+          {/* Theme + CTA */}
+          <div className="landing-navbar-actions">
+            {onToggleTheme ? (
+              <button
+                type="button"
+                className="landing-theme-toggle"
+                onClick={onToggleTheme}
+                aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+                title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+              >
+                {theme === "dark" ? (
+                  <Sun size={16} aria-hidden />
+                ) : (
+                  <Moon size={16} aria-hidden />
+                )}
+                <span className="landing-theme-toggle-label">
+                  {theme === "dark" ? "Light" : "Dark"}
+                </span>
+              </button>
+            ) : null}
+            <a href="#get-started" className="landing-btn-primary">
+              Start Learning
+              <ArrowRight size={15} />
+            </a>
+          </div>
         </div>
       </div>
     </header>
@@ -1632,6 +2282,156 @@ export default function PolyCodeLogo({ className = "", height = 40, glow = true 
 
 
 --------------------------------------------------------------------------------
+FILE: /components/PythonCompiler.jsx
+--------------------------------------------------------------------------------
+import { useState } from "react";
+import {
+  runPythonCode,
+  formatPythonOutput,
+} from "../../learn/shared/runPython.js";
+
+const LANGUAGES = [
+  {
+    id: "python",
+    label: "Python",
+    accent: "#3776ab",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg",
+    desc: "A versatile, beginner-friendly language used in AI, data science, and web development.",
+    code: `# Python Example\nname = "PolyCode"\nprint(f"Welcome to {name}!")`,
+  },
+  {
+    id: "javascript",
+    label: "JavaScript",
+    accent: "#f7df1e",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg",
+    desc: "The language of the web. Power interactive UIs, servers, and everything in between.",
+    code: `// JavaScript Example\nconst name = "PolyCode";\nconsole.log(\`Welcome to \${name}!\`);`,
+  },
+  {
+    id: "cpp",
+    label: "C++",
+    accent: "#f34b7d",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/cplusplus/cplusplus-original.svg",
+    desc: "High-performance systems language used in games, operating systems, and embedded software.",
+    code: `// C++ Example\n#include <iostream>\nusing namespace std;\n\nint main() {\n  cout << "Welcome to PolyCode!" << endl;\n  return 0;\n}`,
+  },
+];
+
+export default function TryItSection() {
+  const [activeLang, setActiveLang] = useState(LANGUAGES[0]);
+  const [code, setCode] = useState(LANGUAGES[0].code);
+  const [output, setOutput] = useState("");
+  const [running, setRunning] = useState(false);
+
+  const switchLang = (lang) => {
+    setActiveLang(lang);
+    setCode(lang.code);
+    setOutput("");
+  };
+
+  const run = async () => {
+    if (activeLang.id !== "python") {
+      setOutput("// This language runner is coming soon!");
+      return;
+    }
+    setRunning(true);
+    setOutput("");
+    try {
+      const { result } = await runPythonCode(code);
+      setOutput(formatPythonOutput(result) || "(no output)");
+    } catch (e) {
+      setOutput("Error: " + e.message);
+    } finally {
+      setRunning(false);
+    }
+  };
+
+  return (
+    <section className="tryit-section">
+      <div className="landing-container">
+        <p className="landing-sec-label">Live Playground</p>
+        <h2 className="landing-sec-title">Code Without Leaving the Page</h2>
+        <p className="landing-sec-sub">
+          Pick a language, edit the code, and run it instantly.
+        </p>
+
+        {/* Language tabs */}
+        <div className="tryit-tabs">
+          {LANGUAGES.map((lang) => (
+            <button
+              key={lang.id}
+              className={`tryit-tab ${activeLang.id === lang.id ? "tryit-tab--active" : ""}`}
+              style={{ "--tab-accent": lang.accent }}
+              onClick={() => switchLang(lang)}
+            >
+              <img
+                src={lang.icon}
+                alt={lang.label}
+                className="tryit-tab-icon"
+              />
+              {lang.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Main panel */}
+        <div className="tryit-panel">
+          {/* Left */}
+          <div
+            className="tryit-left"
+            style={{ "--lang-accent": activeLang.accent }}
+          >
+            <img
+              src={activeLang.icon}
+              alt={activeLang.label}
+              className="tryit-lang-logo"
+            />
+            <h3 className="tryit-lang-name">{activeLang.label}</h3>
+            <p className="tryit-lang-desc">{activeLang.desc}</p>
+            <button className="tryit-run-btn" onClick={run} disabled={running}>
+              {running ? "▶ Running…" : "▶ Run Code"}
+            </button>
+            <a href={`/language/${activeLang.id}`} className="tryit-learn-btn">
+              Learn {activeLang.label} →
+            </a>
+          </div>
+
+          {/* Right */}
+          <div className="tryit-right">
+            {/* Terminal header */}
+            <div className="tryit-terminal-head">
+              <span className="landing-dot landing-dot-r" />
+              <span className="landing-dot landing-dot-y" />
+              <span className="landing-dot landing-dot-g" />
+              <span className="tryit-terminal-title">
+                {activeLang.label.toLowerCase()}_playground.py
+              </span>
+            </div>
+
+            {/* Editor */}
+            <textarea
+              className="tryit-editor"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              spellCheck={false}
+            />
+
+            {/* Output */}
+            <div className="tryit-output">
+              <span className="tryit-output-label">▸ Output</span>
+              <pre className="tryit-output-pre">
+                {output || '// Click "Run Code" to see output here'}
+              </pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
+--------------------------------------------------------------------------------
 FILE: /components/StatsSection.jsx
 --------------------------------------------------------------------------------
 import React from "react";
@@ -1640,7 +2440,7 @@ const STATS = [
   { number: "15+", label: "Programming Languages" },
   { number: "24/7", label: "AI Assistance" },
   { number: "100+", label: "Learning Topics" },
-  { number: "Built-In", label: "Security Analysis" },
+  { number: "AI", label: "Security Analysis" },
 ];
 
 export default function StatsSection() {
@@ -1650,137 +2450,11 @@ export default function StatsSection() {
         <div className="landing-stats-grid">
           {STATS.map((stat) => (
             <div key={stat.label} className="landing-stat-card">
-              <h3>{stat.number}</h3>
+              <h3 className="landing-stat-num">{stat.number}</h3>
               <p>{stat.label}</p>
             </div>
           ))}
         </div>
-      </div>
-    </section>
-  );
-}
-
-
---------------------------------------------------------------------------------
-FILE: /components/Untitled
---------------------------------------------------------------------------------
-import React, { useRef } from "react";
-import { motion, useReducedMotion, useInView } from "framer-motion";
-import { BookOpen, Bot, Shield } from "lucide-react";
-import OpenAssistantButton from "./OpenAssistantButton";
-
-const FEATURES = [
-  {
-    id: "courses",
-    icon: BookOpen,
-    title: "Structured Courses",
-    description:
-      "Bite-sized lessons with live coding challenges you run right in your browser. Progress tracked, XP earned.",
-    tag: "15+ Languages",
-    barClass: "landing-feat-bar--violet",
-    iconClass: "landing-feat-icon--violet",
-    tagClass: "landing-feat-tag--violet",
-    action: "get-started",
-  },
-  {
-    id: "polymentor",
-    icon: Bot,
-    title: "PolyMentor AI",
-    description:
-      "An AI mentor that knows your current lesson, your code, and your errors — giving help that actually fits your context.",
-    tag: "Always On",
-    barClass: "landing-feat-bar--cyan",
-    iconClass: "landing-feat-icon--cyan",
-    tagClass: "landing-feat-tag--cyan",
-    action: "assistant",
-  },
-  {
-    id: "polyguard",
-    icon: Shield,
-    title: "Security Analysis",
-    description:
-      "PolyGuard scans your code for vulnerabilities as you write. Secure habits become second nature, not an afterthought.",
-    tag: "PolyGuard",
-    barClass: "landing-feat-bar--orange",
-    iconClass: "landing-feat-icon--orange",
-    tagClass: "landing-feat-tag--orange",
-    action: null,
-  },
-];
-
-export default function FeaturesSection() {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
-  const reduceMotion = useReducedMotion();
-
-  return (
-    <section id="modules" ref={ref} className="landing-section">
-      <div className="landing-container">
-        <motion.div
-          initial={reduceMotion ? {} : { opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-        >
-          <p className="landing-sec-label">What you get</p>
-          <h2 className="landing-sec-title">Everything in one platform</h2>
-          <p className="landing-sec-sub">
-            From your first hello world to shipping production-ready, secure
-            code.
-          </p>
-        </motion.div>
-
-        <motion.div
-          className="landing-feat-container"
-          initial={reduceMotion ? {} : { opacity: 0, y: 24 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.1 }}
-        >
-          {FEATURES.map((feature) => {
-            const Icon = feature.icon;
-            const inner = (
-              <>
-                <div className={`landing-feat-bar ${feature.barClass}`} />
-                <div className={`landing-feat-icon ${feature.iconClass}`}>
-                  <Icon size={22} aria-hidden />
-                </div>
-                <h3>{feature.title}</h3>
-                <p>{feature.description}</p>
-                <span className={`landing-feat-tag ${feature.tagClass}`}>
-                  {feature.tag}
-                </span>
-              </>
-            );
-
-            if (feature.action === "assistant") {
-              return (
-                <OpenAssistantButton
-                  key={feature.id}
-                  className="landing-feat-card landing-feat-card--clickable"
-                >
-                  {inner}
-                </OpenAssistantButton>
-              );
-            }
-
-            if (feature.action === "get-started") {
-              return (
-                <a
-                  key={feature.id}
-                  href="#get-started"
-                  className="landing-feat-card landing-feat-card--clickable"
-                >
-                  {inner}
-                </a>
-              );
-            }
-
-            return (
-              <div key={feature.id} className="landing-feat-card">
-                {inner}
-              </div>
-            );
-          })}
-        </motion.div>
       </div>
     </section>
   );
@@ -1806,7 +2480,13 @@ function getAuthHeaders() {
   return headers;
 }
 
-export async function postAssistantChat({ message, history, session_id, context }) {
+export async function postAssistantChat({
+  message,
+  history,
+  session_id,
+  context,
+  assistant_message_id,
+}) {
   const url = `${getApiBase()}/chat/assistant`;
 
   const res = await fetch(url, {
@@ -1817,6 +2497,7 @@ export async function postAssistantChat({ message, history, session_id, context 
       history,
       session_id,
       context: context || {},
+      assistant_message_id,
     }),
   });
 
@@ -1847,24 +2528,75 @@ export async function postAssistantChat({ message, history, session_id, context 
 export async function fetchAssistantSession(sessionId) {
   const url = `${getApiBase()}/chat/assistant/session/${encodeURIComponent(sessionId)}`;
 
-  const res = await fetch(url, {
-    headers: getAuthHeaders(),
-  });
+  try {
+    const res = await fetch(url, {
+      headers: getAuthHeaders(),
+    });
 
-  if (!res.ok) {
+    if (!res.ok) {
+      return null;
+    }
+
+    return res.json();
+  } catch {
+    // Backend offline, CORS, or network issue — fall back to local session
     return null;
   }
+}
 
-  return res.json();
+export async function postAssistantFeedback({
+  session_id,
+  message_id,
+  rating,
+  user_message,
+  assistant_message,
+  context,
+}) {
+  const url = `${getApiBase()}/chat/assistant/feedback`;
+
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({
+        session_id,
+        message_id,
+        rating,
+        user_message,
+        assistant_message,
+        context: context || {},
+      }),
+    });
+
+    if (!res.ok) {
+      let detail = res.statusText;
+      try {
+        const errBody = await res.json();
+        detail = errBody.error || detail;
+      } catch {
+        /* ignore */
+      }
+      throw new Error(detail || `Feedback failed (${res.status})`);
+    }
+
+    return res.json();
+  } catch (err) {
+    if (err instanceof Error) throw err;
+    throw new Error("Could not save feedback.");
+  }
 }
 
 export async function clearAssistantSession(sessionId) {
   const url = `${getApiBase()}/chat/assistant/session/${encodeURIComponent(sessionId)}`;
 
-  await fetch(url, {
-    method: "DELETE",
-    headers: getAuthHeaders(),
-  });
+  try {
+    await fetch(url, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    });
+  } catch {
+    /* ignore when backend is unreachable */
+  }
 }
 
 
@@ -1891,6 +2623,242 @@ export const ASSISTANT_CONFIG = {
   ],
 };
 
+
+--------------------------------------------------------------------------------
+FILE: /lib/lib.txt
+--------------------------------------------------------------------------------
+================================================================================
+START OF FOLDER: lib
+================================================================================
+
+================================================================================
+PROJECT STRUCTURE
+================================================================================
+Root: C:\QuantumLogics\PolyCode\frontend\src\features\landing\lib
+
+lib/
+├── assistantApi.js
+├── assistantConfig.js
+└── useTypewriter.js
+
+Total files: 3
+
+================================================================================
+FILE CONTENTS
+================================================================================
+
+--------------------------------------------------------------------------------
+FILE: /assistantApi.js
+--------------------------------------------------------------------------------
+import { getApiBase } from "../../../config/apiBase";
+
+function getAuthHeaders() {
+  const headers = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  };
+
+  const token = localStorage.getItem("token");
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  return headers;
+}
+
+export async function postAssistantChat({
+  message,
+  history,
+  session_id,
+  context,
+  assistant_message_id,
+}) {
+  const url = `${getApiBase()}/chat/assistant`;
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify({
+      message,
+      history,
+      session_id,
+      context: context || {},
+      assistant_message_id,
+    }),
+  });
+
+  if (res.status === 429) {
+    throw new Error(
+      "Too many messages. Please wait a moment before trying again.",
+    );
+  }
+
+  if (!res.ok) {
+    let detail = res.statusText;
+    try {
+      const errBody = await res.json();
+      detail = errBody.error || errBody.detail || detail;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(detail || `Request failed (${res.status})`);
+  }
+
+  const data = await res.json();
+  if (!data.success) {
+    throw new Error("Assistant did not return a successful response.");
+  }
+  return data;
+}
+
+export async function fetchAssistantSession(sessionId) {
+  const url = `${getApiBase()}/chat/assistant/session/${encodeURIComponent(sessionId)}`;
+
+  try {
+    const res = await fetch(url, {
+      headers: getAuthHeaders(),
+    });
+
+    if (!res.ok) {
+      return null;
+    }
+
+    return res.json();
+  } catch {
+    // Backend offline, CORS, or network issue — fall back to local session
+    return null;
+  }
+}
+
+export async function postAssistantFeedback({
+  session_id,
+  message_id,
+  rating,
+  user_message,
+  assistant_message,
+  context,
+}) {
+  const url = `${getApiBase()}/chat/assistant/feedback`;
+
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({
+        session_id,
+        message_id,
+        rating,
+        user_message,
+        assistant_message,
+        context: context || {},
+      }),
+    });
+
+    if (!res.ok) {
+      let detail = res.statusText;
+      try {
+        const errBody = await res.json();
+        detail = errBody.error || detail;
+      } catch {
+        /* ignore */
+      }
+      throw new Error(detail || `Feedback failed (${res.status})`);
+    }
+
+    return res.json();
+  } catch (err) {
+    if (err instanceof Error) throw err;
+    throw new Error("Could not save feedback.");
+  }
+}
+
+export async function clearAssistantSession(sessionId) {
+  const url = `${getApiBase()}/chat/assistant/session/${encodeURIComponent(sessionId)}`;
+
+  try {
+    await fetch(url, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    });
+  } catch {
+    /* ignore when backend is unreachable */
+  }
+}
+
+
+--------------------------------------------------------------------------------
+FILE: /assistantConfig.js
+--------------------------------------------------------------------------------
+const publicUrl = process.env.PUBLIC_URL || "";
+
+export const ASSISTANT_CONFIG = {
+  name: "PolyMentor",
+  shortName: "PM",
+  tagline: "Your AI programming mentor",
+  welcomeMessage:
+    "Welcome to **PolyMentor**. I can explain PolyCode, guide your learning path, and help you understand PolyGuard security — ask me anything.",
+  storageKey: "polycode_assistant_session",
+  avatarSrc: `${publicUrl}/images/assistant.png`,
+  inputPlaceholder: "Type your question here…",
+  poweredByLabel: "PolyCode Ecosystem · AI Assistant",
+  quickPrompts: [
+    "What is PolyCode?",
+    "How does PolyMentor work?",
+    "Tell me about PolyGuard",
+    "How do I get started?",
+  ],
+};
+
+
+--------------------------------------------------------------------------------
+FILE: /useTypewriter.js
+--------------------------------------------------------------------------------
+import { useEffect, useRef, useState } from "react";
+
+export function useTypewriter(text, active, charDelayMs = 16) {
+  const [displayed, setDisplayed] = useState(() => (active ? "" : text));
+  const [done, setDone] = useState(!active);
+
+  const textRef = useRef(text);
+  const activeRef = useRef(active);
+  textRef.current = text;
+  activeRef.current = active;
+
+  useEffect(() => {
+    if (!active) {
+      setDisplayed(text);
+      setDone(true);
+      return;
+    }
+
+    setDisplayed("");
+    setDone(false);
+
+    let index = 0;
+
+    const id = window.setInterval(() => {
+      index += 1;
+      const slice = textRef.current.slice(0, index);
+      setDisplayed(slice);
+
+      if (index >= textRef.current.length) {
+        window.clearInterval(id);
+        setDone(true);
+      }
+    }, charDelayMs);
+
+    return () => {
+      window.clearInterval(id);
+    };
+  }, [text, active, charDelayMs]);
+
+  return { displayed, done };
+}
+
+
+================================================================================
+END OF FOLDER: lib
+================================================================================
 
 --------------------------------------------------------------------------------
 FILE: /lib/useTypewriter.js
@@ -1945,24 +2913,38 @@ import React from "react";
 import AnimatedBackground from "../components/AnimatedBackground";
 import Footer from "../components/Footer";
 import Hero from "../components/Hero";
-import HowItWorksSection from "../components/HowItWorksSection";
 import LanguagePickerSection from "../components/LanguagePickerSection";
 import Navbar from "../components/Navbar";
 import StatsSection from "../components/StatsSection";
+import CourseSlider from "../components/CourseSlider";
+import TryPythonSection from "../components/PythonCompiler";
+
 import "../landing.css";
 
-export default function LandingPage({ onLanguageSelect, continueLanguage }) {
+export default function LandingPage({
+  onLanguageSelect,
+  continueLanguage,
+  theme = "dark",
+  onToggleTheme,
+}) {
+  const isLight = theme === "light";
+
   return (
-    <div className="polycode-landing">
-      <AnimatedBackground />
+    <div
+      className={`polycode-landing${isLight ? " polycode-landing--light" : ""}`}
+    >
+      <AnimatedBackground theme={theme} />
       <div
         className="polycode-grid"
         style={{ position: "relative", minHeight: "100vh" }}
       >
-        <Navbar />
+        <Navbar theme={theme} onToggleTheme={onToggleTheme} />
         <main>
           <Hero />
-          <HowItWorksSection />
+
+          <CourseSlider />
+
+          <TryPythonSection />
           <StatsSection />
           <LanguagePickerSection
             onLanguageSelect={onLanguageSelect}
@@ -2014,11 +2996,41 @@ FILE: /landing.css
   min-height: 100vh;
 }
 
-.polycode-landing .polycode-grid {
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 40px 40px;
+.polycode-grid {
+  position: relative;
+}
+
+.polycode-grid::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(124, 58, 237, 0.18),
+      transparent 40%
+    ),
+    radial-gradient(circle at 80% 30%, rgba(0, 229, 255, 0.12), transparent 40%);
+
+  filter: blur(80px);
+}
+.landing-modules-grid {
+  align-items: stretch;
+}
+.landing-modules-header {
+  text-align: center;
+
+  max-width: 900px;
+
+  margin: 0 auto 4rem;
+}
+
+.landing-module-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .polycode-landing .landing-container {
@@ -2026,7 +3038,52 @@ FILE: /landing.css
   margin: 0 auto;
   padding: 0 1.5rem;
 }
+#modules {
+  position: relative;
 
+  margin-top: 40px;
+
+  padding-top: 100px;
+  padding-bottom: 120px;
+
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.01), transparent),
+    radial-gradient(
+      circle at top center,
+      rgba(99, 102, 241, 0.08),
+      transparent 45%
+    );
+}
+
+#modules::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  width: 220px;
+  height: 2px;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #00e5ff,
+    #6366f1,
+    transparent
+  );
+
+  box-shadow: 0 0 40px rgba(0, 229, 255, 0.4);
+}
+
+.landing-hero {
+  min-height: 100vh;
+  padding-top: 30px;
+  padding-bottom: 6rem;
+}
 /* Background */
 .landing-bg-wrap {
   pointer-events: none;
@@ -2072,28 +3129,400 @@ FILE: /landing.css
 NAVBAR
 ========================================== */
 
+/* ══════════════════════════════════════════════
+   LANDING NAVBAR UPGRADE
+   Paste this into your landing.css (or import
+   as a separate file) — overrides existing rules
+══════════════════════════════════════════════ */
+
 .landing-navbar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
+  z-index: 100;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition:
+    background 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
 
-  z-index: 1000;
+.landing-navbar--scrolled {
+  background: rgba(3, 5, 10, 0.75);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 1px 32px rgba(0, 0, 0, 0.4);
+}
 
-  background: rgba(3, 5, 10, 0.8);
-
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+.landing-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .landing-navbar-inner {
-  height: 76px;
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+}
 
+/* ── Brand ── */
+.landing-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.landing-brand-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 229, 102, 0.08);
+  border: 1px solid rgba(255, 229, 102, 0.2);
+  transition:
+    transform 0.25s,
+    box-shadow 0.25s,
+    border-color 0.25s;
+}
+
+.landing-brand:hover .landing-brand-mark {
+  transform: rotate(-6deg) scale(1.08);
+  border-color: rgba(255, 229, 102, 0.55);
+  box-shadow: 0 0 18px rgba(255, 229, 102, 0.22);
+}
+
+.landing-logo {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.landing-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.landing-logo-text {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #f0f0ff;
+  letter-spacing: -0.02em;
+}
+
+.landing-logo-sub {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--acid, #ffe566);
+  opacity: 0.75;
+}
+
+/* ── Nav links ── */
+.landing-navbar {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+.landing-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  flex: 1;
+}
+
+.landing-nav-link {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+.landing-nav-link {
+  position: relative;
+  padding: 0.4rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #8896b0;
+  text-decoration: none;
+  transition:
+    color 0.15s,
+    background 0.15s;
+}
+
+.landing-nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: 14px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--acid, #ffe566);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.landing-nav-link {
+  position: relative;
+  padding: 0.4rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #8896b0;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  border-bottom: 2px solid transparent;
+  transition:
+    color 0.15s,
+    background 0.15s,
+    border-color 0.2s;
+}
+
+/* DELETE the ::after rule entirely */
+
+.landing-nav-link:hover {
+  color: #ffffff;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 229, 102, 0.08) 0%,
+    rgba(255, 229, 102, 0.03) 100%
+  );
+  border-bottom-color: var(--acid, #ffe566);
+}
+
+/* ── Primary CTA button ── */
+.landing-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 1.15rem;
+  border-radius: 9px;
+  background: var(--acid, #ffe566);
+  color: #03050a;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition:
+    opacity 0.15s,
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.landing-btn-primary:hover {
+  opacity: 0.92;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(255, 229, 102, 0.32);
+}
+
+.landing-btn-primary:active {
+  transform: translateY(0);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .landing-nav-links {
+    display: none;
+  }
+
+  .landing-navbar-inner {
+    justify-content: space-between;
+  }
+}
+.ln-dropdown--languages {
+  width: 340px;
+}
+
+.ln-lang-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.ln-lang-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 9px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.ln-lang-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.ln-lang-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #f0f0ff;
+}
+
+.ln-lang-arrow {
+  color: rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+  transition:
+    color 0.15s,
+    transform 0.15s;
+}
+
+.ln-lang-item:hover .ln-lang-arrow {
+  color: #a78bfa;
+  transform: translateX(3px);
+}
+/* ══════════════════════════════════════════════
+   Courses DROPDOWN
+══════════════════════════════════════════════ */
+
+.ln-dropdown-wrap {
+  position: relative;
+}
+
+.ln-dropdown-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.ln-chevron {
+  transition: transform 0.2s ease;
+  opacity: 0.6;
+}
+
+.ln-dropdown-trigger--open .ln-chevron {
+  transform: rotate(180deg);
+  opacity: 1;
+}
+
+/* dropdown panel */
+.ln-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  background: rgba(8, 11, 20, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  padding: 0.6rem;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
+  animation: ln-dropdown-in 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  z-index: 200;
+}
+
+@keyframes ln-dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+.ln-dropdown-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.3);
+  padding: 0.25rem 0.75rem 0.5rem;
+  margin: 0;
+}
+
+/* dropdown item */
+.ln-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border-radius: 9px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.ln-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.ln-dropdown-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: color-mix(in srgb, var(--lang-accent) 12%, transparent);
+  color: var(--lang-accent);
+  transition:
+    background 0.15s,
+    transform 0.15s;
+}
+
+.ln-dropdown-item:hover .ln-dropdown-icon {
+  background: color-mix(in srgb, var(--lang-accent) 22%, transparent);
+  transform: scale(1.08);
+}
+
+.ln-dropdown-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  flex: 1;
+}
+
+.ln-dropdown-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #f0f0ff;
+}
+
+.ln-dropdown-sub {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.ln-dropdown-arrow {
+  color: rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+  transition:
+    color 0.15s,
+    transform 0.15s;
+}
+
+.ln-dropdown-item:hover .ln-dropdown-arrow {
+  color: var(--lang-accent);
+  transform: translateX(3px);
 }
 
 /* ==========================================
@@ -2107,7 +3536,29 @@ NAVBAR
 
   text-decoration: none;
 }
+.landing-logo {
+  width: 42px;
+  height: 42px;
 
+  object-fit: contain;
+
+  display: block;
+}
+
+.landing-brand-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 52px;
+  height: 52px;
+
+  border-radius: 14px;
+
+  background: rgba(255, 255, 255, 0.05);
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
 .landing-brand-mark {
   width: 42px;
   height: 42px;
@@ -2122,8 +3573,6 @@ NAVBAR
   font-weight: 800;
 
   color: #fff;
-
-  background: linear-gradient(135deg, #00f2ff, #5b7fff);
 }
 
 .landing-brand-text {
@@ -2235,6 +3684,79 @@ NAVBAR
   transform: translateY(-2px);
 
   box-shadow: 0 12px 30px rgba(255, 255, 255, 0.15);
+}
+
+.landing-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  height: 46px;
+
+  padding: 0 1.25rem;
+
+  border-radius: 14px;
+
+  text-decoration: none;
+
+  font-size: 0.9rem;
+  font-weight: 700;
+
+  color: #0f172a;
+  background: #ffffff;
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.landing-btn-secondary:hover {
+  transform: translateY(-2px);
+
+  box-shadow: 0 12px 30px rgba(255, 255, 255, 0.15);
+}
+.landing-module-action {
+  margin-top: auto;
+  padding-top: 1.5rem;
+}
+
+.landing-module-btn {
+  width: 100%;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 52px;
+
+  border: none;
+  border-radius: 14px;
+
+  font-size: 0.95rem;
+  font-weight: 700;
+
+  color: #ffffff;
+
+  background: linear-gradient(135deg, #6366f1, #06b6d4);
+
+  cursor: pointer;
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    opacity 0.3s ease;
+
+  box-shadow: 0 12px 30px rgba(99, 102, 241, 0.35);
+}
+
+.landing-module-btn:hover {
+  transform: translateY(-3px);
+
+  box-shadow: 0 20px 45px rgba(99, 102, 241, 0.45);
+}
+
+.landing-module-btn:active {
+  transform: translateY(0);
 }
 
 /* ==========================================
@@ -2402,6 +3924,40 @@ NAVBAR
 .landing-hero-image-wrap {
   position: relative;
 }
+.landing-hero-image {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  background: rgba(255, 255, 255, 0.03);
+
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+
+  transition: all 0.35s ease;
+}
+
+.landing-hero-image:hover {
+  transform: translateY(-10px);
+
+  box-shadow: 0 35px 90px rgba(0, 0, 0, 0.45);
+}
+
+.landing-hero-image::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08),
+    transparent 30%
+  );
+
+  pointer-events: none;
+}
 
 .landing-hero-image-glow {
   pointer-events: none;
@@ -2441,14 +3997,46 @@ NAVBAR
 
 .landing-code-snippet {
   position: absolute;
-  border-radius: 0.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(255, 255, 255, 0.03);
-  padding: 0.25rem 0.625rem;
-  font-family: ui-monospace, monospace;
-  font-size: 0.625rem;
-  color: var(--txt-3, #60607a);
-  backdrop-filter: blur(4px);
+
+  padding: 0.75rem 1rem;
+
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.06);
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  backdrop-filter: blur(20px);
+
+  color: #e2e8f0;
+
+  font-size: 0.85rem;
+  font-weight: 600;
+
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+}
+.landing-hero-title-v2 {
+  font-size: clamp(4rem, 8vw, 7rem);
+  line-height: 0.95;
+  letter-spacing: -0.06em;
+  font-weight: 900;
+}
+.landing-trust-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.landing-trust-row span {
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  font-size: 0.85rem;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
 }
 
 /* Sections */
@@ -2487,125 +4075,157 @@ NAVBAR
 }
 
 /* Module cards */
-.landing-modules-grid {
-  margin-top: 3.5rem;
-  display: grid;
-  gap: 1.5rem;
+.landing-module-image-wrap {
+  width: 100%;
+
+  height: 240px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 1.25rem;
+
+  border-radius: 24px;
+
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.04),
+    rgba(255, 255, 255, 0.02)
+  );
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  overflow: hidden;
+
+  margin-bottom: 1.5rem;
 }
 
+.landing-module-card:hover .landing-module-image {
+  transform: scale(1.03);
+}
+.landing-modules-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+}
 .landing-module-card {
-  position: relative;
+  height: 100%;
+}
+.landing-modules-grid {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 2rem;
+
+  align-items: stretch;
+}
+.landing-module-image {
+  transition: transform 0.4s ease;
+}
+
+.landing-module-card:hover .landing-module-image {
+  transform: scale(1.05);
+}
+.landing-module-image-wrap {
   overflow: hidden;
-  border-radius: 1rem;
+  border-radius: 18px;
+  margin-bottom: 1rem;
+}
+.landing-module-card {
+  background: rgba(10, 15, 30, 0.55);
+
+  backdrop-filter: blur(24px);
+
   border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 1.5rem;
-  transition: transform 0.2s;
+
+  border-radius: 28px;
+
+  padding: 1.25rem;
+
+  overflow: hidden;
+
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
+}
+.landing-module-card h3 {
+  font-size: 2rem;
+
+  font-weight: 800;
+
+  margin-top: 0.75rem;
+
+  margin-bottom: 0.75rem;
+
+  color: white;
+}
+.landing-module-icon {
+  width: 56px;
+  height: 56px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 16px;
+
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.25),
+    rgba(6, 182, 212, 0.25)
+  );
+
+  margin-bottom: 1rem;
+}
+.landing-module-card:hover {
+  transform: translateY(-10px);
+
+  border-color: rgba(0, 229, 255, 0.18);
+
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
 }
 
 .landing-module-card:hover {
-  transform: translateY(-4px);
-}
-
-.landing-module-card--indigo {
-  background: linear-gradient(
-    to bottom,
-    rgba(99, 102, 241, 0.2),
-    rgba(79, 70, 229, 0.05)
-  );
-}
-
-.landing-module-card--violet {
-  background: linear-gradient(
-    to bottom,
-    rgba(139, 92, 246, 0.2),
-    rgba(124, 58, 237, 0.05)
-  );
-}
-
-.landing-module-card--cyan {
-  background: linear-gradient(
-    to bottom,
-    rgba(34, 211, 238, 0.2),
-    rgba(6, 182, 212, 0.05)
-  );
-}
-
-.landing-module-card--clickable {
-  cursor: pointer;
-  text-align: left;
-  width: 100%;
-  font: inherit;
-  color: inherit;
-}
-
-.landing-module-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 3rem;
-  height: 3rem;
-  margin-bottom: 1.25rem;
-  border-radius: 0.75rem;
-}
-
-.landing-module-icon--indigo {
-  background: rgba(99, 102, 241, 0.15);
-  color: #818cf8;
-}
-.landing-module-icon--violet {
-  background: rgba(139, 92, 246, 0.15);
-  color: #a78bfa;
-}
-.landing-module-icon--cyan {
-  background: rgba(34, 211, 238, 0.15);
-  color: #22d3ee;
-}
-
-.landing-module-tagline {
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: #64748b;
-}
-
-.landing-module-card h3 {
-  margin: 0.25rem 0 0;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #fff;
-}
-
-.landing-module-card p {
-  margin-top: 0.75rem;
-  font-size: 0.875rem;
-  line-height: 1.6;
-  color: #94a3b8;
+  transform: translateY(-12px);
+  border-color: rgba(0, 229, 255, 0.2);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
 }
 
 .landing-module-features {
-  margin: 1.25rem 0 0;
-  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
   list-style: none;
+  padding: 0;
+  margin-top: 1rem;
 }
 
-.landing-module-features li {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-  font-size: 0.875rem;
+.landing-feature-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.8rem;
   color: #cbd5e1;
 }
 
-.landing-module-features li::before {
-  content: "";
-  flex-shrink: 0;
-  width: 6px;
-  height: 6px;
+.landing-module-tagline {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #94a3b8;
+  margin-top: 1rem;
+}
+
+.landing-module-card h3 {
+  font-size: 1.5rem;
   margin-top: 0.5rem;
-  border-radius: 50%;
-  background: #818cf8;
+  margin-bottom: 0.75rem;
 }
 
 /* How it works */
@@ -2821,35 +4441,187 @@ NAVBAR
 }
 
 /* Footer */
-.landing-footer {
+/* =========================
+   FOOTER
+========================= */
+
+.footer-pro {
+  margin-top: 100px;
+
+  padding: 80px 0 30px;
+
   border-top: 1px solid rgba(255, 255, 255, 0.06);
-  padding: 2.5rem 0;
 }
 
-.landing-footer-inner {
+.footer-main {
+  max-width: 1280px;
+
+  margin: 0 auto;
+
+  display: grid;
+
+  grid-template-columns:
+    1.8fr
+    1fr
+    1fr
+    1fr;
+
+  gap: 4rem;
+
+  padding: 0 24px;
+}
+
+/* =========================
+   BRAND
+========================= */
+
+.footer-logo {
+  font-size: 3rem;
+
+  font-weight: 900;
+
+  letter-spacing: -0.04em;
+
+  color: white;
+}
+
+.footer-logo-gradient {
+  color: #00e5ff;
+}
+
+.footer-description {
+  margin-top: 1.5rem;
+
+  max-width: 420px;
+
+  line-height: 1.9;
+
+  color: #94a3b8;
+
+  font-size: 1.05rem;
+}
+
+.footer-socials {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-}
 
-.landing-footer p {
-  margin: 0;
-  font-size: 0.75rem;
-  color: #64748b;
-  text-align: center;
-}
+  gap: 1rem;
 
-/* Language picker section on landing */
-.landing-get-started {
-  position: relative;
-  padding: 5rem 0 6rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.landing-get-started .lang-grid {
   margin-top: 2rem;
+}
+
+.footer-socials a {
+  width: 52px;
+  height: 52px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 16px;
+
+  background: rgba(255, 255, 255, 0.04);
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  color: white;
+
+  transition: all 0.3s ease;
+}
+
+.footer-socials a:hover {
+  transform: translateY(-4px);
+
+  border-color: rgba(0, 229, 255, 0.25);
+
+  box-shadow: 0 12px 30px rgba(0, 229, 255, 0.12);
+}
+
+/* =========================
+   LINKS
+========================= */
+
+.footer-links h4 {
+  margin-bottom: 1.75rem;
+
+  color: white;
+
+  font-size: 1rem;
+
+  font-weight: 700;
+}
+
+.footer-links a {
+  display: flex;
+
+  align-items: center;
+
+  gap: 0.75rem;
+
+  margin-bottom: 1rem;
+
+  color: #94a3b8;
+
+  text-decoration: none;
+
+  transition: all 0.25s ease;
+}
+
+.footer-links a:hover {
+  color: white;
+
+  transform: translateX(4px);
+}
+
+/* =========================
+   BOTTOM BAR
+========================= */
+
+.footer-bottom {
+  max-width: 1280px;
+
+  margin: 4rem auto 0;
+
+  padding: 2rem 24px 0;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  color: #64748b;
+}
+
+.footer-bottom span {
+  color: #94a3b8;
+
+  font-weight: 600;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 900px) {
+  .footer-main {
+    grid-template-columns: 1fr;
+
+    gap: 2.5rem;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+
+    gap: 1rem;
+
+    text-align: center;
+  }
+
+  .footer-logo {
+    font-size: 2.5rem;
+  }
 }
 
 @import url("../assistant/assistant.css");
@@ -3435,12 +5207,13 @@ NAVBAR
 
 .polycode-landing .landing-sec-label {
   text-align: center;
-  font-size: 0.68rem;
+  font-size: 22px !important;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--v2-cyan);
   margin-bottom: 0.75rem;
+  margin-top: -30px;
 }
 
 .polycode-landing .landing-sec-title {
@@ -3602,7 +5375,9 @@ NAVBAR
 /* ============================================================
      LANGUAGE PICKER — restyled grid with icons + badges
      ============================================================ */
-
+.landing-get-started {
+  margin-top: 100px;
+}
 .polycode-landing .landing-lang-section {
   position: relative;
   z-index: 1;
@@ -4376,7 +6151,63 @@ NAVBAR
 /* ============================================================
      LANGUAGE PICKER — restyled grid with icons + badges
      ============================================================ */
+/* ==========================
+   CONTINUE LEARNING BUTTON
+========================== */
 
+.continue-stack-wrap {
+  display: flex;
+  justify-content: center;
+
+  margin-bottom: 3rem;
+}
+
+.continue-stack-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  padding: 1rem 1.75rem;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.03)
+  );
+
+  color: #fff;
+
+  font-size: 1rem;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.continue-stack-btn:hover {
+  transform: translateY(-4px);
+
+  border-color: rgba(0, 229, 255, 0.25);
+
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.35),
+    0 0 30px rgba(0, 229, 255, 0.12);
+}
+
+.continue-stack-btn span {
+  transition: transform 0.3s ease;
+}
+
+.continue-stack-btn:hover span {
+  transform: translateX(4px);
+}
 .polycode-landing .landing-lang-section {
   position: relative;
   z-index: 1;
@@ -4484,6 +6315,73 @@ NAVBAR
   }
 }
 
+.lang-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.75rem;
+}
+
+.lang-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    transform 0.18s;
+}
+
+.lang-card:hover {
+  border-color: var(--lang-color);
+  background: var(--lang-color-alpha);
+  transform: translateY(-3px);
+}
+
+.lang-card.selected {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.lang-icon-wrapper {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lang-icon-wrapper img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.lang-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.lang-card:hover .lang-name {
+  color: var(--lang-color);
+}
+
+@media (max-width: 900px) {
+  .lang-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 560px) {
+  .lang-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
 /* ============================================================
      HOW IT WORKS — connected horizontal flow
      ============================================================ */
@@ -4591,96 +6489,127 @@ NAVBAR
 /* ==========================================
    POLYCODE - STATS SECTION
 ========================================== */
+/* =========================
+   STATS SECTION
+========================= */
 
-.landing-stats {
-  position: relative;
-  padding: 5rem 0;
+.landing-modules-header {
+  text-align: center;
+
+  max-width: 900px;
+
+  margin: 0 auto 4rem;
+}
+
+.landing-stats::before {
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 229, 255, 0.08),
+    transparent 70%
+  );
+
+  pointer-events: none;
 }
 
 .landing-stats-grid {
+  position: relative;
+
+  z-index: 1;
+
   display: grid;
+
   grid-template-columns: repeat(4, 1fr);
+
   gap: 1.5rem;
 }
 
 .landing-stat-card {
-  position: relative;
-  overflow: hidden;
-
   padding: 2rem;
 
-  border-radius: 20px;
+  border-radius: 24px;
 
   background: rgba(255, 255, 255, 0.03);
 
   border: 1px solid rgba(255, 255, 255, 0.08);
 
-  backdrop-filter: blur(12px);
-
-  text-align: center;
-
   transition:
     transform 0.3s ease,
-    border-color 0.3s ease,
-    background 0.3s ease,
-    box-shadow 0.3s ease;
-}
-
-.landing-stat-card::before {
-  content: "";
-
-  position: absolute;
-
-  top: 0;
-  left: 0;
-
-  width: 100%;
-  height: 1px;
-
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(0, 242, 255, 0.4),
-    transparent
-  );
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .landing-stat-card:hover {
-  transform: translateY(-6px);
+  transform: translateY(-8px);
 
-  border-color: rgba(0, 242, 255, 0.25);
+  border-color: rgba(0, 229, 255, 0.2);
 
-  background: rgba(255, 255, 255, 0.05);
-
-  box-shadow:
-    0 10px 30px rgba(0, 242, 255, 0.08),
-    0 0 0 1px rgba(0, 242, 255, 0.05);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
 }
 
-.landing-stat-card h3 {
+.landing-stat-num {
   margin: 0;
 
-  font-size: 2.8rem;
+  font-size: 3.5rem;
 
-  font-weight: 800;
+  font-weight: 900;
 
   line-height: 1;
 
-  letter-spacing: -0.04em;
-
   color: #ffffff;
+
+  text-shadow: 0 0 25px rgba(0, 229, 255, 0.25);
 }
 
 .landing-stat-card p {
-  margin-top: 0.9rem;
+  margin-top: 0.75rem;
 
   color: #94a3b8;
 
   font-size: 0.95rem;
 
-  font-weight: 500;
+  font-weight: 600;
 
-  line-height: 1.5;
+  letter-spacing: 0.08em;
+
+  text-transform: uppercase;
+}
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 1000px) {
+  .landing-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 640px) {
+  .landing-stats {
+    padding: 24px;
+  }
+
+  .landing-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-stat-card {
+    text-align: center;
+  }
+
+  .landing-stat-num {
+    font-size: 2.75rem;
+  }
 }
 
 /* ==========================
@@ -4718,6 +6647,1090 @@ NAVBAR
   .landing-stat-card p {
     font-size: 0.9rem;
   }
+}
+/* ══════════════════════════════════════════════
+   ADDITIONS — Simplified landing page
+══════════════════════════════════════════════ */
+
+/* Hero quick links */
+.polycode-landing .landing-hero-quick-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.polycode-landing .landing-hero-quick-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  border: 1px solid var(--border, #1e2433);
+  background: var(--glass, rgba(255, 255, 255, 0.03));
+  color: var(--v2-txt0, #f0f0ff);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.15s;
+}
+
+.polycode-landing .landing-hero-quick-card:hover {
+  border-color: var(--acid, #ffe566);
+  background: var(--acid-dim, rgba(255, 229, 102, 0.08));
+  transform: translateX(4px);
+}
+
+/* Actions grid (4 cards) */
+.polycode-landing .landing-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  margin-top: 2rem;
+}
+
+.polycode-landing .landing-module-card--clickable {
+  cursor: pointer;
+  border: none;
+  text-align: left;
+  font-family: inherit;
+  width: 100%;
+}
+
+.polycode-landing .landing-module-card--orange {
+  border-top: 3px solid var(--v2-orange, #fb923c);
+}
+
+.polycode-landing .landing-module-icon--orange {
+  background: rgba(251, 146, 60, 0.1);
+  color: var(--v2-orange, #fb923c);
+}
+
+@media (max-width: 900px) {
+  .polycode-landing .landing-actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .polycode-landing .landing-actions-grid {
+    grid-template-columns: 1fr;
+  }
+  .polycode-landing .landing-hero-quick-links {
+    margin-top: 1.5rem;
+  }
+}
+
+/* Courses slider */
+.polycode-landing .landing-courses-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.polycode-landing .landing-slider-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.polycode-landing .landing-slider-controls button {
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  border: 1px solid var(--border, #1e2433);
+  background: var(--glass, rgba(255, 255, 255, 0.03));
+  color: var(--v2-txt0, #f0f0ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.polycode-landing .landing-slider-controls button:hover {
+  border-color: var(--acid, #ffe566);
+  color: var(--acid, #ffe566);
+}
+
+.polycode-landing .landing-courses-track {
+  display: flex;
+  gap: 1.25rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 0.5rem;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.polycode-landing .landing-courses-track::-webkit-scrollbar {
+  display: none;
+}
+
+.polycode-landing .landing-course-card {
+  flex: 0 0 280px;
+  scroll-snap-align: start;
+  border: 1px solid var(--border, #1e2433);
+  border-top: 3px solid var(--course-accent, #ffe566);
+  border-radius: 14px;
+  background: var(--glass, rgba(255, 255, 255, 0.03));
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.polycode-landing .landing-course-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--course-accent, #ffe566);
+}
+
+.polycode-landing .landing-course-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--course-accent, #ffe566);
+  margin-bottom: 0.75rem;
+}
+
+.polycode-landing .landing-course-tag {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--course-accent, #ffe566);
+  margin-bottom: 0.5rem;
+}
+
+.polycode-landing .landing-course-card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--v2-txt0, #f0f0ff);
+  margin: 0 0 0.5rem;
+}
+
+.polycode-landing .landing-course-card p {
+  font-size: 0.85rem;
+  color: var(--v2-txt1, #c0c8e0);
+  line-height: 1.6;
+  margin: 0 0 1rem;
+}
+
+.polycode-landing .landing-course-link {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--course-accent, #ffe566);
+}
+
+@media (max-width: 560px) {
+  .polycode-landing .landing-course-card {
+    flex: 0 0 240px;
+  }
+}
+/* ══════════════════════════════════════════════════════════
+   COURSES SLIDER  —  courses-slider.css
+══════════════════════════════════════════════════════════ */
+
+.cs-section {
+  padding: 5rem 0 4rem;
+}
+
+/* ── Header ── */
+.cs-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.cs-title {
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  font-weight: 800;
+  color: var(--v2-txt0, #f0f0ff);
+  letter-spacing: -0.03em;
+  margin: 0.25rem 0 0;
+}
+
+/* ── Arrow buttons ── */
+.cs-controls {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.cs-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--border, #1e2433);
+  background: transparent;
+  color: var(--v2-txt0, #f0f0ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    transform 0.2s;
+}
+
+.cs-btn:hover {
+  border-color: var(--acid, #ffe566);
+  background: rgba(255, 229, 102, 0.08);
+  transform: scale(1.1);
+}
+
+/* ── Track ── */
+.cs-track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: calc((100% - 3 * 20px) / 3);
+  gap: 20px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 0.5rem;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.cs-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Card ── */
+.cs-card {
+  scroll-snap-align: start;
+  position: relative;
+  margin-top: 8px;
+  border: 1px solid var(--border, #1e2433);
+  border-radius: 18px;
+  background: rgba(13, 17, 23, 0.85);
+  padding: 1.75rem;
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  outline: none;
+  transition:
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+  /* isolate stacking context so pseudo-elements don't bleed */
+  isolation: isolate;
+}
+
+/* top accent line */
+.cs-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent, #ffe566);
+  opacity: 0.5;
+  transition:
+    opacity 0.3s,
+    height 0.3s;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* background glow fill on hover */
+.cs-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 60% 0%,
+    color-mix(in srgb, var(--accent) 14%, transparent) 0%,
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: inherit;
+}
+
+.cs-card:hover,
+.cs-card:focus-visible {
+  transform: translateY(-8px);
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent),
+    0 0 40px color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.cs-card:hover::before,
+.cs-card:focus-visible::before {
+  opacity: 1;
+  height: 3px;
+}
+
+.cs-card:hover::after,
+.cs-card:focus-visible::after {
+  opacity: 1;
+}
+
+/* ensure card children sit above pseudo-elements */
+.cs-card > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Card internals ── */
+.cs-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.cs-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent, #ffe566);
+  flex-shrink: 0;
+  transition:
+    background 0.3s,
+    transform 0.3s;
+}
+
+.cs-card:hover .cs-icon {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  transform: scale(1.1) rotate(-4deg);
+}
+
+.cs-level {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border, #1e2433);
+  color: var(--v2-txt1, #c0c8e0);
+  transition:
+    border-color 0.3s,
+    color 0.3s;
+}
+
+.cs-card:hover .cs-level {
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  color: var(--accent);
+}
+
+.cs-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent, #ffe566);
+  opacity: 0.85;
+}
+
+.cs-card-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--v2-txt0, #f0f0ff);
+  letter-spacing: -0.025em;
+  margin: 0.1rem 0 0;
+  transition: color 0.2s;
+}
+
+.cs-card:hover .cs-card-title {
+  color: #fff;
+}
+
+.cs-card-desc {
+  font-size: 0.84rem;
+  color: var(--v2-txt1, #8896b0);
+  line-height: 1.65;
+  margin: 0.25rem 0 0;
+  flex: 1;
+}
+
+.cs-card-footer {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border, #1e2433);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: border-color 0.3s;
+}
+
+.cs-card:hover .cs-card-footer {
+  border-color: color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.cs-cta {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent, #ffe566);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: gap 0.2s;
+}
+
+.cs-card:hover .cs-cta {
+  gap: 0.55rem;
+}
+
+/* ── Dot indicators ── */
+.cs-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 2rem;
+}
+
+.cs-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  border: none;
+  background: var(--border, #2a3040);
+  cursor: pointer;
+  padding: 0;
+  transition:
+    width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background 0.3s;
+}
+
+.cs-dot--active {
+  width: 24px;
+  background: var(--acid, #ffe566);
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .cs-track {
+    grid-auto-columns: calc((100% - 20px) / 2);
+  }
+}
+
+@media (max-width: 560px) {
+  .cs-track {
+    grid-auto-columns: 88%;
+  }
+
+  .cs-title {
+    font-size: 1.3rem;
+  }
+}
+.cs-header {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.tryit-section {
+  padding: 5rem 0;
+  border-top: 1px solid var(--v2-border);
+}
+
+.tryit-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  justify-content: center;
+}
+
+.tryit-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid var(--v2-border);
+  background: transparent;
+  color: var(--v2-txt1);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.tryit-tab:hover {
+  border-color: var(--tab-accent);
+  color: var(--v2-txt0);
+}
+
+.tryit-tab--active {
+  border-color: var(--tab-accent);
+  background: color-mix(in srgb, var(--tab-accent) 10%, transparent);
+  color: var(--v2-txt0);
+}
+
+.tryit-tab-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+/* Panel */
+.tryit-panel {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  border: 1px solid var(--v2-border);
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--v2-bg2);
+  min-height: 420px;
+}
+
+/* Left */
+.tryit-left {
+  padding: 2.5rem 2rem;
+  border-right: 1px solid var(--v2-border);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: var(--v2-bg3);
+}
+
+.tryit-lang-logo {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+}
+
+.tryit-lang-name {
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: var(--lang-accent);
+  margin: 0;
+}
+
+.tryit-lang-desc {
+  font-size: 0.85rem;
+  color: var(--v2-txt1);
+  line-height: 1.7;
+  margin: 0;
+  flex: 1;
+}
+
+.tryit-run-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  border: none;
+  background: var(--lang-accent);
+  color: #03050a;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    opacity 0.15s,
+    transform 0.15s;
+}
+
+.tryit-run-btn:hover {
+  opacity: 0.85;
+  transform: translateY(-2px);
+}
+.tryit-run-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.tryit-learn-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  border: 1px solid var(--v2-border);
+  background: transparent;
+  color: var(--v2-txt0);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+
+.tryit-learn-btn:hover {
+  border-color: var(--lang-accent);
+  background: color-mix(in srgb, var(--lang-accent) 8%, transparent);
+}
+
+/* Right */
+.tryit-right {
+  display: flex;
+  flex-direction: column;
+}
+
+.tryit-terminal-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--v2-border);
+  background: var(--v2-bg3);
+}
+
+.tryit-terminal-title {
+  margin-left: 8px;
+  font-family: var(--v2-mono);
+  font-size: 0.7rem;
+  color: var(--v2-txt2);
+}
+
+.tryit-editor {
+  flex: 1;
+  width: 100%;
+  min-height: 260px;
+  padding: 1.25rem 1.5rem;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--v2-border);
+  color: var(--v2-txt0);
+  font-family: var(--v2-mono);
+  font-size: 0.82rem;
+  line-height: 1.75;
+  resize: none;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.tryit-output {
+  padding: 1rem 1.5rem;
+  background: rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.tryit-output-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--v2-txt2);
+}
+
+.tryit-output-pre {
+  margin: 0;
+  font-family: var(--v2-mono);
+  font-size: 0.8rem;
+  color: var(--v2-cyan);
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 768px) {
+  .tryit-panel {
+    grid-template-columns: 1fr;
+  }
+  .tryit-left {
+    border-right: none;
+    border-bottom: 1px solid var(--v2-border);
+  }
+}
+
+/* ── Landing navbar: theme toggle ── */
+.landing-navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.landing-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--txt-1, #c0c8e0);
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+}
+
+.landing-theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: var(--txt-0, #f0f0ff);
+}
+
+@media (max-width: 640px) {
+  .landing-theme-toggle-label {
+    display: none;
+  }
+
+  .landing-theme-toggle {
+    padding: 0.45rem;
+  }
+}
+
+/* ── Landing light mode ── */
+.app.theme-light .polycode-landing,
+.polycode-landing.polycode-landing--light {
+  --landing-bg: #f4f6fa;
+  --landing-fg: #0f172a;
+  --landing-muted: #64748b;
+  --v2-txt0: #0f172a;
+  --v2-txt1: #475569;
+  --v2-txt2: #64748b;
+  --v2-border: #e2e8f0;
+  --v2-bg2: #ffffff;
+  --v2-bg3: #f8fafc;
+  --v2-cyan-dim: rgba(0, 229, 255, 0.08);
+  --v2-cyan-border: rgba(0, 229, 255, 0.25);
+  background: var(--landing-bg);
+  color: var(--landing-fg);
+}
+
+.app.theme-light .polycode-landing .polycode-grid::before,
+.polycode-landing.polycode-landing--light .polycode-grid::before {
+  display: none;
+}
+
+.app.theme-light .polycode-landing .landing-bg-wrap,
+.polycode-landing.polycode-landing--light .landing-bg-wrap {
+  display: none;
+}
+
+.app.theme-light .polycode-landing .landing-hero-glow,
+.polycode-landing.polycode-landing--light .landing-hero-glow {
+  display: none;
+}
+
+.app.theme-light .polycode-landing .landing-navbar,
+.polycode-landing.polycode-landing--light .landing-navbar {
+  background: rgba(255, 255, 255, 0.92);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.app.theme-light .polycode-landing .landing-navbar--scrolled,
+.polycode-landing.polycode-landing--light .landing-navbar--scrolled {
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 1px 0 #e2e8f0;
+}
+
+.app.theme-light .polycode-landing .landing-logo-text,
+.app.theme-light .polycode-landing .landing-hero h1,
+.app.theme-light .polycode-landing .landing-sec-title,
+.app.theme-light .polycode-landing .cs-title,
+.polycode-landing.polycode-landing--light .landing-logo-text,
+.polycode-landing.polycode-landing--light .landing-hero h1,
+.polycode-landing.polycode-landing--light .landing-sec-title,
+.polycode-landing.polycode-landing--light .cs-title {
+  color: #0f172a;
+}
+
+.app.theme-light .polycode-landing .landing-logo-sub,
+.polycode-landing.polycode-landing--light .landing-logo-sub {
+  color: #64748b;
+  opacity: 1;
+}
+
+.app.theme-light .polycode-landing .landing-nav-link,
+.polycode-landing.polycode-landing--light .landing-nav-link {
+  color: #475569;
+}
+
+.app.theme-light .polycode-landing .landing-nav-link:hover,
+.polycode-landing.polycode-landing--light .landing-nav-link:hover {
+  color: #0f172a;
+  background: #f1f5f9;
+}
+
+.app.theme-light .polycode-landing .landing-theme-toggle,
+.polycode-landing.polycode-landing--light .landing-theme-toggle {
+  border-color: #e2e8f0;
+  background: #fff;
+  color: #475569;
+}
+
+.app.theme-light .polycode-landing .landing-theme-toggle:hover,
+.polycode-landing.polycode-landing--light .landing-theme-toggle:hover {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.app.theme-light .polycode-landing .landing-hero-lead,
+.app.theme-light .polycode-landing .landing-sec-sub,
+.app.theme-light .polycode-landing .cs-sub,
+.polycode-landing.polycode-landing--light .landing-hero-lead,
+.polycode-landing.polycode-landing--light .landing-sec-sub,
+.polycode-landing.polycode-landing--light .cs-sub {
+  color: #64748b;
+}
+
+.app.theme-light .polycode-landing .landing-sec-label,
+.polycode-landing.polycode-landing--light .landing-sec-label {
+  color: #6366f1;
+}
+
+.app.theme-light .polycode-landing .landing-eyebrow,
+.polycode-landing.polycode-landing--light .landing-eyebrow {
+  border-color: rgba(99, 102, 241, 0.35);
+  background: rgba(99, 102, 241, 0.08);
+  color: #6366f1;
+}
+
+.app.theme-light .polycode-landing #modules,
+.polycode-landing.polycode-landing--light #modules {
+  background: linear-gradient(180deg, #f8fafc, transparent);
+}
+
+.app.theme-light .polycode-landing #modules::before,
+.polycode-landing.polycode-landing--light #modules::before {
+  opacity: 0.5;
+}
+
+.app.theme-light .polycode-landing .lang-card,
+.polycode-landing.polycode-landing--light .lang-card {
+  background: #fff;
+  border-color: #e2e8f0;
+}
+
+.app.theme-light .polycode-landing .lang-card:hover,
+.app.theme-light .polycode-landing .lang-card.selected,
+.polycode-landing.polycode-landing--light .lang-card:hover,
+.polycode-landing.polycode-landing--light .lang-card.selected {
+  border-color: var(--lang-color, #6366f1);
+  background: #fff;
+}
+
+.app.theme-light .polycode-landing .lang-name,
+.polycode-landing.polycode-landing--light .lang-name {
+  color: #0f172a;
+}
+
+.app.theme-light .polycode-landing .cs-card,
+.polycode-landing.polycode-landing--light .cs-card {
+  background: #fff;
+  border-color: #e2e8f0;
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
+}
+
+.app.theme-light .polycode-landing .cs-card:hover,
+.app.theme-light .polycode-landing .cs-card:focus-visible,
+.polycode-landing.polycode-landing--light .cs-card:hover,
+.polycode-landing.polycode-landing--light .cs-card:focus-visible {
+  border-color: #cbd5e1;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.1);
+}
+
+.app.theme-light .polycode-landing .cs-card-title,
+.polycode-landing.polycode-landing--light .cs-card-title {
+  color: #0f172a;
+}
+
+.app.theme-light .polycode-landing .cs-card-desc,
+.polycode-landing.polycode-landing--light .cs-card-desc {
+  color: #64748b;
+}
+
+.app.theme-light .polycode-landing .cs-btn,
+.polycode-landing.polycode-landing--light .cs-btn {
+  border-color: #e2e8f0;
+  color: #0f172a;
+  background: #fff;
+}
+
+.app.theme-light .polycode-landing .landing-stat-card,
+.polycode-landing.polycode-landing--light .landing-stat-card {
+  background: #fff;
+  border-color: #e2e8f0;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+}
+
+.app.theme-light .polycode-landing .landing-stat-num,
+.polycode-landing.polycode-landing--light .landing-stat-num {
+  color: #0f172a;
+  text-shadow: none;
+}
+
+.app.theme-light .polycode-landing .landing-stat-card p,
+.polycode-landing.polycode-landing--light .landing-stat-card p {
+  color: #64748b;
+}
+
+.app.theme-light .polycode-landing .landing-stats::before,
+.polycode-landing.polycode-landing--light .landing-stats::before {
+  display: none;
+}
+
+.app.theme-light .polycode-landing .tryit-section,
+.polycode-landing.polycode-landing--light .tryit-section {
+  border-top-color: #e2e8f0;
+}
+
+.app.theme-light .polycode-landing .tryit-tab,
+.polycode-landing.polycode-landing--light .tryit-tab {
+  border-color: #e2e8f0;
+  color: #475569;
+}
+
+.app.theme-light .polycode-landing .tryit-panel,
+.polycode-landing.polycode-landing--light .tryit-panel {
+  background: #fff;
+  border-color: #e2e8f0;
+}
+
+.app.theme-light .polycode-landing .tryit-left,
+.polycode-landing.polycode-landing--light .tryit-left {
+  border-right-color: #e2e8f0;
+}
+
+.app.theme-light .polycode-landing .footer-pro,
+.polycode-landing.polycode-landing--light .footer-pro {
+  background: #fff;
+  border-top: 1px solid #e2e8f0;
+}
+
+.app.theme-light .polycode-landing .footer-logo,
+.polycode-landing.polycode-landing--light .footer-logo {
+  color: #0f172a;
+}
+
+.app.theme-light .polycode-landing .footer-description,
+.app.theme-light .polycode-landing .footer-links a,
+.polycode-landing.polycode-landing--light .footer-description,
+.polycode-landing.polycode-landing--light .footer-links a {
+  color: #64748b;
+}
+
+.app.theme-light .polycode-landing .footer-links h4,
+.polycode-landing.polycode-landing--light .footer-links h4 {
+  color: #0f172a;
+}
+
+.app.theme-light .polycode-landing .ln-dropdown,
+.polycode-landing.polycode-landing--light .ln-dropdown {
+  background: #fff;
+  border-color: #e2e8f0;
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.1);
+}
+
+.app.theme-light .polycode-landing .ln-dropdown-name,
+.polycode-landing.polycode-landing--light .ln-dropdown-name {
+  color: #0f172a;
+}
+
+.app.theme-light .polycode-landing .ln-dropdown-sub,
+.app.theme-light .polycode-landing .ln-dropdown-label,
+.polycode-landing.polycode-landing--light .ln-dropdown-sub,
+.polycode-landing.polycode-landing--light .ln-dropdown-label {
+  color: #64748b;
+}
+
+.app.theme-light .polycode-landing .ln-dropdown-item:hover,
+.polycode-landing.polycode-landing--light .ln-dropdown-item:hover {
+  background: #f8fafc;
+}
+
+.app.theme-light .polycode-landing .ln-lang-item,
+.polycode-landing.polycode-landing--light .ln-lang-item {
+  border-color: #e2e8f0;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.app.theme-light .app-footer {
+  background: #fff;
+  border-top: 1px solid #e2e8f0;
+}
+
+
+--------------------------------------------------------------------------------
+FILE: /LandingShell.jsx
+--------------------------------------------------------------------------------
+import React from "react";
+import LandingPage from "./pages/LandingPage";
+
+/**
+ * Landing page always starts in dark mode. Theme toggle only affects the
+ * landing route and does not persist to the global app theme.
+ */
+export default function LandingShell({
+  savedTheme,
+  footer,
+  onLanguageSelect,
+  continueLanguage,
+}) {
+  const [landingTheme, setLandingTheme] = React.useState("dark");
+
+  React.useLayoutEffect(() => {
+    setLandingTheme("dark");
+  }, []);
+
+  React.useLayoutEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+
+    html.setAttribute("data-theme", landingTheme);
+    body.classList.toggle("light-theme", landingTheme === "light");
+
+    if (landingTheme === "light") {
+      html.style.backgroundColor = "#f4f6fa";
+      body.style.backgroundColor = "#f4f6fa";
+    } else {
+      html.style.backgroundColor = "#03050a";
+      body.style.backgroundColor = "#03050a";
+    }
+
+    return () => {
+      html.style.backgroundColor = "";
+      body.style.backgroundColor = "";
+      html.setAttribute("data-theme", savedTheme);
+      body.classList.toggle("light-theme", savedTheme === "light");
+    };
+  }, [landingTheme, savedTheme]);
+
+  const toggleLandingTheme = React.useCallback(() => {
+    setLandingTheme((current) => (current === "dark" ? "light" : "dark"));
+  }, []);
+
+  return (
+    <div className={`app ${landingTheme === "light" ? "theme-light" : ""}`}>
+      <LandingPage
+        onLanguageSelect={onLanguageSelect}
+        continueLanguage={continueLanguage}
+        theme={landingTheme}
+        onToggleTheme={toggleLandingTheme}
+      />
+      {footer}
+    </div>
+  );
 }
 
 

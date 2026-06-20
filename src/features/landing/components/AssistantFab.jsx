@@ -28,6 +28,9 @@ import { useTypewriter } from "../lib/useTypewriter";
 import AssistantAvatar from "./AssistantAvatar";
 
 const MAX_STORED_MESSAGES = 20;
+const DOCK_POSITION_KEY = "polycode_assistant_dock_position";
+const DOCK_MARGIN = 12;
+const DRAG_CLICK_THRESHOLD = 6;
 
 const WELCOME_MESSAGE = {
   id: "welcome",
@@ -58,6 +61,47 @@ function loadSession() {
     /* ignore */
   }
   return { sessionId: generateSessionId(), messages: [WELCOME_MESSAGE] };
+}
+
+function loadDockPosition() {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const raw = localStorage.getItem(DOCK_POSITION_KEY);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw);
+    if (Number.isFinite(parsed?.x) && Number.isFinite(parsed?.y)) {
+      return parsed;
+    }
+  } catch {
+    /* ignore */
+  }
+
+  return null;
+}
+
+function clampDockPosition(position, size = { width: 220, height: 76 }) {
+  if (typeof window === "undefined") return position;
+
+  return {
+    x: Math.min(
+      Math.max(DOCK_MARGIN, position.x),
+      Math.max(DOCK_MARGIN, window.innerWidth - size.width - DOCK_MARGIN),
+    ),
+    y: Math.min(
+      Math.max(DOCK_MARGIN, position.y),
+      Math.max(DOCK_MARGIN, window.innerHeight - size.height - DOCK_MARGIN),
+    ),
+  };
+}
+
+function saveDockPosition(position) {
+  try {
+    localStorage.setItem(DOCK_POSITION_KEY, JSON.stringify(position));
+  } catch {
+    /* ignore */
+  }
 }
 
 function saveSession(session) {
@@ -105,9 +149,14 @@ function renderMarkdown(text) {
   });
 }
 
-function ReplyFeedback({ feedback, onRate, disabled }) {
+function ReplyFeedback({ feedback, onRate, disabled, required }) {
   return (
-    <div className="assistant-feedback">
+    <div
+      className={`assistant-feedback${required && !feedback ? " assistant-feedback--required" : ""}`}
+    >
+      {required && !feedback ? (
+        <span className="assistant-feedback-hint">Rate this answer to continue</span>
+      ) : null}
       <button
         type="button"
         className={`assistant-feedback-btn${feedback === "like" ? " assistant-feedback-btn--active-like" : ""}`}
@@ -139,6 +188,7 @@ function MentorReply({
   onRate,
   feedbackSaving,
   onStreamComplete,
+  feedbackRequired,
 }) {
   const shouldStream = Boolean(msg.stream) && !reduceMotion;
   const { displayed, done } = useTypewriter(msg.content, shouldStream);
@@ -200,6 +250,7 @@ function MentorReply({
             feedback={msg.feedback}
             onRate={onRate}
             disabled={feedbackSaving}
+            required={feedbackRequired}
           />
         ) : null}
       </div>
@@ -242,6 +293,20 @@ function UserReply({ content, user }) {
   );
 }
 
+function getPendingFeedbackMessage(messages) {
+  for (let i = messages.length - 1; i >= 0; i -= 1) {
+    const message = messages[i];
+    if (
+      message.role === "assistant" &&
+      message.id !== "welcome" &&
+      message.content?.trim()
+    ) {
+      return message.feedback ? null : message;
+    }
+  }
+  return null;
+}
+
 export default function AssistantFab() {
   const { user } = useAuth();
   const { context: assistantContext } = useAssistant();
@@ -253,12 +318,35 @@ export default function AssistantFab() {
   const [error, setError] = useState(null);
   const [feedbackSavingId, setFeedbackSavingId] = useState(null);
   const messagesEndRef = useRef(null);
+  const messagesScrollRef = useRef(null);
   const inputRef = useRef(null);
   const sessionRef = useRef(session);
+  const dockRef = useRef(null);
+  const dragStateRef = useRef(null);
+  const suppressDockClickRef = useRef(false);
+  const [dockPosition, setDockPosition] = useState(() => loadDockPosition());
+  const [draggingDock, setDraggingDock] = useState(false);
 
   useEffect(() => {
     sessionRef.current = session;
   }, [session]);
+
+  useEffect(() => {
+    if (!dockPosition) return undefined;
+
+    const onResize = () => {
+      const rect = dockRef.current?.getBoundingClientRect();
+      const nextPosition = clampDockPosition(dockPosition, {
+        width: rect?.width || 220,
+        height: rect?.height || 76,
+      });
+      setDockPosition(nextPosition);
+      saveDockPosition(nextPosition);
+    };
+
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [dockPosition]);
 
   useEffect(() => {
     let cancelled = false;
@@ -294,7 +382,14 @@ export default function AssistantFab() {
   }, []);
 
   useEffect(() => {
-    if (open) messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (!open) return;
+
+    window.requestAnimationFrame(() => {
+      const scrollNode = messagesScrollRef.current;
+      if (scrollNode) {
+        scrollNode.scrollTop = scrollNode.scrollHeight;
+      }
+    });
   }, [session.messages, open, sending]);
 
   useEffect(() => {
@@ -386,6 +481,7 @@ export default function AssistantFab() {
   const sendText = useCallback(
     async (text) => {
       if (!text.trim() || sending) return;
+      if (getPendingFeedbackMessage(sessionRef.current.messages)) return;
 
       const userMsg = { id: `user-${Date.now()}`, role: "user", content: text };
       const assistantId = `assistant-${Date.now()}`;
@@ -447,16 +543,112 @@ export default function AssistantFab() {
     }
   };
 
+  const pendingFeedback = getPendingFeedbackMessage(session.messages);
+  const inputLocked = sending || Boolean(pendingFeedback);
+
   const quickPrompts = getQuickPrompts(assistantContext);
   const contextLabel = getContextLabel(assistantContext);
 
   const showQuickPrompts =
     session.messages.length <= 1 &&
-    !sending &&
+    !inputLocked &&
     session.messages.every((m) => m.id === "welcome");
 
   const messageContent = (msg) =>
     msg.id === "welcome" ? getWelcomeMessage(assistantContext) : msg.content;
+
+  const handleDockPointerDown = (event) => {
+    if (event.button !== 0) return;
+    event.preventDefault();
+
+    const rect = dockRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    dragStateRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      offsetX: event.clientX - rect.left,
+      offsetY: event.clientY - rect.top,
+      moved: false,
+      width: rect.width,
+      height: rect.height,
+    };
+    suppressDockClickRef.current = false;
+
+    dockRef.current?.setPointerCapture?.(event.pointerId);
+  };
+
+  const handleDockPointerMove = (event) => {
+    const state = dragStateRef.current;
+    if (!state || state.pointerId !== event.pointerId) return;
+
+    const deltaX = event.clientX - state.startX;
+    const deltaY = event.clientY - state.startY;
+    if (!state.moved && Math.hypot(deltaX, deltaY) < DRAG_CLICK_THRESHOLD) {
+      return;
+    }
+
+    event.preventDefault();
+    state.moved = true;
+    suppressDockClickRef.current = true;
+    setDraggingDock(true);
+
+    setDockPosition(
+      clampDockPosition(
+        {
+          x: event.clientX - state.offsetX,
+          y: event.clientY - state.offsetY,
+        },
+        { width: state.width, height: state.height },
+      ),
+    );
+  };
+
+  const handleDockPointerUp = (event) => {
+    const state = dragStateRef.current;
+    if (!state || state.pointerId !== event.pointerId) return;
+
+    dragStateRef.current = null;
+    dockRef.current?.releasePointerCapture?.(event.pointerId);
+    setDraggingDock(false);
+
+    if (state.moved) {
+      const rect = dockRef.current?.getBoundingClientRect();
+      const nextPosition = clampDockPosition(
+        {
+          x: event.clientX - state.offsetX,
+          y: event.clientY - state.offsetY,
+        },
+        { width: rect?.width || state.width, height: rect?.height || state.height },
+      );
+      setDockPosition(nextPosition);
+      saveDockPosition(nextPosition);
+      return;
+    }
+
+    setOpen(true);
+  };
+
+  const handleDockPointerCancel = (event) => {
+    const state = dragStateRef.current;
+    if (!state || state.pointerId !== event.pointerId) return;
+
+    dragStateRef.current = null;
+    dockRef.current?.releasePointerCapture?.(event.pointerId);
+    setDraggingDock(false);
+  };
+
+  const openFromDock = (event) => {
+    if (suppressDockClickRef.current) {
+      event?.preventDefault?.();
+      event?.stopPropagation?.();
+      suppressDockClickRef.current = false;
+      return;
+    }
+
+    setOpen(true);
+  };
 
   return (
     <>
@@ -533,6 +725,7 @@ export default function AssistantFab() {
             </div>
 
             <div
+              ref={messagesScrollRef}
               className="polym_mentor-scroll"
               style={{
                 flex: 1,
@@ -559,6 +752,7 @@ export default function AssistantFab() {
                       reduceMotion={reduceMotion}
                       showFeedback
                       feedbackSaving={feedbackSavingId === msg.id}
+                      feedbackRequired={msg.id === pendingFeedback?.id}
                       onStreamComplete={handleStreamComplete}
                       onRate={(rating) =>
                         handleFeedback(msg.id, rating, messageContent(msg))
@@ -623,7 +817,15 @@ export default function AssistantFab() {
                 padding: "1rem",
               }}
             >
-              <div style={{ display: "flex", alignItems: "flex-end", gap: "0.5rem", borderRadius: "0.75rem", border: "1px solid var(--border)", background: "#0a1018", padding: "0.5rem" }}>
+              {pendingFeedback ? (
+                <p className="assistant-feedback-lock-notice" role="status">
+                  Like or dislike the last answer before sending another message.
+                </p>
+              ) : null}
+              <div
+                className={`assistant-composer${inputLocked && !sending ? " assistant-composer--locked" : ""}`}
+                style={{ display: "flex", alignItems: "flex-end", gap: "0.5rem", borderRadius: "0.75rem", border: "1px solid var(--border)", background: "#0a1018", padding: "0.5rem" }}
+              >
                 <span style={{ paddingBottom: "0.5rem", paddingLeft: "0.25rem", fontFamily: "ui-monospace, monospace", fontWeight: 700, color: "var(--acid)" }}>
                   &gt;
                 </span>
@@ -632,9 +834,13 @@ export default function AssistantFab() {
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder={ASSISTANT_CONFIG.inputPlaceholder}
+                  placeholder={
+                    pendingFeedback
+                      ? "Rate the reply above to continue…"
+                      : ASSISTANT_CONFIG.inputPlaceholder
+                  }
                   rows={1}
-                  disabled={sending}
+                  disabled={inputLocked}
                   aria-label="Ask PolyMentor"
                   style={{
                     flex: 1,
@@ -652,7 +858,7 @@ export default function AssistantFab() {
                 <button
                   type="button"
                   onClick={send}
-                  disabled={!draft.trim() || sending}
+                  disabled={!draft.trim() || inputLocked}
                   aria-label="Send"
                   style={{
                     display: "flex",
@@ -665,7 +871,7 @@ export default function AssistantFab() {
                     background: "var(--acid)",
                     color: "#fff",
                     cursor: "pointer",
-                    opacity: !draft.trim() || sending ? 0.3 : 1,
+                    opacity: !draft.trim() || inputLocked ? 0.3 : 1,
                   }}
                 >
                   <ChevronRight size={20} />
@@ -681,15 +887,38 @@ export default function AssistantFab() {
 
       {!open ? (
         <motion.div
-          className="assistant-dock-btn polym_mentor-dock"
+          ref={dockRef}
+          role="button"
+          tabIndex={0}
+          className={`assistant-dock-btn polym_mentor-dock${draggingDock ? " assistant-dock-btn--dragging" : ""}`}
+          onPointerDown={handleDockPointerDown}
+          onPointerMove={handleDockPointerMove}
+          onPointerUp={handleDockPointerUp}
+          onPointerCancel={handleDockPointerCancel}
+          onClick={openFromDock}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              setOpen(true);
+            }
+          }}
+          aria-label={`Open ${ASSISTANT_CONFIG.name}`}
           initial={reduceMotion ? {} : { x: 40, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ delay: 0.5, type: "spring", stiffness: 260, damping: 24 }}
+          style={
+            dockPosition
+              ? {
+                  left: dockPosition.x,
+                  top: dockPosition.y,
+                  right: "auto",
+                  bottom: "auto",
+                }
+              : undefined
+          }
         >
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            aria-label={`Open ${ASSISTANT_CONFIG.name}`}
+          <div
+            aria-hidden="true"
             style={{
               display: "flex",
               alignItems: "center",
@@ -697,7 +926,7 @@ export default function AssistantFab() {
               background: "none",
               border: "none",
               color: "inherit",
-              cursor: "pointer",
+              cursor: draggingDock ? "grabbing" : "grab",
               padding: 0,
             }}
           >
@@ -712,7 +941,7 @@ export default function AssistantFab() {
             <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: "0.5rem", background: "var(--acid-dim)", color: "var(--acid)" }}>
               <Sparkles size={16} />
             </span>
-          </button>
+          </div>
         </motion.div>
       ) : null}
     </>

@@ -1,6 +1,25 @@
 import { getApiBase } from "../../../config/apiBase";
+import { executeCode } from "../../playground/services/BrowserExecutor";
 
-export async function runCppCode(source) {
+function isCompilerUnavailableMessage(message = "") {
+  return /g\+\+|compiler.*not|not installed|enoent/i.test(message);
+}
+
+function shouldUseBrowserFallback(serverError) {
+  if (!serverError) return false;
+  if (serverError.name === "TypeError") return true;
+  return /failed to fetch|network|fetch/i.test(serverError.message || "");
+}
+
+function stripSimulationBanner(stdout = "") {
+  const lines = String(stdout).split("\n");
+  if (!lines[0]?.includes("local browser simulation")) {
+    return stdout;
+  }
+  return lines.slice(2).join("\n").trim();
+}
+
+async function runCppOnServer(source) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 45000);
 
@@ -18,7 +37,7 @@ export async function runCppCode(source) {
         payload.message || payload.error || "C++ compiler API failed",
       );
     }
-    return { result: payload, runtime: "server" };
+    return payload;
   } catch (error) {
     if (error.name === "AbortError") {
       throw new Error("C++ compile timed out. Try shorter code.");
@@ -26,6 +45,54 @@ export async function runCppCode(source) {
     throw error;
   } finally {
     clearTimeout(timeout);
+  }
+}
+
+async function runCppInBrowser(source) {
+  const result = await executeCode(source, "cpp");
+  return {
+    ...result,
+    stdout: stripSimulationBanner(result.stdout),
+    exitCode: result.error ? 1 : 0,
+  };
+}
+
+export async function runCppCode(source) {
+  let serverFailure = null;
+
+  try {
+    const result = await runCppOnServer(source);
+    const runtimeError = getCppRuntimeError(result);
+
+    if (!runtimeError) {
+      return { result, runtime: "server" };
+    }
+
+    if (/compilation error/i.test(runtimeError)) {
+      return { result, runtime: "server" };
+    }
+
+    if (!isCompilerUnavailableMessage(runtimeError)) {
+      return { result, runtime: "server" };
+    }
+
+    serverFailure = new Error(runtimeError);
+  } catch (error) {
+    if (!shouldUseBrowserFallback(error) && !isCompilerUnavailableMessage(error.message)) {
+      throw error;
+    }
+    serverFailure = error;
+  }
+
+  try {
+    const result = await runCppInBrowser(source);
+    return { result, runtime: "browser" };
+  } catch (browserError) {
+    throw new Error(
+      serverFailure?.message ||
+        browserError.message ||
+        "Could not run C++. Start the backend or check your network.",
+    );
   }
 }
 

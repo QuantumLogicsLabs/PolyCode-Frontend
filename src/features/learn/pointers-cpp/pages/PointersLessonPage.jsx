@@ -5,6 +5,9 @@ import ConceptCard from "../../oops-cpp/components/ConceptCard";
 import OopsSidebar from "../../oops-cpp/components/OopsSidebar";
 import LearnProfileMenu from "../../shared/LearnProfileMenu";
 import LessonContentShell from "../../shared/LessonContentShell";
+import LessonReadGate from "../../shared/LessonReadGate";
+import useLessonReadGate from "../../shared/useLessonReadGate";
+import LessonChallengeTab from "../../shared/LessonChallengeTab";
 import {
   POINTER_CHAPTERS,
   POINTER_LESSONS,
@@ -14,6 +17,7 @@ import usePointersProgress from "../hooks/usePointersProgress";
 import { useLessonAssistantContext } from "../../../assistant/hooks/useLessonAssistantContext";
 
 const BASE_PATH = "/learn/pointers-cpp";
+const READ_GATE_PREFIX = "pointers_cpp";
 
 function plainLessonText(text = "") {
   return text.replace(/\*\*/g, "").replace(/`/g, "");
@@ -70,7 +74,15 @@ export default function PointersLessonPage() {
   const navigate = useNavigate();
   const [tab, setTab] = useState("theory");
   const [focusMode, setFocusMode] = useState(false);
-  const [confidence, setConfidence] = useState("");
+  const {
+    markedAsRead,
+    markAsRead,
+    confidence,
+    handleConfidenceChange,
+    createGoToChallenge,
+    challengeTabLocked,
+  } = useLessonReadGate(READ_GATE_PREFIX, lessonId);
+  const goToChallenge = createGoToChallenge(setTab);
   const {
     user,
     completedMap: progress,
@@ -128,10 +140,6 @@ export default function PointersLessonPage() {
   }, [lessonId, getLessonNote]);
 
   useEffect(() => {
-    setConfidence(localStorage.getItem(`pointers_cpp_confidence_${lessonId}`) || "");
-  }, [lessonId]);
-
-  useEffect(() => {
     if (!lessonId) return undefined;
     const id = setInterval(() => addTime(1), 60000);
     return () => clearInterval(id);
@@ -174,11 +182,6 @@ export default function PointersLessonPage() {
     codeSaveTimer.current = window.setTimeout(() => {
       saveCode(lessonId, code).catch(() => {});
     }, 700);
-  }
-
-  function handleConfidenceChange(value) {
-    setConfidence(value);
-    localStorage.setItem(`pointers_cpp_confidence_${lessonId}`, value);
   }
 
   return (
@@ -241,12 +244,12 @@ export default function PointersLessonPage() {
           >
             Theory
           </button>
-          <button
-            className={`oops-tab ${tab === "challenge" ? "active" : ""}`}
-            onClick={() => setTab("challenge")}
-          >
-            Challenge <span className="oops-tab-xp">+{lesson.xp} XP</span>
-          </button>
+          <LessonChallengeTab
+            active={tab === "challenge"}
+            locked={challengeTabLocked}
+            xp={lesson.xp}
+            onClick={goToChallenge}
+          />
         </div>
 
         <LessonContentShell
@@ -347,6 +350,16 @@ export default function PointersLessonPage() {
                 />
               ))}
 
+              <LessonReadGate
+                markedAsRead={markedAsRead}
+                onMarkAsRead={markAsRead}
+                confidence={confidence}
+                onConfidenceChange={handleConfidenceChange}
+                onGoChallenge={goToChallenge}
+                accentColor={lesson.chapterColor}
+                challengeLabel="Ready? Take the Challenge →"
+              />
+
               <div className="oops-notes-panel">
                 <div>
                   <span className="oops-interactive-label">Lesson Notes</span>
@@ -359,35 +372,6 @@ export default function PointersLessonPage() {
                 />
                 <button type="button" onClick={handleSaveNote}>
                   Save Note
-                </button>
-              </div>
-
-              <div className="oops-confidence-panel">
-                <div>
-                  <span className="oops-interactive-label">Confidence Check</span>
-                  <h3>Can you trace the memory?</h3>
-                </div>
-                <div className="oops-confidence-options">
-                  {[
-                    ["review", "Need review"],
-                    ["almost", "Almost there"],
-                    ["ready", "Ready to code"],
-                  ].map(([value, label]) => (
-                    <button
-                      key={value}
-                      type="button"
-                      className={confidence === value ? "active" : ""}
-                      onClick={() => handleConfidenceChange(value)}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="oops-theory-footer">
-                <button className="oops-cta-btn" onClick={() => setTab("challenge")}>
-                  Ready? Take the Challenge →
                 </button>
               </div>
             </div>

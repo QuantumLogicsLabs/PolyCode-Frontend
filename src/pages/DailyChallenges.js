@@ -15,6 +15,8 @@ import {
   X,
 } from "lucide-react";
 import { getApiBase } from "../config/apiBase";
+import ChallengeCompleteCelebration from "../features/learn/shared/ChallengeCompleteCelebration";
+import { useChallengeCelebration } from "../features/learn/shared/useChallengeCelebration";
 import "./DailyChallenges.css";
 
 export default function DailyChallenge({ theme }) {
@@ -24,6 +26,14 @@ export default function DailyChallenge({ theme }) {
   const [resultData, setResultData] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [streak, setStreak] = useState(0);
+  const { showCelebration, triggerCelebration, dismissCelebration } =
+    useChallengeCelebration(challenge?._id);
+
+  useEffect(() => {
+    if (resultData?.status === "Accepted") {
+      triggerCelebration();
+    }
+  }, [resultData, triggerCelebration]);
 
   useEffect(() => {
     fetch(`${getApiBase()}/challenges/today`)
@@ -82,6 +92,11 @@ export default function DailyChallenge({ theme }) {
   }
 
   return (
+  <>
+    <ChallengeCompleteCelebration
+      show={showCelebration}
+      onDismiss={dismissCelebration}
+    />
     <motion.div
       className="daily-challenges-container"
       initial={{ opacity: 0, y: 20 }}
@@ -316,5 +331,6 @@ export default function DailyChallenge({ theme }) {
         </AnimatePresence>
       </div>
     </motion.div>
+  </>
   );
 }

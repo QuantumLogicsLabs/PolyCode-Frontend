@@ -1,0 +1,444 @@
+================================================================================
+START OF FOLDER: matplotlib-py
+================================================================================
+
+================================================================================
+PROJECT STRUCTURE
+================================================================================
+Root: C:\QuantumLogics\PolyCode\frontend\src\features\learn\matplotlib-py
+
+matplotlib-py/
+├── data/
+│   ├── matplotlibCurriculum.js
+│   └── matplotlibVideoLinks.js
+├── hooks/
+│   └── usematplotlibProgress.js
+└── pages/
+    ├── MatplotlibHub.jsx
+    └── MatplotlibLessonPage.jsx
+
+Total files: 5
+
+================================================================================
+FILE CONTENTS
+================================================================================
+
+--------------------------------------------------------------------------------
+FILE: /data/matplotlibCurriculum.js
+--------------------------------------------------------------------------------
+// PolyCode — Matplotlib (Python) full curriculum
+// 6 chapters · 15 lessons · Python data visualization coding challenges
+// YouTube links: edit matplotlibVideoLinks.js (not this file).
+
+import { applyLessonVideoLinks } from "../../shared/applyLessonVideoLinks";
+import { MATPLOTLIB_VIDEO_LINKS } from "./matplotlibVideoLinks";
+
+export const MATPLOTLIB_CHAPTERS = [
+  {
+    id: "intro",
+    title: "Introduction to Matplotlib",
+    icon: "📊",
+    color: "#2563eb",
+    lessons: [
+      {
+        id: "plt-0",
+        title: "What is Matplotlib?",
+        xp: 10,
+        theory: [
+          {
+            type: "text",
+            content:
+              "**Matplotlib** is Python's foundational library for data visualization. If Pandas is about tables and numbers, Matplotlib is about transforming that raw data into static, animated, or interactive plots.",
+          },
+          {
+            type: "text",
+            content:
+              "The most frequently used module is **pyplot**, which provides a state-based interface similar to MATLAB. We standardly import it using the alias `plt`.",
+          },
+          {
+            type: "diagram",
+            title: "Data Visualization Workflow",
+            nodes: [
+              {
+                id: "data",
+                label: "Data Input",
+                color: "#2563eb",
+                items: ["Lists", "NumPy Arrays", "Pandas DataFrames"],
+              },
+              {
+                id: "plot",
+                label: "Pyplot Layer",
+                color: "#3b82f6",
+                items: ["plt.plot()", "plt.scatter()", "plt.bar()"],
+              },
+              {
+                id: "render",
+                label: "Output Display",
+                color: "#60a5fa",
+                items: ["plt.show()", "plt.savefig()"],
+              },
+            ],
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Your First Line Plot",
+            content: `import matplotlib.pyplot as plt
+
+x = [1, 2, 3, 4]
+y = [10, 20, 25, 30]
+
+plt.plot(x, y)
+plt.show()`,
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "Standard import shorthand: `import matplotlib.pyplot as plt`. Always match this to look professional!",
+          },
+          {
+            type: "quiz",
+            question:
+              "Which shorthand alias is universally used for matplotlib.pyplot?",
+            options: ["mp", "mplt", "plt", "plot"],
+            answer: 2,
+            explanation:
+              "By convention, `matplotlib.pyplot` is almost always imported as `plt`.",
+          },
+        ],
+        challenge: {
+          title: "Generate a Plot",
+          description:
+            "Import `matplotlib.pyplot` as `plt`, plot x values `[1, 2, 3]` vs y values `[2, 4, 6]`, and call the function to show the chart.",
+          starterCode: `# Import matplotlib.pyplot as plt
+# Plot x and y, then show it
+
+`,
+          solutionCode: `import matplotlib.pyplot as plt
+
+x = [1, 2, 3]
+y = [2, 4, 6]
+plt.plot(x, y)
+plt.show()`,
+          tests: [
+            {
+              id: 1,
+              label: "Imports pyplot as plt",
+              keywords: [
+                { pattern: "import\\s+matplotlib\\.pyplot\\s+as\\s+plt" },
+              ],
+            },
+            {
+              id: 2,
+              label: "Invokes plt.plot()",
+              keywords: [{ pattern: "plt\\.plot\\s*\\(" }],
+            },
+            {
+              id: 3,
+              label: "Invokes plt.show()",
+              keywords: [{ pattern: "plt\\.show\\s*\\(" }],
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: "basic-charts",
+    title: "Core Chart Types",
+    icon: "📈",
+    color: "#0d9488",
+    lessons: [
+      {
+        id: "plt-1",
+        title: "Scatter and Bar Plots",
+        xp: 15,
+        theory: [
+          {
+            type: "text",
+            content:
+              "Line plots indicate continuities. When you need to isolate discrete data markers or evaluate groups, you use `plt.scatter()` or `plt.bar()`.",
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Scatter vs Bar Chart",
+            content: `import matplotlib.pyplot as plt
+
+categories = ['A', 'B', 'C']
+values = [7, 11, 5]
+
+plt.bar(categories, values)
+plt.show()`,
+          },
+          {
+            type: "quiz",
+            question:
+              "Which function would you select to discover correlation between two continuous features?",
+            options: ["plt.bar()", "plt.scatter()", "plt.hist()", "plt.pie()"],
+            answer: 1,
+            explanation:
+              "`plt.scatter()` maps out single un-joined dots perfectly suited for examining variations and correlations.",
+          },
+        ],
+        challenge: {
+          title: "Build a Simple Bar Chart",
+          description:
+            "Use `plt.bar()` to plot categories `['X', 'Y']` with sizes `[12, 18]`, then display it.",
+          starterCode: `import matplotlib.pyplot as plt
+
+`,
+          solutionCode: `import matplotlib.pyplot as plt
+
+plt.bar(['X', 'Y'], [12, 18])
+plt.show()`,
+          tests: [
+            { id: 1, label: "Uses plt.bar", keywords: ["plt.bar"] },
+            { id: 2, label: "Uses plt.show", keywords: ["plt.show()"] },
+          ],
+        },
+      },
+    ],
+  },
+];
+
+export const MATPLOTLIB_CURRICULUM = applyLessonVideoLinks(
+  MATPLOTLIB_CHAPTERS,
+  MATPLOTLIB_VIDEO_LINKS,
+);
+
+
+--------------------------------------------------------------------------------
+FILE: /data/matplotlibVideoLinks.js
+--------------------------------------------------------------------------------
+// PolyCode — Matplotlib external resources map
+export const MATPLOTLIB_VIDEO_LINKS = {
+  "plt-0": {
+    youtubeId: "28eSbc97hrc",
+    duration: "11:24",
+    title: "Matplotlib Crash Course Overview",
+  },
+  "plt-1": {
+    youtubeId: "O52_AsVb9tI",
+    duration: "14:15",
+    title: "Scatterplots, Histograms, and Bar Graphs Explained",
+  },
+};
+
+
+--------------------------------------------------------------------------------
+FILE: /hooks/usematplotlibProgress.js
+--------------------------------------------------------------------------------
+import { useState, useEffect } from "react";
+
+export function useMatplotlibProgress() {
+  const [completedLessons, setCompletedLessons] = useState(() => {
+    const saved = localStorage.getItem("polycode_progress_matplotlib");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem(
+      "polycode_progress_matplotlib",
+      JSON.stringify(completedLessons),
+    );
+  }, [completedLessons]);
+
+  const completeLesson = (lessonId) => {
+    if (!completedLessons.includes(lessonId)) {
+      setCompletedLessons((prev) => [...prev, lessonId]);
+    }
+  };
+
+  const resetProgress = () => {
+    setCompletedLessons([]);
+  };
+
+  return {
+    completedLessons,
+    completeLesson,
+    resetProgress,
+  };
+}
+
+
+--------------------------------------------------------------------------------
+FILE: /pages/MatplotlibHub.jsx
+--------------------------------------------------------------------------------
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { MATPLOTLIB_CHAPTERS } from "../data/matplotlibCurriculum";
+import { useMatplotlibProgress } from "../hooks/usematplotlibProgress";
+
+export default function MatplotlibHub() {
+  const navigate = useNavigate();
+  const { completedLessons } = useMatplotlibProgress();
+
+  return (
+    <div className="polycode-hub-container">
+      <header className="polycode-hub-header">
+        <h1>Data Visualization with Matplotlib</h1>
+        <p>Master the art of plotting data science findings from scratch.</p>
+      </header>
+
+      <div className="polycode-chapters-grid">
+        {MATPLOTLIB_CHAPTERS.map((chapter) => {
+          const totalLessons = chapter.lessons.length;
+          const finishedCount = chapter.lessons.filter((l) =>
+            completedLessons.includes(l.id),
+          ).length;
+
+          return (
+            <div
+              key={chapter.id}
+              className="polycode-chapter-card"
+              style={{ borderColor: chapter.color }}
+            >
+              <div className="chapter-meta">
+                <span className="chapter-icon">{chapter.icon}</span>
+                <h2>{chapter.title}</h2>
+              </div>
+              <p className="chapter-progress-text">
+                Progress: {finishedCount} / {totalLessons} Lessons
+              </p>
+              <div className="lessons-list">
+                {chapter.lessons.map((lesson) => (
+                  <button
+                    key={lesson.id}
+                    className={`lesson-row-btn ${completedLessons.includes(lesson.id) ? "is-done" : ""}`}
+                    onClick={() =>
+                      navigate(`/learn/matplotlib/lesson/${lesson.id}`)
+                    }
+                  >
+                    <span>{lesson.title}</span>
+                    {completedLessons.includes(lesson.id) && (
+                      <span className="check-mark">✓</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+
+--------------------------------------------------------------------------------
+FILE: /pages/MatplotlibLessonPage.jsx
+--------------------------------------------------------------------------------
+import React, { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { MATPLOTLIB_CHAPTERS } from "../data/matplotlibCurriculum";
+import { useMatplotlibProgress } from "../hooks/usematplotlibProgress";
+
+const BASE_PATH = "/learn/matplotlib";
+
+export default function MatplotlibLessonPage() {
+  const { lessonId } = useParams();
+  const navigate = useNavigate();
+  const { completedLessons, completeLesson } = useMatplotlibProgress();
+  const [savedCodeMap, setSavedCodeMap] = useState({});
+
+  // Flatten curriculum architecture to identify navigation nodes
+  const allLessons = MATPLOTLIB_CHAPTERS.reduce((acc, chap) => {
+    return [
+      ...acc,
+      ...chap.lessons.map((l) => ({ ...l, chapterColor: chap.color })),
+    ];
+  }, []);
+
+  const currentIndex = allLessons.findIndex((l) => l.id === lessonId);
+  const lesson = allLessons[currentIndex];
+
+  if (!lesson) {
+    return (
+      <div className="p-8 text-center text-red-500">
+        Lesson structural target not encountered.
+      </div>
+    );
+  }
+
+  const prev = allLessons[currentIndex - 1];
+  const next = allLessons[currentIndex + 1];
+  const isCompleted = completedLessons.includes(lessonId);
+
+  const handleCodeChange = (newCode) => {
+    setSavedCodeMap((prevMap) => ({ ...prevMap, [lessonId]: newCode }));
+  };
+
+  const handleChallengeComplete = () => {
+    completeLesson(lessonId);
+  };
+
+  return (
+    <div className="polycode-lesson-shell">
+      <div className="lesson-workspace-grid">
+        {/* Course Theory Panel */}
+        <div className="theory-panel p-6 overflow-y-auto">
+          <h1 className="text-2xl font-bold mb-4">{lesson.title}</h1>
+          {lesson.theory.map((item, idx) => {
+            if (item.type === "text") {
+              return (
+                <p key={idx} className="mb-4 text-gray-700 leading-relaxed">
+                  {item.content}
+                </p>
+              );
+            }
+            if (item.type === "callout") {
+              return (
+                <div
+                  key={idx}
+                  className={`my-4 p-4 rounded border-l-4 ${item.variant === "tip" ? "bg-green-50 border-green-500" : "bg-blue-50 border-blue-500"}`}
+                >
+                  {item.content}
+                </div>
+              );
+            }
+            return null;
+          })}
+        </div>
+
+        {/* Navigation panel */}
+        <div className="lesson-footer-nav flex justify-between p-4 border-t">
+          <button
+            disabled={!prev}
+            onClick={() => prev && navigate(`${BASE_PATH}/lesson/${prev.id}`)}
+            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+          >
+            ← Previous
+          </button>
+          <button
+            onClick={handleChallengeComplete}
+            className="px-4 py-2 bg-green-600 text-white rounded"
+          >
+            Mark Lesson as Solved
+          </button>
+          {next ? (
+            <button
+              onClick={() => navigate(`${BASE_PATH}/lesson/${next.id}`)}
+              className="px-4 py-2 bg-blue-600 text-white rounded"
+            >
+              Next Lesson →
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate(BASE_PATH)}
+              className="px-4 py-2 bg-purple-600 text-white rounded"
+            >
+              Finish Course
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+================================================================================
+END OF FOLDER: matplotlib-py
+================================================================================

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { getProfilePathForUser } from "../../../lib/authSession";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -16,8 +17,8 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
     try {
-      await login(email, password);
-      navigate("/");
+      const user = await login(email, password);
+      navigate(getProfilePathForUser(user));
     } catch (err) {
       setError(err.message);
     } finally {

@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 
@@ -28,9 +29,9 @@ export default function Hero() {
             mentoring, and built-in security analysis in one platform.
           </p>
           <div className="landing-hero-actions">
-            <a href="#get-started" className="landing-btn-primary">
+            <Link to="/login" className="landing-btn-primary">
               Get Started
-            </a>
+            </Link>
           </div>
         </motion.div>
 

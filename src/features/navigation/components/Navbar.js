@@ -190,7 +190,7 @@ export default function Navbar({
                   <span>{user.email}</span>
                 </div>
                 <Link
-                  to="/profile"
+                  to={user?.username ? `/@${user.username}` : "/profile"}
                   className="navbar-dropdown-item"
                   onClick={() => setDropdownOpen(false)}
                 >

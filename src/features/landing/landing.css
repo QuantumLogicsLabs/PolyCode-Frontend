@@ -3944,6 +3944,7 @@ NAVBAR
 .cs-card {
   scroll-snap-align: start;
   position: relative;
+  margin-top: 8px;
   border: 1px solid var(--border, #1e2433);
   border-radius: 18px;
   background: rgba(13, 17, 23, 0.85);

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import RunnableCodeBlock from "../../shared/RunnableCodeBlock";
+import LessonReadGate from "../../shared/LessonReadGate";
 
 function plainText(text = "") {
   return text.replace(/\*\*/g, "").replace(/`/g, "");
@@ -174,9 +175,135 @@ function NumpyMatrixOpVisual({ block, accentColor }) {
   );
 }
 
+function NumpyArrayVisual({ block, accentColor }) {
+  const accent = block.accentColor || accentColor;
+  const missingAccent = block.missingAccent || "#f43f5e";
+  const okAccent = block.okAccent || "#22c55e";
+  const rows = block.rows?.length
+    ? block.rows
+    : [
+        {
+          label: block.label,
+          values: block.values || [],
+          colLabels: block.colLabels,
+          missingIndexes: block.missingIndexes,
+          okIndexes: block.okIndexes,
+        },
+      ];
+
+  return (
+    <div className="numpy-array-visual-wrap">
+      {rows.map((row, rowIndex) => {
+        const missing = new Set(row.missingIndexes || []);
+        const ok = new Set(row.okIndexes || []);
+        const colCount = row.values.length;
+        const isCompact = Boolean(row.label) && colCount === 1;
+        const valueColumns = `repeat(${colCount}, minmax(56px, 88px))`;
+        const gridTemplateColumns = row.label
+          ? `72px ${valueColumns}`
+          : valueColumns;
+
+        if (isCompact) {
+          const value = row.values[0];
+          const isMissing = missing.has(0);
+          const isOk = ok.has(0);
+          const cellAccent = isMissing
+            ? missingAccent
+            : isOk
+              ? okAccent
+              : accent;
+
+          return (
+            <div
+              key={`${row.label}-${rowIndex}`}
+              className="numpy-array-row-block numpy-array-row-compact"
+            >
+              <div className="numpy-array-compact-row">
+                <span className="numpy-array-row-label">{row.label}</span>
+                <div className="numpy-array-value-col">
+                  {row.colLabels?.[0] ? (
+                    <span className="numpy-array-col-label">
+                      {row.colLabels[0]}
+                    </span>
+                  ) : null}
+                  <span
+                    className={`numpy-array-cell${isMissing ? " numpy-array-cell-missing" : ""}${isOk ? " numpy-array-cell-ok" : ""}`}
+                    style={{
+                      borderColor: `${cellAccent}66`,
+                      background: `${cellAccent}18`,
+                      color: isMissing ? missingAccent : undefined,
+                    }}
+                  >
+                    {value}
+                  </span>
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        return (
+          <div key={`${row.label}-${rowIndex}`} className="numpy-array-row-block">
+            {row.colLabels?.length > 0 ? (
+              <div
+                className="numpy-array-col-labels"
+                style={{ gridTemplateColumns }}
+              >
+                {row.label ? <span className="numpy-array-corner" /> : null}
+                {row.colLabels.map((colLabel) => (
+                  <span key={colLabel} className="numpy-array-col-label">
+                    {colLabel}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+            <div
+              className="numpy-array-data-row"
+              style={{ gridTemplateColumns }}
+            >
+              {row.label ? (
+                <span className="numpy-array-row-label">{row.label}</span>
+              ) : null}
+              {row.values.map((value, index) => {
+                const isMissing = missing.has(index);
+                const isOk = ok.has(index);
+                const cellAccent = isMissing
+                  ? missingAccent
+                  : isOk
+                    ? okAccent
+                    : accent;
+
+                return (
+                  <span
+                    key={`${row.label}-${index}`}
+                    className={`numpy-array-cell${isMissing ? " numpy-array-cell-missing" : ""}${isOk ? " numpy-array-cell-ok" : ""}`}
+                    style={{
+                      borderColor: `${cellAccent}66`,
+                      background: `${cellAccent}18`,
+                      color: isMissing ? missingAccent : undefined,
+                    }}
+                  >
+                    {value}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+      {block.footnote ? (
+        <p className="numpy-array-footnote">
+          <InlineText text={block.footnote} />
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 function NumpyVisualTable({ block }) {
   const rowAccent = block.rowAccent || "#a855f7";
   const colAccent = block.colAccent || "#6366f1";
+  const showTotals = block.showTotals !== false;
 
   return (
     <div className="numpy-visual-table-wrap">
@@ -189,73 +316,89 @@ function NumpyVisualTable({ block }) {
                 {col}
               </th>
             ))}
-            <th
-              className="numpy-vt-row-total-head"
-              style={{ color: rowAccent }}
-            >
-              Total
-            </th>
+            {showTotals ? (
+              <th
+                className="numpy-vt-row-total-head"
+                style={{ color: rowAccent }}
+              >
+                {block.rowTotalHeader || "Total"}
+              </th>
+            ) : null}
           </tr>
         </thead>
         <tbody>
           {block.rows.map((row, rowIndex) => (
-            <tr key={row.label}>
+            <tr
+              key={row.label}
+              className={block.highlightRows?.includes(rowIndex) ? "numpy-vt-row-highlight" : ""}
+            >
               <th className="numpy-vt-row-head">{row.label}</th>
               {row.values.map((value, colIndex) => (
                 <td key={`${row.label}-${colIndex}`} className="numpy-vt-cell">
                   {value}
                 </td>
               ))}
-              <td
-                className="numpy-vt-row-total"
-                style={{
-                  background: `${rowAccent}22`,
-                  borderColor: `${rowAccent}55`,
-                }}
-              >
-                {block.rowTotals[rowIndex]}
-              </td>
+              {showTotals ? (
+                <td
+                  className="numpy-vt-row-total"
+                  style={{
+                    background: `${rowAccent}22`,
+                    borderColor: `${rowAccent}55`,
+                  }}
+                >
+                  {block.rowTotals[rowIndex]}
+                </td>
+              ) : null}
             </tr>
           ))}
-          <tr className="numpy-vt-col-total-row">
-            <th
-              className="numpy-vt-col-total-head"
-              style={{ color: colAccent }}
-            >
-              Total
-            </th>
-            {block.colTotals.map((total, colIndex) => (
-              <td
-                key={`col-total-${colIndex}`}
-                className="numpy-vt-col-total"
-                style={{
-                  background: `${colAccent}22`,
-                  borderColor: `${colAccent}55`,
-                }}
+          {showTotals ? (
+            <tr className="numpy-vt-col-total-row">
+              <th
+                className="numpy-vt-col-total-head"
+                style={{ color: colAccent }}
               >
-                {total}
-              </td>
-            ))}
-            <td className="numpy-vt-corner-total" />
-          </tr>
+                {block.colTotalHeader || "Total"}
+              </th>
+              {block.colTotals.map((total, colIndex) => (
+                <td
+                  key={`col-total-${colIndex}`}
+                  className="numpy-vt-col-total"
+                  style={{
+                    background: `${colAccent}22`,
+                    borderColor: `${colAccent}55`,
+                  }}
+                >
+                  {total}
+                </td>
+              ))}
+              <td className="numpy-vt-corner-total" />
+            </tr>
+          ) : null}
         </tbody>
       </table>
-      <div className="numpy-vt-legend">
-        <span className="numpy-vt-legend-item" style={{ color: rowAccent }}>
-          <span
-            className="numpy-vt-legend-swatch"
-            style={{ background: rowAccent }}
-          />
-          {block.rowTotalLabel || "axis=1 → add across each row"}
-        </span>
-        <span className="numpy-vt-legend-item" style={{ color: colAccent }}>
-          <span
-            className="numpy-vt-legend-swatch"
-            style={{ background: colAccent }}
-          />
-          {block.colTotalLabel || "axis=0 ↓ add down each column"}
-        </span>
-      </div>
+      {showTotals ? (
+        <div className="numpy-vt-legend">
+          <span className="numpy-vt-legend-item" style={{ color: rowAccent }}>
+            <span
+              className="numpy-vt-legend-swatch"
+              style={{ background: rowAccent }}
+            />
+            {block.rowTotalLabel || "axis=1 → add across each row"}
+          </span>
+          <span className="numpy-vt-legend-item" style={{ color: colAccent }}>
+            <span
+              className="numpy-vt-legend-swatch"
+              style={{ background: colAccent }}
+            />
+            {block.colTotalLabel || "axis=0 ↓ add down each column"}
+          </span>
+        </div>
+      ) : null}
+      {block.footnote ? (
+        <p className="numpy-vt-footnote">
+          <InlineText text={block.footnote} />
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -331,6 +474,20 @@ function NumpyTheoryBlock({ block, step, accentColor }) {
           language={block.lang || "python"}
         />
       </div>
+    );
+  }
+
+  if (block.type === "array") {
+    return (
+      <article className="numpy-step-card numpy-array-card">
+        <div className="numpy-step-head">
+          <span className="numpy-step-num" style={{ background: accentColor }}>
+            {step}
+          </span>
+          <span className="numpy-step-label">{block.title}</span>
+        </div>
+        <NumpyArrayVisual block={block} accentColor={accentColor} />
+      </article>
     );
   }
 
@@ -446,6 +603,8 @@ export default function NumpyIntroTheory({
   onSaveNote,
   confidence,
   onConfidenceChange,
+  markedAsRead = false,
+  onMarkAsRead = () => {},
   onGoChallenge,
 }) {
   const accentColor = lesson.chapterColor || "#4f46e5";
@@ -477,6 +636,7 @@ export default function NumpyIntroTheory({
         {lesson.theory.map((block, index) => {
           const needsStep =
             block.type === "text" ||
+            block.type === "array" ||
             block.type === "table" ||
             block.type === "matrices" ||
             block.type === "diagram" ||
@@ -494,6 +654,15 @@ export default function NumpyIntroTheory({
         })}
       </div>
 
+      <LessonReadGate
+        markedAsRead={markedAsRead}
+        onMarkAsRead={onMarkAsRead}
+        confidence={confidence}
+        onConfidenceChange={onConfidenceChange}
+        onGoChallenge={onGoChallenge}
+        accentColor={accentColor}
+      />
+
       <div className="numpy-notes-panel">
         <h3>📝 Your notes</h3>
         <p className="numpy-notes-hint">
@@ -506,37 +675,6 @@ export default function NumpyIntroTheory({
         />
         <button type="button" className="numpy-notes-save" onClick={onSaveNote}>
           Save note
-        </button>
-      </div>
-
-      <div className="numpy-confidence-panel">
-        <h3>How do you feel about this lesson?</h3>
-        <div className="numpy-confidence-options">
-          {[
-            ["review", "😅 Need another read"],
-            ["almost", "🙂 Getting it"],
-            ["ready", "🚀 Ready for the challenge"],
-          ].map(([value, label]) => (
-            <button
-              key={value}
-              type="button"
-              className={confidence === value ? "active" : ""}
-              onClick={() => onConfidenceChange(value)}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="numpy-theory-footer">
-        <button
-          type="button"
-          className="numpy-challenge-cta"
-          style={{ "--numpy-accent": accentColor }}
-          onClick={onGoChallenge}
-        >
-          Ready? Try the coding challenge →
         </button>
       </div>
     </div>

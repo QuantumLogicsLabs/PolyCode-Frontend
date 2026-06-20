@@ -6,11 +6,11 @@
 const LOCAL_API = "http://localhost:5000/api";
 const DEFAULT_PROD_API = "https://poly-code-backend.vercel.app/api";
 
-function normalizeBase(url = "") {
+function normalizeBase(url = "") { //Removes trailing slashes from the URL.
   return url.trim().replace(/\/$/, "");
 }
 
-function isLocalHostname(hostname = "") {
+function isLocalHostname(hostname = "") { //Checks if the app is running on your own computer. localhost or 127.0.0.1.
   return hostname === "localhost" || hostname === "127.0.0.1";
 }
 
