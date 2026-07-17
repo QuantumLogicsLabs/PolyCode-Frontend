@@ -1,0 +1,3268 @@
+================================================================================
+START OF FOLDER: python-fundamentals
+================================================================================
+
+================================================================================
+PROJECT STRUCTURE
+================================================================================
+Root: C:\Users\Sheikh\Desktop\QL\polycode frontend\src\features\learn\python-fundamentals
+
+python-fundamentals/
+├── data/
+│   ├── pythonFundamentalsCurriculum.js
+│   ├── pythonFundamentalsVideoLinks.js
+│   └── pythonLessonEnhancements.js
+├── hooks/
+│   └── usePythonFundamentalsProgress.js
+├── pages/
+│   ├── PythonFundamentalsHub.jsx
+│   └── PythonFundamentalsLessonPage.jsx
+└── COURSE_GUIDE.md
+
+Total files: 7
+
+================================================================================
+FILE CONTENTS
+================================================================================
+
+--------------------------------------------------------------------------------
+FILE: /data/pythonFundamentalsCurriculum.js
+--------------------------------------------------------------------------------
+// PolyCode — Python Fundamentals full curriculum
+// 8 chapters · 22 lessons · browser Python challenges (Pyodide)
+// YouTube links: edit pythonFundamentalsVideoLinks.js (not this file).
+
+import { applyLessonVideoLinks } from "../../shared/applyLessonVideoLinks";
+import { PYTHON_FUNDAMENTALS_VIDEO_LINKS } from "./pythonFundamentalsVideoLinks";
+import { applyChapterEnhancements } from "./pythonLessonEnhancements";
+
+const ACCENT = "#3776ab";
+
+const RAW_PYTHON_FUNDAMENTALS_CHAPTERS = [
+  {
+    id: "foundations",
+    title: "Foundations",
+    icon: "🐍",
+    color: ACCENT,
+    lessons: [
+      {
+        id: "py-0",
+        title: "What is Python?",
+        xp: 10,
+        theory: [
+          {
+            type: "text",
+            content:
+              "**Python** is a high-level, general-purpose language designed for readability. Its clean syntax lets you express ideas in fewer lines than many other languages — which is why it dominates data science, automation, and backend web development.",
+          },
+          {
+            type: "diagram",
+            title: "Where Python is used today",
+            nodes: [
+              {
+                id: "data",
+                label: "Data & AI",
+                color: ACCENT,
+                items: ["NumPy & Pandas", "Machine learning", "Research notebooks"],
+              },
+              {
+                id: "web",
+                label: "Web & APIs",
+                color: "#2563eb",
+                items: ["FastAPI & Django", "Microservices", "Scripting glue"],
+              },
+              {
+                id: "ops",
+                label: "Automation",
+                color: "#3b82f6",
+                items: ["DevOps scripts", "Testing", "File processing"],
+              },
+            ],
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Your first program",
+            content: `print("Hello, PolyCode!")`,
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "Python uses **indentation** (usually 4 spaces) to define blocks — not curly braces. The colon `:` starts a block; the next lines must be indented consistently.",
+          },
+          {
+            type: "quiz",
+            question: "What does Python use to define code blocks?",
+            options: ["Curly braces {}", "Semicolons only", "Indentation", "Parentheses"],
+            answer: 2,
+            explanation:
+              "After a colon, the indented lines belong to that block — if, for, def, class, and more.",
+          },
+        ],
+        challenge: {
+          title: "Hello, PolyCode",
+          description: "Use `print()` to output exactly: `Hello, PolyCode!`",
+          starterCode: `# Your first Python challenge\n\n`,
+          solutionCode: `print("Hello, PolyCode!")`,
+          tests: [
+            { id: 1, label: "Uses print()", keywords: [{ pattern: "print\\s*\\(" }] },
+            { id: 2, label: "Prints Hello, PolyCode!", keywords: [{ pattern: "Hello,\\s*PolyCode!" }] },
+          ],
+        },
+      },
+      {
+        id: "py-0b",
+        title: "Running Python",
+        xp: 10,
+        theory: [
+          {
+            type: "text",
+            content:
+              "You can run Python in three common ways: the **interactive REPL** (type one line at a time), a **`.py` script** (saved file executed top to bottom), or **course challenges** here in PolyCode (Pyodide in the browser).",
+          },
+          {
+            type: "diagram",
+            title: "How code executes",
+            nodes: [
+              { id: "src", label: "Source", color: ACCENT, items: [".py file or REPL", "Top to bottom"] },
+              { id: "interp", label: "Interpreter", color: "#2563eb", items: ["Reads each line", "Runs immediately"] },
+              { id: "out", label: "Output", color: "#3b82f6", items: ["print() to console", "Errors if syntax fails"] },
+            ],
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Multiple print statements",
+            content: `print("Line 1")
+print("Line 2")
+print("Line 3")`,
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "When something breaks, Python prints a **traceback** — read from the bottom up to find the error type and line number.",
+          },
+          {
+            type: "quiz",
+            question: "In a .py script, in what order does Python run your code?",
+            options: ["Random order", "Bottom to top", "Top to bottom", "Alphabetical by function name"],
+            answer: 2,
+            explanation: "Scripts execute sequentially from the first line unless control flow redirects execution.",
+          },
+        ],
+        challenge: {
+          title: "Three-Line Greeting",
+          description:
+            "Print three lines exactly: `Python`, then `is`, then `fun` — each on its own line using separate `print()` calls.",
+          starterCode: `# Three print statements\n\n`,
+          solutionCode: `print("Python")
+print("is")
+print("fun")`,
+          tests: [
+            { id: 1, label: "Uses print()", keywords: [{ pattern: "print\\s*\\(" }] },
+            { id: 2, label: "Prints Python", keywords: [{ pattern: "Python" }] },
+            { id: 3, label: "Prints fun", keywords: [{ pattern: "fun" }] },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: "variables-types",
+    title: "Variables & Types",
+    icon: "🔢",
+    color: "#2563eb",
+    lessons: [
+      {
+        id: "py-1",
+        title: "Variables and Basic Types",
+        xp: 12,
+        theory: [
+          {
+            type: "text",
+            content:
+              "A **variable** is a name that refers to a value in memory. Python figures out the type automatically — you do not declare `int x` like in C++.",
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Core types",
+            content: `age = 25          # int
+price = 19.99     # float
+name = "Ada"      # str
+active = True     # bool
+
+print(type(age), type(price), type(name), type(active))`,
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "Use descriptive names: `student_count` not `sc`. Constants that never change are often written `MAX_RETRIES = 3`.",
+          },
+          {
+            type: "quiz",
+            question: "Which type does `3.14` have in Python?",
+            options: ["int", "float", "str", "bool"],
+            answer: 1,
+            explanation: "Numbers with a decimal point are floats; whole numbers without a dot are ints.",
+          },
+        ],
+        challenge: {
+          title: "Store and Print Types",
+          description:
+            "Create `x = 42` and `y = \"PolyCode\"`, then print `type(x)` and `type(y)` on separate lines.",
+          starterCode: `# x, y, then two prints\n\n`,
+          solutionCode: `x = 42
+y = "PolyCode"
+print(type(x))
+print(type(y))`,
+          tests: [
+            { id: 1, label: "Assigns x = 42", keywords: [{ pattern: "x\\s*=\\s*42" }] },
+            { id: 2, label: "Assigns y string", keywords: [{ pattern: 'y\\s*=\\s*"PolyCode"' }] },
+            { id: 3, label: "Uses type()", keywords: [{ pattern: "type\\s*\\(" }] },
+          ],
+        },
+      },
+      {
+        id: "py-1b",
+        title: "Strings and f-strings",
+        xp: 12,
+        theory: [
+          {
+            type: "text",
+            content:
+              "Strings hold text. **f-strings** (formatted string literals) embed variables inside `{}` — they are the modern standard for building messages.",
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "f-string formatting",
+            content: `name = "Fatima"
+score = 95
+print(f"{name} scored {score}%")`,
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "input() example",
+            content: `# name = input("Your name: ")
+# print(f"Hello, {name}!")`,
+          },
+          {
+            type: "callout",
+            variant: "warning",
+            content:
+              "Strings use quotes: `\"double\"` or `'single'`. Mixing them incorrectly causes SyntaxError — pick one style per string.",
+          },
+          {
+            type: "quiz",
+            question: "Which prints the value of variable `city` inside a sentence?",
+            options: ["print(\"city\")", "print(f\"I live in {city}\")", "print(city + city)", "print(type(city))"],
+            answer: 1,
+            explanation: "f-strings interpolate variables inside curly braces.",
+          },
+        ],
+        challenge: {
+          title: "Format a Message",
+          description:
+            "Set `language = \"Python\"` and `level = \"beginner\"`, then print exactly: `Learning Python at beginner level` using an f-string.",
+          starterCode: `language = "Python"
+level = "beginner"
+# print with f-string\n`,
+          solutionCode: `language = "Python"
+level = "beginner"
+print(f"Learning {language} at {level} level")`,
+          tests: [
+            { id: 1, label: "Uses f-string", keywords: [{ pattern: 'f"[^"]*\\{language\\}' }] },
+            { id: 2, label: "Prints Learning", keywords: [{ pattern: "Learning" }] },
+            { id: 3, label: "Includes level", keywords: [{ pattern: "beginner" }] },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: "control-flow",
+    title: "Control Flow",
+    icon: "🔀",
+    color: "#0d9488",
+    lessons: [
+      {
+        id: "py-2",
+        title: "If, Elif, Else",
+        xp: 15,
+        theory: [
+          {
+            type: "text",
+            content:
+              "Control flow lets programs make decisions. Use `if` for the first condition, `elif` for additional checks, and `else` when nothing matched.",
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Grade checker",
+            content: `score = 78
+
+if score >= 90:
+    print("A")
+elif score >= 80:
+    print("B")
+else:
+    print("Keep practicing")`,
+          },
+          {
+            type: "quiz",
+            question: "What keyword adds another condition after if?",
+            options: ["elseif", "elif", "else if", "when"],
+            answer: 1,
+            explanation: "Python uses elif — not elseif or else if.",
+          },
+        ],
+        challenge: {
+          title: "Even or Odd",
+          description:
+            "Given `n = 7`, print `even` if n is divisible by 2, otherwise print `odd`.",
+          starterCode: `n = 7
+# if / else\n`,
+          solutionCode: `n = 7
+if n % 2 == 0:
+    print("even")
+else:
+    print("odd")`,
+          tests: [
+            { id: 1, label: "Uses if", keywords: [{ pattern: "if\\s+" }] },
+            { id: 2, label: "Uses modulo or else", keywords: [{ pattern: "%\\s*2|else" }] },
+            { id: 3, label: "Prints odd", keywords: [{ pattern: "odd" }] },
+          ],
+        },
+      },
+      {
+        id: "py-2b",
+        title: "Logic and Truthiness",
+        xp: 15,
+        theory: [
+          {
+            type: "text",
+            content:
+              "Combine conditions with `and`, `or`, and `not`. In Python, empty strings, zero, `None`, and empty lists are **falsy** — everything else is truthy in a boolean context.",
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Combined conditions",
+            content: `age = 20
+has_id = True
+
+if age >= 18 and has_id:
+    print("Access granted")`,
+          },
+          {
+            type: "callout",
+            variant: "warning",
+            content: "`==` compares values. `is` checks whether two names refer to the **same object** — use `==` for strings and numbers.",
+          },
+          {
+            type: "quiz",
+            question: "Which value is falsy in Python?",
+            options: ["[1, 2]", "\"hello\"", "0", "True"],
+            answer: 2,
+            explanation: "Zero is falsy; non-empty collections and non-empty strings are truthy.",
+          },
+        ],
+        challenge: {
+          title: "Login Check",
+          description:
+            "Set `username = \"ada\"` and `password_len = 10`. If username is non-empty AND password_len >= 8, print `ok`, else print `denied`.",
+          starterCode: `username = "ada"
+password_len = 10\n`,
+          solutionCode: `username = "ada"
+password_len = 10
+if username and password_len >= 8:
+    print("ok")
+else:
+    print("denied")`,
+          tests: [
+            { id: 1, label: "Uses and", keywords: [{ pattern: "and" }] },
+            { id: 2, label: "Checks password length", keywords: [{ pattern: "password_len\\s*>=" }] },
+            { id: 3, label: "Prints ok", keywords: [{ pattern: "ok" }] },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: "collections-core",
+    title: "Lists & Tuples",
+    icon: "📋",
+    color: "#7c3aed",
+    lessons: [
+      {
+        id: "py-3",
+        title: "Lists",
+        xp: 15,
+        theory: [
+          {
+            type: "text",
+            content:
+              "A **list** is an ordered, mutable collection. Use square brackets `[]` and methods like `.append()` to grow it.",
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "List basics",
+            content: `tasks = ["read", "code", "review"]
+tasks.append("ship")
+print(tasks)
+print(len(tasks))`,
+          },
+          {
+            type: "quiz",
+            question: "Which method adds one item to the end of a list?",
+            options: [".add()", ".append()", ".push()", ".insert_end()"],
+            answer: 1,
+            explanation: "list.append(x) adds a single element to the end.",
+          },
+        ],
+        challenge: {
+          title: "Build a List",
+          description:
+            "Start with `nums = [1, 2, 3]`, append `4`, then print the list.",
+          starterCode: `nums = [1, 2, 3]\n`,
+          solutionCode: `nums = [1, 2, 3]
+nums.append(4)
+print(nums)`,
+          tests: [
+            { id: 1, label: "Uses append", keywords: [{ pattern: "\\.append\\s*\\(" }] },
+            { id: 2, label: "Appends 4", keywords: [{ pattern: "append\\s*\\(\\s*4\\s*\\)" }] },
+            { id: 3, label: "Prints list", keywords: [{ pattern: "print\\s*\\(" }] },
+          ],
+        },
+      },
+      {
+        id: "py-3b",
+        title: "Tuples",
+        xp: 12,
+        theory: [
+          {
+            type: "text",
+            content:
+              "A **tuple** is like a list but **immutable** — after creation you cannot add, remove, or replace items. Use parentheses for fixed records.",
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Tuple unpacking",
+            content: `point = (10, 20)
+x, y = point
+print(x, y)`,
+          },
+          {
+            type: "quiz",
+            question: "Why use a tuple instead of a list?",
+            options: [
+              "Tuples are always faster at math",
+              "Tuples protect fixed data from accidental changes",
+              "Tuples can only hold numbers",
+              "Lists cannot be indexed",
+            ],
+            answer: 1,
+            explanation: "Immutability makes tuples ideal for coordinates, RGB colors, and dict keys.",
+          },
+        ],
+        challenge: {
+          title: "Unpack a Tuple",
+          description:
+            "Given `rgb = (255, 128, 0)`, unpack into `r`, `g`, `b` and print `r` and `g` on one line separated by a space.",
+          starterCode: `rgb = (255, 128, 0)\n`,
+          solutionCode: `rgb = (255, 128, 0)
+r, g, b = rgb
+print(r, g)`,
+          tests: [
+            { id: 1, label: "Unpacks three variables", keywords: [{ pattern: "r,\\s*g,\\s*b\\s*=" }] },
+            { id: 2, label: "Prints r and g", keywords: [{ pattern: "print\\s*\\(\\s*r" }] },
+            { id: 3, label: "Uses rgb tuple", keywords: [{ pattern: "rgb" }] },
+          ],
+        },
+      },
+      {
+        id: "py-3c",
+        title: "Indexing and Slicing",
+        xp: 15,
+        theory: [
+          {
+            type: "text",
+            content:
+              "Index from `0` for the first item. Negative indices count from the end: `-1` is the last element. Slicing `start:stop` returns a sub-sequence without modifying the original.",
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Slice examples",
+            content: `letters = ["a", "b", "c", "d", "e"]
+print(letters[0])
+print(letters[-1])
+print(letters[1:4])`,
+          },
+          {
+            type: "quiz",
+            question: "What does `items[-1]` return?",
+            options: ["First item", "Last item", "Empty list", "SyntaxError always"],
+            answer: 1,
+            explanation: "-1 is a common Python idiom for the last element.",
+          },
+        ],
+        challenge: {
+          title: "Last Two Items",
+          description:
+            "Given `data = [10, 20, 30, 40, 50]`, print a slice containing only the last two elements using negative indexing or slicing.",
+          starterCode: `data = [10, 20, 30, 40, 50]\n`,
+          solutionCode: `data = [10, 20, 30, 40, 50]
+print(data[-2:])`,
+          tests: [
+            { id: 1, label: "Uses slicing", keywords: [{ pattern: "\\[.*:.*\\]" }] },
+            { id: 2, label: "Negative index slice", keywords: [{ pattern: "-2" }] },
+            { id: 3, label: "Prints result", keywords: [{ pattern: "print" }] },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: "loops-functions",
+    title: "Loops & Functions",
+    icon: "🔁",
+    color: "#dc2626",
+    lessons: [
+      {
+        id: "py-4",
+        title: "For Loops",
+        xp: 15,
+        theory: [
+          {
+            type: "text",
+            content:
+              "A `for` loop iterates over each item in a sequence. `range(n)` produces numbers from `0` to `n-1` — perfect for counted loops.",
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Loop over a list",
+            content: `fruits = ["apple", "banana", "cherry"]
+for fruit in fruits:
+    print(fruit)`,
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "range()",
+            content: `for i in range(3):
+    print(i)  # 0, 1, 2`,
+          },
+          {
+            type: "quiz",
+            question: "What does range(5) produce?",
+            options: ["1 through 5", "0 through 4", "0 through 5", "5 through 10"],
+            answer: 1,
+            explanation: "range(stop) starts at 0 and stops before stop.",
+          },
+        ],
+        challenge: {
+          title: "Sum with a Loop",
+          description:
+            "Use a for loop to print the sum of `nums = [2, 4, 6]` — expected output: `12`.",
+          starterCode: `nums = [2, 4, 6]
+total = 0\n`,
+          solutionCode: `nums = [2, 4, 6]
+total = 0
+for n in nums:
+    total += n
+print(total)`,
+          tests: [
+            { id: 1, label: "Uses for", keywords: [{ pattern: "for\\s+" }] },
+            { id: 2, label: "Accumulates total", keywords: [{ pattern: "total\\s*\\+=" }] },
+            { id: 3, label: "Prints 12", keywords: [{ pattern: "print\\s*\\(\\s*total" }] },
+          ],
+        },
+      },
+      {
+        id: "py-4b",
+        title: "While Loops",
+        xp: 15,
+        theory: [
+          {
+            type: "text",
+            content:
+              "Use `while` when you repeat until a condition becomes false. Always ensure the loop body moves toward the exit — otherwise you get an infinite loop.",
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Countdown",
+            content: `count = 3
+while count > 0:
+    print(count)
+    count -= 1
+print("go")`,
+          },
+          {
+            type: "quiz",
+            question: "When is a while loop the better choice?",
+            options: [
+              "When you know the exact number of items in a list",
+              "When repetition depends on a condition that changes each iteration",
+              "When you never need to update variables",
+              "When you want to define a reusable block",
+            ],
+            answer: 1,
+            explanation: "while fits unknown iteration counts — e.g. read until sentinel value.",
+          },
+        ],
+        challenge: {
+          title: "Count Up",
+          description:
+            "Use a while loop to print numbers `1`, `2`, `3` each on its own line (start with `n = 1`).",
+          starterCode: `n = 1\n`,
+          solutionCode: `n = 1
+while n <= 3:
+    print(n)
+    n += 1`,
+          tests: [
+            { id: 1, label: "Uses while", keywords: [{ pattern: "while\\s+" }] },
+            { id: 2, label: "Increments n", keywords: [{ pattern: "n\\s*\\+=\\s*1" }] },
+            { id: 3, label: "Prints numbers", keywords: [{ pattern: "print\\s*\\(\\s*n" }] },
+          ],
+        },
+      },
+      {
+        id: "py-5",
+        title: "Functions",
+        xp: 18,
+        theory: [
+          {
+            type: "text",
+            content:
+              "Functions group reusable logic. Define with `def`, optionally `return` a value. Parameters receive arguments from the caller.",
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Function with return",
+            content: `def area(width, height):
+    return width * height
+
+print(area(4, 5))`,
+          },
+          {
+            type: "callout",
+            variant: "warning",
+            content:
+              "Avoid `def add_item(x, bucket=[])` — the default list is shared across calls. Use `bucket=None` and create `[]` inside the function.",
+          },
+          {
+            type: "quiz",
+            question: "What keyword sends a value back to the caller?",
+            options: ["send", "return", "yield", "exit"],
+            answer: 1,
+            explanation: "return exits the function and optionally provides a result.",
+          },
+        ],
+        challenge: {
+          title: "Double It",
+          description:
+            "Define `def double(n):` that returns `n * 2`, then print `double(21)`.",
+          starterCode: `# def double ...\n`,
+          solutionCode: `def double(n):
+    return n * 2
+
+print(double(21))`,
+          tests: [
+            { id: 1, label: "Defines double", keywords: [{ pattern: "def\\s+double" }] },
+            { id: 2, label: "Uses return", keywords: [{ pattern: "return" }] },
+            { id: 3, label: "Calls double(21)", keywords: [{ pattern: "double\\s*\\(\\s*21" }] },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: "dicts-sets",
+    title: "Dicts & Sets",
+    icon: "🗂️",
+    color: "#ea580c",
+    lessons: [
+      {
+        id: "py-6",
+        title: "Dictionaries",
+        xp: 15,
+        theory: [
+          {
+            type: "text",
+            content:
+              "A **dict** maps unique keys to values — like a real dictionary maps words to definitions. Lookup by key is fast and readable.",
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Dict operations",
+            content: `prices = {"apple": 1.2, "banana": 0.8}
+print(prices["apple"])
+print(prices.get("pear", 0))`,
+          },
+          {
+            type: "quiz",
+            question: "How do you safely read a key that might be missing?",
+            options: ["prices[key] always", "prices.get(key, default)", "prices.delete(key)", "dict[key] = None"],
+            answer: 1,
+            explanation: ".get returns a default instead of raising KeyError.",
+          },
+        ],
+        challenge: {
+          title: "Lookup a Price",
+          description:
+            "Create `menu = {\"tea\": 2, \"coffee\": 3}`, print the value for `\"coffee\"`.",
+          starterCode: `# menu dict and print\n`,
+          solutionCode: `menu = {"tea": 2, "coffee": 3}
+print(menu["coffee"])`,
+          tests: [
+            { id: 1, label: "Creates dict", keywords: [{ pattern: "\\{\\s*\"tea\"" }] },
+            { id: 2, label: "Accesses coffee", keywords: [{ pattern: "coffee" }] },
+            { id: 3, label: "Prints value", keywords: [{ pattern: "print\\s*\\(" }] },
+          ],
+        },
+      },
+      {
+        id: "py-6b",
+        title: "Sets",
+        xp: 12,
+        theory: [
+          {
+            type: "text",
+            content:
+              "A **set** holds unique unordered items. Use sets to remove duplicates or test membership quickly.",
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Unique tags",
+            content: `tags = ["py", "data", "py", "web", "data"]
+unique = set(tags)
+print(unique)
+print("py" in unique)`,
+          },
+          {
+            type: "quiz",
+            question: "What happens if you add a duplicate to a set?",
+            options: ["Error", "Two copies remain", "It is ignored — sets keep unique items only", "The set becomes a list"],
+            answer: 2,
+            explanation: "Sets automatically deduplicate values.",
+          },
+        ],
+        challenge: {
+          title: "Unique Numbers",
+          description:
+            "Given `nums = [1, 2, 2, 3, 3, 3]`, convert to a set, then print `len()` of that set.",
+          starterCode: `nums = [1, 2, 2, 3, 3, 3]\n`,
+          solutionCode: `nums = [1, 2, 2, 3, 3, 3]
+unique = set(nums)
+print(len(unique))`,
+          tests: [
+            { id: 1, label: "Uses set()", keywords: [{ pattern: "set\\s*\\(" }] },
+            { id: 2, label: "Prints len", keywords: [{ pattern: "len\\s*\\(" }] },
+            { id: 3, label: "Uses unique variable", keywords: [{ pattern: "unique" }] },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: "files-errors",
+    title: "Files & Errors",
+    icon: "📁",
+    color: "#0891b2",
+    lessons: [
+      {
+        id: "py-7",
+        title: "Working with Files",
+        xp: 18,
+        theory: [
+          {
+            type: "text",
+            content:
+              "The `with open(path, mode) as f:` pattern opens a file and closes it automatically. Mode `\"r\"` reads; `\"w\"` writes (overwrites); `\"a\"` appends.",
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Write then read (concept)",
+            content: `# with open("notes.txt", "w") as f:
+#     f.write("Hello\\n")
+# with open("notes.txt", "r") as f:
+#     print(f.read())`,
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "In browser challenges you simulate file logic with strings. On your machine, paths are relative to where you run the script.",
+          },
+          {
+            type: "quiz",
+            question: "Why use `with open(...)` instead of open() alone?",
+            options: [
+              "It runs code faster",
+              "It guarantees the file is closed even if an error occurs",
+              "It only works on Windows",
+              "It converts text to JSON automatically",
+            ],
+            answer: 1,
+            explanation: "Context managers release resources reliably.",
+          },
+        ],
+        challenge: {
+          title: "Line Counter Logic",
+          description:
+            "Given `text = \"a\\nb\\nc\"`, split by newline into `lines`, then print `len(lines)` (expect 3).",
+          starterCode: `text = "a\\nb\\nc"\n`,
+          solutionCode: `text = "a\\nb\\nc"
+lines = text.split("\\n")
+print(len(lines))`,
+          tests: [
+            { id: 1, label: "Uses split", keywords: [{ pattern: "\\.split\\s*\\(" }] },
+            { id: 2, label: "Assigns lines", keywords: [{ pattern: "lines\\s*=" }] },
+            { id: 3, label: "Prints len", keywords: [{ pattern: "len\\s*\\(" }] },
+          ],
+        },
+      },
+      {
+        id: "py-7b",
+        title: "Exceptions",
+        xp: 18,
+        theory: [
+          {
+            type: "text",
+            content:
+              "When something goes wrong, Python raises an **exception**. Wrap risky code in `try` / `except` to handle errors gracefully.",
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Handle ValueError",
+            content: `raw = "abc"
+try:
+    value = int(raw)
+except ValueError:
+    print("not a number")`,
+          },
+          {
+            type: "quiz",
+            question: "Which block runs when int(\"hello\") fails?",
+            options: ["try", "except", "else", "finally only"],
+            answer: 1,
+            explanation: "The except block catches matching exception types.",
+          },
+        ],
+        challenge: {
+          title: "Safe Divide",
+          description:
+            "Define `def safe_div(a, b):` that returns `a / b` inside try/except; on `ZeroDivisionError` return `0`. Print `safe_div(10, 0)`.",
+          starterCode: `# def safe_div\n`,
+          solutionCode: `def safe_div(a, b):
+    try:
+        return a / b
+    except ZeroDivisionError:
+        return 0
+
+print(safe_div(10, 0))`,
+          tests: [
+            { id: 1, label: "Defines safe_div", keywords: [{ pattern: "def\\s+safe_div" }] },
+            { id: 2, label: "Uses except", keywords: [{ pattern: "except" }] },
+            { id: 3, label: "Handles ZeroDivisionError", keywords: [{ pattern: "ZeroDivisionError" }] },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: "pro-python",
+    title: "Pro Python",
+    icon: "🚀",
+    color: "#9333ea",
+    lessons: [
+      {
+        id: "py-8",
+        title: "Classes and Objects",
+        xp: 20,
+        theory: [
+          {
+            type: "text",
+            content:
+              "A **class** is a blueprint; an **object** is an instance. `__init__` initializes instance attributes; methods are functions on the object.",
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Simple class",
+            content: `class Dog:
+    def __init__(self, name):
+        self.name = name
+
+    def speak(self):
+        return f"{self.name} says woof"
+
+d = Dog("Rex")
+print(d.speak())`,
+          },
+          {
+            type: "quiz",
+            question: "What is self in an instance method?",
+            options: ["The class name", "The current instance", "A Python keyword only for static methods", "Always None"],
+            answer: 1,
+            explanation: "self refers to the specific object calling the method.",
+          },
+        ],
+        challenge: {
+          title: "Greeter Class",
+          description:
+            "Define class `Greeter` with `__init__(self, name)` storing `self.name`, method `hello` returning `f\"Hi, {self.name}\"`. Create `Greeter(\"PolyCode\")` and print `.hello()`.",
+          starterCode: `# class Greeter\n`,
+          solutionCode: `class Greeter:
+    def __init__(self, name):
+        self.name = name
+
+    def hello(self):
+        return f"Hi, {self.name}"
+
+g = Greeter("PolyCode")
+print(g.hello())`,
+          tests: [
+            { id: 1, label: "Defines class", keywords: [{ pattern: "class\\s+Greeter" }] },
+            { id: 2, label: "Defines __init__", keywords: [{ pattern: "__init__" }] },
+            { id: 3, label: "Prints greeting", keywords: [{ pattern: "print" }] },
+          ],
+        },
+      },
+      {
+        id: "py-8b",
+        title: "Modules and Imports",
+        xp: 15,
+        theory: [
+          {
+            type: "text",
+            content:
+              "Split code across files. `import math` loads a module; `from math import sqrt` brings one name into scope. Use `if __name__ == \"__main__\":` to run code only when the file is executed directly.",
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Using math",
+            content: `import math
+
+print(math.sqrt(16))`,
+          },
+          {
+            type: "quiz",
+            question: "What does if __name__ == \"__main__\": protect?",
+            options: [
+              "Code from running when the file is imported",
+              "Code from syntax errors",
+              "Variables from deletion",
+              "The Python interpreter from crashing",
+            ],
+            answer: 0,
+            explanation: "Importing a module should not accidentally start your app's main logic.",
+          },
+        ],
+        challenge: {
+          title: "Import math",
+          description: "Import `math` and print `math.pi` rounded conceptually — print `math.pi` as-is.",
+          starterCode: `# import math\n`,
+          solutionCode: `import math
+print(math.pi)`,
+          tests: [
+            { id: 1, label: "Imports math", keywords: [{ pattern: "import\\s+math" }] },
+            { id: 2, label: "Uses math.pi", keywords: [{ pattern: "math\\.pi" }] },
+            { id: 3, label: "Prints pi", keywords: [{ pattern: "print\\s*\\(" }] },
+          ],
+        },
+      },
+      {
+        id: "py-9",
+        title: "List Comprehensions",
+        xp: 15,
+        theory: [
+          {
+            type: "text",
+            content:
+              "A **list comprehension** builds a new list in one expression: `[expr for item in iterable if condition]`.",
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Squares",
+            content: `nums = [1, 2, 3, 4]
+squares = [n * n for n in nums]
+print(squares)`,
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "With filter",
+            content: `evens = [n for n in range(10) if n % 2 == 0]
+print(evens)`,
+          },
+          {
+            type: "quiz",
+            question: "What does [x*2 for x in [1,2,3]] produce?",
+            options: ["[1,2,3]", "[2,4,6]", "[1,4,9]", "SyntaxError"],
+            answer: 1,
+            explanation: "Each element is doubled in order.",
+          },
+        ],
+        challenge: {
+          title: "Double All",
+          description:
+            "Given `vals = [1, 2, 3]`, build `doubled = [v * 2 for v in vals]` and print it.",
+          starterCode: `vals = [1, 2, 3]\n`,
+          solutionCode: `vals = [1, 2, 3]
+doubled = [v * 2 for v in vals]
+print(doubled)`,
+          tests: [
+            { id: 1, label: "Uses comprehension", keywords: [{ pattern: "\\[.*for.*in" }] },
+            { id: 2, label: "Multiplies by 2", keywords: [{ pattern: "\\*\\s*2" }] },
+            { id: 3, label: "Prints doubled", keywords: [{ pattern: "print\\s*\\(\\s*doubled" }] },
+          ],
+        },
+      },
+      {
+        id: "py-10",
+        title: "venv and pip",
+        xp: 12,
+        theory: [
+          {
+            type: "text",
+            content:
+              "A **virtual environment** isolates project packages. Create with `python -m venv .venv`, activate it, then `pip install package_name`.",
+          },
+          {
+            type: "diagram",
+            title: "Project dependency flow",
+            nodes: [
+              { id: "venv", label: "venv", color: ACCENT, items: ["Isolated site-packages", "Per-project versions"] },
+              { id: "pip", label: "pip", color: "#2563eb", items: ["install", "freeze", "requirements.txt"] },
+              { id: "code", label: "Your code", color: "#3b82f6", items: ["import installed libs", "Reproducible builds"] },
+            ],
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content: "Commit `requirements.txt` — not your `.venv` folder — so teammates install the same versions.",
+          },
+          {
+            type: "quiz",
+            question: "Why use a virtual environment?",
+            options: [
+              "To compile Python to C++",
+              "To isolate package versions per project",
+              "To run Python without installing it",
+              "To replace try/except",
+            ],
+            answer: 1,
+            explanation: "Different projects often need different library versions.",
+          },
+        ],
+        challenge: {
+          title: "Requirements Comment",
+          description:
+            "Print exactly two lines: `# requirements.txt` then `numpy>=1.24` (simulating a requirements file header).",
+          starterCode: `# two print lines\n`,
+          solutionCode: `print("# requirements.txt")
+print("numpy>=1.24")`,
+          tests: [
+            { id: 1, label: "Prints requirements header", keywords: [{ pattern: "requirements\\.txt" }] },
+            { id: 2, label: "Prints numpy line", keywords: [{ pattern: "numpy" }] },
+            { id: 3, label: "Version constraint", keywords: [{ pattern: "numpy>=" }] },
+          ],
+        },
+      },
+      {
+        id: "py-11",
+        title: "Modern Python Habits",
+        xp: 15,
+        theory: [
+          {
+            type: "text",
+            content:
+              "**Type hints** document expected types: `def greet(name: str) -> str:`. **pathlib.Path** replaces messy string paths. **json** reads structured config files.",
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Type hints",
+            content: `def add(a: int, b: int) -> int:
+    return a + b
+
+print(add(2, 3))`,
+          },
+          {
+            type: "quiz",
+            question: "Do type hints force Python to reject wrong types at runtime by default?",
+            options: ["Yes, always", "No — they are mainly for documentation and tooling", "Only on Windows", "Only inside classes"],
+            answer: 1,
+            explanation: "Python remains dynamically typed; mypy and IDEs use hints for checking.",
+          },
+        ],
+        challenge: {
+          title: "Typed Add",
+          description:
+            "Define `def add(a: int, b: int) -> int:` returning `a + b`. Print `add(10, 32)`.",
+          starterCode: `# typed add\n`,
+          solutionCode: `def add(a: int, b: int) -> int:
+    return a + b
+
+print(add(10, 32))`,
+          tests: [
+            { id: 1, label: "Type hints on params", keywords: [{ pattern: "a:\\s*int" }] },
+            { id: 2, label: "Return type hint", keywords: [{ pattern: "->\\s*int" }] },
+            { id: 3, label: "Prints 42", keywords: [{ pattern: "add\\s*\\(\\s*10\\s*,\\s*32" }] },
+          ],
+        },
+      },
+      {
+        id: "py-12",
+        title: "Capstone — Grade Report",
+        xp: 25,
+        theory: [
+          {
+            type: "text",
+            content:
+              "Combine dicts, loops, and functions: store student → list of scores, compute each average, print a simple report.",
+          },
+          {
+            type: "code",
+            lang: "python",
+            label: "Reference solution shape",
+            content: `def average(scores):
+    return sum(scores) / len(scores)
+
+grades = {"Ada": [90, 92], "Lin": [80, 88]}
+for name, scores in grades.items():
+    print(f"{name}: {average(scores):.1f}")`,
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content: "This capstone mirrors real scripting tasks before you jump into NumPy and Pandas.",
+          },
+        ],
+        challenge: {
+          title: "Student Average",
+          description:
+            "Given `scores = [85, 90, 95]`, define `def avg(nums):` returning the mean, and print `avg(scores)` (expect 90.0).",
+          starterCode: `scores = [85, 90, 95]\n`,
+          solutionCode: `scores = [85, 90, 95]
+
+def avg(nums):
+    return sum(nums) / len(nums)
+
+print(avg(scores))`,
+          tests: [
+            { id: 1, label: "Defines avg", keywords: [{ pattern: "def\\s+avg" }] },
+            { id: 2, label: "Uses sum", keywords: [{ pattern: "sum\\s*\\(" }] },
+            { id: 3, label: "Calls avg(scores)", keywords: [{ pattern: "avg\\s*\\(\\s*scores" }] },
+          ],
+        },
+      },
+      {
+        id: "py-13",
+        title: "Python Cheat Sheet",
+        xp: 10,
+        theory: [
+          {
+            type: "text",
+            content:
+              "**Quick reference** — bookmark this lesson. Variables: `x = 1`. Conditionals: `if` / `elif` / `else`. Loops: `for x in items` / `while cond`. Collections: `list`, `tuple`, `dict`, `set`. Functions: `def f(): return`. Classes: `class C:`. Files: `with open()`. Errors: `try` / `except`.",
+          },
+          {
+            type: "diagram",
+            title: "Pick the right collection",
+            nodes: [
+              { id: "list", label: "list", color: ACCENT, items: ["Ordered", "Mutable", "Duplicates OK"] },
+              { id: "tuple", label: "tuple", color: "#2563eb", items: ["Ordered", "Immutable", "Fixed records"] },
+              { id: "dict", label: "dict", color: "#7c3aed", items: ["Key → value", "Fast lookup", "Unique keys"] },
+              { id: "set", label: "set", color: "#dc2626", items: ["Unique items", "Unordered", "Membership tests"] },
+            ],
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content: "Next step: **NumPy** for numeric arrays, then **Pandas** for tables — both assume the Python basics you just learned.",
+          },
+          {
+            type: "quiz",
+            question: "Which collection should map user IDs to email addresses?",
+            options: ["list", "tuple", "dict", "set"],
+            answer: 2,
+            explanation: "Dicts map keys to values — perfect for ID → email.",
+          },
+        ],
+        challenge: {
+          title: "Cheat Sheet Drill",
+          description:
+            "Create `skills = [\"Python\", \"logic\", \"practice\"]`, print the **second** item (index 1) using indexing.",
+          starterCode: `skills = ["Python", "logic", "practice"]\n`,
+          solutionCode: `skills = ["Python", "logic", "practice"]
+print(skills[1])`,
+          tests: [
+            { id: 1, label: "Indexes skills", keywords: [{ pattern: "skills\\s*\\[\\s*1\\s*\\]" }] },
+            { id: 2, label: "Prints logic", keywords: [{ pattern: "print" }] },
+            { id: 3, label: "skills list defined", keywords: [{ pattern: "skills\\s*=\\s*\\[" }] },
+          ],
+        },
+      },
+    ],
+  },
+];
+
+export const PYTHON_FUNDAMENTALS_CHAPTERS = applyChapterEnhancements(
+  RAW_PYTHON_FUNDAMENTALS_CHAPTERS,
+);
+
+export const PYTHON_FUNDAMENTALS_LESSONS = applyLessonVideoLinks(
+  PYTHON_FUNDAMENTALS_CHAPTERS.flatMap((ch) =>
+    ch.lessons.map((l) => ({
+      ...l,
+      chapterId: ch.id,
+      chapterTitle: ch.title,
+      chapterColor: ch.color,
+    })),
+  ),
+  PYTHON_FUNDAMENTALS_VIDEO_LINKS,
+);
+
+export const PYTHON_FUNDAMENTALS_TOTAL_XP = PYTHON_FUNDAMENTALS_LESSONS.reduce(
+  (sum, lesson) => sum + lesson.xp,
+  0,
+);
+
+
+--------------------------------------------------------------------------------
+FILE: /data/pythonFundamentalsVideoLinks.js
+--------------------------------------------------------------------------------
+// PolyCode — Python Fundamentals external resources map
+// Add or swap YouTube IDs per lesson without editing the curriculum file.
+
+export const PYTHON_FUNDAMENTALS_VIDEO_LINKS = {
+  "py-0": {
+    youtubeId: "YYXdXT2l-Gg",
+    duration: "12:00",
+    title: "Python for Beginners — What is Python?",
+  },
+  "py-0b": {
+    youtubeId: "_uQrJ0TkZlc",
+    duration: "6:14",
+    title: "How to Run Python Code",
+  },
+  "py-1": {
+    youtubeId: "YYXdXT2l-Gg",
+    duration: "12:00",
+    title: "Variables and Data Types",
+  },
+  "py-1b": {
+    youtubeId: "_uQrJ0TkZlc",
+    duration: "6:14",
+    title: "Strings and f-strings",
+  },
+  "py-2": {
+    youtubeId: "YYXdXT2l-Gg",
+    duration: "12:00",
+    title: "If Statements in Python",
+  },
+  "py-2b": {
+    youtubeId: "_uQrJ0TkZlc",
+    duration: "6:14",
+    title: "Logical Operators and Truthiness",
+  },
+  "py-3": {
+    youtubeId: "YYXdXT2l-Gg",
+    duration: "12:00",
+    title: "Python Lists",
+  },
+  "py-3b": {
+    youtubeId: "_uQrJ0TkZlc",
+    duration: "6:14",
+    title: "Tuples and Immutability",
+  },
+  "py-3c": {
+    youtubeId: "YYXdXT2l-Gg",
+    duration: "12:00",
+    title: "Indexing and Slicing",
+  },
+  "py-4": {
+    youtubeId: "_uQrJ0TkZlc",
+    duration: "6:14",
+    title: "For Loops and range()",
+  },
+  "py-4b": {
+    youtubeId: "YYXdXT2l-Gg",
+    duration: "12:00",
+    title: "While Loops",
+  },
+  "py-5": {
+    youtubeId: "_uQrJ0TkZlc",
+    duration: "6:14",
+    title: "Defining Functions",
+  },
+  "py-6": {
+    youtubeId: "YYXdXT2l-Gg",
+    duration: "12:00",
+    title: "Dictionaries",
+  },
+  "py-6b": {
+    youtubeId: "_uQrJ0TkZlc",
+    duration: "6:14",
+    title: "Sets",
+  },
+  "py-7": {
+    youtubeId: "YYXdXT2l-Gg",
+    duration: "12:00",
+    title: "Reading and Writing Files",
+  },
+  "py-7b": {
+    youtubeId: "_uQrJ0TkZlc",
+    duration: "6:14",
+    title: "Try / Except Error Handling",
+  },
+  "py-8": {
+    youtubeId: "YYXdXT2l-Gg",
+    duration: "12:00",
+    title: "Classes and Objects",
+  },
+  "py-8b": {
+    youtubeId: "_uQrJ0TkZlc",
+    duration: "6:14",
+    title: "Modules and Imports",
+  },
+  "py-9": {
+    youtubeId: "YYXdXT2l-Gg",
+    duration: "12:00",
+    title: "List Comprehensions",
+  },
+  "py-10": {
+    youtubeId: "_uQrJ0TkZlc",
+    duration: "6:14",
+    title: "Virtual Environments and pip",
+  },
+  "py-11": {
+    youtubeId: "YYXdXT2l-Gg",
+    duration: "12:00",
+    title: "Type Hints and Modern Python",
+  },
+  "py-12": {
+    youtubeId: "_uQrJ0TkZlc",
+    duration: "6:14",
+    title: "Capstone — Grade Report Script",
+  },
+  "py-13": {
+    youtubeId: "YYXdXT2l-Gg",
+    duration: "12:00",
+    title: "Python Cheat Sheet Reference",
+  },
+};
+
+
+--------------------------------------------------------------------------------
+FILE: /data/pythonLessonEnhancements.js
+--------------------------------------------------------------------------------
+/** Per-lesson objectives, scenarios, and callouts merged into curriculum at build time. */
+
+export const LESSON_ENHANCEMENTS = {
+  "py-0": {
+    objectives: [
+      "Explain what Python is used for in data, web, and automation",
+      "Write and run a one-line program with print()",
+      "Describe why indentation is part of Python syntax",
+    ],
+    scenario:
+      "Your team automates weekly reports. A short Python script replaces an hour of manual spreadsheet work — that's the kind of win this language enables.",
+    prepend: [
+      {
+        type: "callout",
+        variant: "info",
+        content:
+          "This course uses **Python 3**. Python 2 reached end-of-life in 2020 — always install Python 3.10 or newer.",
+      },
+    ],
+    append: [
+      {
+        type: "text",
+        content:
+          "Python reads like pseudocode. A single `print()` call is enough to verify your environment and build confidence before tackling data pipelines.",
+        code: {
+          lang: "python",
+          label: "Comment + print (common first script)",
+          content: `# My first PolyCode script
+print("Hello, PolyCode!")
+print("Python", 3)`,
+        },
+      },
+      {
+        type: "quiz",
+        question: "Which statement about Python blocks is true?",
+        options: [
+          "Blocks use curly braces {}",
+          "Indentation defines which lines belong to an if or for block",
+          "Semicolons are required after every line",
+          "Only functions need indentation",
+        ],
+        answer: 1,
+        explanation:
+          "After a colon, indented lines form the block — consistency matters (usually 4 spaces).",
+      },
+    ],
+  },
+  "py-0b": {
+    objectives: [
+      "Run Python in the REPL and from a .py script",
+      "Know when to use the PolyCode playground vs a local install",
+      "Read error messages without panic",
+    ],
+    scenario:
+      "You receive a `.py` file from a colleague. You need to run it locally and confirm the output before deploying it to a server.",
+    append: [
+      {
+        type: "code",
+        lang: "python",
+        label: "REPL vs script — same expressions",
+        content: `# In the REPL you type one line at a time:
+# >>> 2 + 2
+# 4
+
+# In a script, multiple statements run in order:
+print("Line 1")
+print("Line 2")`,
+      },
+      {
+        type: "callout",
+        variant: "warning",
+        content:
+          "Tracebacks list the **most recent call last**. Scroll to the bottom line first — it names the error type (`SyntaxError`, `NameError`, etc.) and the line number.",
+      },
+    ],
+  },
+  "variables-types": {
+    objectives: [
+      "Name variables clearly and assign values with =",
+      "Recognize int, float, str, and bool in real snippets",
+      "Choose the right type before doing math or formatting text",
+    ],
+    scenario:
+      "An e-commerce API returns prices as strings and quantities as integers. Before calculating revenue, you normalize types in this chapter.",
+    prepend: [
+      {
+        type: "callout",
+        variant: "tip",
+        content:
+          "Chapter mantra: **values have types** — `\"42\"` is text, `42` is a number. Converting between them is explicit: `int(\"42\")`.",
+      },
+    ],
+    append: [
+      {
+        type: "code",
+        lang: "python",
+        label: "Types in a mini invoice",
+        content: `item = "Notebook"
+qty = 3
+unit_price = 4.50
+in_stock = True
+
+print(type(item), type(qty), type(unit_price), type(in_stock))`,
+      },
+      {
+        type: "quiz",
+        question: "What is the type of `True` in Python?",
+        options: ["int", "str", "bool", "float"],
+        answer: 2,
+        explanation: "True and False are booleans — used for flags and conditions.",
+      },
+    ],
+  },
+  "py-1": {
+    objectives: [
+      "Create variables with meaningful names",
+      "Distinguish int, float, str, and bool",
+      "Use type() to inspect values",
+    ],
+    scenario:
+      "A sensor sends temperature readings as strings. You store them as numbers so you can compute averages later.",
+    prepend: [
+      {
+        type: "callout",
+        variant: "tip",
+        content:
+          "Follow **PEP 8** naming: `snake_case` for variables and functions, `UPPER_CASE` for constants.",
+      },
+    ],
+    append: [
+      {
+        type: "text",
+        content:
+          "Dynamic typing means the same name can refer to different types over time — but good code keeps each variable's meaning stable.",
+        code: {
+          lang: "python",
+          label: "Inspect types after assignment",
+          content: `count = 10
+count = count + 1      # still int
+rate = 0.15            # float
+active = count > 0     # bool from comparison
+
+print(type(count), type(rate), type(active))`,
+        },
+      },
+      {
+        type: "callout",
+        variant: "info",
+        content:
+          "Use `isinstance(x, int)` when you need to branch on type — clearer than comparing `type(x) == int` in most code.",
+      },
+    ],
+  },
+  "py-1b": {
+    objectives: [
+      "Build strings with f-strings",
+      "Use input() to read user text",
+      "Concatenate and repeat strings safely",
+    ],
+    scenario:
+      "A CLI tool greets users by name and prints a formatted invoice total with two decimal places.",
+    prepend: [
+      {
+        type: "callout",
+        variant: "warning",
+        content:
+          "Prefer **f-strings** over `%` formatting or `.format()` in new code — they are clearer and faster to write.",
+      },
+    ],
+    append: [
+      {
+        type: "code",
+        lang: "python",
+        label: "Format currency with f-strings",
+        content: `total = 19.5
+currency = "USD"
+print(f"Amount due: {total:.2f} {currency}")
+
+# Repeat and concatenate
+line = "-" * 20
+print(line + "\\nThank you!")`,
+      },
+      {
+        type: "quiz",
+        question: "Which f-string formats `pi` to two decimal places?",
+        options: ['f"{pi:.2f}"', 'f"{pi:2}"', 'f"{pi,2}"', 'f"{.2pi}"'],
+        answer: 0,
+        explanation: "`:.2f` means fixed-point with 2 digits after the decimal.",
+      },
+    ],
+  },
+  "control-flow": {
+    objectives: [
+      "Route program execution with if / elif / else",
+      "Compare values and combine conditions with and / or",
+      "Use truthiness to write shorter guards",
+    ],
+    scenario:
+      "A shipping API applies discounts, free delivery, and fraud checks — each rule is a branch in your control-flow chapter.",
+    prepend: [
+      {
+        type: "callout",
+        variant: "info",
+        content:
+          "Read conditions aloud: `if stock > 0 and paid:` — if both are true, ship the order.",
+      },
+    ],
+    append: [
+      {
+        type: "code",
+        lang: "python",
+        label: "Tiered discount logic",
+        content: `total = 120
+member = True
+
+if total >= 100 and member:
+    discount = 0.15
+elif total >= 50:
+    discount = 0.05
+else:
+    discount = 0.0
+
+print(f"Discount: {discount * 100:.0f}%")`,
+      },
+      {
+        type: "quiz",
+        question: "Which value is truthy in an `if` statement?",
+        options: ["0", '""', "[]", "[0]"],
+        answer: 3,
+        explanation: "Non-empty lists are truthy; zero, empty strings, and empty lists are falsy.",
+      },
+    ],
+  },
+  "py-2": {
+    objectives: [
+      "Write if / elif / else branches",
+      "Compare values with ==, !=, <, >, <=, >=",
+      "Nest conditions when logic requires it",
+    ],
+    scenario:
+      "Shipping software applies free delivery when order total exceeds $50 and the customer is in the same country.",
+    append: [
+      {
+        type: "code",
+        lang: "python",
+        label: "Nested shipping rules",
+        content: `country = "US"
+total = 55
+
+if country == "US":
+    if total >= 50:
+        shipping = 0
+    else:
+        shipping = 5.99
+else:
+    shipping = 12.99
+
+print(shipping)`,
+      },
+      {
+        type: "callout",
+        variant: "tip",
+        content:
+          "Flatten nested `if`s with `and` when it stays readable: `if country == \"US\" and total >= 50:`.",
+      },
+    ],
+  },
+  "py-2b": {
+    objectives: [
+      "Combine conditions with and, or, and not",
+      "Understand Python truthiness for empty collections",
+      "Avoid redundant comparisons",
+    ],
+    scenario:
+      "Login succeeds only when username is non-empty **and** password length is at least 8 characters.",
+    prepend: [
+      {
+        type: "callout",
+        variant: "warning",
+        content:
+          "Use `==` for value comparison. `is` checks **identity** (same object in memory) — rarely what you want for strings and numbers.",
+      },
+    ],
+    append: [
+      {
+        type: "code",
+        lang: "python",
+        label: "Truthiness guards",
+        content: `username = "ada"
+items = []
+
+if username:          # non-empty string is truthy
+    print("Welcome", username)
+
+if not items:         # empty list is falsy
+    print("Cart is empty")`,
+      },
+      {
+        type: "quiz",
+        question: "When should you use `is` instead of `==`?",
+        options: [
+          "Comparing two string literals",
+          "Checking if a variable is None",
+          "Comparing integers",
+          "Always — it is faster",
+        ],
+        answer: 1,
+        explanation: "`x is None` is the idiomatic identity check for None.",
+      },
+    ],
+  },
+  "collections-core": {
+    objectives: [
+      "Store ordered sequences in lists and fixed records in tuples",
+      "Index, slice, and iterate without mutating unintentionally",
+      "Pick list vs tuple based on mutability needs",
+    ],
+    scenario:
+      "A dashboard shows the last five log lines (list) and a fixed RGB theme color (tuple) — this chapter covers both sequence types.",
+    prepend: [
+      {
+        type: "callout",
+        variant: "warning",
+        content:
+          "`b = a` for lists shares the same object. Use `a.copy()` or `a[:]` when you need an independent list.",
+      },
+    ],
+    append: [
+      {
+        type: "code",
+        lang: "python",
+        label: "List vs tuple in one script",
+        content: `log = ["start", "fetch", "done"]
+log.append("saved")          # OK — list is mutable
+
+theme = (34, 139, 34)        # immutable green
+r, g, b = theme
+print(log[-1], r, g, b)`,
+      },
+      {
+        type: "quiz",
+        question: "What does `data[1:4]` return?",
+        options: [
+          "Elements at indices 1, 2, 3",
+          "Elements at indices 1, 2, 3, 4",
+          "Only index 1",
+          "A reversed list",
+        ],
+        answer: 0,
+        explanation: "Slice stop index is exclusive — start included, stop excluded.",
+      },
+    ],
+  },
+  "py-3": {
+    objectives: [
+      "Create and mutate lists with append, extend, and pop",
+      "Access elements by index (positive and negative)",
+      "Know that lists are ordered and mutable",
+    ],
+    scenario:
+      "A to-do app keeps tasks in a list — add at the end, remove completed items, reorder by priority.",
+    append: [
+      {
+        type: "code",
+        lang: "python",
+        label: "append vs extend",
+        content: `nums = [1, 2]
+nums.append(3)       # [1, 2, 3]
+nums.extend([4, 5])  # [1, 2, 3, 4, 5]
+
+done = nums.pop()    # removes and returns 5
+print(nums, done)`,
+      },
+      {
+        type: "callout",
+        variant: "tip",
+        content:
+          "Use `extend` to add many items; `append` adds a single element (even if that element is another list).",
+      },
+    ],
+  },
+  "py-3b": {
+    objectives: [
+      "Use tuples for fixed-size records",
+      "Explain why tuples are immutable",
+      "Unpack tuple values into variables",
+    ],
+    scenario:
+      "GPS coordinates `(latitude, longitude)` should not change accidentally — a tuple protects that pair.",
+    append: [
+      {
+        type: "code",
+        lang: "python",
+        label: "Tuple as dict key (hashable)",
+        content: `locations = {
+    (40.7, -74.0): "NYC",
+    (51.5, -0.1): "London",
+}
+point = (40.7, -74.0)
+print(locations[point])`,
+      },
+      {
+        type: "quiz",
+        question: "Why can tuples be dict keys but lists cannot?",
+        options: [
+          "Tuples are shorter",
+          "Tuples are immutable and therefore hashable",
+          "Lists cannot hold numbers",
+          "Dicts only accept strings",
+        ],
+        answer: 1,
+        explanation: "Mutable lists cannot be hashed; immutable tuples can.",
+      },
+    ],
+  },
+  "py-3c": {
+    objectives: [
+      "Slice sequences with start:stop:step",
+      "Copy lists without sharing references",
+      "Iterate over list elements",
+    ],
+    scenario:
+      "You extract the last three log lines from a list and process them without modifying the original log.",
+    prepend: [
+      {
+        type: "callout",
+        variant: "warning",
+        content:
+          "`b = a` does not copy a list — both names point to the same list. Use `b = a.copy()` or `b = a[:]` for a shallow copy.",
+      },
+    ],
+    append: [
+      {
+        type: "code",
+        lang: "python",
+        label: "Slicing and safe copy",
+        content: `data = [10, 20, 30, 40, 50]
+last_two = data[-2:]
+copy = data.copy()
+copy.append(60)
+
+print(last_two)   # [40, 50]
+print(data)       # unchanged — still 5 items`,
+      },
+      {
+        type: "callout",
+        variant: "tip",
+        content: "`[::-1]` reverses any sequence — handy for quick palindrome checks on strings.",
+      },
+    ],
+  },
+  "loops-functions": {
+    objectives: [
+      "Repeat work with for and while loops",
+      "Define reusable functions with def and return",
+      "Know when a loop vs a function is the clearer tool",
+    ],
+    scenario:
+      "A CSV export script loops over rows, but shared tax logic lives in one function called from three reports.",
+    prepend: [
+      {
+        type: "callout",
+        variant: "info",
+        content:
+          "Loops handle repetition; functions handle **named, reusable** chunks of logic. Most real scripts combine both.",
+      },
+    ],
+    append: [
+      {
+        type: "code",
+        lang: "python",
+        label: "Loop + function together",
+        content: `def tax(amount, rate=0.08):
+    return amount * rate
+
+prices = [10, 25, 40]
+for price in prices:
+    print(price, tax(price))`,
+      },
+      {
+        type: "quiz",
+        question: "What does `return` do inside a function?",
+        options: [
+          "Prints a value to the console",
+          "Sends a value back to the caller and exits the function",
+          "Restarts the loop",
+          "Defines a new variable globally",
+        ],
+        answer: 1,
+        explanation: "return ends the function and optionally provides a result to the caller.",
+      },
+    ],
+  },
+  "py-4": {
+    objectives: [
+      "Write for loops over sequences and range()",
+      "Use enumerate() when you need index and value",
+      "Choose range bounds intentionally",
+    ],
+    scenario:
+      "Process each row in a CSV-derived list and print a numbered summary for stakeholders.",
+    append: [
+      {
+        type: "code",
+        lang: "python",
+        label: "enumerate for numbered output",
+        content: `tasks = ["design", "build", "test"]
+for i, task in enumerate(tasks, start=1):
+    print(f"{i}. {task}")`,
+      },
+      {
+        type: "callout",
+        variant: "tip",
+        content:
+          "`range(2, 10, 2)` produces 2, 4, 6, 8 — start, stop (exclusive), optional step.",
+      },
+    ],
+  },
+  "py-4b": {
+    objectives: [
+      "Write while loops with a clear exit condition",
+      "Use break and continue appropriately",
+      "Avoid infinite loops",
+    ],
+    scenario:
+      "A game loop keeps asking for input until the player types `quit` or exceeds three wrong guesses.",
+    append: [
+      {
+        type: "code",
+        lang: "python",
+        label: "break on sentinel value",
+        content: `attempts = 0
+while attempts < 3:
+    guess = "wrong"  # imagine input()
+    if guess == "secret":
+        print("You win!")
+        break
+    attempts += 1
+else:
+    print("Out of attempts")`,
+      },
+      {
+        type: "quiz",
+        question: "What does `continue` do in a loop?",
+        options: [
+          "Exits the loop entirely",
+          "Skips the rest of the current iteration and goes to the next",
+          "Restarts Python",
+          "Runs the loop backwards",
+        ],
+        answer: 1,
+        explanation: "continue jumps to the next iteration without finishing the current body.",
+      },
+    ],
+  },
+  "py-5": {
+    objectives: [
+      "Define functions with def and return",
+      "Pass parameters and use default values safely",
+      "Understand local vs global scope basics",
+    ],
+    scenario:
+      "Extract a `calculate_tax(amount, rate)` function so three different reports reuse the same logic.",
+    prepend: [
+      {
+        type: "callout",
+        variant: "warning",
+        content:
+          "Never use a **mutable default** like `def f(items=[])`. The same list is reused across calls — use `items=None` and create a new list inside.",
+      },
+    ],
+    append: [
+      {
+        type: "code",
+        lang: "python",
+        label: "Safe default argument",
+        content: `def add_item(item, bucket=None):
+    if bucket is None:
+        bucket = []
+    bucket.append(item)
+    return bucket
+
+print(add_item("a"))
+print(add_item("b"))  # not sharing the first list`,
+      },
+      {
+        type: "callout",
+        variant: "tip",
+        content:
+          "Functions can return multiple values as a tuple: `return min_val, max_val` then `lo, hi = stats(nums)`.",
+      },
+    ],
+  },
+  "dicts-sets": {
+    objectives: [
+      "Map keys to values with dicts",
+      "Enforce uniqueness with sets",
+      "Choose dict vs set vs list for each job",
+    ],
+    scenario:
+      "A product catalog (dict: SKU → price) and a visitor log (set of unique IDs) power your analytics dashboard.",
+    prepend: [
+      {
+        type: "callout",
+        variant: "tip",
+        content:
+          "Dict for lookups, set for uniqueness, list for ordered sequences — three tools, three jobs.",
+      },
+    ],
+    append: [
+      {
+        type: "code",
+        lang: "python",
+        label: "Dict lookup + set dedupe",
+        content: `prices = {"tea": 2.0, "coffee": 3.5}
+print(prices.get("muffin", 0))  # safe missing key
+
+visits = ["u1", "u2", "u1", "u3"]
+unique_visitors = set(visits)
+print(len(unique_visitors))`,
+      },
+      {
+        type: "quiz",
+        question: "How do you loop over keys and values together in a dict?",
+        options: [".keys()", ".values()", ".items()", ".pairs()"],
+        answer: 2,
+        explanation: "for k, v in d.items(): gives both key and value each iteration.",
+      },
+    ],
+  },
+  "py-6": {
+    objectives: [
+      "Create dicts with keys and values",
+      "Read safely with .get() and set defaults",
+      "Loop over keys, values, or items",
+    ],
+    scenario:
+      "A product catalog maps SKU codes to prices — dict lookup is O(1) and far clearer than parallel lists.",
+    append: [
+      {
+        type: "code",
+        lang: "python",
+        label: "Build a lookup table",
+        content: `user_email = {}
+user_email[101] = "ada@example.com"
+user_email[102] = "lin@example.com"
+
+for user_id, email in user_email.items():
+    print(user_id, email)`,
+      },
+      {
+        type: "callout",
+        variant: "info",
+        content:
+          "Dict keys must be hashable — strings, numbers, tuples yes; lists no.",
+      },
+    ],
+  },
+  "py-6b": {
+    objectives: [
+      "Use sets for unique membership",
+      "Perform union, intersection, and difference",
+      "Remove duplicates from a list via set",
+    ],
+    scenario:
+      "Analytics needs unique visitor IDs from a noisy log where the same user appears many times.",
+    append: [
+      {
+        type: "code",
+        lang: "python",
+        label: "Set operations on tags",
+        content: `a = {"python", "data", "web"}
+b = {"data", "ml", "web"}
+
+print(a | b)   # union
+print(a & b)   # intersection
+print(a - b)   # difference`,
+      },
+      {
+        type: "quiz",
+        question: "How do you remove duplicates from a list `nums` preserving no order guarantee?",
+        options: ["nums.unique()", "list(set(nums))", "nums.distinct()", "sorted(nums)"],
+        answer: 1,
+        explanation: "set(nums) keeps unique values; list() wraps back to a list.",
+      },
+    ],
+  },
+  "files-errors": {
+    objectives: [
+      "Read and write text with with open(...)",
+      "Handle failures using try / except",
+      "Fail gracefully with clear messages",
+    ],
+    scenario:
+      "A nightly job reads orders, writes a summary file, and recovers when a line contains bad data instead of crashing.",
+    prepend: [
+      {
+        type: "callout",
+        variant: "tip",
+        content:
+          "Always use `with open(...)` — files close automatically even when an exception fires mid-read.",
+      },
+    ],
+    append: [
+      {
+        type: "code",
+        lang: "python",
+        label: "Parse lines safely",
+        content: `lines = ["10", "bad", "20"]
+totals = []
+
+for raw in lines:
+    try:
+        totals.append(int(raw))
+    except ValueError:
+        print(f"Skipping invalid line: {raw}")
+
+print(sum(totals))`,
+      },
+      {
+        type: "quiz",
+        question: "Which block runs when no exception occurs in try?",
+        options: ["except", "else (if present)", "finally only", "raise"],
+        answer: 1,
+        explanation: "try/except/else: else runs when try completed without exception.",
+      },
+    ],
+  },
+  "py-7": {
+    objectives: [
+      "Open files with with open(...) as f",
+      "Read and write text files line by line",
+      "Choose relative paths deliberately",
+    ],
+    scenario:
+      "Nightly job reads `orders.txt`, counts lines, and writes a one-line summary to `report.txt`.",
+    prepend: [
+      {
+        type: "callout",
+        variant: "tip",
+        content:
+          "Always use `with open(...)` so files close automatically even if an error occurs.",
+      },
+    ],
+    append: [
+      {
+        type: "code",
+        lang: "python",
+        label: "Count non-empty lines (concept)",
+        content: `# with open("orders.txt") as f:
+#     lines = [line.strip() for line in f if line.strip()]
+# print(len(lines))
+
+text = "a\\nb\\n\\nc"
+lines = [ln for ln in text.split("\\n") if ln]
+print(len(lines))`,
+      },
+      {
+        type: "callout",
+        variant: "info",
+        content:
+          "Mode `\"a\"` appends without wiping the file; `\"w\"` overwrites — double-check before writing.",
+      },
+    ],
+  },
+  "py-7b": {
+    objectives: [
+      "Catch exceptions with try / except",
+      "Raise meaningful errors with raise",
+      "Fail gracefully instead of crashing silently",
+    ],
+    scenario:
+      "User enters non-numeric input for age — your script catches ValueError and asks again instead of exiting.",
+    append: [
+      {
+        type: "code",
+        lang: "python",
+        label: "Raise your own error",
+        content: `def set_age(value):
+    age = int(value)
+    if age < 0:
+        raise ValueError("age cannot be negative")
+    return age
+
+try:
+    set_age("-3")
+except ValueError as err:
+    print(err)`,
+      },
+      {
+        type: "quiz",
+        question: "What does `raise ValueError('msg')` do?",
+        options: [
+          "Prints a warning and continues",
+          "Creates a new exception and stops normal flow",
+          "Returns None",
+          "Deletes the variable",
+        ],
+        answer: 1,
+        explanation: "raise signals an error condition callers can catch with except.",
+      },
+    ],
+  },
+  "pro-python": {
+    objectives: [
+      "Model data with classes and organize code in modules",
+      "Write concise comprehensions and manage dependencies",
+      "Apply modern habits: type hints, pathlib, JSON",
+    ],
+    scenario:
+      "You ship a small internal tool: OOP for domain models, modules for structure, venv for dependencies — this chapter levels you up.",
+    prepend: [
+      {
+        type: "callout",
+        variant: "info",
+        content:
+          "Professional Python is still readable Python — patterns here scale to FastAPI services and data notebooks alike.",
+      },
+    ],
+    append: [
+      {
+        type: "code",
+        lang: "python",
+        label: "Comprehension + typed helper",
+        content: `def c_to_f(celsius: list[float]) -> list[float]:
+    return [c * 9 / 5 + 32 for c in celsius]
+
+print(c_to_f([0, 20, 100]))`,
+      },
+      {
+        type: "quiz",
+        question: "What is the main benefit of a virtual environment?",
+        options: [
+          "Faster CPU",
+          "Isolated package versions per project",
+          "Automatic type checking",
+          "Free cloud hosting",
+        ],
+        answer: 1,
+        explanation: "venv keeps each project's pip installs separate.",
+      },
+    ],
+  },
+  "py-8": {
+    objectives: [
+      "Define a class with __init__ and methods",
+      "Create instances and access attributes",
+      "Explain encapsulation at a beginner level",
+    ],
+    scenario:
+      "Model a `BankAccount` with deposit, withdraw, and balance — OOP groups data and behavior together.",
+    append: [
+      {
+        type: "code",
+        lang: "python",
+        label: "BankAccount sketch",
+        content: `class BankAccount:
+    def __init__(self, owner, balance=0):
+        self.owner = owner
+        self.balance = balance
+
+    def deposit(self, amount):
+        self.balance += amount
+
+acct = BankAccount("Ada", 100)
+acct.deposit(50)
+print(acct.owner, acct.balance)`,
+      },
+      {
+        type: "callout",
+        variant: "tip",
+        content:
+          "Methods always take `self` as the first parameter — it refers to the instance being called.",
+      },
+    ],
+  },
+  "py-8b": {
+    objectives: [
+      "Import modules and use qualified names",
+      "Organize code across multiple .py files",
+      'Guard script entry with if __name__ == "__main__"',
+    ],
+    scenario:
+      "Split utilities into `helpers.py` and keep `main.py` thin — imports connect the pieces.",
+    append: [
+      {
+        type: "code",
+        lang: "python",
+        label: "Import styles",
+        content: `import math
+from math import sqrt
+
+print(math.pi)
+print(sqrt(9))
+
+# if __name__ == "__main__":
+#     main()  # runs only when file executed directly`,
+      },
+      {
+        type: "quiz",
+        question: 'Why use if __name__ == "__main__":?',
+        options: [
+          "To make imports faster",
+          "So import does not run your script's main block",
+          "To enable type hints",
+          "To open files safely",
+        ],
+        answer: 1,
+        explanation: "Imported modules should not accidentally start CLI entry logic.",
+      },
+    ],
+  },
+  "py-9": {
+    objectives: [
+      "Write list comprehensions for simple transforms",
+      "Filter collections with an if clause",
+      "Know when a plain loop is clearer",
+    ],
+    scenario:
+      "Convert a list of Celsius temperatures to Fahrenheit in one expressive line for a notebook.",
+    append: [
+      {
+        type: "code",
+        lang: "python",
+        label: "Filter + transform in one line",
+        content: `temps = [18, 22, 30, 5, 12]
+warm = [t for t in temps if t >= 15]
+fahrenheit = [t * 9 / 5 + 32 for t in warm]
+print(fahrenheit)`,
+      },
+      {
+        type: "callout",
+        variant: "warning",
+        content:
+          "If a comprehension needs two lines of logic per item, a regular for loop is often clearer.",
+      },
+    ],
+  },
+  "py-10": {
+    objectives: [
+      "Create a virtual environment with python -m venv",
+      "Install packages with pip",
+      "Keep project dependencies isolated",
+    ],
+    scenario:
+      "Project A needs Pandas 2.x while Project B needs an older stack — venvs prevent version conflicts.",
+    append: [
+      {
+        type: "code",
+        lang: "python",
+        label: "Simulated requirements check",
+        content: `# Shell commands (run in terminal, not Python):
+# python -m venv .venv
+# source .venv/bin/activate   # Windows: .venv\\Scripts\\activate
+# pip install pandas
+
+pkgs = ["numpy>=1.24", "pandas>=2.0"]
+print("\\n".join(pkgs))`,
+      },
+      {
+        type: "callout",
+        variant: "tip",
+        content:
+          "`pip freeze > requirements.txt` captures exact versions for teammates and CI.",
+      },
+    ],
+  },
+  "py-11": {
+    objectives: [
+      "Add basic type hints to functions",
+      "Use pathlib for modern file paths",
+      "Read JSON with the standard json module",
+    ],
+    scenario:
+      "A config file in JSON drives script behavior — type hints and pathlib make the loader maintainable.",
+    append: [
+      {
+        type: "code",
+        lang: "python",
+        label: "JSON config pattern",
+        content: `import json
+
+raw = '{"debug": true, "retries": 3}'
+config = json.loads(raw)
+print(config["retries"], type(config["debug"]))`,
+      },
+      {
+        type: "quiz",
+        question: "Do type hints change Python's runtime behavior by default?",
+        options: [
+          "Yes — wrong types crash immediately",
+          "No — they help humans and tools like mypy",
+          "Only inside classes",
+          "Only on Linux",
+        ],
+        answer: 1,
+        explanation: "Hints are optional metadata unless you use a type checker.",
+      },
+    ],
+  },
+  "py-12": {
+    objectives: [
+      "Combine variables, loops, functions, and dicts in one script",
+      "Print a formatted grade report from sample data",
+      "Structure code for readability",
+    ],
+    scenario:
+      "Teachers export scores as a dict of student → list of grades. Your capstone prints each average and class rank.",
+    append: [
+      {
+        type: "code",
+        lang: "python",
+        label: "Grade report capstone",
+        content: `def average(scores):
+    return sum(scores) / len(scores)
+
+grades = {"Ada": [90, 92], "Lin": [80, 88]}
+for name, scores in grades.items():
+    print(f"{name}: {average(scores):.1f}")`,
+      },
+      {
+        type: "callout",
+        variant: "info",
+        content:
+          "Capstone pattern: data structure → helper function → loop with formatted output.",
+      },
+    ],
+  },
+  "py-13": {
+    objectives: [
+      "Recall syntax for core Python constructs",
+      "Pick the right collection for a task",
+      "Use this lesson as ongoing reference",
+    ],
+    scenario:
+      "You start a new notebook and keep this cheat sheet open while exploring an unfamiliar codebase.",
+    prepend: [
+      {
+        type: "callout",
+        variant: "tip",
+        content:
+          "Bookmark this lesson — it summarizes the entire course in one place before you move on to NumPy and Pandas.",
+      },
+    ],
+    append: [
+      {
+        type: "code",
+        lang: "python",
+        label: "One-screen cheat sheet",
+        content: `# Collections: list[], tuple(), dict{}, set{}
+# Loop: for x in items: / while cond:
+# Function: def f(a, b=0): return a + b
+# Class: class C: def __init__(self, x): self.x = x
+# File: with open("f.txt") as f: data = f.read()
+# Error: try: ... except ValueError: ...`,
+      },
+      {
+        type: "quiz",
+        question: "Which collection preserves insertion order and allows duplicate values?",
+        options: ["set", "dict keys only", "list", "tuple (mutable)"],
+        answer: 2,
+        explanation: "Lists are ordered, mutable, and allow duplicates.",
+      },
+    ],
+  },
+};
+
+export function applyLessonEnhancements(lesson) {
+  const meta = LESSON_ENHANCEMENTS[lesson.id];
+  const objectives = meta?.objectives || [
+    `Understand the core idea in "${lesson.title}"`,
+    "Apply the Python patterns from this lesson in code",
+    "Build habits that scale to data science and web projects",
+  ];
+
+  const prefix = [{ type: "objectives", items: objectives }];
+  if (meta?.scenario) {
+    prefix.push({ type: "scenario", content: meta.scenario });
+  }
+  if (meta?.prepend?.length) {
+    prefix.push(...meta.prepend);
+  }
+
+  return {
+    ...lesson,
+    theory: [...prefix, ...lesson.theory, ...(meta?.append || [])],
+  };
+}
+
+function applyChapterIntro(lesson, chapterMeta) {
+  if (!chapterMeta) return lesson;
+
+  const chapterBlocks = [];
+  if (chapterMeta.scenario) {
+    chapterBlocks.push({
+      type: "callout",
+      variant: "info",
+      content: `**Chapter focus:** ${chapterMeta.scenario}`,
+    });
+  }
+  if (chapterMeta.prepend?.length) {
+    chapterBlocks.push(...chapterMeta.prepend);
+  }
+
+  const objectivesBlock = lesson.theory.find((b) => b.type === "objectives");
+  const rest = lesson.theory.filter((b) => b.type !== "objectives");
+  const mergedObjectives = [
+    ...(chapterMeta.objectives?.slice(0, 1) || []),
+    ...(objectivesBlock?.items || []),
+  ].slice(0, 3);
+
+  return {
+    ...lesson,
+    theory: [
+      { type: "objectives", items: mergedObjectives },
+      ...chapterBlocks,
+      ...rest,
+      ...(chapterMeta.append || []),
+    ],
+  };
+}
+
+export function applyChapterEnhancements(chapters) {
+  return chapters.map((chapter) => ({
+    ...chapter,
+    lessons: chapter.lessons.map((lesson, index) => {
+      const enhanced = applyLessonEnhancements(lesson);
+      if (index === 0 && LESSON_ENHANCEMENTS[chapter.id]) {
+        return applyChapterIntro(enhanced, LESSON_ENHANCEMENTS[chapter.id]);
+      }
+      return enhanced;
+    }),
+  }));
+}
+
+
+--------------------------------------------------------------------------------
+FILE: /hooks/usePythonFundamentalsProgress.js
+--------------------------------------------------------------------------------
+import useCourseProgress from "../../shared/useCourseProgress";
+
+export default function usePythonFundamentalsProgress() {
+  return useCourseProgress({
+    courseId: "python-fundamentals",
+    storagePrefix: "python_fundamentals",
+    scoped: false,
+    supportsNotes: false,
+  });
+}
+
+
+--------------------------------------------------------------------------------
+FILE: /pages/PythonFundamentalsHub.jsx
+--------------------------------------------------------------------------------
+import React, { useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  PYTHON_FUNDAMENTALS_CHAPTERS,
+  PYTHON_FUNDAMENTALS_LESSONS,
+  PYTHON_FUNDAMENTALS_TOTAL_XP,
+} from "../data/pythonFundamentalsCurriculum";
+import usePythonFundamentalsProgress from "../hooks/usePythonFundamentalsProgress";
+import CourseCertificate from "../../shared/CourseCertificate";
+import LearnChapterPathOverview from "../../shared/LearnChapterPathOverview";
+import LearnChapterGrid from "../../shared/LearnChapterGrid";
+import LearnChapterIcon from "../../shared/LearnChapterIcon";
+
+const BASE_PATH = "/learn/python-fundamentals";
+
+const LEARNING_PATH = [
+  {
+    level: "Beginner",
+    chapters: ["foundations", "variables-types"],
+    color: "#3776ab",
+    summary: "What Python is, running code, variables, strings, and basic types.",
+  },
+  {
+    level: "Intermediate",
+    chapters: ["control-flow", "collections-core", "loops-functions"],
+    color: "#2563eb",
+    summary: "Conditionals, lists, tuples, for/while loops, and functions.",
+  },
+  {
+    level: "Advanced",
+    chapters: ["dicts-sets", "files-errors"],
+    color: "#7c3aed",
+    summary: "Dictionaries, sets, file patterns, and exception handling.",
+  },
+  {
+    level: "Pro",
+    chapters: ["pro-python"],
+    color: "#9333ea",
+    summary: "Classes, imports, comprehensions, venv, capstone, and cheat sheet.",
+  },
+];
+
+function lessonPlainText(lesson) {
+  return lesson.theory
+    .filter((block) => block.type === "text" || block.type === "callout")
+    .map((block) => block.content.replace(/\*\*/g, "").replace(/`/g, ""))
+    .join(" ");
+}
+
+export default function PythonFundamentalsHub() {
+  const navigate = useNavigate();
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("all");
+  const {
+    isAuthenticated,
+    completedMap: progress,
+    bookmarks,
+    lastLessonId,
+  } = usePythonFundamentalsProgress();
+
+  const completedCount = Object.keys(progress).length;
+  const earnedXP = PYTHON_FUNDAMENTALS_LESSONS.filter(
+    (lesson) => progress[lesson.id],
+  ).reduce((sum, lesson) => sum + lesson.xp, 0);
+  const pct =
+    Math.round((completedCount / PYTHON_FUNDAMENTALS_LESSONS.length) * 100) ||
+    0;
+  const nextLesson =
+    PYTHON_FUNDAMENTALS_LESSONS.find((lesson) => !progress[lesson.id]) ||
+    PYTHON_FUNDAMENTALS_LESSONS[0];
+  const resumeLesson =
+    PYTHON_FUNDAMENTALS_LESSONS.find((lesson) => lesson.id === lastLessonId) ||
+    nextLesson;
+  const completedChapters = PYTHON_FUNDAMENTALS_CHAPTERS.filter((chapter) =>
+    chapter.lessons.every((lesson) => progress[lesson.id]),
+  ).length;
+  const bookmarkedLessons = bookmarks
+    .map((id) => PYTHON_FUNDAMENTALS_LESSONS.find((lesson) => lesson.id === id))
+    .filter(Boolean);
+
+  const filteredLessons = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return PYTHON_FUNDAMENTALS_LESSONS.filter((lesson) => {
+      const matchesQuery =
+        !query ||
+        lesson.title.toLowerCase().includes(query) ||
+        lesson.chapterTitle.toLowerCase().includes(query) ||
+        lessonPlainText(lesson).toLowerCase().includes(query);
+      const matchesFilter =
+        filter === "all" ||
+        (filter === "todo" && !progress[lesson.id]) ||
+        (filter === "done" && progress[lesson.id]) ||
+        (filter === "bookmarked" && bookmarks.includes(lesson.id));
+      return matchesQuery && matchesFilter;
+    });
+  }, [bookmarks, filter, progress, search]);
+
+  return (
+    <div className="oops-hub matplotlib-hub">
+      <div className="oops-hero matplotlib-hero">
+        <Link
+          to="/language/Python"
+          className="oops-back-btn"
+          style={{ marginBottom: "0.75rem", display: "inline-flex" }}
+        >
+          ← Python courses
+        </Link>
+        <div className="oops-hero-badge">PYTHON · BEGINNER → PRO</div>
+        <h1 className="oops-hero-title">
+          Python
+          <br />
+          <span className="oops-hero-accent">Fundamentals</span>
+        </h1>
+        <p className="oops-hero-sub">
+          A structured path from your first print statement to classes, files,
+          and modern Python habits — 8 chapters, 22 lessons, and hands-on
+          challenges before NumPy, Pandas, and beyond.
+        </p>
+
+        <div className="oops-hero-grid">
+          <div className="oops-xp-bar-wrap">
+            <div className="oops-xp-meta">
+              <span>
+                {isAuthenticated
+                  ? `${completedCount}/${PYTHON_FUNDAMENTALS_LESSONS.length} lessons · ${earnedXP}/${PYTHON_FUNDAMENTALS_TOTAL_XP} XP`
+                  : `Sign in to track progress · ${PYTHON_FUNDAMENTALS_LESSONS.length} lessons`}
+              </span>
+              <span>{isAuthenticated ? `${pct}%` : "—"}</span>
+            </div>
+            <div className="oops-xp-track">
+              <div
+                className="oops-xp-fill"
+                style={{ width: isAuthenticated ? `${pct}%` : "0%" }}
+              />
+            </div>
+          </div>
+
+          {!isAuthenticated && (
+            <div className="oops-auth-gate oops-auth-gate-hub">
+              <p>
+                Create a free account to run challenges, earn XP, and save your
+                place in the course.
+              </p>
+              <div className="oops-auth-gate-actions">
+                <Link to="/login" className="oops-auth-gate-btn">
+                  Sign in
+                </Link>
+                <Link
+                  to="/signup"
+                  className="oops-auth-gate-btn oops-auth-gate-btn-primary"
+                >
+                  Sign up
+                </Link>
+              </div>
+            </div>
+          )}
+
+          <div className="oops-resume-panel">
+            <span className="oops-sync-pill">
+              {isAuthenticated
+                ? "Progress saved to your account"
+                : "Browse lessons — sign in to save progress"}
+            </span>
+            <h2>{resumeLesson.title}</h2>
+            <p>
+              {resumeLesson.chapterTitle} · {resumeLesson.xp} XP
+            </p>
+            <button
+              type="button"
+              onClick={() => navigate(`${BASE_PATH}/lesson/${resumeLesson.id}`)}
+            >
+              {completedCount > 0 ? "Resume Python" : "Start Python"}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <section className="matplotlib-prerequisites" aria-label="What comes next">
+        <div className="matplotlib-prerequisites-head">
+          <span>After this course</span>
+          <small>Continue your Python stack on PolyCode</small>
+        </div>
+        <div className="matplotlib-prerequisites-grid">
+          <Link to="/learn/numpy-py" className="matplotlib-prereq-card">
+            <strong>NumPy</strong>
+            <p>Numeric arrays and vector math — the foundation of data science.</p>
+          </Link>
+          <Link to="/learn/pandas-py" className="matplotlib-prereq-card">
+            <strong>Pandas</strong>
+            <p>Tables, CSV workflows, and data cleaning.</p>
+          </Link>
+          <Link to="/learn/matplotlib-py" className="matplotlib-prereq-card">
+            <strong>Matplotlib</strong>
+            <p>Charts and publication-ready visualizations.</p>
+          </Link>
+          <Link
+            to={`${BASE_PATH}/lesson/py-13`}
+            className="matplotlib-prereq-card matplotlib-prereq-cheat"
+          >
+            <strong>Cheat sheet</strong>
+            <p>Syntax reference — bookmark lesson 22 anytime.</p>
+          </Link>
+        </div>
+        <p className="matplotlib-runtime-note">
+          Challenges run in your browser via Pyodide. The first run may take a
+          few seconds to load the Python runtime — output appears in the
+          console panel after <code>print()</code>.
+        </p>
+      </section>
+
+      <div className="oops-guide-tools">
+        <div className="oops-tool-panel oops-tool-panel-main">
+          <span className="oops-interactive-label">Find a Python topic</span>
+          <div className="oops-search-row">
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search loops, dicts, classes..."
+              aria-label="Search Python lessons"
+            />
+            <div
+              className="oops-filter-tabs"
+              aria-label="Filter Python lessons"
+            >
+              {[
+                ["all", "All"],
+                ["todo", "To do"],
+                ["done", "Done"],
+                ["bookmarked", "Saved"],
+              ].map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  className={filter === value ? "active" : ""}
+                  onClick={() => setFilter(value)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="oops-search-results">
+            {filteredLessons.slice(0, 6).map((lesson) => (
+              <button
+                key={lesson.id}
+                type="button"
+                className="oops-search-result"
+                onClick={() => navigate(`${BASE_PATH}/lesson/${lesson.id}`)}
+              >
+                <span>{progress[lesson.id] ? "✓" : "○"}</span>
+                <strong>{lesson.title}</strong>
+                <small>{lesson.chapterTitle}</small>
+              </button>
+            ))}
+            {filteredLessons.length === 0 && (
+              <p className="oops-empty-copy">No lessons match that search.</p>
+            )}
+          </div>
+        </div>
+
+        <div className="oops-tool-panel">
+          <span className="oops-interactive-label">Recommended</span>
+          <h2>{nextLesson.title}</h2>
+          <p>
+            Next in {nextLesson.chapterTitle}. Earn {nextLesson.xp} XP.
+          </p>
+          <button
+            type="button"
+            onClick={() => navigate(`${BASE_PATH}/lesson/${nextLesson.id}`)}
+          >
+            Open next lesson
+          </button>
+        </div>
+
+        <div className="oops-tool-panel">
+          <span className="oops-interactive-label">Bookmarks</span>
+          {bookmarkedLessons.length > 0 ? (
+            <div className="oops-bookmark-list">
+              {bookmarkedLessons.slice(0, 3).map((lesson) => (
+                <button
+                  key={lesson.id}
+                  type="button"
+                  onClick={() => navigate(`${BASE_PATH}/lesson/${lesson.id}`)}
+                >
+                  <strong>{lesson.title}</strong>
+                  <small>{lesson.chapterTitle}</small>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p>Bookmark lessons to review them here.</p>
+          )}
+        </div>
+      </div>
+
+      <div className="oops-dashboard-strip">
+        <div className="oops-stat-tile">
+          <span>Lessons</span>
+          <strong>
+            {completedCount}/{PYTHON_FUNDAMENTALS_LESSONS.length}
+          </strong>
+        </div>
+        <div className="oops-stat-tile">
+          <span>Chapters</span>
+          <strong>
+            {completedChapters}/{PYTHON_FUNDAMENTALS_CHAPTERS.length}
+          </strong>
+        </div>
+        <div className="oops-stat-tile">
+          <span>XP</span>
+          <strong>
+            {earnedXP}/{PYTHON_FUNDAMENTALS_TOTAL_XP}
+          </strong>
+        </div>
+        <div className="oops-stat-tile">
+          <span>Bookmarks</span>
+          <strong>{bookmarks.length}</strong>
+        </div>
+      </div>
+
+      <section className="matplotlib-learn-path" aria-label="Learning path">
+        <div className="matplotlib-path-label">
+          <span>Your path · Beginner to Pro</span>
+          <small>
+            {PYTHON_FUNDAMENTALS_CHAPTERS.length} chapters ·{" "}
+            {PYTHON_FUNDAMENTALS_LESSONS.length} lessons
+          </small>
+        </div>
+        <div className="matplotlib-path-grid">
+          {LEARNING_PATH.map((stage) => {
+            const stageChapters = PYTHON_FUNDAMENTALS_CHAPTERS.filter((ch) =>
+              stage.chapters.includes(ch.id),
+            );
+            const stageLessons = stageChapters.flatMap((ch) => ch.lessons);
+            const stageDone = stageLessons.filter((l) => progress[l.id]).length;
+            const stagePct =
+              stageLessons.length > 0
+                ? Math.round((stageDone / stageLessons.length) * 100)
+                : 0;
+
+            return (
+              <article
+                key={stage.level}
+                className="matplotlib-path-card"
+                style={{ "--stage-color": stage.color }}
+              >
+                <header className="matplotlib-path-card-head">
+                  <span className="matplotlib-path-level">{stage.level}</span>
+                  <span className="matplotlib-path-pct">{stagePct}%</span>
+                </header>
+                <p className="matplotlib-path-summary">{stage.summary}</p>
+                <ul className="matplotlib-path-chapters">
+                  {stageChapters.map((ch) => (
+                    <li key={ch.id}>
+                      <span className="oops-chapter-icon-wrap" aria-hidden>
+                  <LearnChapterIcon icon={ch.icon} size={14} />
+                </span>
+                      {ch.title}
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  type="button"
+                  className="matplotlib-path-cta"
+                  onClick={() => {
+                    const firstOpen =
+                      stageLessons.find((l) => !progress[l.id]) ||
+                      stageLessons[0];
+                    if (firstOpen) {
+                      navigate(`${BASE_PATH}/lesson/${firstOpen.id}`);
+                    }
+                  }}
+                >
+                  {stageDone === stageLessons.length && stageLessons.length > 0
+                    ? "Review stage →"
+                    : stageDone > 0
+                      ? "Continue stage →"
+                      : "Start stage →"}
+                </button>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
+      <LearnChapterPathOverview
+        chapters={PYTHON_FUNDAMENTALS_CHAPTERS}
+        progress={progress}
+        onChapterSelect={(chapter) =>
+          navigate(`${BASE_PATH}/lesson/${chapter.lessons[0].id}`)
+        }
+      />
+
+      <LearnChapterGrid
+        chapters={PYTHON_FUNDAMENTALS_CHAPTERS}
+        progress={progress}
+        basePath={BASE_PATH}
+        navigate={navigate}
+      />
+      <CourseCertificate
+        courseName="Python Fundamentals"
+        totalLessons={PYTHON_FUNDAMENTALS_LESSONS.length}
+        completedCount={completedCount}
+        earnedXP={earnedXP}
+        totalXP={PYTHON_FUNDAMENTALS_TOTAL_XP}
+      />
+    </div>
+  );
+}
+
+
+--------------------------------------------------------------------------------
+FILE: /pages/PythonFundamentalsLessonPage.jsx
+--------------------------------------------------------------------------------
+import React, { useEffect, useRef, useState } from "react";
+import { LEARN_ACCENT } from "../../shared/learnAccent";
+import { useNavigate, useParams } from "react-router-dom";
+import NumpyIntroTheory from "../../numpy-py/components/NumpyIntroTheory";
+import OopsSidebar from "../../oops-cpp/components/OopsSidebar";
+import LearnProfileMenu from "../../shared/LearnProfileMenu";
+import LessonContentShell from "../../shared/LessonContentShell";
+import PythonCodeChallenge from "../../numpy-py/components/PythonCodeChallenge";
+import {
+  PYTHON_FUNDAMENTALS_CHAPTERS,
+  PYTHON_FUNDAMENTALS_LESSONS,
+  PYTHON_FUNDAMENTALS_TOTAL_XP,
+} from "../data/pythonFundamentalsCurriculum";
+import usePythonFundamentalsProgress from "../hooks/usePythonFundamentalsProgress";
+import useLessonReadGate from "../../shared/useLessonReadGate";
+import LessonChallengeTab from "../../shared/LessonChallengeTab";
+import { useLessonAssistantContext } from "../../../assistant/hooks/useLessonAssistantContext";
+
+const BASE_PATH = "/learn/python-fundamentals";
+const READ_GATE_PREFIX = "python_fundamentals";
+
+export default function PythonFundamentalsLessonPage() {
+  const { lessonId } = useParams();
+  const navigate = useNavigate();
+  const [tab, setTab] = useState("theory");
+  const [focusMode, setFocusMode] = useState(false);
+  const {
+    markedAsRead,
+    markAsRead,
+    confidence,
+    handleConfidenceChange,
+    createGoToChallenge,
+    challengeTabLocked,
+  } = useLessonReadGate(READ_GATE_PREFIX, lessonId);
+  const goToChallenge = createGoToChallenge(setTab);
+  const {
+    user,
+    isAuthenticated,
+    completedMap: progress,
+    savedCodeMap,
+    bookmarks,
+    completeLesson,
+    rememberLesson,
+    saveCode,
+    toggleBookmark,
+  } = usePythonFundamentalsProgress();
+  const codeSaveTimer = useRef(null);
+
+  const lesson = PYTHON_FUNDAMENTALS_LESSONS.find((item) => item.id === lessonId);
+  const lessonIdx = PYTHON_FUNDAMENTALS_LESSONS.findIndex(
+    (item) => item.id === lessonId,
+  );
+  const prev = PYTHON_FUNDAMENTALS_LESSONS[lessonIdx - 1];
+  const next = PYTHON_FUNDAMENTALS_LESSONS[lessonIdx + 1];
+
+  useLessonAssistantContext({
+    course: "Python Fundamentals",
+    language: "Python",
+    lesson,
+    chapter: lesson?.chapterTitle,
+    tab,
+    code: savedCodeMap[lessonId] || "",
+  });
+
+  useEffect(() => {
+    setTab("theory");
+  }, [lessonId]);
+
+  useEffect(() => {
+    if (lessonId) rememberLesson(lessonId);
+  }, [lessonId, rememberLesson]);
+
+  useEffect(
+    () => () => {
+      window.clearTimeout(codeSaveTimer.current);
+    },
+    [],
+  );
+
+  if (!lesson) {
+    return (
+      <div className="oops-not-found">
+        <p>Python lesson not found.</p>
+        <button type="button" onClick={() => navigate(BASE_PATH)}>
+          ← Back to Python Fundamentals
+        </button>
+      </div>
+    );
+  }
+
+  const isCompleted = isAuthenticated && !!progress[lessonId];
+  const isBookmarked = bookmarks.includes(lessonId);
+  const completedCount = Object.keys(progress).length;
+  const earnedXP = PYTHON_FUNDAMENTALS_LESSONS.filter(
+    (item) => progress[item.id],
+  ).reduce((sum, item) => sum + item.xp, 0);
+
+  async function handleChallengeComplete() {
+    await completeLesson(lesson);
+  }
+
+  function handleCodeChange(code) {
+    window.clearTimeout(codeSaveTimer.current);
+    codeSaveTimer.current = window.setTimeout(() => {
+      saveCode(lessonId, code).catch(() => {});
+    }, 700);
+  }
+
+  return (
+    <div className={`oops-lesson-page ${focusMode ? "oops-focus-mode" : ""}`}>
+      <OopsSidebar
+        currentLessonId={lessonId}
+        progress={progress}
+        chapters={PYTHON_FUNDAMENTALS_CHAPTERS}
+        basePath={BASE_PATH}
+        title="Python Fundamentals"
+      />
+
+      <div className="oops-lesson-main">
+        <div className="oops-lesson-topbar">
+          <button
+            type="button"
+            className="oops-back-btn"
+            onClick={() => navigate(BASE_PATH)}
+          >
+            ← Python Fundamentals
+          </button>
+          <div className="oops-lesson-breadcrumb">
+            <span className="learn-lesson-chapter-tag">
+              {lesson.chapterTitle}
+            </span>
+            <span className="oops-bc-sep">›</span>
+            <span>{lesson.title}</span>
+          </div>
+          {isCompleted && (
+            <span className="oops-completed-badge">✓ Completed</span>
+          )}
+          <button
+            type="button"
+            className={`oops-bookmark-btn ${isBookmarked ? "active" : ""}`}
+            onClick={() => toggleBookmark(lessonId)}
+          >
+            {isBookmarked ? "★" : "☆"}
+          </button>
+          <button
+            type="button"
+            className={`oops-focus-btn ${focusMode ? "active" : ""}`}
+            onClick={() => setFocusMode((v) => !v)}
+          >
+            {focusMode ? "Exit Focus" : "Focus"}
+          </button>
+          <LearnProfileMenu
+            user={user}
+            trackTitle="Python Fundamentals"
+            syncLabel={
+              isAuthenticated
+                ? "Python progress saved to your account"
+                : "Sign in to save progress"
+            }
+            completedCount={completedCount}
+            totalLessons={PYTHON_FUNDAMENTALS_LESSONS.length}
+            earnedXP={earnedXP}
+            totalXP={PYTHON_FUNDAMENTALS_TOTAL_XP}
+            bookmarksCount={bookmarks.length}
+            streak={0}
+          />
+        </div>
+
+        <div className="oops-tabs">
+          <button
+            type="button"
+            className={`oops-tab ${tab === "theory" ? "active" : ""}`}
+            onClick={() => setTab("theory")}
+          >
+            Theory
+          </button>
+          <LessonChallengeTab
+            active={tab === "challenge"}
+            locked={challengeTabLocked}
+            xp={lesson.xp}
+            onClick={goToChallenge}
+          />
+        </div>
+
+        <LessonContentShell
+          tab={tab}
+          storageKey={`python-fundamentals:${lessonId}`}
+          videoUrl={lesson.videoUrl}
+          videoTitle={`${lesson.title} — Python Fundamentals`}
+        >
+          {tab === "theory" ? (
+            <NumpyIntroTheory
+              lesson={lesson}
+              quizStoragePrefix={READ_GATE_PREFIX}
+              confidence={confidence}
+              onConfidenceChange={handleConfidenceChange}
+              markedAsRead={markedAsRead}
+              onMarkAsRead={markAsRead}
+              onGoChallenge={goToChallenge}
+            />
+          ) : (
+            <PythonCodeChallenge
+              challenge={lesson.challenge}
+              accentColor={LEARN_ACCENT}
+              isCompleted={isCompleted}
+              onComplete={handleChallengeComplete}
+              initialCode={savedCodeMap[lessonId]}
+              onCodeChange={handleCodeChange}
+            />
+          )}
+        </LessonContentShell>
+
+        <div className="oops-lesson-nav">
+          {prev ? (
+            <button
+              type="button"
+              className="oops-nav-btn"
+              onClick={() => navigate(`${BASE_PATH}/lesson/${prev.id}`)}
+            >
+              ← {prev.title}
+            </button>
+          ) : (
+            <div />
+          )}
+          {next ? (
+            <button
+              type="button"
+              className="oops-nav-btn oops-nav-next"
+              onClick={() => navigate(`${BASE_PATH}/lesson/${next.id}`)}
+            >
+              {next.title} →
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="oops-nav-btn oops-nav-next"
+              onClick={() => navigate(BASE_PATH)}
+            >
+              Finish Course →
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+--------------------------------------------------------------------------------
+FILE: /COURSE_GUIDE.md
+--------------------------------------------------------------------------------
+# Python Fundamentals — Course Guide
+
+## What is this course?
+
+**Python Fundamentals** is PolyCode's core Python path: syntax, types, control flow, collections, functions, files, OOP basics, and modern habits. Theory uses objectives and scenarios; challenges run **real Python in the browser** (Pyodide).
+
+**Live URL:** `/learn/python-fundamentals`
+
+**Who it's for:** Complete beginners and anyone who wants a structured path before NumPy, Pandas, Matplotlib, or FastAPI.
+
+---
+
+## Folder structure
+
+```
+python-fundamentals/
+├── COURSE_GUIDE.md
+├── data/
+├── hooks/
+└── pages/
+```
+
+---
+
+## What each file does
+
+### `data/`
+
+| File | What it holds |
+|------|----------------|
+| **pythonFundamentalsCurriculum.js** | Chapters, lessons, theory, quizzes, challenges. **Main content file.** |
+| **pythonLessonEnhancements.js** | Per-lesson objectives, scenarios, warning/tip callouts. |
+| **pythonFundamentalsVideoLinks.js** | Optional YouTube URL per lesson. |
+
+### `hooks/`
+
+| File | What it does |
+|------|----------------|
+| **usePythonFundamentalsProgress.js** | Tracks XP, completed lessons, saved code, bookmarks. |
+
+### `pages/`
+
+| File | What it does |
+|------|----------------|
+| **PythonFundamentalsHub.jsx** | Course landing page with learning path. |
+| **PythonFundamentalsLessonPage.jsx** | One lesson: theory + challenge. |
+
+---
+
+## Borrowed from other folders
+
+Same pattern as Matplotlib:
+
+- **NumpyIntroTheory** + **PythonCodeChallenge** from `numpy-py/`
+- **OopsSidebar** from `oops-cpp/`
+- Shared helpers from `shared/` (read gate, challenge tab, certificate, etc.)
+
+---
+
+## Quick tips for editors
+
+1. Lesson ids: `py-0` … `py-13` (22 lessons across 8 chapters)
+2. Edit **`data/pythonFundamentalsCurriculum.js`** for lesson text and tasks
+3. Edit **`data/pythonLessonEnhancements.js`** for objectives and scenarios
+4. Edit **`data/pythonFundamentalsVideoLinks.js`** for video URLs
+
+
+================================================================================
+END OF FOLDER: python-fundamentals
+================================================================================
