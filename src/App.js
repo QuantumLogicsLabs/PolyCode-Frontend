@@ -18,6 +18,10 @@ import SelectionPins from "./shared/components/SelectionPins";
 import { LearnNavProvider } from "./features/learn/shared/LearnNavContext";
 import GlobalAssistant from "./features/assistant/components/GlobalAssistant";
 import { AssistantProvider } from "./features/assistant/context/AssistantContext";
+import {
+  inferLanguageFromLearnPath,
+  courseStackGroups,
+} from "./features/language/courseCatalog";
 import "./App.css";
 import "./styles/theme-light.css";
 import "./styles/theme-palettes.css";
@@ -264,6 +268,156 @@ const CsharpHub = lazyWithChunkRetry(
 );
 const CsharpLessonPage = lazyWithChunkRetry(
   () => import("./features/learn/csharp-fundamentals/pages/CsharpLessonPage"),
+);
+
+// ── C language courses (previously missing from routing) ──
+const CFundamentalsHub = lazyWithChunkRetry(
+  () => import("./features/learn/c-fundamentals/pages/CFundamentalsHub"),
+);
+const CFundamentalsLessonPage = lazyWithChunkRetry(
+  () =>
+    import("./features/learn/c-fundamentals/pages/CFundamentalsLessonPage"),
+);
+const CFunctionsHub = lazyWithChunkRetry(
+  () => import("./features/learn/c-functions/pages/CFunctionsHub"),
+);
+const CFunctionsLessonPage = lazyWithChunkRetry(
+  () => import("./features/learn/c-functions/pages/CFunctionsLessonPage"),
+);
+const CPointersHub = lazyWithChunkRetry(
+  () => import("./features/learn/c-pointers/pages/CPointersHub"),
+);
+const CPointersLessonPage = lazyWithChunkRetry(
+  () => import("./features/learn/c-pointers/pages/CPointersLessonPage"),
+);
+const CMemoryManagementHub = lazyWithChunkRetry(
+  () =>
+    import(
+      "./features/learn/c-memory-management/pages/CMemoryManagementHub"
+    ),
+);
+const CMemoryManagementLessonPage = lazyWithChunkRetry(
+  () =>
+    import(
+      "./features/learn/c-memory-management/pages/CMemoryManagementLessonPage"
+    ),
+);
+const CFileHandlingHub = lazyWithChunkRetry(
+  () => import("./features/learn/c-file-handling/pages/CFileHandlingHub"),
+);
+const CFileHandlingLessonPage = lazyWithChunkRetry(
+  () =>
+    import("./features/learn/c-file-handling/pages/CFileHandlingLessonPage"),
+);
+const CDataStructuresHub = lazyWithChunkRetry(
+  () =>
+    import("./features/learn/c-data-structures/pages/CDataStructuresHub"),
+);
+const CDataStructuresLessonPage = lazyWithChunkRetry(
+  () =>
+    import(
+      "./features/learn/c-data-structures/pages/CDataStructuresLessonPage"
+    ),
+);
+const CProjectsHub = lazyWithChunkRetry(
+  () => import("./features/learn/c-projects/pages/CProjectsHub"),
+);
+const CProjectsLessonPage = lazyWithChunkRetry(
+  () => import("./features/learn/c-projects/pages/CProjectsLessonPage"),
+);
+
+// ── C++ Fundamentals (previously missing from routing) ──
+const CppFundamentalsHub = lazyWithChunkRetry(
+  () => import("./features/learn/cpp-fundamentals/pages/CppFundamentalsHub"),
+);
+const CppFundamentalsLessonPage = lazyWithChunkRetry(
+  () =>
+    import(
+      "./features/learn/cpp-fundamentals/pages/CppFundamentalsLessonPage"
+    ),
+);
+
+// ── Python OOP + File Handling (previously missing from routing) ──
+const PythonOopHub = lazyWithChunkRetry(
+  () => import("./features/learn/python-oop-py/pages/PythonOopHub"),
+);
+const PythonOopLessonPage = lazyWithChunkRetry(
+  () => import("./features/learn/python-oop-py/pages/PythonOopLessonPage"),
+);
+const PythonFileHandlingHub = lazyWithChunkRetry(
+  () =>
+    import(
+      "./features/learn/python-file-handling-py/pages/PythonFileHandlingHub"
+    ),
+);
+const PythonFileHandlingLessonPage = lazyWithChunkRetry(
+  () =>
+    import(
+      "./features/learn/python-file-handling-py/pages/PythonFileHandlingLessonPage"
+    ),
+);
+
+// ── JS DOM, Web Dev, Node & npm (previously missing from routing) ──
+const JsDomHub = lazyWithChunkRetry(
+  () => import("./features/learn/js-dom/pages/JsDomHub"),
+);
+const JsDomLessonPage = lazyWithChunkRetry(
+  () => import("./features/learn/js-dom/pages/JsDomLessonPage"),
+);
+const JsWebDevHub = lazyWithChunkRetry(
+  () => import("./features/learn/js-web-dev/pages/JsWebDevHub"),
+);
+const JsWebDevLessonPage = lazyWithChunkRetry(
+  () => import("./features/learn/js-web-dev/pages/JsWebDevLessonPage"),
+);
+const NodeNpmHub = lazyWithChunkRetry(
+  () => import("./features/learn/node-npm/pages/NodeNpmHub"),
+);
+const NodeNpmLessonPage = lazyWithChunkRetry(
+  () => import("./features/learn/node-npm/pages/NodeNpmLessonPage"),
+);
+
+// ── HTML & CSS Foundation (previously missing from routing) ──
+const HtmlCssFoundationHub = lazyWithChunkRetry(
+  () =>
+    import("./features/learn/html-css-foundation/pages/HtmlCssFoundationHub"),
+);
+const HtmlCssFoundationLessonPage = lazyWithChunkRetry(
+  () =>
+    import(
+      "./features/learn/html-css-foundation/pages/HtmlCssFoundationLessonPage"
+    ),
+);
+
+// ── Ruby Fundamentals + Gems (previously missing from routing) ──
+// Note: this course's own files use lowercase-first filenames
+// (rubyFundamentalsHub.jsx / rubyFundamentalsLessonPage.jsx), unlike every
+// other course. Import path below matches the file on disk exactly.
+const RubyFundamentalsHub = lazyWithChunkRetry(
+  () => import("./features/learn/ruby-fundamentals/pages/rubyFundamentalsHub"),
+);
+const RubyFundamentalsLessonPage = lazyWithChunkRetry(
+  () =>
+    import(
+      "./features/learn/ruby-fundamentals/pages/rubyFundamentalsLessonPage"
+    ),
+);
+const RubyGemsHub = lazyWithChunkRetry(
+  () => import("./features/learn/ruby-gems/pages/RubyGemsHub"),
+);
+const RubyGemsLessonPage = lazyWithChunkRetry(
+  () => import("./features/learn/ruby-gems/pages/RubyGemsLessonPage"),
+);
+
+// ── Go Fundamentals (previously missing from routing) ──
+const GoFundamentalsHub = lazyWithChunkRetry(
+  () => import("./features/learn/golang-fundamentals/pages/GoFundamentalsHub"),
+);
+const GoFundamentalsLessonPage = lazyWithChunkRetry(
+  () =>
+    import(
+      "./features/learn/golang-fundamentals/pages/GoFundamentalsLessonPage"
+    ),
 );
 
 const PageFallback = () => (
@@ -616,46 +770,20 @@ function AppRoutes() {
     setTheme(normalizeThemeId(nextTheme));
   }, []);
 
+  // Single source of truth for "/learn/*" -> language stack, shared with the
+  // navbar dropdown (see features/language/courseCatalog.js). Replaces the
+  // old hand-written path.startsWith(...) chain, which had drifted out of
+  // sync with courseCatalog.js and was missing several courses (all 7 C
+  // courses, cpp-fundamentals, python-oop-py, python-file-handling-py,
+  // js-dom, js-web-dev, node-npm, html-css-foundation, ruby-*, go, and even
+  // dsa-cpp under C++).
   React.useEffect(() => {
-    const path = location.pathname;
-    if (
-      path.startsWith("/learn/python-fundamentals") ||
-      path.startsWith("/learn/numpy-py") ||
-      path.startsWith("/learn/pandas-py") ||
-      path.startsWith("/learn/matplotlib-py") ||
-      path.startsWith("/learn/fastapi-py") ||
-      path.startsWith("/learn/matplotlib-py") ||
-      path.startsWith("/learn/ai_ml-py")
-    ) {
-      handleLanguageSelect("Python", { stay: true });
-    } else if (path.startsWith("/learn/js-fundamentals")) {
-      handleLanguageSelect("JavaScript", { stay: true });
-    } else if (path.startsWith("/learn/c-sharp-fundamentals")) {
-      handleLanguageSelect("C#", { stay: true });
-    } else if (
-      path.startsWith("/learn/java-fundamentals") ||
-      path.startsWith("/learn/java-intermediate") ||
-      path.startsWith("/learn/java-exception") ||
-      path.startsWith("/learn/java-multithreading") ||
-      path.startsWith("/learn/java-jdbc") ||
-      path.startsWith("/learn/java-spring-boot") ||
-      path.startsWith("/learn/java-projects")
-    ) {
-      handleLanguageSelect("Java", { stay: true });
-    } else if (
-      path.startsWith("/learn/php-fundamentals") ||
-      path.startsWith("/learn/php-forms") ||
-      path.startsWith("/learn/php-sessions") ||
-      path.startsWith("/learn/php-mysql") ||
-      path.startsWith("/learn/php-oop")
-    ) {
-      handleLanguageSelect("PHP", { stay: true });
-    } else if (
-      path.startsWith("/learn/oops-cpp") ||
-      path.startsWith("/learn/pointers-cpp")
-    ) {
-      handleLanguageSelect("C++", { stay: true });
-    }
+    const stackId = inferLanguageFromLearnPath(location.pathname);
+    if (!stackId) return;
+
+    const group = courseStackGroups.find((entry) => entry.id === stackId);
+    const label = group?.label || stackId;
+    handleLanguageSelect(label, { stay: true });
   }, [location.pathname, handleLanguageSelect]);
 
   React.useEffect(() => {
@@ -734,6 +862,171 @@ function AppRoutes() {
             </ThemedShell>
           }
         />
+
+        {/* ── C ── */}
+        <Route
+          path="/learn/c-fundamentals"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <CFundamentalsHub />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+        <Route
+          path="/learn/c-fundamentals/lesson/:lessonId"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <CFundamentalsLessonPage />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+        <Route
+          path="/learn/c-functions"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <CFunctionsHub />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+        <Route
+          path="/learn/c-functions/lesson/:lessonId"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <CFunctionsLessonPage />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+        <Route
+          path="/learn/c-pointers"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <CPointersHub />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+        <Route
+          path="/learn/c-pointers/lesson/:lessonId"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <CPointersLessonPage />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+        <Route
+          path="/learn/c-memory-management"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <CMemoryManagementHub />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+        <Route
+          path="/learn/c-memory-management/lesson/:lessonId"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <CMemoryManagementLessonPage />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+        <Route
+          path="/learn/c-file-handling"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <CFileHandlingHub />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+        <Route
+          path="/learn/c-file-handling/lesson/:lessonId"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <CFileHandlingLessonPage />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+        <Route
+          path="/learn/c-data-structures"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <CDataStructuresHub />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+        <Route
+          path="/learn/c-data-structures/lesson/:lessonId"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <CDataStructuresLessonPage />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+        <Route
+          path="/learn/c-projects"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <CProjectsHub />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+        <Route
+          path="/learn/c-projects/lesson/:lessonId"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <CProjectsLessonPage />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+
+        {/* ── C++ Fundamentals ── */}
+        <Route
+          path="/learn/cpp-fundamentals"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <CppFundamentalsHub />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+        <Route
+          path="/learn/cpp-fundamentals/lesson/:lessonId"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <CppFundamentalsLessonPage />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+
         <Route
           path="/learn/oops-cpp"
           element={
@@ -899,6 +1192,51 @@ function AppRoutes() {
             </ThemedShell>
           }
         />
+
+        {/* ── Python OOP ── */}
+        <Route
+          path="/learn/python-oop-py"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <PythonOopHub />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+        <Route
+          path="/learn/python-oop-py/lesson/:lessonId"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <PythonOopLessonPage />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+
+        {/* ── Python File Handling ── */}
+        <Route
+          path="/learn/python-file-handling-py"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <PythonFileHandlingHub />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+        <Route
+          path="/learn/python-file-handling-py/lesson/:lessonId"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <PythonFileHandlingLessonPage />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+
         <Route
           path="/learn/numpy-py"
           element={
@@ -1081,7 +1419,6 @@ function AppRoutes() {
             </ThemedShell>
           }
         />
-        {/* ✅ CORRECT: Route is the direct child, ThemedShell is inside the element prop */}
         <Route
           path="/learn/matplotlib-py"
           element={
@@ -1154,6 +1491,160 @@ function AppRoutes() {
                 selectedLanguage={selectedLanguage}
               >
                 <JsFundamentalsLessonPage />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+
+        {/* ── JS DOM ── */}
+        <Route
+          path="/learn/js-dom"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <JsDomHub />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+        <Route
+          path="/learn/js-dom/lesson/:lessonId"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <JsDomLessonPage />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+
+        {/* ── JS Web Dev ── */}
+        <Route
+          path="/learn/js-web-dev"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <JsWebDevHub />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+        <Route
+          path="/learn/js-web-dev/lesson/:lessonId"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <JsWebDevLessonPage />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+
+        {/* ── Node.js & npm ── */}
+        <Route
+          path="/learn/node-npm"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <NodeNpmHub />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+        <Route
+          path="/learn/node-npm/lesson/:lessonId"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <NodeNpmLessonPage />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+
+        {/* ── HTML & CSS Foundation ── */}
+        <Route
+          path="/learn/html-css-foundation"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <HtmlCssFoundationHub />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+        <Route
+          path="/learn/html-css-foundation/lesson/:lessonId"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <HtmlCssFoundationLessonPage />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+
+        {/* ── Ruby Fundamentals ── */}
+        <Route
+          path="/learn/ruby-fundamentals"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <RubyFundamentalsHub />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+        <Route
+          path="/learn/ruby-fundamentals/lesson/:lessonId"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <RubyFundamentalsLessonPage />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+
+        {/* ── Ruby Gems ── */}
+        <Route
+          path="/learn/ruby-gems"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <RubyGemsHub />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+        <Route
+          path="/learn/ruby-gems/lesson/:lessonId"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <RubyGemsLessonPage />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+
+        {/* ── Go Fundamentals ── */}
+        <Route
+          path="/learn/golang-fundamentals"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <GoFundamentalsHub />
+              </LearnShell>
+            </ThemedShell>
+          }
+        />
+        <Route
+          path="/learn/golang-fundamentals/lesson/:lessonId"
+          element={
+            <ThemedShell theme={theme}>
+              <LearnShell theme={theme} onThemeChange={handleThemeChange} onGoToStackPicker={goToStackPicker} selectedLanguage={selectedLanguage}>
+                <GoFundamentalsLessonPage />
               </LearnShell>
             </ThemedShell>
           }
