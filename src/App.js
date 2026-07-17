@@ -1395,7 +1395,7 @@ function AppRoutes() {
                 <PhpFundamentalsLessonPage />
               </LearnShell>
             </ThemedShell>
-          }A
+          }
         />
 
         {/* ── PHP Forms ── */}
