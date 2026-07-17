@@ -2,7 +2,7 @@
 // 5 chapters · 13 lessons · C challenges
 
 import { applyLessonVideoLinks } from "../../shared/applyLessonVideoLinks";
-import { C_FUNCTIONS_VIDEO_LINKS } from "./cFunctionsVideoLinks";
+import { C_FUNCTIONS_VIDEO_LINKS } from "./c_functionsVideoLinks";
 
 const ACCENT = "#e67e22";
 

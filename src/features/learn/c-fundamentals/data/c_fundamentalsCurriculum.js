@@ -1,11 +1,9 @@
-mkdir -p /home/claude/c-final
-cat > /home/claude/c-final/cFundamentalsCurriculum.js << 'JSEOF'
 // PolyCode — C Fundamentals full curriculum
 // 5 chapters · 15 lessons · C challenges
 // YouTube links: edit cFundamentalsVideoLinks.js
 
 import { applyLessonVideoLinks } from "../../shared/applyLessonVideoLinks";
-import { C_FUNDAMENTALS_VIDEO_LINKS } from "./cFundamentalsVideoLinks";
+import { C_FUNDAMENTALS_VIDEO_LINKS } from "./c_fundamentalsVideoLinks";
 
 const ACCENT = "#659ad2";
 
