@@ -38,7 +38,7 @@ export const POWERSHELLPROJECTS_CHAPTERS = [
         xp: 20,
         theory: [
           { type: "text", content: "Welcome to Exporting to CSV. Exporting the collected data." },
-          { type: "code", language: "powershell", content: "$data | Export-Csv -Path C:\audit.csv -NoTypeInformation" }
+          { type: "code", language: "powershell", content: "$data | Export-Csv -Path C:\\audit.csv -NoTypeInformation" }
         ],
         challenge: {
           title: "Practice: Exporting to CSV",
@@ -46,7 +46,7 @@ export const POWERSHELLPROJECTS_CHAPTERS = [
             { type: "text", content: "Write a PowerShell command for Exporting to CSV." }
           ],
           starterCode: "",
-          solutionCode: "$data | Export-Csv -Path C:\audit.csv -NoTypeInformation",
+          solutionCode: "$data | Export-Csv -Path C:\\audit.csv -NoTypeInformation",
           tests: [
             {
               id: "t1",

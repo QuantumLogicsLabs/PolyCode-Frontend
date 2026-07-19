@@ -9,7 +9,7 @@ export default function PowershellAdministrationCodeChallenge({ lesson, onSucces
   useEffect(() => {
     setCode(lesson.challenge.starterCode || "");
     setResults(null);
-  }, [lesson.id]);
+  }, [lesson.id, lesson.challenge.starterCode]);
 
   const runCode = () => {
     const tests = lesson.challenge.tests;

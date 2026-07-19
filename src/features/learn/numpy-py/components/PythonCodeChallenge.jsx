@@ -114,6 +114,51 @@ export default function PythonCodeChallenge({
 
     setRunning(true);
     setResults(null);
+
+    const keywordsOnly = challenge.gradeMode === "keywords";
+
+    if (keywordsOnly) {
+      setOutput({
+        status: "running",
+        stdout: "Checking code patterns…",
+      });
+
+      window.setTimeout(() => {
+        const testResults = challenge.tests.map((test) => ({
+          ...test,
+          passed: testPasses(test, code, challenge.solutionCode),
+        }));
+        const acceptanceTests = testResults.filter(
+          (test) => test.id !== "runtime",
+        );
+        const allPassed = acceptanceTests.every((test) => test.passed);
+
+        setResults({ passed: allPassed, tests: testResults });
+        setOutput({
+          status: allPassed ? "pass" : "fail",
+          stdout: allPassed
+            ? "Pattern checks passed (browser deep-learning libs are graded by code patterns)."
+            : "Some pattern checks failed. Match the required PyTorch APIs from the lesson.",
+        });
+
+        if (allPassed) {
+          reportChallengeResult?.(true);
+          triggerCelebration();
+          if (!isCompleted) {
+            Promise.resolve(onComplete()).catch((error) => {
+              console.error("Unable to save lesson progress:", error);
+            });
+          }
+        } else {
+          reportChallengeResult?.(false);
+        }
+
+        setRunning(false);
+        setSubmitGeneration((value) => value + 1);
+      }, 400);
+      return;
+    }
+
     setOutput({
       status: "running",
       stdout: "Running Python checks…",
@@ -259,6 +304,15 @@ export default function PythonCodeChallenge({
             </span>
           )}
         </div>
+        {challenge.gradeMode === "keywords" && (
+          <p
+            className="oops-problem-desc"
+            style={{ marginBottom: 10, opacity: 0.85, fontSize: "0.86rem" }}
+          >
+            Pattern checks only — PyTorch is not executed in the browser. Match
+            the required APIs from the lesson to pass.
+          </p>
+        )}
         {Array.isArray(challenge.description) ? (
           <div className="oops-problem-desc">
             {challenge.description.map((block, i) => {

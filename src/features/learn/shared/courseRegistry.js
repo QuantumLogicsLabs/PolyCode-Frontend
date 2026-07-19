@@ -8,6 +8,7 @@ export const COURSE_PROGRESS_REGISTRY = [
   { courseId: "numpy-py", storagePrefix: "numpy_py", scoped: true, notes: false },
   { courseId: "pandas-py", storagePrefix: "pandas_py", scoped: true, notes: false },
   { courseId: "fastapi-py", storagePrefix: "fastapi_py", scoped: true, notes: false },
+  { courseId: "pytorch-py", storagePrefix: "pytorch_py", scoped: true, notes: false },
   { courseId: "python-fundamentals", storagePrefix: "python_fundamentals", scoped: false, notes: false },
   { courseId: "python-oop-py", storagePrefix: "python_oop_py", scoped: false, notes: false },
   { courseId: "python-file-handling-py", storagePrefix: "python_file_handling_py", scoped: false, notes: false },

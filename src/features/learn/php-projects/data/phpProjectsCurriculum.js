@@ -16,9 +16,6 @@ function text(content, codeBlock = null) {
   }
   return { type: "text", content };
 }
-function diagram(title, nodes) {
-  return { type: "diagram", title, nodes };
-}
 
 const PHP_MAIN = `<?php\n`;
 

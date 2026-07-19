@@ -218,7 +218,7 @@ export const POWERSHELLADMINISTRATION_CHAPTERS = [
         xp: 20,
         theory: [
           { type: "text", content: "Welcome to Just Enough Administration. JEA Concepts." },
-          { type: "code", language: "powershell", content: "New-PSSessionConfigurationFile -Path .\jea.pssc" }
+          { type: "code", language: "powershell", content: "New-PSSessionConfigurationFile -Path .\\jea.pssc" }
         ],
         challenge: {
           title: "Practice: Just Enough Administration",
@@ -226,7 +226,7 @@ export const POWERSHELLADMINISTRATION_CHAPTERS = [
             { type: "text", content: "Write a PowerShell command for Just Enough Administration." }
           ],
           starterCode: "",
-          solutionCode: "New-PSSessionConfigurationFile -Path .\jea.pssc",
+          solutionCode: "New-PSSessionConfigurationFile -Path .\\jea.pssc",
           tests: [
             {
               id: "t1",
