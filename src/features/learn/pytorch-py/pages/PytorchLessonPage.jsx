@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { LEARN_ACCENT } from "../../shared/learnAccent";
 import { useNavigate, useParams } from "react-router-dom";
 import NumpyIntroTheory from "../../numpy-py/components/NumpyIntroTheory";
 import OopsSidebar from "../../oops-cpp/components/OopsSidebar";
@@ -16,10 +17,9 @@ import LessonChallengeTab from "../../shared/LessonChallengeTab";
 import { useLessonAssistantContext } from "../../../assistant/hooks/useLessonAssistantContext";
 
 const BASE_PATH = "/learn/pytorch-py";
-const READ_GATE_PREFIX = "pytorch_py";
-const PYTORCH_ACCENT = "#EE4C2C";
+const READ_GATE_PREFIX = "pytorch";
 
-export default function PytorchLessonPage() {
+export default function PyTorchLessonPage() {
   const { lessonId } = useParams();
   const navigate = useNavigate();
   const [tab, setTab] = useState("theory");
@@ -47,12 +47,14 @@ export default function PytorchLessonPage() {
   const codeSaveTimer = useRef(null);
 
   const lesson = PYTORCH_LESSONS.find((item) => item.id === lessonId);
-  const lessonIdx = PYTORCH_LESSONS.findIndex((item) => item.id === lessonId);
+  const lessonIdx = PYTORCH_LESSONS.findIndex(
+    (item) => item.id === lessonId,
+  );
   const prev = PYTORCH_LESSONS[lessonIdx - 1];
   const next = PYTORCH_LESSONS[lessonIdx + 1];
 
   useLessonAssistantContext({
-    course: "PyTorch",
+    course: "PyTorch Deep Learning",
     language: "Python",
     lesson,
     chapter: lesson?.chapterTitle,
@@ -78,9 +80,9 @@ export default function PytorchLessonPage() {
   if (!lesson) {
     return (
       <div className="oops-not-found">
-        <p>PyTorch lesson not found.</p>
+        <p>Python lesson not found.</p>
         <button type="button" onClick={() => navigate(BASE_PATH)}>
-          ← Back to PyTorch
+          ← Back to PyTorch Deep Learning
         </button>
       </div>
     );
@@ -89,10 +91,9 @@ export default function PytorchLessonPage() {
   const isCompleted = isAuthenticated && !!progress[lessonId];
   const isBookmarked = bookmarks.includes(lessonId);
   const completedCount = Object.keys(progress).length;
-  const earnedXP = PYTORCH_LESSONS.filter((item) => progress[item.id]).reduce(
-    (sum, item) => sum + item.xp,
-    0,
-  );
+  const earnedXP = PYTORCH_LESSONS.filter(
+    (item) => progress[item.id],
+  ).reduce((sum, item) => sum + item.xp, 0);
 
   async function handleChallengeComplete() {
     await completeLesson(lesson);
@@ -112,7 +113,7 @@ export default function PytorchLessonPage() {
         progress={progress}
         chapters={PYTORCH_CHAPTERS}
         basePath={BASE_PATH}
-        title="PyTorch · py"
+        title="PyTorch Deep Learning"
       />
 
       <div className="oops-lesson-main">
@@ -122,7 +123,7 @@ export default function PytorchLessonPage() {
             className="oops-back-btn"
             onClick={() => navigate(BASE_PATH)}
           >
-            ← PyTorch · Python
+            ← PyTorch Deep Learning
           </button>
           <div className="oops-lesson-breadcrumb">
             <span className="learn-lesson-chapter-tag">
@@ -150,10 +151,10 @@ export default function PytorchLessonPage() {
           </button>
           <LearnProfileMenu
             user={user}
-            trackTitle="PyTorch · py"
+            trackTitle="PyTorch Deep Learning"
             syncLabel={
               isAuthenticated
-                ? "PyTorch progress saved to your account"
+                ? "Python progress saved to your account"
                 : "Sign in to save progress"
             }
             completedCount={completedCount}
@@ -183,9 +184,9 @@ export default function PytorchLessonPage() {
 
         <LessonContentShell
           tab={tab}
-          storageKey={`pytorch-py:${lessonId}`}
+          storageKey={`pytorch:${lessonId}`}
           videoUrl={lesson.videoUrl}
-          videoTitle={`${lesson.title} — PyTorch`}
+          videoTitle={`${lesson.title} — PyTorch Deep Learning`}
         >
           {tab === "theory" ? (
             <NumpyIntroTheory
@@ -200,7 +201,7 @@ export default function PytorchLessonPage() {
           ) : (
             <PythonCodeChallenge
               challenge={lesson.challenge}
-              accentColor={PYTORCH_ACCENT}
+              accentColor={LEARN_ACCENT}
               isCompleted={isCompleted}
               onComplete={handleChallengeComplete}
               initialCode={savedCodeMap[lessonId]}

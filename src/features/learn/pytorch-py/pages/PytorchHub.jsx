@@ -6,21 +6,59 @@ import {
   PYTORCH_TOTAL_XP,
 } from "../data/pytorchCurriculum";
 import usePytorchProgress from "../hooks/usePytorchProgress";
+import CourseCertificate from "../../shared/CourseCertificate";
 import LearnChapterPathOverview from "../../shared/LearnChapterPathOverview";
 import LearnChapterGrid from "../../shared/LearnChapterGrid";
-import CourseCertificate from "../../shared/CourseCertificate";
+import LearnChapterIcon from "../../shared/LearnChapterIcon";
 
 const BASE_PATH = "/learn/pytorch-py";
-const ACCENT = "#EE4C2C";
+
+const LEARNING_PATH = [
+  {
+    level: "Beginner",
+    chapters: ["pytorch-foundations"],
+    color: "#ee4c2c",
+    summary:
+      "What PyTorch is, tensors, shapes, dtypes, and basic tensor operations.",
+  },
+  {
+    level: "Intermediate",
+    chapters: ["autograd"],
+    color: "#f59e0b",
+    summary:
+      "Automatic differentiation, gradient computation, and gradient descent from scratch.",
+  },
+  {
+    level: "Advanced",
+    chapters: ["neural-networks", "training-pipeline"],
+    color: "#7c3aed",
+    summary:
+      "nn.Module, activation functions, loss functions, DataLoader, and the full training loop.",
+  },
+  {
+    level: "Pro",
+    chapters: ["cnns"],
+    color: "#2563eb",
+    summary:
+      "Convolutional neural networks, pooling, BatchNorm, Dropout, and building a CNN classifier.",
+  },
+  {
+    level: "Expert",
+    chapters: ["advanced-pytorch"],
+    color: "#dc2626",
+    summary:
+      "Transfer learning, GPU management, learning rate scheduling, regularisation, and production deployment.",
+  },
+];
 
 function lessonPlainText(lesson) {
   return lesson.theory
     .filter((block) => block.type === "text" || block.type === "callout")
-    .map((block) => block.content.replace(/\*\*/g, "").replace(/`/g, ""))
+    .map((block) => (block.content || "").replace(/\*\*/g, "").replace(/`/g, ""))
     .join(" ");
 }
 
-export default function PytorchHub() {
+export default function PyTorchHub() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
@@ -32,13 +70,15 @@ export default function PytorchHub() {
   } = usePytorchProgress();
 
   const completedCount = Object.keys(progress).length;
-  const earnedXP = PYTORCH_LESSONS.filter((lesson) => progress[lesson.id]).reduce(
-    (sum, lesson) => sum + lesson.xp,
-    0,
-  );
-  const pct = Math.round((completedCount / PYTORCH_LESSONS.length) * 100) || 0;
+  const earnedXP = PYTORCH_LESSONS.filter(
+    (lesson) => progress[lesson.id],
+  ).reduce((sum, lesson) => sum + lesson.xp, 0);
+  const pct =
+    Math.round((completedCount / PYTORCH_LESSONS.length) * 100) || 0;
+
   const nextLesson =
-    PYTORCH_LESSONS.find((lesson) => !progress[lesson.id]) || PYTORCH_LESSONS[0];
+    PYTORCH_LESSONS.find((lesson) => !progress[lesson.id]) ||
+    PYTORCH_LESSONS[0];
   const resumeLesson =
     PYTORCH_LESSONS.find((lesson) => lesson.id === lastLessonId) || nextLesson;
   const completedChapters = PYTORCH_CHAPTERS.filter((chapter) =>
@@ -66,8 +106,8 @@ export default function PytorchHub() {
   }, [bookmarks, filter, progress, search]);
 
   return (
-    <div className="oops-hub pytorch-hub">
-      <div className="oops-hero pytorch-hero">
+    <div className="oops-hub matplotlib-hub">
+      <div className="oops-hero matplotlib-hero">
         <Link
           to="/language/Python"
           className="oops-back-btn"
@@ -75,15 +115,18 @@ export default function PytorchHub() {
         >
           ← Python courses
         </Link>
-        <div className="oops-hero-badge">PYTORCH · PYTHON TRACK</div>
+        <div className="oops-hero-badge">PYTHON · DEEP LEARNING</div>
         <h1 className="oops-hero-title">
           PyTorch
           <br />
-          <span className="oops-hero-accent">Beginner → Advanced</span>
+          <span className="oops-hero-accent" style={{ color: "#ee4c2c" }}>
+            Deep Learning
+          </span>
         </h1>
         <p className="oops-hero-sub">
-          Learn deep learning the simple way — tensors, autograd, neural nets,
-          training loops, CNNs, save/load, and a hands-on capstone.
+          Master deep learning with PyTorch — from tensors and autograd to
+          CNNs, transfer learning, and production deployment. {PYTORCH_CHAPTERS.length} chapters,{" "}
+          {PYTORCH_LESSONS.length} lessons, hands-on Python challenges.
         </p>
 
         <div className="oops-hero-grid">
@@ -101,7 +144,7 @@ export default function PytorchHub() {
                 className="oops-xp-fill"
                 style={{
                   width: isAuthenticated ? `${pct}%` : "0%",
-                  background: ACCENT,
+                  background: "#ee4c2c",
                 }}
               />
             </div>
@@ -121,7 +164,7 @@ export default function PytorchHub() {
                   to="/signup"
                   className="oops-auth-gate-btn oops-auth-gate-btn-primary"
                 >
-                  Sign up
+                  Sign up free
                 </Link>
               </div>
             </div>
@@ -139,7 +182,9 @@ export default function PytorchHub() {
             </p>
             <button
               type="button"
-              onClick={() => navigate(`${BASE_PATH}/lesson/${resumeLesson.id}`)}
+              onClick={() =>
+                navigate(`${BASE_PATH}/lesson/${resumeLesson.id}`)
+              }
             >
               {completedCount > 0 ? "Resume PyTorch" : "Start PyTorch"}
             </button>
@@ -147,6 +192,7 @@ export default function PytorchHub() {
         </div>
       </div>
 
+      {/* ── Search / Recommended / Bookmarks ── */}
       <div className="oops-guide-tools">
         <div className="oops-tool-panel oops-tool-panel-main">
           <span className="oops-interactive-label">Find a PyTorch topic</span>
@@ -155,13 +201,10 @@ export default function PytorchHub() {
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search tensors, autograd, nn.Module, training..."
+              placeholder="Search tensors, autograd, CNN..."
               aria-label="Search PyTorch lessons"
             />
-            <div
-              className="oops-filter-tabs"
-              aria-label="Filter PyTorch lessons"
-            >
+            <div className="oops-filter-tabs" aria-label="Filter PyTorch lessons">
               {[
                 ["all", "All"],
                 ["todo", "To do"],
@@ -220,7 +263,9 @@ export default function PytorchHub() {
                 <button
                   key={lesson.id}
                   type="button"
-                  onClick={() => navigate(`${BASE_PATH}/lesson/${lesson.id}`)}
+                  onClick={() =>
+                    navigate(`${BASE_PATH}/lesson/${lesson.id}`)
+                  }
                 >
                   <strong>{lesson.title}</strong>
                   <small>{lesson.chapterTitle}</small>
@@ -233,30 +278,90 @@ export default function PytorchHub() {
         </div>
       </div>
 
+      {/* ── Stats strip ── */}
       <div className="oops-dashboard-strip">
         <div className="oops-stat-tile">
           <span>Lessons</span>
-          <strong>
-            {completedCount}/{PYTORCH_LESSONS.length}
-          </strong>
+          <strong>{completedCount}/{PYTORCH_LESSONS.length}</strong>
         </div>
         <div className="oops-stat-tile">
           <span>Chapters</span>
-          <strong>
-            {completedChapters}/{PYTORCH_CHAPTERS.length}
-          </strong>
+          <strong>{completedChapters}/{PYTORCH_CHAPTERS.length}</strong>
         </div>
         <div className="oops-stat-tile">
           <span>XP</span>
-          <strong>
-            {earnedXP}/{PYTORCH_TOTAL_XP}
-          </strong>
+          <strong>{earnedXP}/{PYTORCH_TOTAL_XP}</strong>
         </div>
         <div className="oops-stat-tile">
           <span>Bookmarks</span>
           <strong>{bookmarks.length}</strong>
         </div>
       </div>
+
+      {/* ── Beginner → Expert path ── */}
+      <section className="matplotlib-learn-path" aria-label="Learning path">
+        <div className="matplotlib-path-label">
+          <span>Your path · Beginner to Expert</span>
+          <small>
+            {PYTORCH_CHAPTERS.length} chapters · {PYTORCH_LESSONS.length} lessons
+          </small>
+        </div>
+        <div className="matplotlib-path-grid">
+          {LEARNING_PATH.map((stage) => {
+            const stageChapters = PYTORCH_CHAPTERS.filter((ch) =>
+              stage.chapters.includes(ch.id),
+            );
+            const stageLessons = stageChapters.flatMap((ch) => ch.lessons);
+            const stageDone = stageLessons.filter((l) => progress[l.id]).length;
+            const stagePct =
+              stageLessons.length > 0
+                ? Math.round((stageDone / stageLessons.length) * 100)
+                : 0;
+
+            return (
+              <article
+                key={stage.level}
+                className="matplotlib-path-card"
+                style={{ "--stage-color": stage.color }}
+              >
+                <header className="matplotlib-path-card-head">
+                  <span className="matplotlib-path-level">{stage.level}</span>
+                  <span className="matplotlib-path-pct">{stagePct}%</span>
+                </header>
+                <p className="matplotlib-path-summary">{stage.summary}</p>
+                <ul className="matplotlib-path-chapters">
+                  {stageChapters.map((ch) => (
+                    <li key={ch.id}>
+                      <span className="oops-chapter-icon-wrap" aria-hidden>
+                        <LearnChapterIcon icon={ch.icon} size={14} />
+                      </span>
+                      {ch.title}
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  type="button"
+                  className="matplotlib-path-cta"
+                  onClick={() => {
+                    const firstOpen =
+                      stageLessons.find((l) => !progress[l.id]) ||
+                      stageLessons[0];
+                    if (firstOpen) {
+                      navigate(`${BASE_PATH}/lesson/${firstOpen.id}`);
+                    }
+                  }}
+                >
+                  {stageDone === stageLessons.length && stageLessons.length > 0
+                    ? "Review stage →"
+                    : stageDone > 0
+                      ? "Continue stage →"
+                      : "Start stage →"}
+                </button>
+              </article>
+            );
+          })}
+        </div>
+      </section>
 
       <LearnChapterPathOverview
         chapters={PYTORCH_CHAPTERS}
@@ -272,8 +377,9 @@ export default function PytorchHub() {
         basePath={BASE_PATH}
         navigate={navigate}
       />
+
       <CourseCertificate
-        courseName="PyTorch"
+        courseName="PyTorch Deep Learning"
         totalLessons={PYTORCH_LESSONS.length}
         completedCount={completedCount}
         earnedXP={earnedXP}

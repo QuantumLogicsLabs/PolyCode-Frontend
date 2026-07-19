@@ -53,18 +53,6 @@ export const generalCourses = [
 
 /** Interactive courses shown on /language/:language (language-specific only). */
 export const languageCourses = {
-  sql: [
-    { title: "SQL Fundamentals", tag: "Core Course", icon: Database, description: "Learn database basics, tables, and standard SQL syntax.", href: "/learn/sql-fundamentals", accent: "#00758f" },
-    { title: "SQL Queries", tag: "Core Course", icon: Database, description: "Master SELECT, WHERE, ORDER BY, and basic data retrieval.", href: "/learn/sql-queries", accent: "#00758f" },
-    { title: "SQL Joins", tag: "Core Course", icon: Database, description: "Combine data from multiple tables using INNER, LEFT, and RIGHT joins.", href: "/learn/sql-joins", accent: "#00758f" },
-    { title: "SQL Aggregate Functions", tag: "Core Course", icon: Database, description: "Use COUNT, SUM, AVG, and GROUP BY to analyze data.", href: "/learn/sql-aggregate-functions", accent: "#00758f" },
-    { title: "SQL Subqueries", tag: "Advanced Course", icon: Database, description: "Write nested queries to solve complex data problems.", href: "/learn/sql-subqueries", accent: "#00758f" },
-    { title: "SQL Indexes", tag: "Advanced Course", icon: Database, description: "Optimize database performance with indexes.", href: "/learn/sql-indexes", accent: "#00758f" },
-    { title: "SQL Views", tag: "Advanced Course", icon: Database, description: "Create virtual tables to simplify complex queries.", href: "/learn/sql-views", accent: "#00758f" },
-    { title: "SQL Stored Procedures", tag: "Advanced Course", icon: Database, description: "Save and reuse SQL code with stored procedures.", href: "/learn/sql-stored-procedures", accent: "#00758f" },
-    { title: "SQL Projects", tag: "Projects Course", icon: Database, description: "Build real-world database schemas and analyze datasets.", href: "/learn/sql-projects", accent: "#00758f" },
-  ],
-
   c: [
     {
       title: "C Fundamentals",
@@ -279,6 +267,15 @@ export const languageCourses = {
       href: "/learn/ai_ml-py",
       accent: "#dfbe00",
     },
+    {
+      title: "PyTorch",
+      tag: "Advanced Course",
+      icon: Cpu,
+      description:
+        "Beginner → Pro: tensors, autograd, nn.Module, activation & loss functions, the full training loop, and CNNs — 6 chapters, 18 lessons.",
+      href: "/learn/pytorch-py",
+      accent: "#ee4c2c",
+    },
   ],
   javascript: [
     {
@@ -374,24 +371,6 @@ export const languageCourses = {
         "Classes, inheritance, interfaces, traits, magic methods, enums, and readonly properties — with theory, quizzes, and real PHP OOP challenges.",
       href: "/learn/php-oop",
       accent: "#f59e0b",
-    },
-    {
-      title: "Laravel Basics",
-      tag: "Interactive Course",
-      icon: Layers3,
-      description:
-        "Routing, controllers, Blade templates, Eloquent ORM, and middleware — with theory, quizzes, and real challenges covering PHP's most popular framework.",
-      href: "/learn/laravel-basics",
-      accent: "#ef4444",
-    },
-    {
-      title: "PHP Projects",
-      tag: "Capstone Course",
-      icon: Brain,
-      description:
-        "Build 4 real, growing projects — a contact book, a session-backed blog, a MySQL task tracker, and a mini Laravel-style API — applying everything from Fundamentals to Laravel.",
-      href: "/learn/php-projects",
-      accent: "#8b5cf6",
     },
   ],
   csharp: [
@@ -513,51 +492,10 @@ export const languageCourses = {
       accent: "#00add8",
     },
   ],
-  powershell: [
-    {
-      title: "PowerShell Fundamentals",
-      tag: "Core Course",
-      icon: Terminal,
-      description: "Variables, operators, data types, and basic pipeline usage.",
-      href: "/learn/powershell-fundamentals",
-      accent: "#5391fe",
-    },
-    {
-      title: "PowerShell Scripting",
-      tag: "Interactive Course",
-      icon: Wrench,
-      description: "Functions, control flow, file I/O, error handling, and scripts.",
-      href: "/learn/powershell-scripting",
-      accent: "#5391fe",
-    },
-    {
-      title: "PowerShell Administration",
-      tag: "Advanced Course",
-      icon: Cpu,
-      description: "WMI/CIM, Active Directory basics, networking, and system automation.",
-      href: "/learn/powershell-administration",
-      accent: "#5391fe",
-    },
-    {
-      title: "PowerShell Projects",
-      tag: "Projects Course",
-      icon: Database,
-      description: "Capstone real-world scripts (e.g., user onboarding automation, log parsing).",
-      href: "/learn/powershell-projects",
-      accent: "#5391fe",
-    },
-  ],
 };
 
 /** Ordered stacks for navbar grouping (one row per language, sub-courses inside). */
 export const courseStackGroups = [
-  {
-    id: "sql",
-    label: "SQL",
-    accent: "#00758f",
-    languagePath: "/language/SQL",
-  },
-
   {
     id: "c",
     label: "C",
@@ -618,28 +556,10 @@ export const courseStackGroups = [
     accent: "#00add8",
     languagePath: "/language/Go",
   },
-  {
-    id: "powershell",
-    label: "PowerShell",
-    accent: "#5391fe",
-    languagePath: "/language/PowerShell",
-  },
 ];
 
 /** Navbar learn links per language (mirrors languageCourses). */
 export const learnNavByLanguage = {
-  sql: [
-    { label: "Fundamentals", to: "/learn/sql-fundamentals" },
-    { label: "Queries", to: "/learn/sql-queries" },
-    { label: "Joins", to: "/learn/sql-joins" },
-    { label: "Aggregate Functions", to: "/learn/sql-aggregate-functions" },
-    { label: "Subqueries", to: "/learn/sql-subqueries" },
-    { label: "Indexes", to: "/learn/sql-indexes" },
-    { label: "Views", to: "/learn/sql-views" },
-    { label: "Stored Procedures", to: "/learn/sql-stored-procedures" },
-    { label: "Projects", to: "/learn/sql-projects" },
-  ],
-
   c: [
     { label: "Fundamentals", to: "/learn/c-fundamentals" },
     { label: "Functions", to: "/learn/c-functions" },
@@ -670,6 +590,7 @@ export const learnNavByLanguage = {
     { label: "FastAPI", to: "/learn/fastapi-py" },
     { label: "Matplotlib", to: "/learn/matplotlib-py" },
     { label: "AI/ML", to: "/learn/ai_ml-py" },
+    { label: "PyTorch", to: "/learn/pytorch-py" },
   ],
   javascript: [
     { label: "Fundamentals", to: "/learn/js-fundamentals" },
@@ -695,8 +616,6 @@ export const learnNavByLanguage = {
     { label: "Sessions & Cookies", to: "/learn/php-sessions" },
     { label: "MySQL", to: "/learn/php-mysql" },
     { label: "PHP OOP", to: "/learn/php-oop" },
-    { label: "Laravel Basics", to: "/learn/laravel-basics" },
-    { label: "PHP Projects", to: "/learn/php-projects" },
   ],
   csharp: [{ label: "C# Basics", to: "/learn/c-sharp-fundamentals" }],
   "c#": [{ label: "C# Basics", to: "/learn/c-sharp-fundamentals" }],
@@ -706,12 +625,6 @@ export const learnNavByLanguage = {
   ],
   // ─── ADD GO NAVIGATION ENTRIES ─────────────────────────────────────────────
   go: [{ label: "Go Basics", to: "/learn/golang-fundamentals" }],
-  powershell: [
-    { label: "Fundamentals", to: "/learn/powershell-fundamentals" },
-    { label: "Scripting", to: "/learn/powershell-scripting" },
-    { label: "Administration", to: "/learn/powershell-administration" },
-    { label: "Projects", to: "/learn/powershell-projects" },
-  ],
 };
 
 const learnNavLanguageAliases = {
@@ -726,20 +639,6 @@ function normalizeLearnNavLanguageKey(key = "") {
 
 /** Infer stack from an active /learn/* route when language is not set. */
 export function inferLanguageFromLearnPath(pathname = "") {
-  if (
-    pathname.startsWith("/learn/sql-fundamentals") ||
-    pathname.startsWith("/learn/sql-queries") ||
-    pathname.startsWith("/learn/sql-joins") ||
-    pathname.startsWith("/learn/sql-aggregate-functions") ||
-    pathname.startsWith("/learn/sql-subqueries") ||
-    pathname.startsWith("/learn/sql-indexes") ||
-    pathname.startsWith("/learn/sql-views") ||
-    pathname.startsWith("/learn/sql-stored-procedures") ||
-    pathname.startsWith("/learn/sql-projects")
-  ) {
-    return "sql";
-  }
-
   if (
     pathname.startsWith("/learn/c-fundamentals") ||
     pathname.startsWith("/learn/c-functions") ||
@@ -767,7 +666,8 @@ export function inferLanguageFromLearnPath(pathname = "") {
     pathname.startsWith("/learn/pandas-py") ||
     pathname.startsWith("/learn/fastapi-py") ||
     pathname.startsWith("/learn/matplotlib-py") ||
-    pathname.startsWith("/learn/ai_ml-py")
+    pathname.startsWith("/learn/ai_ml-py") ||
+    pathname.startsWith("/learn/pytorch-py")
   ) {
     return "python";
   }
@@ -787,9 +687,7 @@ export function inferLanguageFromLearnPath(pathname = "") {
     pathname.startsWith("/learn/php-forms") ||
     pathname.startsWith("/learn/php-sessions") ||
     pathname.startsWith("/learn/php-mysql") ||
-    pathname.startsWith("/learn/php-oop") ||
-    pathname.startsWith("/learn/laravel-basics") ||
-    pathname.startsWith("/learn/php-projects")
+    pathname.startsWith("/learn/php-oop")
   ) {
     return "php";
   }
@@ -802,16 +700,9 @@ export function inferLanguageFromLearnPath(pathname = "") {
   if (pathname.startsWith("/learn/c-sharp-fundamentals")) {
     return "csharp";
   }
+  // ─── ADD GO ROUTE INFERENCE ────────────────────────────────────────────────
   if (pathname.startsWith("/learn/golang-fundamentals")) {
     return "go";
-  }
-  if (
-    pathname.startsWith("/learn/powershell-fundamentals") ||
-    pathname.startsWith("/learn/powershell-scripting") ||
-    pathname.startsWith("/learn/powershell-administration") ||
-    pathname.startsWith("/learn/powershell-projects")
-  ) {
-    return "powershell";
   }
   if (
     pathname.startsWith("/learn/java-fundamentals") ||
