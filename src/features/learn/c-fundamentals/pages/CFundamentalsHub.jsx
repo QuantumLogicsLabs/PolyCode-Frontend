@@ -15,25 +15,25 @@ const BASE_PATH = "/learn/c-fundamentals";
 const LEARNING_PATH = [
   {
     level: "Beginner",
-    chapters: ["ch-0"],
+    chapters: ["welcome-c"],
     color: "#659ad2",
     summary: "What C is, your first program, and how compilation works.",
   },
   {
     level: "Intermediate",
-    chapters: ["ch-1", "ch-2"],
+    chapters: ["variables-types", "operators"],
     color: "#4a86c8",
     summary: "Variables, data types, constants, operators, and bitwise ops.",
   },
   {
     level: "Advanced",
-    chapters: ["ch-3"],
+    chapters: ["control-flow"],
     color: "#2e6da4",
     summary: "if/else, switch, while, for loops, break and continue.",
   },
   {
     level: "Pro",
-    chapters: ["ch-4"],
+    chapters: ["input-output"],
     color: "#1a4f7a",
     summary: "printf, scanf, format specifiers, and capstone calculator.",
   },

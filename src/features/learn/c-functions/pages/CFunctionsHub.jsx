@@ -15,25 +15,25 @@ const BASE_PATH = "/learn/c-functions";
 const LEARNING_PATH = [
   {
     level: "Beginner",
-    chapters: ["ch-0"],
+    chapters: ["func-basics"],
     color: "#e67e22",
     summary: "Declaring functions, return types, void, and prototypes.",
   },
   {
     level: "Intermediate",
-    chapters: ["ch-1", "ch-2"],
+    chapters: ["params-args", "recursion"],
     color: "#d35400",
     summary: "Pass by value, multiple parameters, and recursion.",
   },
   {
     level: "Advanced",
-    chapters: ["ch-3"],
+    chapters: ["scope-storage"],
     color: "#b84000",
     summary: "Local vs global scope, static variables, and extern.",
   },
   {
     level: "Pro",
-    chapters: ["ch-4"],
+    chapters: ["func-pointers"],
     color: "#8e3200",
     summary: "Function pointers, callbacks, and command dispatcher capstone.",
   },
