@@ -1,0 +1,17 @@
+{
+  "framework": "create-react-app",
+  "installCommand": "npm install",
+  "buildCommand": "NODE_OPTIONS=--max-old-space-size=6144 npm run build",
+  "outputDirectory": "build",
+  "headers": [
+    {
+      "source": "/ruby/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ]
+}

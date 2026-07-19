@@ -15,6 +15,10 @@ import {
   FASTAPI_LESSONS,
   FASTAPI_TOTAL_XP,
 } from "../learn/fastapi-py/data/fastapiCurriculum";
+import {
+  PYTORCH_LESSONS,
+  PYTORCH_TOTAL_XP,
+} from "../learn/pytorch-py/data/pytorchCurriculum";
 
 /** Featured profile tracks with full curricula (for cards + certificates). */
 export const PROFILE_FEATURED_TRACKS = [
@@ -66,6 +70,16 @@ export const PROFILE_FEATURED_TRACKS = [
     href: "/learn/fastapi-py",
     accent: "#009688",
   },
+  {
+    courseId: "pytorch-py",
+    courseName: "PyTorch for Python",
+    hubTitle: "PyTorch · py",
+    subtitle: "Python deep learning track",
+    lessons: PYTORCH_LESSONS,
+    totalXP: PYTORCH_TOTAL_XP,
+    href: "/learn/pytorch-py",
+    accent: "#EE4C2C",
+  },
 ];
 
 /** Display names for certificates from Mongo progress without local curriculum. */
@@ -75,6 +89,7 @@ export const COURSE_DISPLAY_NAMES = {
   "numpy-py": "NumPy for Python",
   "pandas-py": "Pandas for Python",
   "fastapi-py": "FastAPI for Python",
+  "pytorch-py": "PyTorch for Python",
   "python-fundamentals": "Python Fundamentals",
   "python-oop-py": "Python OOP",
   "python-file-handling-py": "Python File Handling",

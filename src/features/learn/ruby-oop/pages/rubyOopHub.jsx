@@ -8,8 +8,38 @@ import {
 import useRubyOopProgress from "../hooks/useRubyOopProgress";
 import LearnChapterPathOverview from "../../shared/LearnChapterPathOverview";
 import LearnChapterGrid from "../../shared/LearnChapterGrid";
+import LearnChapterIcon from "../../shared/LearnChapterIcon";
+import CourseCertificate from "../../shared/CourseCertificate";
 
 const BASE_PATH = "/learn/ruby-oop";
+
+// Learning path definition mirroring the Python File Handling course style
+const LEARNING_PATH = [
+  {
+    level: "Beginner",
+    chapters: RUBY_OOP_CHAPTERS.filter((ch) => ch.stage === "beginner").map((ch) => ch.id),
+    color: "#6b21a8",
+    summary: "Classes, instances, accessors, and basic encapsulation.",
+  },
+  {
+    level: "Intermediate",
+    chapters: RUBY_OOP_CHAPTERS.filter((ch) => ch.stage === "intermediate").map((ch) => ch.id),
+    color: "#f97316",
+    summary: "Inheritance, polymorphism, and mixin composition.",
+  },
+  {
+    level: "Advanced",
+    chapters: RUBY_OOP_CHAPTERS.filter((ch) => ch.stage === "advanced").map((ch) => ch.id),
+    color: "#1d4ed8",
+    summary: "Metaprogramming, design patterns, and SOLID principles.",
+  },
+  {
+    level: "Pro",
+    chapters: RUBY_OOP_CHAPTERS.filter((ch) => ch.stage === "pro").map((ch) => ch.id),
+    color: "#6d28d9",
+    summary: "Advanced concurrency, fibers, and Ruby gem packaging for production-ready code.",
+  },
+];
 
 function lessonPlainText(lesson) {
   return lesson.theory
@@ -120,7 +150,7 @@ export default function RubyOopHub() {
       </div>
 
       <div className="oops-stage-tabs" style={{ padding: "0 1.5rem", marginTop: "0.5rem" }}>
-        {[["beginner","Beginner"],["intermediate","Intermediate"],["advanced","Advanced"]].map(([id,label])=> (
+        {[["beginner","Beginner"],["intermediate","Intermediate"],["advanced","Advanced"],["pro","Pro"]].map(([id,label])=> (
           <button key={id} type="button" className={stage===id?"active stage-tab":"stage-tab"} onClick={()=>setStage(id)} style={{ marginRight: 8 }}>
             {label}
           </button>
@@ -181,9 +211,83 @@ export default function RubyOopHub() {
         <div className="oops-stat-tile"><span>Bookmarks</span><strong>{bookmarks.length}</strong></div>
       </div>
 
-      <LearnChapterPathOverview chapters={chaptersForStage} progress={progress} onChapterSelect={(chapter) => navigate(`${BASE_PATH}/lesson/${chapter.lessons[0].id}`)} />
+      <section className="matplotlib-learn-path" aria-label="Learning path">
+        <div className="matplotlib-path-label">
+          <span>Your path · Beginner to Pro</span>
+          <small>
+            {RUBY_OOP_CHAPTERS.length} chapters ·{" "}
+            {RUBY_OOP_LESSONS.length} lessons
+          </small>
+        </div>
+        <div className="matplotlib-path-grid">
+          {LEARNING_PATH.map((stage) => {
+            const stageChapters = RUBY_OOP_CHAPTERS.filter((ch) =>
+              stage.chapters.includes(ch.id),
+            );
+            const stageLessons = stageChapters.flatMap((ch) => ch.lessons);
+            const stageDone = stageLessons.filter((l) => progress[l.id]).length;
+            const stagePct =
+              stageLessons.length > 0
+                ? Math.round((stageDone / stageLessons.length) * 100)
+                : 0;
 
-      <LearnChapterGrid chapters={chaptersForStage} progress={progress} basePath={BASE_PATH} navigate={navigate} />
+            return (
+              <article
+                key={stage.level}
+                className="matplotlib-path-card"
+                style={{ "--stage-color": stage.color }}
+              >
+                <header className="matplotlib-path-card-head">
+                  <span className="matplotlib-path-level">{stage.level}</span>
+                  <span className="matplotlib-path-pct">{stagePct}%</span>
+                </header>
+                <p className="matplotlib-path-summary">{stage.summary}</p>
+                <ul className="matplotlib-path-chapters">
+                  {stageChapters.map((ch) => (
+                    <li key={ch.id}>
+                      <span className="oops-chapter-icon-wrap" aria-hidden>
+                        <LearnChapterIcon icon={ch.icon} size={14} />
+                      </span>
+                      {ch.title}
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  type="button"
+                  className="matplotlib-path-cta"
+                  onClick={() => {
+                    const firstOpen =
+                      stageLessons.find((l) => !progress[l.id]) ||
+                      stageLessons[0];
+                    if (firstOpen) {
+                      navigate(`${BASE_PATH}/lesson/${firstOpen.id}`);
+                    }
+                  }}
+                >
+                  {stageDone === stageLessons.length && stageLessons.length > 0
+                    ? "Review stage →"
+                    : stageDone > 0
+                      ? "Continue stage →"
+                      : "Start stage →"}
+                </button>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
+      <LearnChapterPathOverview chapters={RUBY_OOP_CHAPTERS} progress={progress} onChapterSelect={(chapter) => navigate(`${BASE_PATH}/lesson/${chapter.lessons[0].id}`)} />
+
+      <LearnChapterGrid chapters={RUBY_OOP_CHAPTERS} progress={progress} basePath={BASE_PATH} navigate={navigate} />
+
+      {completedCount === RUBY_OOP_LESSONS.length && RUBY_OOP_LESSONS.length > 0 && (
+        <CourseCertificate
+          courseName="Ruby OOP"
+          totalLessons={RUBY_OOP_LESSONS.length}
+          completedCount={completedCount}
+          earnedXP={earnedXP}
+        />
+      )}
     </div>
   );
 }

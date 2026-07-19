@@ -1,7 +1,43 @@
 import { getApiBase } from "../../../config/apiBase";
 import { loadDefaultRubyVM } from "../../../lib/rubyWasmBrowser";
 
-const RUBY_WASM_URL = `${process.env.PUBLIC_URL || ""}/ruby/ruby-stdlib.wasm`;
+const LOCAL_RUBY_WASM_URL = `${process.env.PUBLIC_URL || ""}/ruby/ruby-stdlib.wasm`;
+const CDN_RUBY_WASM_URLS = [
+  "https://cdn.jsdelivr.net/npm/@ruby/3.4-wasm-wasi@2.9.3-2.9.4/dist/ruby+stdlib.wasm",
+  "https://unpkg.com/@ruby/3.4-wasm-wasi@2.9.3-2.9.4/dist/ruby+stdlib.wasm",
+];
+
+async function fetchWasmResponse(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status} for ${url}`);
+  }
+  return response;
+}
+
+async function loadRubyWasmModule() {
+  const candidates = [LOCAL_RUBY_WASM_URL, ...CDN_RUBY_WASM_URLS];
+  let lastError = null;
+
+  for (const url of candidates) {
+    try {
+      const response = await fetchWasmResponse(url);
+      try {
+        return await WebAssembly.compileStreaming(response.clone());
+      } catch (_) {
+        const bytes = await response.arrayBuffer();
+        return WebAssembly.compile(bytes);
+      }
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw new Error(
+    lastError?.message ||
+      "Could not load the in-browser Ruby runtime. Re-run npm start in frontend.",
+  );
+}
 
 let rubyVmPromise = null;
 
@@ -68,22 +104,6 @@ ensure
   $stderr = STDERR
 end
 `;
-}
-
-async function loadRubyWasmModule() {
-  const response = await fetch(RUBY_WASM_URL);
-  if (!response.ok) {
-    throw new Error(
-      "Could not load the in-browser Ruby runtime. Re-run npm start in frontend.",
-    );
-  }
-
-  try {
-    return await WebAssembly.compileStreaming(response);
-  } catch (_) {
-    const bytes = await response.arrayBuffer();
-    return WebAssembly.compile(bytes);
-  }
 }
 
 async function initRubyVM() {

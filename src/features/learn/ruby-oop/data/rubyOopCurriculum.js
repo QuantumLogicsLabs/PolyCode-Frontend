@@ -586,6 +586,170 @@ puts AnimalFactory.build(:dog).class`,
       },
     ],
   },
+  // New Pro-level chapters added for deeper mastery
+  {
+    id: "concurrency",
+    title: "Concurrency & Parallelism — Pro",
+    stage: "pro",
+    icon: "⚡",
+    color: "#0ea5e9",
+    lessons: [
+      {
+        id: "ruby-oop-9",
+        title: "Threads Basics",
+        xp: 18,
+        theory: [
+          text(
+            "Ruby's `Thread` class allows concurrent execution. Threads share memory, so synchronization may be needed.",
+            {
+              label: "Thread example",
+              content: `# Create a runnable block instead of a system thread
+thread_mock = -> { puts "Hello from thread" }
+
+# Execute it sequentially
+thread_mock.call`
+            }
+          ),
+        ],
+        challenge: {
+          title: "Thread Counter",
+          description: "Create a shared counter variable. Spawn 5 threads, each incrementing the counter 10 times using a mutex. Print final counter value (should be 50).",
+          starterCode: `require 'thread'\ncounter = 0\nmutex = Mutex.new\nthreads = 5.times.map do\n  Thread.new do\n    10.times do\n      # increment counter safely\n    end\n  end\nend\nthreads.each(&:join)\nputs counter`,
+          solutionCode: `require 'thread'\ncounter = 0\nmutex = Mutex.new\nthreads = 5.times.map do\n  Thread.new do\n    10.times do\n      mutex.synchronize { counter += 1 }\n    end\n  end\nend\nthreads.each(&:join)\nputs counter`,
+          tests: [
+            { id: 1, label: "Uses Thread", keywords: [{ pattern: "Thread\\.new" }] },
+            { id: 2, label: "Uses Mutex", keywords: [{ pattern: "Mutex" }] },
+          ],
+        },
+      },
+      {
+        id: "ruby-oop-10",
+        title: "Fiber Cooperative Scheduling",
+        xp: 16,
+        theory: [
+          text(
+            "Fibers provide lightweight cooperative concurrency. They must be resumed manually.",
+            {
+              label: "Fiber example",
+              content: `fiber = Fiber.new { puts "inside fiber" }\nputs "before"\nfiber.resume\nputs "after"`
+            }
+          ),
+        ],
+        challenge: {
+          title: "Fiber Sequence",
+          description: "Create two fibers that each yield a number (1 and 2). Resume them alternately to produce output `1 2`. Print the numbers separated by space.",
+          starterCode: `# Implement two fibers that yield numbers\nfib1 = Fiber.new { /* yield 1 */ }\nfib2 = Fiber.new { /* yield 2 */ }\n# resume alternately and collect results\nresult = []\n# ...\nputs result.join(' ')`,
+          solutionCode: `fib1 = Fiber.new { Fiber.yield 1 }\nfib2 = Fiber.new { Fiber.yield 2 }\nresult = []\nresult << fib1.resume\nresult << fib2.resume\nputs result.join(' ')`,
+          tests: [
+            { id: 1, label: "Uses Fiber", keywords: [{ pattern: "Fiber\\.new" }] },
+            { id: 2, label: "Yields values", keywords: [{ pattern: "Fiber\\.yield" }] },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: "gems",
+    title: "Ruby Gems & Packaging — Pro",
+    stage: "pro",
+    icon: "📦",
+    color: "#6d28d9",
+    lessons: [
+      {
+        id: "ruby-oop-11",
+        title: "Creating a Gem",
+        xp: 20,
+        theory: [
+          text(
+            "A gem is a packaged Ruby library. Use `bundle gem <name>` to scaffold. Include a version file and a simple class.",
+            {
+              label: "Gemfile example",
+              content: `# my_gem.gemspec
+spec = Gem::Specification.new do |spec|
+  spec.name = "my_gem"
+  spec.version = "0.1.0"
+  spec.summary = "Example gem"
+  spec.files = Dir["lib/**/*.rb"]
+  
+  # Note: RubyGems usually requires an author and email to fully validate!
+  spec.author = "Your Name"
+  spec.email = "you@example.com"
+end
+
+# Print the name and files list to verify it works in your browser terminal
+puts "Gem Name: #{spec.name}"
+puts "Included Files: #{spec.files.inspect}"`
+            }
+          ),
+        ],
+        challenge: {
+          title: "Simple Gem Skeleton",
+          description: "Write a minimal gemspec string for a gem named `awesome_gem` version `0.0.1` with summary `Awesome gem`. Return the gemspec content as a string.",
+          starterCode: `def gemspec(name, version, summary)\n  # return gemspec string\nend\nputs gemspec('awesome_gem', '0.0.1', 'Awesome gem')`,
+          solutionCode: `def gemspec(name, version, summary)\n  <<~GEMSPEC\n    Gem::Specification.new do |spec|\n      spec.name = "#{name}"\n      spec.version = "#{version}"\n      spec.summary = "#{summary}"\n      spec.files = []\n    end\n  GEMSPEC\nend\nputs gemspec('awesome_gem', '0.0.1', 'Awesome gem')`,
+          tests: [
+            { id: 1, label: "Returns Gem::Specification", keywords: [{ pattern: "Gem::Specification" }] },
+          ],
+        },
+      },
+      {
+        id: "ruby-oop-12",
+        title: "Using Bundler & Gemfile",
+        xp: 14,
+        theory: [
+          text(
+            "Bundler manages gem dependencies via a `Gemfile`. Use `bundle install` to install and `require` gems in code.",
+            {
+              label: "Gemfile example",
+              content: `# A lightweight simulation of Bundler's DSL for restricted environments
+class SandboxBundler
+  def self.inline(&block)
+    puts "=== [Bundler] Resolving dependencies... ==="
+    context = new
+    context.instance_eval(&block)
+    puts "=== [Bundler] Environment locked and loaded! ===\n\n"
+  end
+
+  def source(url)
+    puts "  -> Checking registry: #{url}"
+  end
+
+  def gem(name, version = nil)
+    puts "  -> Loading dependency: '#{name}' #{version ? "(#{version})" : '(latest)'}"
+    # Safely require the library (json is built-into the browser's Ruby)
+    require name
+  end
+end
+
+# --- RUNNABLE CODE ---
+# This mimics the exact structure of your Gemfile inline code!
+SandboxBundler.inline do
+  source 'https://rubygems.org'
+  gem 'json'
+end
+
+# Now you can use the loaded gem safely!
+data = { 
+  status: "success", 
+  message: "Run successful! This simulation bypassed the browser's disk restrictions." 
+}
+
+puts JSON.pretty_generate(data)`
+            }
+          ),
+        ],
+        challenge: {
+          title: "Gemfile Parser",
+          description: "Write a method `list_gems(gemfile_content)` that returns an array of gem names defined in a Gemfile string (ignore version specs). Example input `'gem \"rails\", \"~>6.0\"\n gem \"puma\"'` should output `['rails','puma']`.",
+          starterCode: `def list_gems(content)\n  # parse gem lines\nend\nputs list_gems("gem 'rails', '~>6.0'\n gem 'puma'").inspect`,
+          solutionCode: `def list_gems(content)\n  content.lines.map do |line|\n    if line.strip.start_with?('gem')\n      line[/['"]([^'\\"]+)['"]/,1]\n    end\n  end.compact\nend\nputs list_gems("gem 'rails', '~>6.0'\n gem 'puma'").inspect`,
+          tests: [
+            { id: 1, label: "Parses gem names", keywords: [{ pattern: "gem'" }] },
+          ],
+        },
+      },
+    ],
+  },
 ];
 
 export const RUBY_OOP_LESSONS = RUBY_OOP_CHAPTERS.flatMap((ch) =>

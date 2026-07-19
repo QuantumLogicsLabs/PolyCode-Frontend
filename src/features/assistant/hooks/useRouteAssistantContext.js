@@ -6,6 +6,7 @@ const COURSE_BY_PREFIX = [
   { prefix: "/learn/numpy-py", course: "NumPy", language: "Python" },
   { prefix: "/learn/pandas-py", course: "Pandas", language: "Python" },
   { prefix: "/learn/fastapi-py", course: "FastAPI", language: "Python" },
+  { prefix: "/learn/pytorch-py", course: "PyTorch", language: "Python" },
   { prefix: "/learn/js-fundamentals", course: "JavaScript Fundamentals", language: "JavaScript" },
   { prefix: "/learn/html-css-foundation", course: "HTML & CSS Foundation", language: "HTML & CSS" },
   { prefix: "/learn/js-web-dev", course: "JavaScript Web Development", language: "JavaScript" },

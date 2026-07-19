@@ -11691,3 +11691,31 @@ body {
     flex-wrap: wrap;
   }
 }
+
+
+/* ==========================================================================
+   POWERSHELL HUB STYLES
+   ========================================================================== */
+.powershell-hub .matplotlib-hero {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+  border-bottom: 1px solid #1e40af;
+}
+
+.powershell-hub .oops-hero-accent {
+  color: #5391fe;
+}
+
+.powershell-hub .matplotlib-hero::before {
+  background: radial-gradient(circle at 80% 20%, rgba(83, 145, 254, 0.15), transparent 60%);
+}
+
+.powershell-hub .matplotlib-path-cta {
+  background-color: #1e3a8a;
+  border-color: #1e40af;
+}
+
+.powershell-hub .matplotlib-path-cta:hover {
+  background-color: #5391fe;
+  border-color: #5391fe;
+  color: #0f172a;
+}

@@ -1,4 +1,5 @@
-// PolyCode — Ruby Blocks & Modules interactive course
+// PolyCode — Ruby Blocks & Modules interactive course (Beginner → Pro)
+// Comprehensive guide to blocks, procs, lambdas, modules, mixins, and advanced patterns
 
 const ACCENT = "#701516"; 
 
@@ -28,6 +29,7 @@ export const RUBY_BLOCKS_MODULES_CHAPTERS = [
   {
     id: "blocks-foundation",
     title: "Ruby Blocks – Beginner",
+    stage: "beginner",
     icon: "🔹",
     color: ACCENT,
     lessons: [
@@ -119,6 +121,7 @@ calculate { |a, b| puts a + b }`
   {
     id: "procs-lambdas",
     title: "Procs & Lambdas",
+    stage: "beginner",
     icon: "⚡",
     color: ACCENT,
     lessons: [
@@ -199,6 +202,7 @@ puts outer`
   {
     id: "modules-mixins",
     title: "Modules & Mixins",
+    stage: "intermediate",
     icon: "📦",
     color: ACCENT,
     lessons: [
@@ -339,6 +343,7 @@ puts Fish.new.swim`
   {
     id: "advanced-patterns",
     title: "Advanced Blocks & Modules",
+    stage: "advanced",
     icon: "🚀",
     color: ACCENT,
     lessons: [
@@ -444,6 +449,754 @@ repeat_three { puts "ping" }`
           tests: [
             { id: 1, label: "Calls block three times", keywords: [{ pattern: "3.times" }] },
             { id: 2, label: "Prints ping three times", keywords: [{ pattern: "ping" }] }
+          ]
+        }
+      }
+    ]
+  },
+
+  // ---------------------------------------------------------------------
+  // Chapter 5 – Closures & Scope (Intermediate)
+  // ---------------------------------------------------------------------
+  {
+    id: "closures-scope",
+    title: "Closures & Scope",
+    stage: "intermediate",
+    icon: "🔒",
+    color: ACCENT,
+    lessons: [
+      {
+        id: "rbm-8",
+        title: "What is a Closure?",
+        xp: 12,
+        theory: [
+          text(
+            "A **closure** is a function that captures its surrounding environment. In Ruby, blocks, procs, and lambdas are all closures — they 'remember' the variables from where they were defined.",
+            {
+              label: "Closure example",
+              content: `x = 10
+
+my_proc = Proc.new { x * 2 }
+puts my_proc.call  # => 20
+
+x = 20
+puts my_proc.call  # => 40`
+            }
+          ),
+          callout("info", "Closures capture *bindings*, not just values. Changing `x` later affects the closure's result.")
+        ],
+        challenge: {
+          title: "Capture a Variable",
+          description: "Create a proc that multiplies a captured `multiplier` variable by an argument. Demonstrate that changing the multiplier affects the result.",
+          starterCode: `multiplier = 3
+
+# Create your proc here
+
+puts doubler.call(5)   # should print 15
+multiplier = 10
+puts doubler.call(5)   # should print 50`,
+          solutionCode: `multiplier = 3
+
+doubler = Proc.new { |n| multiplier * n }
+
+puts doubler.call(5)   # => 15
+multiplier = 10
+puts doubler.call(5)   # => 50`,
+          tests: [
+            { id: 1, label: "Initial result is 15", keywords: [{ pattern: "15" }] },
+            { id: 2, label: "Changed result is 50", keywords: [{ pattern: "50" }] }
+          ]
+        }
+      },
+      {
+        id: "rbm-9",
+        title: "Shared Scope & Binding",
+        xp: 14,
+        theory: [
+          text(
+            "Multiple closures can share the same scope. Ruby's `binding` object lets you capture the current execution context.",
+            {
+              label: "Shared scope",
+              content: `counter = 0
+
+increment = Proc.new { counter += 1 }
+reset = Proc.new { counter = 0 }
+
+increment.call
+increment.call
+puts counter  # => 2
+reset.call
+puts counter  # => 0`
+            }
+          ),
+          callout("warning", "Shared mutable state through closures can cause bugs. Use with care in production code.")
+        ],
+        challenge: {
+          title: "Build a Counter",
+          description: "Create two procs: `inc` that increments a counter, and `dec` that decrements it. Use a shared `counter` variable.",
+          starterCode: `counter = 0
+
+# Create inc and dec procs here
+
+inc.call
+inc.call
+dec.call
+puts counter  # should print 1`,
+          solutionCode: `counter = 0
+
+inc = Proc.new { counter += 1 }
+dec = Proc.new { counter -= 1 }
+
+inc.call
+inc.call
+dec.call
+puts counter  # => 1`,
+          tests: [
+            { id: 1, label: "Final counter is 1", keywords: [{ pattern: "1" }] }
+          ]
+        }
+      }
+    ]
+  },
+
+  // ---------------------------------------------------------------------
+  // Chapter 6 – Enumerable Deep Dive (Intermediate)
+  // ---------------------------------------------------------------------
+  {
+    id: "enumerable-deep-dive",
+    title: "Enumerable Deep Dive",
+    stage: "intermediate",
+    icon: "🔄",
+    color: ACCENT,
+    lessons: [
+      {
+        id: "rbm-10",
+        title: "Custom Enumerables",
+        xp: 15,
+        theory: [
+          text(
+            "You can make any class enumerable by implementing `each`. Methods like `map`, `select`, and `reduce` all rely on `each`.",
+            {
+              label: "Custom enumerable",
+              content: `class Stack
+  # This line gives your class access to map, select, reduce, etc.
+  include Enumerable
+
+  def initialize
+    @items = []
+  end
+
+  def each(&block)
+    @items.each(&block)
+  end
+
+  def push(item)
+    @items.push(item)
+  end
+end
+
+stack = Stack.new
+stack.push(1)
+stack.push(2)
+stack.push(3)
+
+puts stack.map { |x| x * 2 }.inspect  # => [2, 4, 6]`
+            }
+          ),
+          callout("tip", "Implementing `each` gives you dozens of methods for free: `map`, `select`, `reject`, `reduce`, `any?`, `all?`, `sort`, and more.")
+        ],
+        challenge: {
+          title: "Make a Range Enumerable",
+          description: "Create a `Range` class with `initialize(start, finish)`, `each(&block)`, and `map`. It should iterate from start to finish.",
+          starterCode: `class Range
+  def initialize(start, finish)
+    # your code here
+  end
+
+  def each(&block)
+    # your code here
+  end
+end
+
+r = Range.new(1, 3)
+puts r.map { |n| n * 2 }.inspect  # should print [2, 4, 6]`,
+          solutionCode: `class Range
+  def initialize(start, finish)
+    @start = start
+    @finish = finish
+  end
+
+  def each(&block)
+    @start.upto(@finish).each(&block)
+  end
+end
+
+r = Range.new(1, 3)
+puts r.map { |n| n * 2 }.inspect  # => [2, 4, 6]`,
+          tests: [
+            { id: 1, label: "Map works correctly", keywords: [{ pattern: "\\[2, 4, 6\\]" }] }
+          ]
+        }
+      },
+      {
+        id: "rbm-11",
+        title: "Chaining Enumerable Methods",
+        xp: 14,
+        theory: [
+          text(
+            "One of Ruby's superpowers is chaining enumerable methods to build powerful data transformations.",
+            {
+              label: "Method chaining",
+              content: `result = (1..10)
+  .select { |n| n.even? }      # [2, 4, 6, 8, 10]
+  .map { |n| n * n }            # [4, 16, 36, 64, 100]
+  .reduce(:+)                   # 220
+
+puts result  # => 220`
+            }
+          ),
+          callout("info", "Each method returns a new array, so you can keep chaining. For very large datasets, consider using `lazy` to avoid creating intermediate arrays.")
+        ],
+        challenge: {
+          title: "Chain It Up",
+          description: "Given (1..20), select numbers divisible by 3, square them, then sum the result.",
+          starterCode: `result = (1..20)
+  .select { |n| # your code }
+  .map { |n| # your code }
+  .reduce(:+)
+
+puts result  # should print 273`,
+          solutionCode: `result = (1..20)
+  .select { |n| n % 3 == 0 }
+  .map { |n| n * n }
+  .reduce(:+)
+
+puts result  # => 273`,
+          tests: [
+            { id: 1, label: "Result is 273", keywords: [{ pattern: "273" }] }
+          ]
+        }
+      }
+    ]
+  },
+
+  // ---------------------------------------------------------------------
+  // Chapter 7 – Advanced Module Patterns (Advanced)
+  // ---------------------------------------------------------------------
+  {
+    id: "advanced-module-patterns",
+    title: "Advanced Module Patterns",
+    stage: "advanced",
+    icon: "🧩",
+    color: ACCENT,
+    lessons: [
+      {
+        id: "rbm-12",
+        title: "Module Methods & Namespacing",
+        xp: 15,
+        theory: [
+          text(
+            "Modules can hold both instance methods *and* class methods. Use `module_function` to make methods callable on the module itself.",
+            {
+              label: "Module with methods",
+              content: `module MathUtils
+  def self.square(n)
+    n * n
+  end
+
+  def sqrt(n)
+    Math.sqrt(n)
+  end
+  
+  # Put it after the method is defined
+  module_function :sqrt
+end
+
+puts MathUtils.square(5)  # => 25
+puts MathUtils.sqrt(16)   # => 4.0`
+            }
+          ),
+          callout("tip", "`self.method_name` and `module_function` are two ways to define module-level methods. Choose based on whether you need the method to be callable as both a class method and an instance method.")
+        ],
+        challenge: {
+          title: "Build a Namespaced Module",
+          description: "Create a `Geometry` module with `self.circle_area(radius)` and `self.rectangle_area(width, height)` methods.",
+          starterCode: `module Geometry
+  # Add your methods here
+end
+
+puts Geometry.circle_area(3).round(2)      # should print 28.27
+puts Geometry.rectangle_area(4, 5)         # should print 20`,
+          solutionCode: `module Geometry
+  def self.circle_area(radius)
+    Math::PI * radius * radius
+  end
+
+  def self.rectangle_area(width, height)
+    width * height
+  end
+end
+
+puts Geometry.circle_area(3).round(2)      # => 28.27
+puts Geometry.rectangle_area(4, 5)         # => 20`,
+          tests: [
+            { id: 1, label: "Circle area correct", keywords: [{ pattern: "28.27" }] },
+            { id: 2, label: "Rectangle area correct", keywords: [{ pattern: "20" }] }
+          ]
+        }
+      },
+      {
+        id: "rbm-13",
+        title: "Constant Lookup & Namespaces",
+        xp: 14,
+        theory: [
+          text(
+            "Modules create namespaces that organize constants. Use `::` to access top-level constants from within a module.",
+            {
+              label: "Namespaced constants",
+              content: `module App
+  VERSION = "2.0"
+
+  module Config
+    DB_HOST = "localhost"
+
+    def self.info
+      "App #{::App::VERSION}, DB: #{DB_HOST}"
+    end
+  end
+end
+
+puts App::Config.info  # => "App 2.0, DB: localhost"`
+            }
+          ),
+          callout("info", "Use `::` to reach top-level (global) constants from inside a module. Without it, Ruby searches the current scope first.")
+        ],
+        challenge: {
+          title: "Nested Namespaces",
+          description: "Create a `Store` module with a `Product` submodule. `Product` should have a `TAX_RATE` constant and a `total_price(price, quantity)` method.",
+          starterCode: `module Store
+  module Product
+    # Add TAX_RATE constant and total_price method
+  end
+end
+
+puts Store::Product::TAX_RATE           # should print 0.08
+puts Store::Product.total_price(100, 2) # should print 216`,
+          solutionCode: `module Store
+  module Product
+    TAX_RATE = 0.08
+
+    def self.total_price(price, quantity)
+      price * quantity * (1 + TAX_RATE)
+    end
+  end
+end
+
+puts Store::Product::TAX_RATE           # => 0.08
+puts Store::Product.total_price(100, 2) # => 216.0`,
+          tests: [
+            { id: 1, label: "TAX_RATE is 0.08", keywords: [{ pattern: "0.08" }] },
+            { id: 2, label: "Total price is 216", keywords: [{ pattern: "216" }] }
+          ]
+        }
+      }
+    ]
+  },
+
+  // ---------------------------------------------------------------------
+  // Chapter 8 – Blocks in the Wild (Advanced)
+  // ---------------------------------------------------------------------
+  {
+    id: "blocks-in-the-wild",
+    title: "Blocks in the Wild",
+    stage: "advanced",
+    icon: "🌐",
+    color: ACCENT,
+    lessons: [
+      {
+        id: "rbm-14",
+        title: "Builder Pattern with Blocks",
+        xp: 16,
+        theory: [
+          text(
+            "Blocks are perfect for implementing the Builder pattern — a fluent API where method calls return `self` and a block configures the object.",
+            {
+              label: "Builder pattern",
+              content: `class QueryBuilder
+  def initialize
+    @conditions = []
+  end
+
+  def where(condition)
+    @conditions << condition
+    self
+  end
+
+  def order_by(field)
+    @conditions << "ORDER BY #{field}"
+    self
+  end
+
+  def build
+    "SELECT * FROM users " + @conditions.join(" ")
+  end
+end
+
+query = QueryBuilder.new
+  .where("active = true")
+  .where("role = 'admin'")
+  .order_by("created_at")
+  .build
+
+puts query
+# SELECT * FROM users WHERE active = true WHERE role = 'admin' ORDER BY created_at`
+            }
+          ),
+          callout("tip", "The `self` return is key — it lets you chain method calls and pass the object to a block for configuration.")
+        ],
+        challenge: {
+          title: "HTML Builder",
+          description: "Create an `HtmlBuilder` class with `tag(name, &block)` that opens a tag, yields to the block, then closes it. Support nesting.",
+          starterCode: `class HtmlBuilder
+  def initialize
+    @html = ""
+  end
+
+  def tag(name, &block)
+    # your code here
+  end
+
+  def to_s
+    @html
+  end
+end
+
+builder = HtmlBuilder.new
+builder.tag(:div) do
+  builder.tag(:p) { "Hello, Ruby!" }
+end
+puts builder.to_s`,
+          solutionCode: `class HtmlBuilder
+  def initialize
+    @html = ""
+  end
+
+  def tag(name, &block)
+    @html << "<#{name}>"
+    yield if block_given?
+    @html << "</#{name}>"
+  end
+
+  def to_s
+    @html
+  end
+end
+
+builder = HtmlBuilder.new
+builder.tag(:div) do
+  builder.tag(:p) { "Hello, Ruby!" }
+end
+puts builder.to_s  # => <div><p>Hello, Ruby!</p></div>`,
+          tests: [
+            { id: 1, label: "Outputs correct HTML", keywords: [{ pattern: "<div><p>Hello, Ruby!</p></div>" }] }
+          ]
+        }
+      },
+      {
+        id: "rbm-15",
+        title: "Resource Management with Blocks",
+        xp: 15,
+        theory: [
+          text(
+            "Blocks are ideal for resource management — acquire the resource, yield, then ensure cleanup. This pattern underpins Ruby's `File.open` with a block.",
+            {
+              label: "Resource management pattern",
+              content: `class FileManager
+  def self.open(filename, &block)
+    file = nil # Declare file first so it's always in scope for ensure
+    file = File.new(filename, "w")
+    yield(file)
+  ensure
+    file.close if file
+  end
+end
+
+FileManager.open("output.txt") do |f|
+  f.puts "Hello from the block!"
+  f.puts "Ruby handles cleanup automatically."
+end
+
+# Add a print statement so you see output in your browser terminal!
+puts "File written and closed successfully! Check output.txt."`
+            }
+          ),
+          callout("warning", "Always use `ensure` to guarantee cleanup, even if an exception is raised inside the block.")
+        ],
+        challenge: {
+          title: "Database Connection Manager",
+          description: "Create a `DB` module with `self.connect(uri, &block)` that opens a connection, yields it, and ensures it closes. Simulate with a simple class.",
+          starterCode: `class DBConnection
+  attr_reader :connected
+
+  def initialize(uri)
+    @uri = uri
+    @connected = false
+  end
+
+  def connect
+    @connected = true
+    puts "Connected to #@uri"
+  end
+
+  def close
+    @connected = false
+    puts "Disconnected"
+  end
+
+  def query(sql)
+    puts "Executing: #sql"
+  end
+end
+
+module DB
+  def self.connect(uri, &block)
+    # your code here
+  end
+end
+
+DB.connect("mysql://localhost") do |conn|
+  conn.query("SELECT * FROM users")
+end`,
+          solutionCode: `class DBConnection
+  attr_reader :connected
+
+  def initialize(uri)
+    @uri = uri
+    @connected = false
+  end
+
+  def connect
+    @connected = true
+    puts "Connected to #@uri"
+  end
+
+  def close
+    @connected = false
+    puts "Disconnected"
+  end
+
+  def query(sql)
+    puts "Executing: #sql"
+  end
+end
+
+module DB
+  def self.connect(uri, &block)
+    conn = DBConnection.new(uri)
+    conn.connect
+    yield(conn)
+  ensure
+    conn.close if conn
+  end
+end
+
+DB.connect("mysql://localhost") do |conn|
+  conn.query("SELECT * FROM users")
+end`,
+          tests: [
+            { id: 1, label: "Connects and disconnects", keywords: [{ pattern: "Connected" }, { pattern: "Disconnected" }] }
+          ]
+        }
+      }
+    ]
+  },
+
+  // ---------------------------------------------------------------------
+  // Chapter 9 – Refinements & Advanced Topics (Pro)
+  // ---------------------------------------------------------------------
+  {
+    id: "refinements-advanced",
+    title: "Refinements & Advanced Topics",
+    stage: "pro",
+    icon: "💎",
+    color: ACCENT,
+    lessons: [
+      {
+        id: "rbm-16",
+        title: "Ruby Refinements",
+        xp: 18,
+        theory: [
+          text(
+            "**Refinements** let you modify core classes locally. Unlike monkey-patching, refinements are only active within the file or module where they're used.",
+            {
+              label: "Refinements example",
+              content: `# In refinement_file.rb
+module StringExtensions
+  refine String do
+    def shout
+      self.upcase + "!!!"
+    end
+  end
+end
+
+# Using refinements
+using StringExtensions
+
+puts "hello".shout  # => "HELLO!!!"
+# Without 'using', shout is undefined`
+            }
+          ),
+          callout("info", "Refinements are scoped — they only apply in the file where `using` is called. This makes them safer than global monkey-patches.")
+        ],
+        challenge: {
+          title: "Create a Refinement",
+          description: "Create a `NumericExtensions` refinement that adds a `to_currency` method to Numeric (formats as $XX.XX). Use it to format 99 and 9.5.",
+          starterCode: `module NumericExtensions
+  refine Numeric do
+    def to_currency
+      # your code here
+    end
+  end
+end
+
+using NumericExtensions
+
+puts 99.to_currency   # should print $99.00
+puts 9.5.to_currency # should print $9.50`,
+          solutionCode: `module NumericExtensions
+  refine Numeric do
+    def to_currency
+      "$#{'%.2f' % self}"
+    end
+  end
+end
+
+using NumericExtensions
+
+puts 99.to_currency   # => $99.00
+puts 9.5.to_currency # => $9.50`,
+          tests: [
+            { id: 1, label: "99 formats as $99.00", keywords: [{ pattern: "\\$99.00" }] },
+            { id: 2, label: "9.5 formats as $9.50", keywords: [{ pattern: "\\$9.50" }] }
+          ]
+        }
+      },
+      {
+        id: "rbm-17",
+        title: "Fibers & Lazy Evaluation",
+        xp: 18,
+        theory: [
+          text(
+            "**Fibers** are lightweight coroutines that you can pause and resume manually. Combined with `Enumerator`, they enable powerful lazy evaluation patterns.",
+            {
+              label: "Lazy evaluation with fibers",
+              content: `fibonacci = Fiber.new do
+  a, b = 0, 1
+  loop do
+    Fiber.yield(a)
+    a, b = b, a + b
+  end
+end
+
+5.times { print "#{fibonacci.resume} " }
+# => 0 1 1 2 3`
+            }
+          ),
+          callout("tip", "Ruby's `Enumerator` class uses fibers internally. You can create lazy enumerators with `enum.lazy` to avoid building entire arrays in memory.")
+        ],
+        challenge: {
+          title: "Lazy Prime Numbers",
+          description: "Create a lazy enumerator that generates prime numbers. Get the first 10 primes using `.lazy` and `.first(10)`.",
+          starterCode: `def primes
+  # Return a lazy enumerator that yields prime numbers
+  # Hint: use (2..Float::INFINITY).lazy and check divisibility
+end
+
+puts primes.first(10).inspect`,
+          solutionCode: `def primes
+  (2..Float::INFINITY).lazy.select do |n|
+    (2..Math.sqrt(n)).none? { |d| n % d == 0 }
+  end
+end
+
+puts primes.first(10).inspect  # => [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]`,
+          tests: [
+            { id: 1, label: "First 10 primes correct", keywords: [{ pattern: "2, 3, 5, 7, 11, 13, 17, 19, 23, 29" }] }
+          ]
+        }
+      },
+      {
+        id: "rbm-18",
+        title: "Blocks & Metaprogramming",
+        xp: 20,
+        theory: [
+          text(
+            "Blocks are central to Ruby's metaprogramming. Methods like `define_method` and `send` combined with blocks enable dynamic method creation.",
+            {
+              label: "Dynamic methods with blocks",
+              content: `class Resource
+  def initialize(data)
+    @data = data
+  end
+
+  # Intercept methods that don't exist
+  def method_missing(method_name, *args, &block)
+    if @data.key?(method_name)
+      @data[method_name]
+    else
+      super
+    end
+  end
+
+  # Always override respond_to_missing? when overriding method_missing
+  def respond_to_missing?(method_name, include_private = false)
+    @data.key?(method_name) || super
+  end
+end
+
+user = Resource.new(name: "Alice", email: "alice@example.com")
+puts user.name   # => Alice
+puts user.email  # => alice@example.com`
+            }
+          ),
+          callout("warning", "Metaprogramming is powerful but can make code harder to understand. Document dynamic methods clearly and use them sparingly.")
+        ],
+        challenge: {
+          title: "Dynamic Accessor Builder",
+          description: "Create a `StructBuilder` class that takes a hash of field names and generates reader methods for each field using `define_method`.",
+          starterCode: `class StructBuilder
+  def initialize(fields)
+    # Use define_method to create a reader for each field
+  end
+end
+
+Person = StructBuilder.new(name: nil, age: 0, city: "")
+alice = Person.new(name: "Alice", age: 30, city: "NYC")
+
+puts alice.name  # => Alice
+puts alice.age   # => 30`,
+          solutionCode: `class StructBuilder
+  def initialize(fields)
+    fields.each do |field, default|
+      define_method(field) { instance_variable_get("@#{field}") || default }
+    end
+
+    define_method(:initialize) do |values|
+      values.each do |field, value|
+        instance_variable_set("@#{field}", value)
+      end
+    end
+  end
+end
+
+Person = StructBuilder.new(name: nil, age: 0, city: "")
+alice = Person.new(name: "Alice", age: 30, city: "NYC")
+
+puts alice.name  # => Alice
+puts alice.age   # => 30`,
+          tests: [
+            { id: 1, label: "Name accessor works", keywords: [{ pattern: "Alice" }] },
+            { id: 2, label: "Age accessor works", keywords: [{ pattern: "30" }] }
           ]
         }
       }

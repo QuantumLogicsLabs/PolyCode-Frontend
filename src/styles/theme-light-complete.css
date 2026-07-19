@@ -1118,3 +1118,20 @@ html[data-theme="light"] .lesson-annotator-fab-close,
   background: #eff6ff !important;
   border-color: rgba(37, 99, 235, 0.28) !important;
 }
+
+
+/* POWERSHELL HUB LIGHT THEME */
+.app.theme-light .powershell-hub .matplotlib-hero,
+.app.theme-light .powershell-hub .oops-hero {
+  background: linear-gradient(135deg, #f0fdfa 0%, #dbeafe 100%);
+  border-bottom: 1px solid #bfdbfe;
+}
+
+.app.theme-light .powershell-hub .matplotlib-hero::before,
+.app.theme-light .powershell-hub .oops-hero::before {
+  background: radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.1), transparent 50%);
+}
+
+.app.theme-light .powershell-hub .oops-hero-accent {
+  color: #2563eb;
+}

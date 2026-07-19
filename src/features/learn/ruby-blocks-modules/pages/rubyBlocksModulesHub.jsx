@@ -8,8 +8,38 @@ import {
 import useRubyBlocksModulesProgress from "../hooks/useRubyBlocksModulesProgress";
 import LearnChapterPathOverview from "../../shared/LearnChapterPathOverview";
 import LearnChapterGrid from "../../shared/LearnChapterGrid";
+import LearnChapterIcon from "../../shared/LearnChapterIcon";
+import CourseCertificate from "../../shared/CourseCertificate";
 
 const BASE_PATH = "/learn/ruby-blocks-modules";
+
+// Learning path definition mirroring the Ruby OOP course style
+const LEARNING_PATH = [
+  {
+    level: "Beginner",
+    chapters: RUBY_BLOCKS_MODULES_CHAPTERS.filter((ch) => ch.stage === "beginner").map((ch) => ch.id),
+    color: "#22c55e",
+    summary: "Blocks, procs, lambdas, and module basics.",
+  },
+  {
+    level: "Intermediate",
+    chapters: RUBY_BLOCKS_MODULES_CHAPTERS.filter((ch) => ch.stage === "intermediate").map((ch) => ch.id),
+    color: "#3b82f6",
+    summary: "Modules, mixins, closures, and enumerables.",
+  },
+  {
+    level: "Advanced",
+    chapters: RUBY_BLOCKS_MODULES_CHAPTERS.filter((ch) => ch.stage === "advanced").map((ch) => ch.id),
+    color: "#a855f7",
+    summary: "Advanced patterns, resource management, and builders.",
+  },
+  {
+    level: "Pro",
+    chapters: RUBY_BLOCKS_MODULES_CHAPTERS.filter((ch) => ch.stage === "pro").map((ch) => ch.id),
+    color: "#f59e0b",
+    summary: "Refinements, fibers, lazy evaluation, and metaprogramming.",
+  },
+];
 
 function lessonPlainText(lesson) {
   return lesson.theory
@@ -34,6 +64,9 @@ export default function RubyBlocksModulesHub() {
   const nextLesson = RUBY_BLOCKS_MODULES_LESSONS.find((lesson) => !progress[lesson.id]) || RUBY_BLOCKS_MODULES_LESSONS[0];
   const resumeLesson = RUBY_BLOCKS_MODULES_LESSONS.find((lesson) => lesson.id === lastLessonId) || nextLesson;
   const chaptersForStage = RUBY_BLOCKS_MODULES_CHAPTERS.filter((c) => (c.stage || "beginner") === stage);
+
+  // Get all chapters for the chapter grid (not filtered by stage)
+  const allChapters = RUBY_BLOCKS_MODULES_CHAPTERS;
   const completedChapters = chaptersForStage.filter((chapter) =>
     chapter.lessons.every((lesson) => progress[lesson.id]),
   ).length;
@@ -118,12 +151,77 @@ export default function RubyBlocksModulesHub() {
       </div>
 
       <div className="oops-stage-tabs" style={{ padding: "0 1.5rem", marginTop: "0.5rem" }}>
-        {[ ["beginner","Beginner"], ["intermediate","Intermediate"], ["advanced","Advanced"] ].map(([id,label])=> (
+        {[ ["beginner","Beginner"], ["intermediate","Intermediate"], ["advanced","Advanced"], ["pro","Pro"] ].map(([id,label])=> (
           <button key={id} type="button" className={stage===id?"active stage-tab":"stage-tab"} onClick={()=>setStage(id)} style={{ marginRight: 8 }}>
             {label}
           </button>
         ))}
       </div>
+
+      <section className="matplotlib-learn-path" aria-label="Learning path">
+        <div className="matplotlib-path-label">
+          <span>Your path · Beginner to Pro</span>
+          <small>
+            {RUBY_BLOCKS_MODULES_CHAPTERS.length} chapters ·{" "}
+            {RUBY_BLOCKS_MODULES_LESSONS.length} lessons
+          </small>
+        </div>
+        <div className="matplotlib-path-grid">
+          {LEARNING_PATH.map((stage) => {
+            const stageChapters = RUBY_BLOCKS_MODULES_CHAPTERS.filter((ch) =>
+              stage.chapters.includes(ch.id),
+            );
+            const stageLessons = stageChapters.flatMap((ch) => ch.lessons);
+            const stageDone = stageLessons.filter((l) => progress[l.id]).length;
+            const stagePct =
+              stageLessons.length > 0
+                ? Math.round((stageDone / stageLessons.length) * 100)
+                : 0;
+
+            return (
+              <article
+                key={stage.level}
+                className="matplotlib-path-card"
+                style={{ "--stage-color": stage.color }}
+              >
+                <header className="matplotlib-path-card-head">
+                  <span className="matplotlib-path-level">{stage.level}</span>
+                  <span className="matplotlib-path-pct">{stagePct}%</span>
+                </header>
+                <p className="matplotlib-path-summary">{stage.summary}</p>
+                <ul className="matplotlib-path-chapters">
+                  {stageChapters.map((ch) => (
+                    <li key={ch.id}>
+                      <span className="oops-chapter-icon-wrap" aria-hidden>
+                        <LearnChapterIcon icon={ch.icon} size={14} />
+                      </span>
+                      {ch.title}
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  type="button"
+                  className="matplotlib-path-cta"
+                  onClick={() => {
+                    const firstOpen =
+                      stageLessons.find((l) => !progress[l.id]) ||
+                      stageLessons[0];
+                    if (firstOpen) {
+                      navigate(`${BASE_PATH}/lesson/${firstOpen.id}`);
+                    }
+                  }}
+                >
+                  {stageDone === stageLessons.length && stageLessons.length > 0
+                    ? "Review stage →"
+                    : stageDone > 0
+                      ? "Continue stage →"
+                      : "Start stage →"}
+                </button>
+              </article>
+            );
+          })}
+        </div>
+      </section>
 
       <div className="oops-guide-tools">
         <div className="oops-tool-panel oops-tool-panel-main">
@@ -179,9 +277,18 @@ export default function RubyBlocksModulesHub() {
         <div className="oops-stat-tile"><span>Bookmarks</span><strong>{bookmarks.length}</strong></div>
       </div>
 
-      <LearnChapterPathOverview chapters={chaptersForStage} progress={progress} onChapterSelect={(chapter) => navigate(`${BASE_PATH}/lesson/${chapter.lessons[0].id}`)} />
+      <LearnChapterPathOverview chapters={allChapters} progress={progress} onChapterSelect={(chapter) => navigate(`${BASE_PATH}/lesson/${chapter.lessons[0].id}`)} />
 
-      <LearnChapterGrid chapters={chaptersForStage} progress={progress} basePath={BASE_PATH} navigate={navigate} />
+      <LearnChapterGrid chapters={allChapters} progress={progress} basePath={BASE_PATH} navigate={navigate} />
+
+      {completedCount === RUBY_BLOCKS_MODULES_LESSONS.length && RUBY_BLOCKS_MODULES_LESSONS.length > 0 && (
+        <CourseCertificate
+          courseName="Ruby Blocks & Modules"
+          totalLessons={RUBY_BLOCKS_MODULES_LESSONS.length}
+          completedCount={completedCount}
+          earnedXP={earnedXP}
+        />
+      )}
     </div>
   );
 }
