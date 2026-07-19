@@ -159,109 +159,10 @@ print(a.device)   # cpu`,
           },
         ],
         challenge: {
-<<<<<<< HEAD
           title: "Tensor Shapes",
           description:
             "Create three NumPy arrays: a 1D array of 5 zeros, a 2×3 matrix of ones, and a 3×3×3 array of random values. Print the shape of each.",
           starterCode: `import numpy as np
-=======
-          gradeMode: "keywords",
-          title: `Your First Tensor Print`,
-          description:
-            `Import \`torch\`, create \`scores = torch.tensor([72.0, 85.0, 91.0])\`, and print \`scores\`.`,
-          starterCode: `# Import torch
-# Create scores and print
-
-`,
-          solutionCode: `import torch
-
-scores = torch.tensor([72.0, 85.0, 91.0])
-print(scores)`,
-          tests: [
-            {
-              id: 1,
-              label: `Imports torch`,
-              keywords: [{ pattern: `import\\s+torch` }],
-            },
-            {
-              id: 2,
-              label: `Uses torch.tensor`,
-              hint: `torch.tensor([72.0, 85.0, 91.0])`,
-              keywords: [{ pattern: `torch\\.tensor\\s*\\(` }],
-            },
-            {
-              id: 3,
-              label: `Prints scores`,
-              keywords: [{ pattern: `print\\s*\\(\\s*scores\\s*\\)` }],
-            },
-          ],
-        },
-      },
-      {
-        id: "pytorch-1",
-        title: `Tensors vs NumPy`,
-        xp: 10,
-        theory: [
-          {
-            type: "text",
-            content:
-              `**NumPy** arrays are perfect for classic number crunching on CPU. **PyTorch tensors** look similar but add **GPU support** and **autograd** — PyTorch remembers math steps so it can compute gradients during training.`,
-          },
-          {
-            type: "scenario",
-            title: `Sports scores spreadsheet`,
-            content:
-              `You store basketball points in a NumPy array to get quick averages. The same numbers as a PyTorch tensor can also feed a model that learns which stats predict wins — because tensors track gradients.`,
-          },
-          {
-            type: "table",
-            title: `NumPy vs PyTorch at a glance`,
-            columns: [`Feature`, `NumPy`, `PyTorch tensor`],
-            rows: [
-              { label: `Main job`, values: [`Main job`, `Fast numeric arrays`, `Deep learning + GPU`] },
-              { label: `Gradients`, values: [`Gradients`, `Not built in`, `Autograd built in`] },
-              { label: `Typical import`, values: [`Typical import`, `import numpy as np`, `import torch`] },
-            ],
-          },
-          {
-            type: "callout",
-            variant: "info",
-            content:
-              `Many tutorials use both: NumPy for exploration, PyTorch for models. You can convert between them when needed.`,
-          },
-          {
-            type: "code",
-            lang: "python",
-            label: `Same math, two libraries`,
-            content: `import numpy as np
-import torch
-
-a = np.array([10, 20, 30])
-t = torch.tensor([10, 20, 30])
-print(a + 5)
-print(t + 5)`,
-          },
-          {
-            type: "quiz",
-            question: `What do PyTorch tensors add over NumPy arrays?`,
-            options: [
-              `Automatic gradient tracking for training`,
-              `Built-in web server`,
-              `Only string support`,
-              `No math operators`,
-            ],
-            answer: 0,
-            explanation:
-              `Tensors support autograd and GPU devices — key for training neural networks.`,
-          },
-        ],
-        challenge: {
-          gradeMode: "keywords",
-          title: `NumPy and PyTorch Together`,
-          description:
-            `Import \`numpy as np\` and \`torch\`. Create \`arr = np.array([4, 5, 6])\` and \`t = torch.tensor([4, 5, 6])\`. Print both.`,
-          starterCode: `# Import np and torch
->>>>>>> 9a107f8256304354b88bd363e57ceb677bde5b9a
 
 # 1D: 5 zeros
 # 2D: 2x3 ones
@@ -301,36 +202,8 @@ print(c.shape)`,
             label: "Arithmetic and reshaping",
             content: `import torch
 
-<<<<<<< HEAD
 a = torch.tensor([1., 2., 3.])
 b = torch.tensor([4., 5., 6.])
-=======
-steps = torch.tensor([4000, 5200, 6100])
-print(steps)
-print(steps.shape)
-print(steps + 500)`,
-          },
-          {
-            type: "quiz",
-            question: `Which function builds a tensor from a Python list?`,
-            options: [
-              `torch.list()`,
-              `torch.tensor()`,
-              `torch.array()`,
-              `torch.table()`,
-            ],
-            answer: 1,
-            explanation:
-              `\`torch.tensor()\` converts Python numbers or nested lists into a tensor.`,
-          },
-        ],
-        challenge: {
-          gradeMode: "keywords",
-          title: `Steps Tensor`,
-          description:
-            `Import \`torch\`, create \`steps = torch.tensor([4000, 5200, 6100])\`, print \`steps.shape\`, then print \`steps + 500\`.`,
-          starterCode: `import torch
->>>>>>> 9a107f8256304354b88bd363e57ceb677bde5b9a
 
 # Element-wise operations
 print(a + b)          # tensor([5., 7., 9.])
@@ -371,12 +244,7 @@ x = x.view(-1)        # flatten back to [12]`,
           },
         ],
         challenge: {
-<<<<<<< HEAD
           title: "Matrix Multiply",
-=======
-          gradeMode: "keywords",
-          title: `Grade Table Tensor`,
->>>>>>> 9a107f8256304354b88bd363e57ceb677bde5b9a
           description:
             "Create a 3×4 matrix A filled with ones and a 4×2 matrix B filled with twos. Multiply them (A @ B) and print the result and its shape.",
           starterCode: `import numpy as np
@@ -549,12 +417,7 @@ print(f"Final w ≈ {w.item():.4f}")  # should be ≈ 2.0`,
           },
         ],
         challenge: {
-<<<<<<< HEAD
           title: "Gradient Descent — Find the Minimum",
-=======
-          gradeMode: "keywords",
-          title: `Random 2×3 Tensor`,
->>>>>>> 9a107f8256304354b88bd363e57ceb677bde5b9a
           description:
             "Implement gradient descent to minimise f(x) = (x - 3)². Start at x=0, use learning rate 0.1, run 20 steps. Print x after each 5 steps. It should converge to 3.0.",
           starterCode: `# Minimise f(x) = (x - 3)^2
@@ -583,202 +446,10 @@ for step in range(20):
 
 print(f"Final x = {x:.4f}")`,
           tests: [
-<<<<<<< HEAD
             { id: 1, label: "Computes gradient = 2*(x-3)", keywords: [{ pattern: "2.*x.*3|gradient" }] },
             { id: 2, label: "Updates x with learning rate", keywords: [{ pattern: "x\\s*=\\s*x\\s*-\\s*lr" }] },
             { id: 3, label: "Runs 20 steps", keywords: [{ pattern: "range\\s*\\(\\s*20\\s*\\)" }] },
             { id: 4, label: "Prints final x", keywords: [{ pattern: "Final x" }] },
-=======
-            {
-              id: 1,
-              label: `Uses torch.rand`,
-              keywords: [{ pattern: `torch\\.rand\\s*\\(` }],
-            },
-            {
-              id: 2,
-              label: `Prints r.shape`,
-              keywords: [{ pattern: `print\\s*\\(\\s*r\\.shape\\s*\\)` }],
-            },
-          ],
-        },
-      },
-      {
-        id: "pytorch-5",
-        title: `shape, dtype, device`,
-        xp: 12,
-        theory: [
-          {
-            type: "text",
-            content:
-              `Every tensor has a **shape** (sizes), **dtype** (number type), and **device** (CPU or GPU). Check them before big operations to avoid silent bugs.`,
-          },
-          {
-            type: "callout",
-            variant: "tip",
-            content:
-              `Use floats (\`dtype=torch.float32\`) for model weights. Use \`.to(device)\` to move tensors — \`device = 'cuda' if torch.cuda.is_available() else 'cpu'\`.`,
-          },
-          {
-            type: "diagram",
-            title: `Tensor metadata`,
-            nodes: [
-              {
-                id: "sh",
-                label: `shape`,
-                color: "#EE4C2C",
-                items: [`(rows, cols, ...)`, `Must match for math`],
-              },
-              {
-                id: "dt",
-                label: `dtype`,
-                color: "#FF6B4A",
-                items: [`float32, int64`, `Affects precision`],
-              },
-              {
-                id: "dv",
-                label: `device`,
-                color: "#FF8A70",
-                items: [`cpu or cuda`, `Same device for ops`],
-              },
-            ],
-          },
-          {
-            type: "code",
-            lang: "python",
-            label: `Inspect and move`,
-            content: `import torch
-
-t = torch.tensor([1.0, 2.0], dtype=torch.float32)
-print(t.shape, t.dtype, t.device)
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-t2 = t.to(device)
-print(t2.device)`,
-          },
-          {
-            type: "quiz",
-            question: `How do you move a tensor to GPU (when available)?`,
-            options: [
-              `tensor.gpu()`,
-              `tensor.to(device)`,
-              `tensor.cuda_only()`,
-              `tensor.move_gpu()`,
-            ],
-            answer: 1,
-            explanation:
-              `\`.to(device)\` works for both CPU and CUDA devices.`,
-          },
-        ],
-        challenge: {
-          gradeMode: "keywords",
-          title: `Float Tensor Metadata`,
-          description:
-            `Create \`x = torch.tensor([1.0, 2.0, 3.0], dtype=torch.float32)\` and print \`x.shape\`, \`x.dtype\`.`,
-          starterCode: `import torch
-
-`,
-          solutionCode: `import torch
-
-x = torch.tensor([1.0, 2.0, 3.0], dtype=torch.float32)
-print(x.shape)
-print(x.dtype)`,
-          tests: [
-            {
-              id: 1,
-              label: `Uses float32 dtype`,
-              keywords: [{ pattern: `dtype\\s*=\\s*torch\\.float32` }],
-            },
-            {
-              id: 2,
-              label: `Prints shape`,
-              keywords: [{ pattern: `print\\s*\\(\\s*x\\.shape\\s*\\)` }],
-            },
-            {
-              id: 3,
-              label: `Prints dtype`,
-              keywords: [{ pattern: `print\\s*\\(\\s*x\\.dtype\\s*\\)` }],
-            },
-          ],
-        },
-      },
-      {
-        id: "pytorch-6",
-        title: `NumPy ↔ PyTorch`,
-        xp: 12,
-        theory: [
-          {
-            type: "text",
-            content:
-              `Convert NumPy → PyTorch with **\`torch.from_numpy(arr)\`**. Convert back with **\`tensor.numpy()\`** on CPU tensors. They may **share memory** — changing one can change the other.`,
-          },
-          {
-            type: "scenario",
-            title: `Photo pixels as NumPy`,
-            content:
-              `An image loader gives you a NumPy array of pixel values. \`torch.from_numpy\` wraps it as a tensor so a CNN can train — no slow copy if dtypes match.`,
-          },
-          {
-            type: "callout",
-            variant: "warning",
-            content:
-              `\`.numpy()\` only works on CPU tensors. Call \`.cpu()\` first if the tensor is on GPU.`,
-          },
-          {
-            type: "code",
-            lang: "python",
-            label: `Round trip`,
-            content: `import numpy as np
-import torch
-
-arr = np.array([1.0, 2.0, 3.0])
-t = torch.from_numpy(arr)
-back = t.numpy()
-print(back)`,
-          },
-          {
-            type: "quiz",
-            question: `Which converts a NumPy array to a tensor?`,
-            options: [
-              `torch.tensor_numpy()`,
-              `torch.from_numpy()`,
-              `np.to_torch()`,
-              `torch.asarray()`,
-            ],
-            answer: 1,
-            explanation:
-              `\`torch.from_numpy()\` shares memory with the NumPy array when possible.`,
-          },
-        ],
-        challenge: {
-          gradeMode: "keywords",
-          title: `from_numpy Bridge`,
-          description:
-            `Import \`numpy as np\` and \`torch\`. Create \`arr = np.array([1.0, 2.0, 3.0])\`, then \`t = torch.from_numpy(arr)\`, and print \`t\`.`,
-          starterCode: `# Import np and torch
-
-`,
-          solutionCode: `import numpy as np
-import torch
-
-arr = np.array([1.0, 2.0, 3.0])
-t = torch.from_numpy(arr)
-print(t)`,
-          tests: [
-            {
-              id: 1,
-              label: `Imports numpy`,
-              keywords: [{ pattern: `import\\s+numpy\\s+as\\s+np` }],
-            },
-            {
-              id: 2,
-              label: `Uses from_numpy`,
-              keywords: [{ pattern: `torch\\.from_numpy\\s*\\(` }],
-            },
-            {
-              id: 3,
-              label: `Prints t`,
-              keywords: [{ pattern: `print\\s*\\(\\s*t\\s*\\)` }],
-            },
->>>>>>> 9a107f8256304354b88bd363e57ceb677bde5b9a
           ],
         },
       },
@@ -789,508 +460,8 @@ print(t)`,
   // CHAPTER 3 — Building Neural Networks
   // ─────────────────────────────────────────────────────────────
   {
-<<<<<<< HEAD
     id: "neural-networks",
     title: "Building Neural Networks",
-=======
-    id: "math",
-    title: `Tensor Math`,
-    icon: "➕",
-    color: "#EE4C2C",
-    lessons: [
-      {
-        id: "pytorch-7",
-        title: `Arithmetic & reductions`,
-        xp: 12,
-        theory: [
-          {
-            type: "text",
-            content:
-              `Tensors support **element-wise** math: \`+\`, \`-\`, \`*\`, \`/\`. **Reductions** like \`.sum()\` and \`.mean()\` collapse a tensor to fewer numbers — great for totals and averages.`,
-          },
-          {
-            type: "scenario",
-            title: `Weather weekly totals`,
-            content:
-              `Daily temps \`[18, 22, 19, 21]\` — add 3 for a heat wave forecast line, then \`.mean()\` for the week average.`,
-          },
-          {
-            type: "code",
-            lang: "python",
-            label: `Math and reductions`,
-            content: `import torch
-
-t = torch.tensor([18.0, 22.0, 19.0, 21.0])
-print(t + 3)
-print(t.mean())
-print(t.sum())`,
-          },
-          {
-            type: "callout",
-            variant: "tip",
-            content:
-              `Use \`@\` or \`torch.matmul\` for matrix multiply — different from \`*\` which multiplies element-wise.`,
-          },
-          {
-            type: "quiz",
-            question: `Which method returns the average of all elements?`,
-            options: [
-              `.total()`,
-              `.mean()`,
-              `.avg()`,
-              `.middle()`,
-            ],
-            answer: 1,
-            explanation:
-              `\`.mean()\` computes the arithmetic mean of tensor elements.`,
-          },
-        ],
-        challenge: {
-          gradeMode: "keywords",
-          title: `Temperature Stats`,
-          description:
-            `Create \`temps = torch.tensor([18.0, 22.0, 19.0])\`, print \`temps + 2\` and \`temps.mean()\`.`,
-          starterCode: `import torch
-
-`,
-          solutionCode: `import torch
-
-temps = torch.tensor([18.0, 22.0, 19.0])
-print(temps + 2)
-print(temps.mean())`,
-          tests: [
-            {
-              id: 1,
-              label: `Adds 2`,
-              keywords: [{ pattern: `temps\\s*\\+\\s*2` }],
-            },
-            {
-              id: 2,
-              label: `Uses mean`,
-              keywords: [{ pattern: `temps\\.mean\\s*\\(` }],
-            },
-          ],
-        },
-      },
-      {
-        id: "pytorch-8",
-        title: `Broadcasting`,
-        xp: 13,
-        theory: [
-          {
-            type: "text",
-            content:
-              `**Broadcasting** lets PyTorch stretch smaller tensors to match bigger ones — no manual loops. A row of biases can be added to every row of a batch matrix.`,
-          },
-          {
-            type: "scenario",
-            title: `Bonus points per player`,
-            content:
-              `A matrix holds scores for 3 players × 4 games. A 1D tensor \`[2, 0, 1, 3]\` adds game bonuses to **every** player row at once.`,
-          },
-          {
-            type: "diagram",
-            title: `Broadcasting idea`,
-            nodes: [
-              {
-                id: "big",
-                label: `Big tensor`,
-                color: "#EE4C2C",
-                items: [`(3, 4) matrix`],
-              },
-              {
-                id: "small",
-                label: `Small tensor`,
-                color: "#FF6B4A",
-                items: [`(4,) row`, `Stretched across rows`],
-              },
-              {
-                id: "out",
-                label: `Result`,
-                color: "#FF8A70",
-                items: [`Same shape as big`, `Element-wise op`],
-              },
-            ],
-          },
-          {
-            type: "code",
-            lang: "python",
-            label: `Add bias to every row`,
-            content: `import torch
-
-scores = torch.tensor([[10., 20.], [30., 40.]])
-bonus = torch.tensor([1., 2.])
-print(scores + bonus)`,
-          },
-          {
-            type: "quiz",
-            question: `Broadcasting avoids writing what?`,
-            options: [
-              `import statements`,
-              `Manual Python loops for row-wise math`,
-              `print calls`,
-              `file paths`,
-            ],
-            answer: 1,
-            explanation:
-              `PyTorch repeats smaller shapes automatically so element-wise ops align.`,
-          },
-        ],
-        challenge: {
-          gradeMode: "keywords",
-          title: `Broadcast Bonus`,
-          description:
-            `Create \`m = torch.tensor([[1., 2.], [3., 4.]])\` and \`b = torch.tensor([10., 20.])\`. Print \`m + b\`.`,
-          starterCode: `import torch
-
-`,
-          solutionCode: `import torch
-
-m = torch.tensor([[1., 2.], [3., 4.]])
-b = torch.tensor([10., 20.])
-print(m + b)`,
-          tests: [
-            {
-              id: 1,
-              label: `Prints m + b`,
-              keywords: [{ pattern: `print\\s*\\(\\s*m\\s*\\+\\s*b\\s*\\)` }],
-            },
-          ],
-        },
-      },
-      {
-        id: "pytorch-9",
-        title: `Indexing & slicing`,
-        xp: 12,
-        theory: [
-          {
-            type: "text",
-            content:
-              `Index tensors like NumPy: \`t[0]\`, \`t[1:3]\`, \`t[:, 0]\` for columns. Negative indexes count from the end.`,
-          },
-          {
-            type: "scenario",
-            title: `Pick one student's marks`,
-            content:
-              `A \`(students, subjects)\` tensor — \`grades[0]\` is the first student, \`grades[:, 0]\` is everyone's first subject.`,
-          },
-          {
-            type: "code",
-            lang: "python",
-            label: `Slice a 2D tensor`,
-            content: `import torch
-
-g = torch.tensor([[90, 88], [76, 82], [95, 91]])
-print(g[0])
-print(g[:, 1])`,
-          },
-          {
-            type: "callout",
-            variant: "info",
-            content:
-              `Slicing often returns a **view** sharing memory — be careful if you mutate slices during training.`,
-          },
-          {
-            type: "quiz",
-            question: `What does grades[:, 0] select?`,
-            options: [
-              `First row only`,
-              `First column of every row`,
-              `Last column`,
-              `Diagonal`,
-            ],
-            answer: 1,
-            explanation:
-              `\`:\` keeps all rows; \`0\` picks column index 0.`,
-          },
-        ],
-        challenge: {
-          gradeMode: "keywords",
-          title: `First Column`,
-          description:
-            `Create \`g = torch.tensor([[1, 2], [3, 4], [5, 6]])\` and print \`g[:, 0]\`.`,
-          starterCode: `import torch
-
-`,
-          solutionCode: `import torch
-
-g = torch.tensor([[1, 2], [3, 4], [5, 6]])
-print(g[:, 0])`,
-          tests: [
-            {
-              id: 1,
-              label: `Slices first column`,
-              keywords: [{ pattern: `g\\[:,\\s*0\\]` }],
-            },
-          ],
-        },
-      },
-    ],
-  },
-  {
-    id: "autograd",
-    title: `Autograd`,
-    icon: "📈",
-    color: "#EE4C2C",
-    lessons: [
-      {
-        id: "pytorch-10",
-        title: `requires_grad`,
-        xp: 13,
-        theory: [
-          {
-            type: "text",
-            content:
-              `Set **\`requires_grad=True\`** on tensors you want to train (like weights). PyTorch builds a graph of operations to compute **gradients** later.`,
-          },
-          {
-            type: "scenario",
-            title: `Learning the best slope`,
-            content:
-              `A line \`y = w * x\` should fit data. The weight \`w\` gets \`requires_grad=True\` so PyTorch knows to adjust \`w\` when predictions are wrong.`,
-          },
-          {
-            type: "code",
-            lang: "python",
-            label: `Track a weight`,
-            content: `import torch
-
-w = torch.tensor(2.0, requires_grad=True)
-y = w * 3
-y.backward()
-print(w.grad)`,
-          },
-          {
-            type: "callout",
-            variant: "warning",
-            content:
-              `Only tensors with floating point or complex dtypes can use autograd.`,
-          },
-          {
-            type: "quiz",
-            question: `What does requires_grad=True enable?`,
-            options: [
-              `GPU-only mode`,
-              `Gradient tracking for training`,
-              `Faster printing`,
-              `Automatic file save`,
-            ],
-            answer: 1,
-            explanation:
-              `PyTorch records ops on that tensor so \`.backward()\` can compute gradients.`,
-          },
-        ],
-        challenge: {
-          gradeMode: "keywords",
-          title: `Track w`,
-          description:
-            `Create \`w = torch.tensor(2.0, requires_grad=True)\`, compute \`y = w * 4\`, call \`y.backward()\`, print \`w.grad\`.`,
-          starterCode: `import torch
-
-`,
-          solutionCode: `import torch
-
-w = torch.tensor(2.0, requires_grad=True)
-y = w * 4
-y.backward()
-print(w.grad)`,
-          tests: [
-            {
-              id: 1,
-              label: `requires_grad True`,
-              keywords: [{ pattern: `requires_grad\\s*=\\s*True` }],
-            },
-            {
-              id: 2,
-              label: `Calls backward`,
-              keywords: [{ pattern: `y\\.backward\\s*\\(` }],
-            },
-            {
-              id: 3,
-              label: `Prints w.grad`,
-              keywords: [{ pattern: `print\\s*\\(\\s*w\\.grad\\s*\\)` }],
-            },
-          ],
-        },
-      },
-      {
-        id: "pytorch-11",
-        title: `backward()`,
-        xp: 14,
-        theory: [
-          {
-            type: "text",
-            content:
-              `After you compute a **scalar** loss, call **\`.backward()\`**. PyTorch fills \`.grad\` on every leaf tensor that had \`requires_grad=True\`.`,
-          },
-          {
-            type: "scenario",
-            title: `Minimize prediction error`,
-            content:
-              `Predict exam score 80 but target is 90 — loss is \`(pred - target)**2\`. backward() tells you how to nudge weights to reduce that error.`,
-          },
-          {
-            type: "diagram",
-            title: `Backward pass`,
-            nodes: [
-              {
-                id: "fwd",
-                label: `Forward`,
-                color: "#EE4C2C",
-                items: [`Compute prediction`, `Compute loss scalar`],
-              },
-              {
-                id: "bwd",
-                label: `backward()`,
-                color: "#FF6B4A",
-                items: [`Chain rule`, `Fill .grad fields`],
-              },
-              {
-                id: "step",
-                label: `Update`,
-                color: "#FF8A70",
-                items: [`optimizer.step()`, `New weights`],
-              },
-            ],
-          },
-          {
-            type: "code",
-            lang: "python",
-            label: `Simple gradient`,
-            content: `import torch
-
-w = torch.tensor(1.0, requires_grad=True)
-pred = w * 5
-target = torch.tensor(20.0)
-loss = (pred - target) ** 2
-loss.backward()
-print(w.grad)`,
-          },
-          {
-            type: "quiz",
-            question: `loss.backward() requires loss to be...`,
-            options: [
-              `A string`,
-              `A scalar (0-D tensor)`,
-              `Always zero`,
-              `On GPU only`,
-            ],
-            answer: 1,
-            explanation:
-              `backward() starts from a scalar loss value.`,
-          },
-        ],
-        challenge: {
-          gradeMode: "keywords",
-          title: `Squared Error Grad`,
-          description:
-            `With \`w = torch.tensor(1.0, requires_grad=True)\`, set \`pred = w * 5\`, \`target = torch.tensor(20.0)\`, \`loss = (pred - target) ** 2\`, backward, print \`w.grad\`.`,
-          starterCode: `import torch
-
-`,
-          solutionCode: `import torch
-
-w = torch.tensor(1.0, requires_grad=True)
-pred = w * 5
-target = torch.tensor(20.0)
-loss = (pred - target) ** 2
-loss.backward()
-print(w.grad)`,
-          tests: [
-            {
-              id: 1,
-              label: `Computes squared loss`,
-              keywords: [{ pattern: `\\(\\s*pred\\s*-\\s*target\\s*\\)\\s*\\*\\*\\s*2` }],
-            },
-            {
-              id: 2,
-              label: `Calls backward`,
-              keywords: [{ pattern: `loss\\.backward\\s*\\(` }],
-            },
-          ],
-        },
-      },
-      {
-        id: "pytorch-12",
-        title: `no_grad & detach`,
-        xp: 13,
-        theory: [
-          {
-            type: "text",
-            content:
-              `Use **\`torch.no_grad()\`** or **\`.detach()\`** when you do **not** need gradients — inference, metrics, or printing. Saves memory and speed.`,
-          },
-          {
-            type: "callout",
-            variant: "tip",
-            content:
-              `Model.eval() plus torch.no_grad() is the usual pattern for validation and deployment.`,
-          },
-          {
-            type: "code",
-            lang: "python",
-            label: `Inference block`,
-            content: `import torch
-
-x = torch.tensor([1.0, 2.0], requires_grad=True)
-with torch.no_grad():
-    y = x * 2
-print(y.requires_grad)`,
-          },
-          {
-            type: "scenario",
-            title: `Showing predictions to users`,
-            content:
-              `After training, you show photo labels in the app — no training happening, so wrap prediction code in no_grad().`,
-          },
-          {
-            type: "quiz",
-            question: `When should you use torch.no_grad()?`,
-            options: [
-              `Every training step`,
-              `When computing validation predictions`,
-              `When creating tensors`,
-              `When importing torch`,
-            ],
-            answer: 1,
-            explanation:
-              `Skip gradient tracking during evaluation or inference.`,
-          },
-        ],
-        challenge: {
-          gradeMode: "keywords",
-          title: `No Grad Block`,
-          description:
-            `Create \`x = torch.tensor([1.0, 2.0], requires_grad=True)\`. Inside \`with torch.no_grad():\`, set \`y = x * 2\` and print \`y.requires_grad\`.`,
-          starterCode: `import torch
-
-`,
-          solutionCode: `import torch
-
-x = torch.tensor([1.0, 2.0], requires_grad=True)
-with torch.no_grad():
-    y = x * 2
-print(y.requires_grad)`,
-          tests: [
-            {
-              id: 1,
-              label: `Uses no_grad`,
-              keywords: [{ pattern: `torch\\.no_grad\\s*\\(` }],
-            },
-            {
-              id: 2,
-              label: `Prints requires_grad`,
-              keywords: [{ pattern: `print\\s*\\(\\s*y\\.requires_grad\\s*\\)` }],
-            },
-          ],
-        },
-      },
-    ],
-  },
-  {
-    id: "nn",
-    title: `Neural Network Blocks`,
->>>>>>> 9a107f8256304354b88bd363e57ceb677bde5b9a
     icon: "🧠",
     color: "#7c3aed",
     lessons: [
@@ -1358,12 +529,7 @@ print(out.shape)        # [1, 2]`,
           },
         ],
         challenge: {
-<<<<<<< HEAD
           title: "Count Network Parameters",
-=======
-          gradeMode: "keywords",
-          title: `Define TinyNet`,
->>>>>>> 9a107f8256304354b88bd363e57ceb677bde5b9a
           description:
             "A network has: Linear(10, 20), Linear(20, 5). Count the total number of parameters manually (weights + biases for each layer) and print the total.",
           starterCode: `# Linear(10, 20): weights=10*20=200, bias=20 → 220 params
@@ -1403,36 +569,7 @@ print(f"Total parameters: {total}")`,
             content: `import torch
 import torch.nn as nn
 
-<<<<<<< HEAD
 x = torch.tensor([-2., -1., 0., 1., 2.])
-=======
-layer = nn.Linear(3, 2)
-x = torch.randn(4, 3)
-out = layer(x)
-print(out.shape)`,
-          },
-          {
-            type: "quiz",
-            question: `nn.Linear(3, 2) with input shape (4, 3) gives output shape...`,
-            options: [
-              `(4, 2)`,
-              `(3, 2)`,
-              `(4, 3)`,
-              `(2, 4)`,
-            ],
-            answer: 0,
-            explanation:
-              `Batch dimension stays; last dim becomes out_features.`,
-          },
-        ],
-        challenge: {
-          gradeMode: "keywords",
-          title: `Linear Forward`,
-          description:
-            `Create \`layer = nn.Linear(2, 1)\` and \`x = torch.tensor([[1.0, 2.0]])\`. Print \`layer(x)\`.`,
-          starterCode: `import torch
-import torch.nn as nn
->>>>>>> 9a107f8256304354b88bd363e57ceb677bde5b9a
 
 # ReLU: max(0, x) — most common for hidden layers
 relu = nn.ReLU()
@@ -1469,12 +606,7 @@ print(softmax(x))`,
           },
         ],
         challenge: {
-<<<<<<< HEAD
           title: "Implement ReLU and Sigmoid",
-=======
-          gradeMode: "keywords",
-          title: `Apply ReLU`,
->>>>>>> 9a107f8256304354b88bd363e57ceb677bde5b9a
           description:
             "Implement relu(x) and sigmoid(x) as Python functions using math. Test with values [-2, -1, 0, 1, 2] and print results.",
           starterCode: `import math
@@ -1669,12 +801,7 @@ for batch_X, batch_y in loader:
           },
         ],
         challenge: {
-<<<<<<< HEAD
           title: "Dataset Stats",
-=======
-          gradeMode: "keywords",
-          title: `Compute MSE`,
->>>>>>> 9a107f8256304354b88bd363e57ceb677bde5b9a
           description:
             "Given a list of 20 random values as a dataset, implement a simple Dataset class with __len__ and __getitem__. Print the dataset length and first 3 items.",
           starterCode: `import random
@@ -1685,205 +812,11 @@ class SimpleDataset:
     def __init__(self, data):
         self.data = data
 
-<<<<<<< HEAD
-=======
-pred = torch.tensor([72.0])
-target = torch.tensor([80.0])
-loss_fn = nn.MSELoss()
-print(loss_fn(pred, target))`,
-          tests: [
-            {
-              id: 1,
-              label: `Uses MSELoss`,
-              keywords: [{ pattern: `nn\\.MSELoss\\s*\\(` }],
-            },
-            {
-              id: 2,
-              label: `Calls loss_fn`,
-              keywords: [{ pattern: `loss_fn\\s*\\(\\s*pred\\s*,\\s*target\\s*\\)` }],
-            },
-          ],
-        },
-      },
-    ],
-  },
-  {
-    id: "train",
-    title: `Training`,
-    icon: "🏋️",
-    color: "#EE4C2C",
-    lessons: [
-      {
-        id: "pytorch-17",
-        title: `One training step`,
-        xp: 15,
-        theory: [
-          {
-            type: "text",
-            content:
-              `One training step: **forward** → **loss** → **zero_grad** → **backward** → **optimizer.step()**. Repeat for many batches.`,
-          },
-          {
-            type: "diagram",
-            title: `Training micro-loop`,
-            nodes: [
-              {
-                id: "f",
-                label: `1. Forward`,
-                color: "#EE4C2C",
-                items: [`pred = model(x)`],
-              },
-              {
-                id: "l",
-                label: `2. Loss`,
-                color: "#FF6B4A",
-                items: [`Compare pred & y`],
-              },
-              {
-                id: "b",
-                label: `3. Backward`,
-                color: "#FF8A70",
-                items: [`loss.backward()`],
-              },
-              {
-                id: "s",
-                label: `4. Step`,
-                color: "#FFB199",
-                items: [`optimizer.step()`],
-              },
-            ],
-          },
-          {
-            type: "code",
-            lang: "python",
-            label: `Single step`,
-            content: `import torch
-import torch.nn as nn
-
-w = torch.tensor([1.0], requires_grad=True)
-opt = torch.optim.SGD([w], lr=0.1)
-target = torch.tensor([3.0])
-
-pred = w * 2
-loss = (pred - target) ** 2
-opt.zero_grad()
-loss.backward()
-opt.step()
-print(w)`,
-          },
-          {
-            type: "quiz",
-            question: `Why call optimizer.zero_grad()?`,
-            options: [
-              `Clear old gradients before backward`,
-              `Delete the model`,
-              `Save checkpoint`,
-              `Move to GPU`,
-            ],
-            answer: 0,
-            explanation:
-              `Gradients accumulate by default; zero them each step.`,
-          },
-        ],
-        challenge: {
-          gradeMode: "keywords",
-          title: `One SGD Step`,
-          description:
-            `Use \`w = torch.tensor([1.0], requires_grad=True)\`, \`opt = torch.optim.SGD([w], lr=0.1)\`, target 3.0, pred = w*2, MSE loss, zero_grad, backward, step, print w.`,
-          starterCode: `import torch
-import torch.nn as nn
-
-`,
-          solutionCode: `import torch
-import torch.nn as nn
-
-w = torch.tensor([1.0], requires_grad=True)
-opt = torch.optim.SGD([w], lr=0.1)
-target = torch.tensor([3.0])
-pred = w * 2
-loss = (pred - target) ** 2
-opt.zero_grad()
-loss.backward()
-opt.step()
-print(w)`,
-          tests: [
-            {
-              id: 1,
-              label: `Uses SGD optimizer`,
-              keywords: [{ pattern: `torch\\.optim\\.SGD` }],
-            },
-            {
-              id: 2,
-              label: `Calls zero_grad`,
-              keywords: [{ pattern: `zero_grad\\s*\\(` }],
-            },
-            {
-              id: 3,
-              label: `Calls step`,
-              keywords: [{ pattern: `opt\\.step\\s*\\(` }],
-            },
-          ],
-        },
-      },
-      {
-        id: "pytorch-18",
-        title: `Dataset & DataLoader`,
-        xp: 15,
-        theory: [
-          {
-            type: "text",
-            content:
-              `**Dataset** defines how to fetch one sample. **DataLoader** batches samples and shuffles for efficient training loops.`,
-          },
-          {
-            type: "code",
-            lang: "python",
-            label: `Tiny dataset`,
-            content: `import torch
-from torch.utils.data import Dataset, DataLoader
-
-class Numbers(Dataset):
->>>>>>> 9a107f8256304354b88bd363e57ceb677bde5b9a
     def __len__(self):
         # return number of items
 
-<<<<<<< HEAD
     def __getitem__(self, idx):
         # return item at idx
-=======
-loader = DataLoader(Numbers(), batch_size=2, shuffle=True)
-for xb, yb in loader:
-    print(xb.shape, yb.shape)
-    break`,
-          },
-          {
-            type: "callout",
-            variant: "tip",
-            content:
-              `PyTorch includes MNIST, CIFAR helpers in torchvision — but custom Dataset works for any data.`,
-          },
-          {
-            type: "quiz",
-            question: `DataLoader mainly helps you...`,
-            options: [
-              `Batch and shuffle samples`,
-              `Compile to C++`,
-              `Draw plots`,
-              `Send emails`,
-            ],
-            answer: 0,
-            explanation:
-              `Loaders iterate mini-batches for stochastic training.`,
-          },
-        ],
-        challenge: {
-          gradeMode: "keywords",
-          title: `Mini DataLoader`,
-          description:
-            `Define \`Numbers\` Dataset with 3 items returning \`(torch.tensor([float(i)]), torch.tensor([float(i)]))\`. Create \`DataLoader(Numbers(), batch_size=2)\`, loop once and print \`xb.shape\`.`,
-          starterCode: `import torch
-from torch.utils.data import Dataset, DataLoader
->>>>>>> 9a107f8256304354b88bd363e57ceb677bde5b9a
 
 dataset = SimpleDataset(data)
 print(f"Length: {len(dataset)}")
@@ -1947,7 +880,6 @@ model = nn.Sequential(nn.Linear(4, 16), nn.ReLU(), nn.Linear(16, 1))
 loss_fn = nn.MSELoss()
 optimiser = torch.optim.Adam(model.parameters(), lr=0.001)
 
-<<<<<<< HEAD
 for epoch in range(10):
     # ── Training ──
     model.train()
@@ -1959,43 +891,6 @@ for epoch in range(10):
         loss.backward()
         optimiser.step()
         train_loss += loss.item()
-=======
-for epoch in range(3):
-    pred = model(x)
-    loss = loss_fn(pred, y)
-    opt.zero_grad()
-    loss.backward()
-    opt.step()
-    print(epoch, loss.item())`,
-          },
-          {
-            type: "scenario",
-            title: `Learning y = 2x`,
-            content:
-              `Three points on a line — a tiny Linear model should drive loss down in a few epochs.`,
-          },
-          {
-            type: "quiz",
-            question: `An epoch usually means...`,
-            options: [
-              `One pass through the training data`,
-              `One GPU kernel`,
-              `One file save`,
-              `One import`,
-            ],
-            answer: 0,
-            explanation:
-              `Each epoch visits (or samples) the dataset for training.`,
-          },
-        ],
-        challenge: {
-          gradeMode: "keywords",
-          title: `Three Epochs`,
-          description:
-            `Train \`nn.Linear(1,1)\` on x=[[1],[2]] y=[[2],[4]] for 3 epochs with SGD lr=0.1 and MSELoss. Print \`loss.item()\` each epoch.`,
-          starterCode: `import torch
-import torch.nn as nn
->>>>>>> 9a107f8256304354b88bd363e57ceb677bde5b9a
 
     # ── Validation ──
     model.eval()
@@ -2005,138 +900,7 @@ import torch.nn as nn
             pred = model(X_batch)
             val_loss += loss_fn(pred, y_batch).item()
 
-<<<<<<< HEAD
     print(f"Epoch {epoch+1:2d} | train={train_loss/len(train_loader):.4f} | val={val_loss/len(val_loader):.4f}")`,
-=======
-x = torch.tensor([[1.0], [2.0]])
-y = torch.tensor([[2.0], [4.0]])
-model = nn.Linear(1, 1)
-opt = torch.optim.SGD(model.parameters(), lr=0.1)
-loss_fn = nn.MSELoss()
-
-for epoch in range(3):
-    pred = model(x)
-    loss = loss_fn(pred, y)
-    opt.zero_grad()
-    loss.backward()
-    opt.step()
-    print(loss.item())`,
-          tests: [
-            {
-              id: 1,
-              label: `Uses epoch loop`,
-              keywords: [{ pattern: `for\\s+epoch\\s+in\\s+range\\s*\\(\\s*3\\s*\\)` }],
-            },
-            {
-              id: 2,
-              label: `Prints loss.item`,
-              keywords: [{ pattern: `print\\s*\\(\\s*loss\\.item\\s*\\(\\s*\\)\\s*\\)` }],
-            },
-          ],
-        },
-      },
-    ],
-  },
-  {
-    id: "further",
-    title: `Going Further`,
-    icon: "🚀",
-    color: "#EE4C2C",
-    lessons: [
-      {
-        id: "pytorch-20",
-        title: `CNN intro`,
-        xp: 15,
-        theory: [
-          {
-            type: "text",
-            content:
-              `**Convolutional layers** (\`nn.Conv2d\`) scan small filters across images to detect edges, shapes, and textures. Input shape: \`(batch, channels, height, width)\`.`,
-          },
-          {
-            type: "scenario",
-            title: `Photo thumbnail`,
-            content:
-              `A 28×28 grayscale digit — Conv2d slides 3×3 filters to build feature maps before classification.`,
-          },
-          {
-            type: "code",
-            lang: "python",
-            label: `Minimal Conv2d`,
-            content: `import torch
-import torch.nn as nn
-
-x = torch.randn(1, 1, 8, 8)
-conv = nn.Conv2d(1, 4, kernel_size=3)
-out = conv(x)
-print(out.shape)`,
-          },
-          {
-            type: "quiz",
-            question: `Conv2d is mainly used for...`,
-            options: [
-              `Image-like grid data`,
-              `CSV row sorting`,
-              `Email headers`,
-              `JSON parsing`,
-            ],
-            answer: 0,
-            explanation:
-              `CNNs exploit spatial structure in pixels or grids.`,
-          },
-        ],
-        challenge: {
-          gradeMode: "keywords",
-          title: `Conv2d Forward`,
-          description:
-            `Create \`x = torch.randn(1, 1, 8, 8)\` and \`conv = nn.Conv2d(1, 2, kernel_size=3)\`. Print \`conv(x).shape\`.`,
-          starterCode: `import torch
-import torch.nn as nn
-
-`,
-          solutionCode: `import torch
-import torch.nn as nn
-
-x = torch.randn(1, 1, 8, 8)
-conv = nn.Conv2d(1, 2, kernel_size=3)
-print(conv(x).shape)`,
-          tests: [
-            {
-              id: 1,
-              label: `Uses Conv2d`,
-              keywords: [{ pattern: `nn\\.Conv2d\\s*\\(` }],
-            },
-            {
-              id: 2,
-              label: `Prints output shape`,
-              keywords: [{ pattern: `print\\s*\\(\\s*conv\\s*\\(\\s*x\\s*\\)\\.shape\\s*\\)` }],
-            },
-          ],
-        },
-      },
-      {
-        id: "pytorch-21",
-        title: `Save & load models`,
-        xp: 14,
-        theory: [
-          {
-            type: "text",
-            content:
-              `Save learned weights with **\`torch.save(model.state_dict(), path)\`**. Load into the **same architecture** with **\`load_state_dict\`**.`,
-          },
-          {
-            type: "code",
-            lang: "python",
-            label: `state_dict roundtrip`,
-            content: `import torch
-import torch.nn as nn
-
-model = nn.Linear(2, 1)
-torch.save(model.state_dict(), 'model.pt')
-model2 = nn.Linear(2, 1)
-model2.load_state_dict(torch.load('model.pt'))
-print('loaded')`,
->>>>>>> 9a107f8256304354b88bd363e57ceb677bde5b9a
           },
           {
             type: "callout",
@@ -2159,12 +923,7 @@ print('loaded')`,
           },
         ],
         challenge: {
-<<<<<<< HEAD
           title: "Mini Training Loop",
-=======
-          gradeMode: "keywords",
-          title: `Save state_dict`,
->>>>>>> 9a107f8256304354b88bd363e57ceb677bde5b9a
           description:
             "Simulate 5 epochs of training. Each epoch, compute a 'loss' = 1/epoch and print it. Simulate loss decreasing each epoch.",
           starterCode: `# Simulate 5 training epochs
@@ -2246,12 +1005,7 @@ epoch = checkpoint["epoch"]`,
           },
         ],
         challenge: {
-<<<<<<< HEAD
           title: "Checkpoint Dict",
-=======
-          gradeMode: "keywords",
-          title: `Pick Device`,
->>>>>>> 9a107f8256304354b88bd363e57ceb677bde5b9a
           description:
             "Create a checkpoint dictionary with keys: 'epoch' (value: 5), 'loss' (value: 0.1234), 'model_name' (value: 'LinearModel'). Print each key and value.",
           starterCode: `checkpoint = {
@@ -2344,12 +1098,7 @@ print(out.shape)`,
           },
         ],
         challenge: {
-<<<<<<< HEAD
           title: "Convolution Output Size",
-=======
-          gradeMode: "keywords",
-          title: `Train Mini Clf`,
->>>>>>> 9a107f8256304354b88bd363e57ceb677bde5b9a
           description:
             "Given input size 32×32, kernel size 3×3, padding=1, stride=1. Compute and print the output spatial size using the formula: out = (in + 2*pad - kernel) // stride + 1.",
           starterCode: `# Formula: out = (in + 2*padding - kernel_size) // stride + 1
@@ -2443,12 +1192,7 @@ print(model(x).shape)  # [8, 10]`,
           },
         ],
         challenge: {
-<<<<<<< HEAD
           title: "Flatten Size Calculator",
-=======
-          gradeMode: "keywords",
-          title: `Cheat Sheet Print`,
->>>>>>> 9a107f8256304354b88bd363e57ceb677bde5b9a
           description:
             "After 3 MaxPool2d(2) layers on a 32×32 input, what is the spatial size? Compute and print the total flatten size for 128 channels.",
           starterCode: `spatial = 32
