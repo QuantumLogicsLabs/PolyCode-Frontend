@@ -5,7 +5,8 @@
 import { applyLessonVideoLinks } from "../../shared/applyLessonVideoLinks";
 import { SCIPY_VIDEO_LINKS } from "./scipyVideoLinks";
 import { SCIPY_LESSON_OUTCOMES } from "./scipyLessonOutcomes";
-import { applySecondQuizzes } from "./scipySecondQuizzes";
+import { applySecondQuizzes } from "../../shared/applySecondQuizzes";
+import { SCIPY_SECOND_QUIZZES } from "./scipySecondQuizzes";
 
 function quiz(question, options, answer, explanation) {
   return { type: "quiz", question, options, answer, explanation };
@@ -2222,6 +2223,7 @@ export const SCIPY_LESSONS = applySecondQuizzes(
     ),
     SCIPY_VIDEO_LINKS,
   ),
+  SCIPY_SECOND_QUIZZES,
 );
 
 export const SCIPY_TOTAL_XP = SCIPY_LESSONS.reduce((s, l) => s + l.xp, 0);

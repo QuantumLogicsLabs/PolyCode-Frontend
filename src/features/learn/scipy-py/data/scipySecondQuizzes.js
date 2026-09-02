@@ -285,19 +285,3 @@ export const SCIPY_SECOND_QUIZZES = {
     "Strong SciPy work: NumPy arrays in, the right module for each job, readable printed checks.",
   ),
 };
-
-export function applySecondQuizzes(lessons, quizMap = SCIPY_SECOND_QUIZZES) {
-  return lessons.map((lesson) => {
-    const extra = quizMap[lesson.id];
-    if (!extra) return lesson;
-
-    const theory = lesson.theory || [];
-    const quizCount = theory.filter((block) => block.type === "quiz").length;
-    if (quizCount >= 2) return lesson;
-
-    return {
-      ...lesson,
-      theory: [...theory, extra],
-    };
-  });
-}

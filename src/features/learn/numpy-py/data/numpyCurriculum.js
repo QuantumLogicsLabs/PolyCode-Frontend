@@ -3,8 +3,10 @@
 // YouTube links: edit numpyVideoLinks.js (not this file).
 
 import { applyLessonVideoLinks } from "../../shared/applyLessonVideoLinks";
+import { applySecondQuizzes } from "../../shared/applySecondQuizzes";
 import { NUMPY_VIDEO_LINKS } from "./numpyVideoLinks";
 import { NUMPY_LESSON_OUTCOMES } from "./numpyLessonOutcomes";
+import { NUMPY_SECOND_QUIZZES } from "./numpySecondQuizzes";
 
 export const NUMPY_CHAPTERS = [
   {
@@ -6298,20 +6300,23 @@ print(np.argsort(scores))`,
   },
 ];
 
-export const NUMPY_LESSONS = applyLessonVideoLinks(
-  NUMPY_CHAPTERS.flatMap((ch) =>
-    ch.lessons.map((l) => ({
-      ...l,
-      challenge: l.challenge
-        ? { ...l.challenge, id: l.challenge.id || l.id }
-        : l.challenge,
-      outcomes: l.outcomes ?? NUMPY_LESSON_OUTCOMES[l.id] ?? [],
-      chapterId: ch.id,
-      chapterTitle: ch.title,
-      chapterColor: ch.color,
-    })),
+export const NUMPY_LESSONS = applySecondQuizzes(
+  applyLessonVideoLinks(
+    NUMPY_CHAPTERS.flatMap((ch) =>
+      ch.lessons.map((l) => ({
+        ...l,
+        challenge: l.challenge
+          ? { ...l.challenge, id: l.challenge.id || l.id }
+          : l.challenge,
+        outcomes: l.outcomes ?? NUMPY_LESSON_OUTCOMES[l.id] ?? [],
+        chapterId: ch.id,
+        chapterTitle: ch.title,
+        chapterColor: ch.color,
+      })),
+    ),
+    NUMPY_VIDEO_LINKS,
   ),
-  NUMPY_VIDEO_LINKS,
+  NUMPY_SECOND_QUIZZES,
 );
 
 export const NUMPY_TOTAL_XP = NUMPY_LESSONS.reduce((s, l) => s + l.xp, 0);
