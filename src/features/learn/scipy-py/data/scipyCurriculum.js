@@ -5,6 +5,7 @@
 import { applyLessonVideoLinks } from "../../shared/applyLessonVideoLinks";
 import { SCIPY_VIDEO_LINKS } from "./scipyVideoLinks";
 import { SCIPY_LESSON_OUTCOMES } from "./scipyLessonOutcomes";
+import { applySecondQuizzes } from "./scipySecondQuizzes";
 
 function quiz(question, options, answer, explanation) {
   return { type: "quiz", question, options, answer, explanation };
@@ -2205,20 +2206,22 @@ print(optimize.minimize(lambda x: (x - 2) ** 2, x0=0.0).x[0])`,
   },
 ];
 
-export const SCIPY_LESSONS = applyLessonVideoLinks(
-  SCIPY_CHAPTERS.flatMap((ch) =>
-    ch.lessons.map((l) => ({
-      ...l,
-      challenge: l.challenge
-        ? { ...l.challenge, id: l.challenge.id || l.id }
-        : l.challenge,
-      outcomes: l.outcomes ?? SCIPY_LESSON_OUTCOMES[l.id] ?? [],
-      chapterId: ch.id,
-      chapterTitle: ch.title,
-      chapterColor: ch.color,
-    })),
+export const SCIPY_LESSONS = applySecondQuizzes(
+  applyLessonVideoLinks(
+    SCIPY_CHAPTERS.flatMap((ch) =>
+      ch.lessons.map((l) => ({
+        ...l,
+        challenge: l.challenge
+          ? { ...l.challenge, id: l.challenge.id || l.id }
+          : l.challenge,
+        outcomes: l.outcomes ?? SCIPY_LESSON_OUTCOMES[l.id] ?? [],
+        chapterId: ch.id,
+        chapterTitle: ch.title,
+        chapterColor: ch.color,
+      })),
+    ),
+    SCIPY_VIDEO_LINKS,
   ),
-  SCIPY_VIDEO_LINKS,
 );
 
 export const SCIPY_TOTAL_XP = SCIPY_LESSONS.reduce((s, l) => s + l.xp, 0);
