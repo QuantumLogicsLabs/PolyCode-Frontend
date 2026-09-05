@@ -30,10 +30,12 @@ function QuizSlide({
   variant = "numpy",
 }) {
   const [localSelection, setLocalSelection] = useState(null);
-  const selected =
+  const [retrying, setRetrying] = useState(false);
+  const storedSelection =
     quizSelection !== null && quizSelection !== undefined
       ? quizSelection
       : localSelection;
+  const selected = retrying ? null : storedSelection;
   const answered = selected !== null;
   const correct = selected === block.answer;
   const isNumpy = variant === "numpy";
@@ -44,6 +46,7 @@ function QuizSlide({
 
   function handleSelect(index) {
     const isCorrect = index === block.answer;
+    setRetrying(false);
     if (typeof onQuizAnswer === "function" && quizIndex !== null) {
       onQuizAnswer(quizIndex, index, isCorrect);
     } else {
@@ -97,12 +100,28 @@ function QuizSlide({
         })}
       </div>
       {answered ? (
-        <p className={feedbackClass}>
-          <strong>{correct ? "Nice!" : "Not quite — that's okay."}</strong>{" "}
-          <InlineText
-            text={block.explanation}
-            codeClassName={isNumpy ? "numpy-inline-code" : "oops-inline-code"}
-          />
+        <>
+          <p className={feedbackClass}>
+            <strong>{correct ? "Nice!" : "Not quite — that's okay."}</strong>{" "}
+            <InlineText
+              text={block.explanation}
+              codeClassName={isNumpy ? "numpy-inline-code" : "oops-inline-code"}
+            />
+          </p>
+          <div className="lesson-quiz-retry-row">
+            <button
+              type="button"
+              className="lesson-quiz-retry"
+              onClick={() => setRetrying(true)}
+            >
+              ↻ Solve again
+            </button>
+          </div>
+        </>
+      ) : null}
+      {!answered && retrying ? (
+        <p className="lesson-quiz-retry-hint">
+          Give it another go — pick an answer.
         </p>
       ) : null}
     </article>

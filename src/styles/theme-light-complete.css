@@ -537,6 +537,23 @@ html[data-theme="light"] .lesson-annotator-fab-close,
   color: #1d4ed8 !important;
 }
 
+.app.theme-light .main-content.learn-content .lesson-quiz-retry {
+  background: #eff6ff !important;
+  border-color: rgba(37, 99, 235, 0.28) !important;
+  color: #1d4ed8 !important;
+}
+
+.app.theme-light .main-content.learn-content .lesson-quiz-retry:hover {
+  background: #dbeafe !important;
+  border-color: rgba(37, 99, 235, 0.5) !important;
+  color: #1e40af !important;
+}
+
+.app.theme-light .main-content.learn-content .lesson-quiz-retry-hint {
+  border-top-color: rgba(37, 99, 235, 0.15) !important;
+  color: #64748b !important;
+}
+
 .app.theme-light .main-content.learn-content .lesson-quiz-slider-dot {
   background: #cbd5e1 !important;
 }
