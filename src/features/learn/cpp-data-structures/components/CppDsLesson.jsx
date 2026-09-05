@@ -93,7 +93,11 @@ function Block({ block, step }) {
         <Step n={step}>
           <Prose text={block.content} />
           {block.code ? (
-            <CppDsCodeBlock code={block.code.content} label={block.code.label} />
+            <CppDsCodeBlock
+              code={block.code.content}
+              label={block.code.label}
+              output={block.code.output}
+            />
           ) : null}
         </Step>
       );
@@ -101,7 +105,11 @@ function Block({ block, step }) {
     case "code":
       return (
         <Step n={step}>
-          <CppDsCodeBlock code={block.content} label={block.label} />
+          <CppDsCodeBlock
+            code={block.content}
+            label={block.label}
+            output={block.output}
+          />
         </Step>
       );
 

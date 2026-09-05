@@ -55,10 +55,18 @@ function renderCode(src) {
  * A calm, read-only code panel with Copy and Run. No editor, no grid
  * background, no "no print statement" noise - just the code and, once you
  * press Run, its output.
+ *
+ * Three kinds of snippet, three behaviours:
+ * - `output` given  -> Run reveals that text as-is, no compiler, no sign-in.
+ * - a full program  -> Run compiles and runs it (sign-in required).
+ * - a fragment      -> no Run button at all; there is nothing to run.
  */
-export default function CppDsCodeBlock({ code = "", label }) {
+export default function CppDsCodeBlock({ code = "", label, output: staticOutput }) {
   const { isAuthenticated, loading } = useAuth();
-  const canRun = isAuthenticated && !loading;
+  const hasStaticOutput = Boolean(staticOutput);
+  const isProgram = /\bint\s+main\s*\(/.test(code);
+  const showRun = hasStaticOutput || isProgram;
+  const canRun = hasStaticOutput || (isAuthenticated && !loading);
 
   const [copied, setCopied] = useState(false);
   const [running, setRunning] = useState(false);
@@ -68,6 +76,10 @@ export default function CppDsCodeBlock({ code = "", label }) {
 
   async function handleRun() {
     if (!canRun || running) return;
+    if (hasStaticOutput) {
+      setOutput({ text: staticOutput, error: false });
+      return;
+    }
     setRunning(true);
     setOutput({ text: "Running…", error: false });
     try {
@@ -112,22 +124,24 @@ export default function CppDsCodeBlock({ code = "", label }) {
         <button type="button" className="cppds-code-btn" onClick={handleCopy}>
           {copied ? "Copied ✓" : "Copy"}
         </button>
-        <button
-          type="button"
-          className="cppds-code-btn cppds-code-btn--run"
-          onClick={handleRun}
-          disabled={!canRun || running}
-          title={canRun ? undefined : "Sign in to run the examples"}
-        >
-          {running ? "Running…" : canRun ? "▶ Run it" : "Sign in to run"}
-        </button>
+        {showRun ? (
+          <button
+            type="button"
+            className="cppds-code-btn cppds-code-btn--run"
+            onClick={handleRun}
+            disabled={!canRun || running}
+            title={canRun ? undefined : "Sign in to run the examples"}
+          >
+            {running ? "Running…" : canRun ? "▶ Run it" : "Sign in to run"}
+          </button>
+        ) : null}
       </div>
 
       <pre className="cppds-code-pre">
         <code>{rendered}</code>
       </pre>
 
-      {!canRun && !loading ? (
+      {showRun && !canRun && !loading ? (
         <div className="cppds-code-gate">
           <Link to="/login">Sign in</Link> or{" "}
           <Link to="/signup">create a free account</Link> to run the examples and

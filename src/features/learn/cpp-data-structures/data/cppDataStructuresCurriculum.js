@@ -318,6 +318,13 @@ for (int i = 0; i < n; i++)  // the body below runs n times
 cout << sum;                 // 1 step, once
 
 // f(n) = 1 + n + 1 = n + 2   ->   O(n)`,
+              output: `66
+
+With a[] = {4, 8, 15, 16, 23}, so n = 5:
+  1 step    int sum = 0;
+  5 steps   sum += a[i];   (once per element)
+  1 step    cout << sum;
+  f(5) = 7 = n + 2`,
             },
           ),
           text(
@@ -344,6 +351,10 @@ cout << sum;                 // 1 step, once
         cout << i << j;      // runs 0 + 1 + 2 + ... + (n-1) times
 
 // f(n) = 0 + 1 + ... + (n-1) = n(n-1)/2 = n^2/2 - n/2   ->   O(n^2)`,
+              output: `102021303132
+
+With n = 4 the body ran 6 times, printing one i-j pair each time:
+0 + 1 + 2 + 3 = 4 x 3 / 2 = 6`,
             },
           ),
           table(
@@ -1253,6 +1264,10 @@ int main() {
 int* p = &x;       // p holds the address of x
 cout << *p;        // dereference -> prints 10
 *p = 42;           // writes through the pointer; x is now 42`,
+              output: `10
+
+Only cout << *p prints. The last line writes through the pointer,
+so x itself is 42 afterwards.`,
             },
           ),
           diagram("Four pointers, four situations", [
@@ -1830,6 +1845,10 @@ T getMax(T a, T b) {
 
 cout << getMax(10, 20);      // T becomes int
 cout << getMax(3.5, 2.1);    // T becomes double`,
+              output: `203.5
+
+That is 20 and 3.5 printed back to back - two separate functions
+generated from one template: getMax<int> and getMax<double>.`,
             },
           ),
           text(
