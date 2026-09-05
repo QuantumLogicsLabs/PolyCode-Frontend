@@ -1,5 +1,5 @@
 // PolyCode - C++ Data Structures full curriculum
-// 9 chapters - 39 lessons - every lesson has theory + quizzes + an in-browser
+// 9 chapters - 43 lessons - every lesson has theory + quizzes + an in-browser
 // C++ challenge (a few concept lessons use compileOptional keyword checks).
 // YouTube links: edit cppDataStructuresVideoLinks.js (not this file).
 
@@ -290,6 +290,173 @@ int main() {
             { id: 1, label: "Single loop labelled O(n)", keywords: [{ pattern: "Snippet 1 is O\\(n\\)" }], hint: "One pass to n." },
             { id: 2, label: "Nested loop labelled O(n^2)", keywords: [{ pattern: "Snippet 2 is O\\(n\\^2\\)" }], hint: "Loop inside a loop." },
             { id: 3, label: "Halving loop labelled O(log n)", keywords: [{ pattern: "Snippet 3 is O\\(log n\\)" }], hint: "k /= 2 each step." },
+          ],
+        },
+      },
+      {
+        id: "cpp-ds-0-1a",
+        title: "Counting the exact steps: f(n) before Big-O",
+        xp: 14,
+        chapterTitle: "Complexity & the Machine Model",
+        theory: [
+          objectives([
+            "Derive the exact operation count f(n) for a piece of code, line by line",
+            "Reduce f(n) to Big-O with the standard rules",
+            "Handle a triangular nested loop with a summation instead of a guess",
+            "Check a derivation by counting operations at run time",
+          ]),
+          text(
+            "Big-O is the headline. **f(n)** is the receipt behind it: the exact number of basic steps a piece of code performs for an input of size n. Reading the shape straight off a loop works most of the time - but when the loops are irregular, when you have to *justify* the answer, or when two versions look equally fast, you derive f(n) first and reduce it afterwards.",
+          ),
+          text(
+            "Count one step per assignment, comparison, or arithmetic statement. Then ask of every line: **how many times does this line actually run?**",
+            {
+              label: "Deriving f(n) line by line",
+              content: `int sum = 0;                 // 1 step, once
+for (int i = 0; i < n; i++)  // the body below runs n times
+    sum += a[i];             // 1 step per iteration -> n
+cout << sum;                 // 1 step, once
+
+// f(n) = 1 + n + 1 = n + 2   ->   O(n)`,
+            },
+          ),
+          text(
+            "Then reduce, with these five rules:\n\n- Constant factors are dropped: `5n` becomes `O(n)`.\n- Lower-order terms are dropped: `n^2 + 3n + 7` becomes `O(n^2)`.\n- Blocks that run one after another **add**: `O(n)` then `O(m)` is `O(n + m)`.\n- Loops nested inside each other **multiply**: an `O(n)` loop inside an `O(m)` loop is `O(n x m)`.\n- A loop variable that doubles or halves contributes a `log n` factor.",
+          ),
+          table(
+            "The growth rates worth recognising on sight",
+            ["Name", "Where it comes from"],
+            [
+              ["O(1)", "Constant", "Swapping two pointers; indexing an array"],
+              ["O(log n)", "Logarithmic", "The loop variable doubles or halves"],
+              ["O(n)", "Linear", "A single pass over n elements"],
+              ["O(n log n)", "Linearithmic", "Efficient sorting"],
+              ["O(n^2)", "Quadratic", "A nested pass over the same n elements"],
+            ],
+            { rowLabelHeader: "Big-O", highlightRows: [4] },
+          ),
+          text(
+            "**Not every nested loop is n x n.** When the inner loop stops at `i` rather than `n`, the body runs 0 times, then 1, then 2, and so on. That is not something to eyeball - you add it up:",
+            {
+              label: "The triangular loop",
+              content: `for (int i = 0; i < n; i++)
+    for (int j = 0; j < i; j++)
+        cout << i << j;      // runs 0 + 1 + 2 + ... + (n-1) times
+
+// f(n) = 0 + 1 + ... + (n-1) = n(n-1)/2 = n^2/2 - n/2   ->   O(n^2)`,
+            },
+          ),
+          table(
+            "Half the work, same Big-O",
+            ["Full nested loop: n^2", "Triangular loop: n(n-1)/2"],
+            [
+              ["n = 10", "100", "45"],
+              ["n = 100", "10,000", "4,950"],
+              ["n = 1,000", "1,000,000", "499,500"],
+              ["n = 1,000,000", "a trillion", "about half a trillion"],
+            ],
+            {
+              rowLabelHeader: "Data size",
+              highlightRows: [3],
+              footnote: "The 1/2 is a constant factor, so both columns are O(n^2) - but it is a real halving on the clock. Big-O gives you the shape; f(n) gives you the size.",
+            },
+          ),
+          text(
+            "The cheapest way to check a derivation is to make the program count for you: add a counter, increment it wherever you claimed a step happens, and compare the measurement against your formula. Press **Run**:",
+            {
+              label: "Verify f(n) at run time",
+              content: `#include <iostream>
+using namespace std;
+
+int main() {
+    for (int n : {4, 10, 100}) {
+        long long ops = 0;
+
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < i; j++)
+                ops++;                     // count every visit
+
+        cout << "n = " << n << "  measured " << ops
+             << "  predicted " << (long long)n * (n - 1) / 2 << "\\n";
+    }
+    return 0;
+}`,
+            },
+          ),
+          callout(
+            "tip",
+            "If the measured count and your f(n) disagree, one of them is wrong - and it is almost always the derivation. A counter costs two lines and settles the argument.",
+          ),
+          callout(
+            "info",
+            "Two functions can share a Big-O and still differ by a constant factor you can feel: `n^2/2` against `n^2`, or one cache-friendly pass against one that jumps around memory. Big-O is the first question, not the last one.",
+          ),
+          quiz(
+            "`int sum = 0;` then a loop that runs n times doing one addition, then one `cout`. What is f(n)?",
+            ["n", "n + 2", "2n", "n^2"],
+            1,
+            "1 for the initialisation, n for the additions, 1 for the print: f(n) = n + 2, which reduces to O(n).",
+          ),
+          quiz(
+            "The triangular loop (inner condition `j < i`) with n = 1,000. Exactly how many times does the body run?",
+            ["1,000,000", "499,500", "500,000", "1,000"],
+            1,
+            "n(n-1)/2 = 1000 x 999 / 2 = 499,500 - just under half of the full 1,000,000.",
+          ),
+          quiz(
+            "One loop over n items, then a completely separate loop over m items. Complexity?",
+            ["O(n x m)", "O(n + m)", "O(n^2)", "O(n log m)"],
+            1,
+            "Blocks that run one after another add. Only loops nested inside each other multiply.",
+          ),
+        ],
+        challenge: {
+          title: "Count the operations yourself",
+          description:
+            "Fill in `countOps` so it returns the exact number of times the inner body runs, and `predicted` so it returns the closed form n(n-1)/2. The two must agree for every n.",
+          starterCode: `#include <iostream>
+using namespace std;
+
+long long countOps(int n) {
+    long long ops = 0;
+    // TODO: nested loop - the inner one stops at the outer index; count every visit
+    return ops;
+}
+
+long long predicted(int n) {
+    // TODO: closed form for 0 + 1 + 2 + ... + (n - 1)
+    return 0;
+}
+
+int main() {
+    cout << countOps(5) << " " << predicted(5) << endl;     // 10 10
+    cout << countOps(100) << " " << predicted(100) << endl; // 4950 4950
+    return 0;
+}`,
+          solutionCode: `#include <iostream>
+using namespace std;
+
+long long countOps(int n) {
+    long long ops = 0;
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < i; j++)
+            ops++;
+    return ops;
+}
+
+long long predicted(int n) {
+    return (long long)n * (n - 1) / 2;
+}
+
+int main() {
+    cout << countOps(5) << " " << predicted(5) << endl;     // 10 10
+    cout << countOps(100) << " " << predicted(100) << endl; // 4950 4950
+    return 0;
+}`,
+          tests: [
+            { id: 1, label: "Inner loop stops at i", keywords: [{ pattern: "j\\s*<\\s*i" }], hint: "for (int j = 0; j < i; j++) - not j < n." },
+            { id: 2, label: "Counts every visit", keywords: [{ pattern: "ops\\s*\\+\\+|ops\\s*\\+=\\s*1" }], hint: "ops++ inside the inner loop body." },
+            { id: 3, label: "Uses the closed form n(n-1)/2", keywords: [{ pattern: "n\\s*-\\s*1\\s*\\)\\s*/\\s*2" }], hint: "return (long long)n * (n - 1) / 2;" },
           ],
         },
       },
@@ -1065,6 +1232,378 @@ int main() {
         },
       },
       {
+        id: "cpp-ds-1-1a",
+        title: "Pointers on the heap: null, dangling, wild",
+        xp: 14,
+        chapterTitle: "Linear vs Non-Linear · Arrays & Lists",
+        theory: [
+          objectives([
+            "Tell null, void, dangling and wild pointers apart",
+            "Step through a block with pointer arithmetic and know what one step means",
+            "Match every new[] with exactly one delete[], then null the pointer",
+          ]),
+          text(
+            "Every structure from here on - dynamic arrays, linked lists, trees, graphs - is held together by pointers into the heap. The structure is only ever as safe as the pointer discipline around it, so this lesson is the discipline, in one place, before we start allocating in earnest.",
+          ),
+          text(
+            "A pointer is a variable holding an **address**. `&` takes the address of something; `*` reads the value at that address.",
+            {
+              label: "The two operators",
+              content: `int x = 10;        // a normal variable
+int* p = &x;       // p holds the address of x
+cout << *p;        // dereference -> prints 10
+*p = 42;           // writes through the pointer; x is now 42`,
+            },
+          ),
+          diagram("Four pointers, four situations", [
+            { id: "null", label: "Null pointer", color: C_GREEN, items: ["`int* p = nullptr;`", "Deliberately points at nothing", "Dereferencing it crashes immediately - loudly, which is what you want"] },
+            { id: "void", label: "Void pointer", color: C_SKY, items: ["`void* p = &x;`", "Holds any address, knows no type", "Must be cast before it can be dereferenced"] },
+            { id: "dangling", label: "Dangling pointer", color: C_RED, items: ["Points at memory already freed", "The address is still there, the ownership is gone", "Undefined behaviour - and it usually *looks* fine at first"] },
+            { id: "wild", label: "Wild pointer", color: C_AMBER, items: ["`int* p;` and never assigned", "Holds whatever was on the stack", "Undefined behaviour on the first read"] },
+          ]),
+          callout(
+            "warning",
+            "After every `delete`, assign `nullptr`. That single line turns a dangling pointer into a null pointer: instead of quietly reading whatever moved into that memory, the program fails at the exact line that is wrong.",
+          ),
+          text(
+            "**Pointer arithmetic moves in elements, not bytes.** Adding 1 to an `int*` moves 4 bytes on a typical machine, adding 1 to a `char*` moves 1 - the compiler scales by `sizeof(T)` for you.",
+          ),
+          table(
+            "What each expression means",
+            ["Meaning"],
+            [
+              ["p++ / p--", "Move to the next / previous element"],
+              ["p + n / p - n", "Move n elements forward / backward"],
+              ["*(p + n)", "The value n elements along - exactly what `p[n]` means"],
+              ["p2 - p1", "How many elements apart two pointers are"],
+            ],
+            { rowLabelHeader: "Expression", footnote: "`p2 - p1` is only meaningful when both pointers point into the same allocated block. Comparing or subtracting pointers from different blocks is undefined." },
+          ),
+          arrayViz(
+            "Indexing is pointer arithmetic wearing a different hat",
+            [
+              {
+                label: "value",
+                values: ["0", "1", "4", "9", "16", "25"],
+                colLabels: ["p+0", "p+1", "p+2", "p+3", "p+4", "p+5"],
+                okIndexes: [3],
+              },
+            ],
+            "`*(p + 3)` and `p[3]` compile to the same thing: base address + 3 x sizeof(int). That is why array indexing is O(1) - one multiply-add, no searching.",
+          ),
+          text(
+            "Heap blocks come from `new[]` and must go back with exactly one `delete[]`. Not `delete`, not twice, not never.",
+            {
+              label: "Allocate, use, release, null",
+              content: `int n = 5;
+int* block = new int[n];              // one allocation
+
+for (int i = 0; i < n; i++)
+    *(block + i) = i * i;             // same as block[i] = i * i
+
+delete[] block;                       // exactly one release
+block = nullptr;                      // no dangling handle left behind`,
+            },
+          ),
+          callout(
+            "info",
+            "`new` pairs with `delete`; `new[]` pairs with `delete[]`. Mixing them is undefined behaviour even when it appears to work. In production C++ you would reach for `std::vector` or `std::unique_ptr` - but you cannot reason about those until you have done it by hand once.",
+          ),
+          quiz(
+            "You call `delete[] data;` and then read `data[0]`. What is `data` at that moment?",
+            ["A null pointer", "A dangling pointer", "A void pointer", "A wild pointer"],
+            1,
+            "The address is still stored, but the memory is no longer yours - that is a dangling pointer, and reading through it is undefined behaviour. Assigning nullptr right after the delete prevents it.",
+          ),
+          quiz(
+            "`int* p` points at the first of six ints. What does `*(p + 4)` read?",
+            [
+              "The byte 4 positions after p",
+              "The fifth element, p[4]",
+              "The address of the fifth element",
+              "Nothing - you cannot add to a pointer",
+            ],
+            1,
+            "Pointer arithmetic steps in elements. p + 4 is 4 x sizeof(int) bytes along, and *(p + 4) is exactly p[4].",
+          ),
+          quiz(
+            "Which pointer has never been given a value at all?",
+            ["A null pointer", "A dangling pointer", "A wild pointer", "A void pointer"],
+            2,
+            "A wild pointer is simply uninitialised - it holds whatever bits were already in that stack slot. Initialise every pointer, even if only to nullptr.",
+          ),
+        ],
+        challenge: {
+          title: "Walk a heap block with pointers",
+          description:
+            "Allocate the block in `buildSquares` and fill it through the pointer with `*(p + i)`. Then add up a range in `sumBlock` by walking a pointer from `first` up to (but not including) `last`.",
+          starterCode: `#include <iostream>
+using namespace std;
+
+int* buildSquares(int n) {
+    // TODO: allocate n ints on the heap, then write i * i through the pointer
+    return nullptr;
+}
+
+int sumBlock(int* first, int* last) {   // last points one past the end
+    // TODO: walk a pointer from first to last, adding *p
+    return 0;
+}
+
+int main() {
+    int n = 5;
+    int* p = buildSquares(n);
+
+    cout << *(p + 3) << endl;           // 9
+    cout << sumBlock(p, p + n) << endl; // 30
+
+    delete[] p;
+    p = nullptr;
+    return 0;
+}`,
+          solutionCode: `#include <iostream>
+using namespace std;
+
+int* buildSquares(int n) {
+    int* p = new int[n];
+    for (int i = 0; i < n; i++) *(p + i) = i * i;
+    return p;
+}
+
+int sumBlock(int* first, int* last) {
+    int total = 0;
+    for (int* p = first; p != last; p++) total += *p;
+    return total;
+}
+
+int main() {
+    int n = 5;
+    int* p = buildSquares(n);
+
+    cout << *(p + 3) << endl;           // 9
+    cout << sumBlock(p, p + n) << endl; // 30
+
+    delete[] p;
+    p = nullptr;
+    return 0;
+}`,
+          tests: [
+            { id: 1, label: "Allocates the block with new[]", keywords: [{ pattern: "new\\s+int\\s*\\[" }], hint: "int* p = new int[n];" },
+            { id: 2, label: "Writes through the pointer", keywords: [{ pattern: "\\*\\s*\\(\\s*p\\s*\\+\\s*i\\s*\\)" }], hint: "*(p + i) = i * i;" },
+            { id: 3, label: "Walks first..last with a pointer", keywords: [{ pattern: "p\\s*(!=|<)\\s*last" }], hint: "for (int* p = first; p != last; p++)." },
+          ],
+        },
+      },
+      {
+        id: "cpp-ds-1-1b",
+        title: "Jagged arrays: rows that are not all the same length",
+        xp: 16,
+        chapterTitle: "Linear vs Non-Linear · Arrays & Lists",
+        theory: [
+          objectives([
+            "Allocate a T** grid whose rows each have their own length",
+            "Free it in the right order, and say what leaks if you get the order wrong",
+            "Swap two rows in O(1) by moving pointers instead of elements",
+          ]),
+          text(
+            "A rectangle wastes space the moment the rows differ. Think of a car park with three levels of 4, 3 and 5 marked slots: a 3 x 5 rectangle allocates 15 slots and leaves 3 of them permanently empty. A **jagged** (or ragged) array fits the data instead - it is an array of row *pointers*, `T**`, where every row is its own heap block of its own length.",
+          ),
+          text(
+            "Allocation happens in two steps: the array of row pointers first, then each row. A parallel `slots` array remembers how long each row is, because a raw row cannot tell you its own length.",
+            {
+              label: "Allocating a jagged grid",
+              content: `int levels = 3;
+int slots[] = {4, 3, 5};              // a different length per level
+
+int** grid = new int*[levels];        // 1. the array of row pointers
+for (int i = 0; i < levels; i++)
+    grid[i] = new int[slots[i]];      // 2. each row, individually sized`,
+            },
+          ),
+          diagram("Three things you are juggling", [
+            { id: "outer", label: "grid (`int**`)", color: ACCENT, items: ["One block of `levels` pointers", "Knows where each row starts", "Knows nothing about row contents"] },
+            { id: "rows", label: "each row (`int*`)", color: C_GREEN, items: ["Its own heap allocation", "Contiguous inside itself", "Rows are *not* contiguous with each other"] },
+            { id: "sizes", label: "slots (`int*`)", color: C_SKY, items: ["Length of every row", "Not optional - a raw row has no size", "Must travel with the grid everywhere"] },
+          ]),
+          arrayViz(
+            "Jagged fits the data; a rectangle pads it",
+            [
+              { label: "Level 1", values: ["5", "3", "0", "8", "-", "-"], colLabels: ["0", "1", "2", "3", "4", "5"], okIndexes: [0, 1, 2, 3], missingIndexes: [4, 5] },
+              { label: "Level 2", values: ["2", "7", "4", "-", "-", "-"], colLabels: ["0", "1", "2", "3", "4", "5"], okIndexes: [0, 1, 2], missingIndexes: [3, 4, 5] },
+              { label: "Level 3", values: ["6", "6", "1", "0", "9", "-"], colLabels: ["0", "1", "2", "3", "4", "5"], okIndexes: [0, 1, 2, 3, 4], missingIndexes: [5] },
+            ],
+            "Green cells are allocated, grey ones are what a 3 x 6 rectangle would have wasted. The jagged version allocates exactly 12 ints; total slots n = 12, not levels x maxSlots.",
+          ),
+          text(
+            "**Release in the reverse order of allocation.** Rows first, then the array of pointers - and then null the handle.",
+            {
+              label: "Freeing a jagged grid",
+              content: `for (int i = 0; i < levels; i++)
+    delete[] grid[i];       // 1. every row first
+delete[] grid;              // 2. then the array of pointers
+grid = nullptr;             // 3. no dangling handle`,
+            },
+          ),
+          callout(
+            "warning",
+            "Delete the outer array first and the row pointers vanish with it - every row is then unreachable and leaked for the life of the process. There is no way back: the only record of those addresses was the block you just freed.",
+          ),
+          callout(
+            "warning",
+            "**Rule of Three.** A class holding a raw `T**` gets a compiler-generated copy constructor that copies the *pointer*, not the data. Two objects then own one block and both will delete it - a double free. Either write the copy constructor and `operator=` yourself, or disable them outright: `Grid(const Grid&) = delete;` and `Grid& operator=(const Grid&) = delete;`.",
+          ),
+          text(
+            "Now the payoff. To swap two rows, you do **not** move the elements - you move the two pointers, and the two sizes with them. The rows themselves never budge.",
+            {
+              label: "Swap by pointer, not by value",
+              content: `void swapRows(int** grid, int* slots, int r1, int r2) {
+    int* tmpRow = grid[r1];                 // 3 pointer assignments
+    grid[r1] = grid[r2];
+    grid[r2] = tmpRow;
+
+    int tmpSize = slots[r1];                // 3 more for the sizes
+    slots[r1] = slots[r2];
+    slots[r2] = tmpSize;
+}                                            // f(k) = 6, whatever k is`,
+            },
+          ),
+          table(
+            "Same visible result, very different bill",
+            ["f(k) for a row of k elements", "Big-O", "Work for a 1,000,000-element row"],
+            [
+              ["Swap the pointers", "6 assignments", "O(1)", "6"],
+              ["Copy element by element", "3k assignments", "O(k)", "3,000,000"],
+            ],
+            {
+              rowLabelHeader: "Approach",
+              highlightRows: [0],
+              footnote: "The pointer version never touches the elements, so row length simply does not appear in its count. Copying also only makes sense when both rows are the same length - otherwise you would run off the end of the shorter one.",
+            },
+          ),
+          callout(
+            "tip",
+            "Rearranging by moving pointers instead of elements is one of the load-bearing ideas of this whole course. It is why a linked list splices in O(1), why a heap stores pointers to big objects, and why sorting an array of pointers beats sorting an array of fat structs.",
+          ),
+          quiz(
+            "In which order must a jagged grid be freed?",
+            [
+              "`delete[] grid` first, then each row",
+              "Each row first, then `delete[] grid`",
+              "Order does not matter",
+              "Only `delete[] grid` is needed - it frees the rows too",
+            ],
+            1,
+            "Rows first. Free the outer array first and you have thrown away the only pointers to the rows, leaking every one of them.",
+          ),
+          quiz(
+            "Two rows hold 1,000,000 elements each. You swap them by exchanging the row pointers. How much work?",
+            [
+              "1,000,000 assignments",
+              "2,000,000 assignments",
+              "A fixed handful of assignments, whatever the row length",
+              "It depends on the element type",
+            ],
+            2,
+            "Six assignments: three for the row pointers, three for the sizes. The elements never move, so the cost is O(1).",
+          ),
+          quiz(
+            "What does reading `grid[2][1]` actually do?",
+            [
+              "Searches level 2 for slot 1",
+              "Two address calculations: fetch the row pointer, then index into that row - still O(1)",
+              "Copies the whole row before indexing",
+              "It is O(n) because the rows are different lengths",
+            ],
+            1,
+            "One load to get grid[2] (the row pointer), one more to reach element 1 of that row. Two dereferences, constant time.",
+          ),
+        ],
+        challenge: {
+          title: "Jagged parking grid",
+          description:
+            "Build a jagged grid of occupancy hours, total it while counting every element read, and free it correctly - rows first, then the pointer array, then null the handle.",
+          starterCode: `#include <iostream>
+using namespace std;
+
+int** buildGrid(int levels, const int* slots) {
+    // TODO: allocate the row-pointer array, then each row (slots[i] wide), zero-filled
+    return nullptr;
+}
+
+long long totalHours(int** grid, const int* slots, int levels, long long& reads) {
+    // TODO: sum every slot on every level; count each element read into reads
+    return 0;
+}
+
+void freeGrid(int**& grid, int levels) {
+    // TODO: every row, then the outer array, then null the handle
+}
+
+int main() {
+    int slots[] = {4, 3, 5};
+    int** grid = buildGrid(3, slots);
+
+    grid[0][0] = 5; grid[0][3] = 8; grid[1][1] = 7; grid[2][4] = 9;
+
+    long long reads = 0;
+    cout << totalHours(grid, slots, 3, reads) << endl;  // 29
+    cout << reads << endl;                              // 12
+
+    freeGrid(grid, 3);
+    cout << (grid == nullptr) << endl;                  // 1
+    return 0;
+}`,
+          solutionCode: `#include <iostream>
+using namespace std;
+
+int** buildGrid(int levels, const int* slots) {
+    int** grid = new int*[levels];
+    for (int i = 0; i < levels; i++) {
+        grid[i] = new int[slots[i]];
+        for (int j = 0; j < slots[i]; j++) grid[i][j] = 0;
+    }
+    return grid;
+}
+
+long long totalHours(int** grid, const int* slots, int levels, long long& reads) {
+    long long total = 0;
+    for (int i = 0; i < levels; i++)
+        for (int j = 0; j < slots[i]; j++) {
+            total += grid[i][j];
+            reads++;
+        }
+    return total;
+}
+
+void freeGrid(int**& grid, int levels) {
+    for (int i = 0; i < levels; i++) delete[] grid[i];
+    delete[] grid;
+    grid = nullptr;
+}
+
+int main() {
+    int slots[] = {4, 3, 5};
+    int** grid = buildGrid(3, slots);
+
+    grid[0][0] = 5; grid[0][3] = 8; grid[1][1] = 7; grid[2][4] = 9;
+
+    long long reads = 0;
+    cout << totalHours(grid, slots, 3, reads) << endl;  // 29
+    cout << reads << endl;                              // 12
+
+    freeGrid(grid, 3);
+    cout << (grid == nullptr) << endl;                  // 1
+    return 0;
+}`,
+          tests: [
+            { id: 1, label: "Allocates the row-pointer array", keywords: [{ pattern: "new\\s+int\\s*\\*\\s*\\[" }], hint: "int** grid = new int*[levels];" },
+            { id: 2, label: "Allocates each row separately", keywords: [{ pattern: "new\\s+int\\s*\\[\\s*slots\\s*\\[" }], hint: "grid[i] = new int[slots[i]];" },
+            { id: 3, label: "Frees every row before the outer array", keywords: [{ pattern: "delete\\s*\\[\\s*\\]\\s*grid\\s*\\[" }], hint: "delete[] grid[i]; inside the loop, then delete[] grid;" },
+            { id: 4, label: "Nulls the handle after freeing", keywords: [{ pattern: "grid\\s*=\\s*nullptr" }], hint: "grid = nullptr; at the end of freeGrid." },
+          ],
+        },
+      },
+      {
         id: "cpp-ds-1-2",
         title: "Dynamic arrays: vector, ArrayList, amortised growth",
         xp: 16,
@@ -1263,6 +1802,218 @@ int main() {
             { id: 1, label: "Random access -> ARRAY", keywords: [{ pattern: "random access by index\\s+=> ARRAY" }], hint: "O(1) indexing is the array's edge." },
             { id: 2, label: "Splicing -> LINKED LIST", keywords: [{ pattern: "held position\\s+=> LINKED LIST" }], hint: "O(1) splice at a held node." },
             { id: 3, label: "Scanning -> ARRAY", keywords: [{ pattern: "summing every element\\s+=> ARRAY" }], hint: "Contiguous memory wins the scan." },
+          ],
+        },
+      },
+      {
+        id: "cpp-ds-1-4",
+        title: "Templates: one structure, every element type",
+        xp: 16,
+        chapterTitle: "Linear vs Non-Linear · Arrays & Lists",
+        theory: [
+          objectives([
+            "Write a function template and a class template",
+            "Say what the compiler actually generates when you write DynamicArray<int>",
+            "Keep template definitions where the compiler can see them",
+          ]),
+          text(
+            "You have written `IntVector`. Nobody wants to write `DoubleVector` and `StringVector` beside it, then fix the same bug three times. A **template** is one definition with the type left blank; the compiler fills the blank in and generates a separate, fully type-checked version for each type you actually use. Every structure from here on - list, stack, queue, tree, heap - is worth writing this way once.",
+          ),
+          text(
+            "A **function template** puts the placeholder in the signature. `T` is not a type; it is a slot the compiler fills from the call.",
+            {
+              label: "One function, any type",
+              content: `template <class T>
+T getMax(T a, T b) {
+    return (a > b) ? a : b;
+}
+
+cout << getMax(10, 20);      // T becomes int
+cout << getMax(3.5, 2.1);    // T becomes double`,
+            },
+          ),
+          text(
+            "Two placeholders work the same way, and when the generic version is wrong for one specific type you **specialise** it.",
+            {
+              label: "Several parameters, and a special case",
+              content: `template <class T1, class T2>
+void showPair(T1 a, T2 b) { cout << a << " - " << b; }
+
+#include <cctype>
+template <>                                  // full specialisation for char
+char getMax<char>(char a, char b) {
+    return (toupper(a) > toupper(b)) ? a : b;   // compare case-insensitively
+}`,
+            },
+          ),
+          text(
+            "A **class template** does the same for a whole type. One body, and the compiler emits an independent class for every element type you instantiate.",
+            {
+              label: "One class, any type",
+              content: `template <class T>
+class Box {
+    T value;
+public:
+    Box(T v) : value(v) {}
+    T get() { return value; }
+};
+
+Box<int> b1(10);
+Box<string> b2("Hello");     // a second, separate class is generated`,
+            },
+          ),
+          callout(
+            "warning",
+            "**The linker error that eats an hour.** Put a template class in a `.h` and its member function bodies in a `.cpp` and it compiles cleanly, then fails at link time with *undefined reference*. The compiler needs the body at the point of use, so keep template definitions and their member functions together in the same file.",
+          ),
+          text(
+            "Templates and pointers combine happily - one `swap` for `int*`, `double*`, or your own node type:",
+            {
+              label: "Generic swap through pointers",
+              content: `template <class T>
+void swapPtr(T* a, T* b) {
+    T temp = *a;
+    *a = *b;
+    *b = temp;
+}`,
+            },
+          ),
+          diagram("Why not just use void*?", [
+            { id: "voidp", label: "The `void*` way", color: C_RED, items: ["One body, but no type checking", "A cast at every single use", "Wrong cast compiles happily, then corrupts"] },
+            { id: "tmpl", label: "The template way", color: C_GREEN, items: ["One body you maintain", "The compiler checks every use", "No casts, so no cast to get wrong"] },
+            { id: "cost", label: "What it costs", color: C_SKY, items: ["A separate copy per type used", "A bigger binary, longer compiles", "Zero run-time overhead - it all happens before the program starts"] },
+          ]),
+          callout(
+            "info",
+            "This is exactly how `std::vector<T>`, `std::list<T>` and `std::map<K, V>` are built. When you write `vector<int>`, the compiler stamps out an int-shaped vector for you - which is why the standard containers cost nothing over a hand-written one.",
+          ),
+          quiz(
+            "A program contains `Box<int> a(1);` and `Box<string> b(\"hi\");`. How many Box classes end up in the compiled binary?",
+            [
+              "One - Box is generic at run time",
+              "Two - one generated per type actually used",
+              "None - templates are only checked, never compiled",
+              "As many as there are types in the program",
+            ],
+            1,
+            "The compiler instantiates a template once per type you actually use. Types you never instantiate cost nothing.",
+          ),
+          quiz(
+            "You put `template <class T> class Stack` in stack.h and its member bodies in stack.cpp. What happens?",
+            [
+              "It works normally",
+              "A compiler error on the first line",
+              "It compiles, then fails at link time with `undefined reference`",
+              "The template silently becomes non-generic",
+            ],
+            2,
+            "Each translation unit that uses Stack<int> needs the bodies to generate the code. They are not in the header, so nothing is generated and the linker finds no definition.",
+          ),
+          quiz(
+            "What do templates cost at run time compared with hand-writing one class per type?",
+            [
+              "Nothing - the work happens at compile time",
+              "One extra pointer dereference per call",
+              "A type check on every method call",
+              "They allocate on the heap",
+            ],
+            0,
+            "Instantiation is a compile-time activity. The generated code is the same code you would have written by hand; you pay in binary size and compile time, not in speed.",
+          ),
+        ],
+        challenge: {
+          title: "Make the dynamic array generic",
+          description:
+            "Turn the hand-written IntVector into `DynamicArray<T>`. Finish `grow` (double the capacity, copy, free the old block) and `push_back` (grow when full, then store).",
+          starterCode: `#include <iostream>
+using namespace std;
+
+template <class T>
+class DynamicArray {
+    T* data;
+    int count;   // elements stored
+    int cap;     // elements the block can hold
+
+    void grow() {
+        // TODO: double the capacity (from 1 if empty), copy the elements over, release the old block
+    }
+
+public:
+    DynamicArray(int initialCap = 2)
+        : data(new T[initialCap]), count(0), cap(initialCap) {}
+    ~DynamicArray() { delete[] data; }
+
+    void push_back(const T& value) {
+        // TODO: grow first if the block is full, then store the value and bump the count
+    }
+
+    T& at(int i) { return data[i]; }
+    int size() const { return count; }
+    int capacity() const { return cap; }
+};
+
+int main() {
+    DynamicArray<int> a;
+    for (int i = 1; i <= 5; i++) a.push_back(i * 10);
+    cout << a.size() << " " << a.capacity() << endl;  // 5 8
+    cout << a.at(4) << endl;                          // 50
+
+    DynamicArray<char> letters;
+    letters.push_back('D');
+    letters.push_back('S');
+    cout << letters.at(0) << letters.at(1) << endl;   // DS
+    return 0;
+}`,
+          solutionCode: `#include <iostream>
+using namespace std;
+
+template <class T>
+class DynamicArray {
+    T* data;
+    int count;
+    int cap;
+
+    void grow() {
+        int newCap = cap == 0 ? 1 : cap * 2;
+        T* fresh = new T[newCap];
+        for (int i = 0; i < count; i++) fresh[i] = data[i];
+        delete[] data;
+        data = fresh;
+        cap = newCap;
+    }
+
+public:
+    DynamicArray(int initialCap = 2)
+        : data(new T[initialCap]), count(0), cap(initialCap) {}
+    ~DynamicArray() { delete[] data; }
+
+    void push_back(const T& value) {
+        if (count == cap) grow();
+        data[count++] = value;
+    }
+
+    T& at(int i) { return data[i]; }
+    int size() const { return count; }
+    int capacity() const { return cap; }
+};
+
+int main() {
+    DynamicArray<int> a;
+    for (int i = 1; i <= 5; i++) a.push_back(i * 10);
+    cout << a.size() << " " << a.capacity() << endl;  // 5 8
+    cout << a.at(4) << endl;                          // 50
+
+    DynamicArray<char> letters;
+    letters.push_back('D');
+    letters.push_back('S');
+    cout << letters.at(0) << letters.at(1) << endl;   // DS
+    return 0;
+}`,
+          tests: [
+            { id: 1, label: "Doubles the capacity", keywords: [{ pattern: "cap\\s*\\*\\s*2" }], hint: "int newCap = cap == 0 ? 1 : cap * 2;" },
+            { id: 2, label: "Allocates a bigger block inside grow", keywords: [{ pattern: "T\\s*\\*\\s*\\w+\\s*=\\s*new\\s+T\\s*\\[" }], hint: "T* fresh = new T[newCap];" },
+            { id: 3, label: "Copies the old elements across", keywords: [{ pattern: "=\\s*data\\s*\\[" }], hint: "for (int i = 0; i < count; i++) fresh[i] = data[i];" },
+            { id: 4, label: "Grows only when the block is full", keywords: [{ pattern: "count\\s*==\\s*cap" }], hint: "if (count == cap) grow(); at the top of push_back." },
           ],
         },
       },
