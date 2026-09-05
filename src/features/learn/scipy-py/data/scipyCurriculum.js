@@ -1527,38 +1527,38 @@ print(float(f(2.5)))`,
           {
             type: "text",
             content:
-              "**Introduction:** Not every outcome is equally likely. Some values happen often, others rarely.\n\nA **distribution** is the pattern of chance — it tells you which outcomes are common and which are rare.\n\nIn plain words:\n\n• A distribution is a **map of likelihood**\n• Many real things cluster near a typical value\n• Extreme values can still happen, but less often\n• SciPy gives ready-made distribution helpers\n\n**Real-life example:** Bus delays often sit near a few minutes, with fewer very long waits. That “cluster + tail” shape is a distribution idea.",
+              "**Introduction:** Not every result happens equally often. Some values show up a lot. Others are rare.\n\nA **distribution** is that pattern — it tells you **what is common** and **what is uncommon**.\n\nIn simple words:\n\n• It is a picture of chance for a set of outcomes\n• Many real things cluster near a “typical” value\n• Extreme values can still happen, but less often\n• SciPy already has ready-made distribution helpers\n\n**Real-life example:** A bus is often about 5 minutes late. Sometimes it is on time. Almost never 40 minutes late. That “often near the middle, rare far away” shape is a distribution.",
           },
           {
             type: "text",
             content:
-              "**In this topic you will learn:**\n\n• What a distribution means in everyday language\n• How to use a simple normal distribution helper\n• What `pdf` and `cdf` mean at a beginner level",
+              "**In this topic you will learn:**\n\n• What a distribution means in everyday language\n• How to use `stats.norm` (the bell curve)\n• What `pdf` and `cdf` mean in beginner words\n• How to print a simple result from SciPy",
           },
           {
             type: "scenario",
             title: "Think of it like this",
             content:
-              "Imagine a dart board where most throws land near the center, and fewer land far away. A distribution describes that landing pattern — not one throw, but the overall shape of chance.",
+              "Imagine exam marks in a class. Many students score near 70–80. Only a few score 40 or 98. The overall shape of those marks is the distribution — not one single score, but the full pattern.",
           },
           {
             type: "table",
-            title: "Two friendly terms",
-            columns: ["Term", "Plain meaning", "When to use"],
+            title: "Two helpful tools",
+            columns: ["Tool", "Simple meaning", "Everyday question"],
             rows: [
               {
                 label: "1",
                 values: [
                   "`pdf(x)`",
-                  "How “dense” the chance is at x",
-                  "Compare nearby values",
+                  "How common is this value?",
+                  "Is this score usual?",
                 ],
               },
               {
                 label: "2",
                 values: [
                   "`cdf(x)`",
-                  "Total chance up to x",
-                  "Ask “how much is below this?”",
+                  "How much is at or below x?",
+                  "What share scored this or less?",
                 ],
               },
             ],
@@ -1566,31 +1566,37 @@ print(float(f(2.5)))`,
           {
             type: "code",
             lang: "python",
-            label: "Try it: normal distribution helper",
+            label: "Try it: normal distribution",
             content: `from scipy import stats
 
-# loc = center, scale = spread
+# loc = middle (center), scale = how wide the spread is
 norm = stats.norm(loc=0, scale=1)
 
-print("PDF at 0:", norm.pdf(0))
-print("CDF at 0:", norm.cdf(0))`,
+print("pdf at 0:", norm.pdf(0))
+print("cdf at 0:", norm.cdf(0))`,
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "**Remember:** `loc` is the center. `scale` is the spread. Bigger scale = wider bell curve.",
           },
           {
             type: "callout",
             variant: "tip",
             content:
-              "**Tip:** Start with `stats.norm` — it is the classic “bell curve” and a great first distribution to explore.",
+              "**Tip:** Start with `stats.norm`. It is the classic bell curve and the easiest first distribution to try.",
           },
           quiz(
-            "A distribution describes…",
+            "A distribution tells you…",
             [
-              "Only file folders",
-              "The pattern of chance for outcomes",
-              "HTML colors",
-              "Keyboard shortcuts",
+              "Only how to save a file",
+              "Which outcomes are common and which are rare",
+              "How to design a website",
+              "What keyboard to buy",
             ],
             1,
-            "Distributions model how probable different values are.",
+            "A distribution is the pattern of chance — what happens often vs rarely.",
           ),
         ],
         challenge: challenge(
@@ -1617,12 +1623,18 @@ print(norm.pdf(0))`,
           {
             type: "text",
             content:
-              "**Introduction:** Before you guess or test anything, look at your data.\n\n**Descriptive stats** summarize a list of numbers in a few lines — how many values, what is typical, and how spread out they are.\n\nIn plain words:\n\n• **Count** — how many numbers you have\n• **Mean** — the typical center\n• **Variance** — how much values spread around the mean\n• SciPy’s `stats.describe` gives these quickly\n\n**Real-life example:** Class quiz scores: what is the average? Are most students close to it, or all over the place?",
+              "**Introduction:** Before you guess or test anything, look at your numbers first.\n\n**Descriptive stats** give a short summary of a list:\n\n• **nobs** — how many values you have (the count)\n• **mean** — the average (the typical center)\n• **variance** — how spread out the values are\n• SciPy’s `stats.describe` prints these in one call\n\n**Real-life example:** A teacher has quiz scores: 88, 92, 76, 95, 84. First questions: *How many scores? What is the average? Are most students close to that average, or all mixed?*",
           },
           {
             type: "text",
             content:
-              "**In this topic you will learn:**\n\n• How to run `stats.describe` on a NumPy array\n• How to read `nobs` and `mean`\n• Why summarizing first saves time later",
+              "**In this topic you will learn:**\n\n• How to run `stats.describe` on a NumPy array\n• How to read `nobs`, `mean`, and `variance`\n• Why a quick summary saves time later\n• How spread (variance) changes the story",
+          },
+          {
+            type: "scenario",
+            title: "Think of it like this",
+            content:
+              "Two classes both average 80. In Class A, almost everyone scored 78–82. In Class B, scores range from 40 to 100. Same average — very different stories. Variance is what shows that difference.",
           },
           {
             type: "table",
@@ -1635,11 +1647,11 @@ print(norm.pdf(0))`,
               },
               {
                 label: "2",
-                values: ["mean", "Typical center", "What is average?"],
+                values: ["mean", "Average / typical center", "What is usual?"],
               },
               {
                 label: "3",
-                values: ["variance", "Spread", "How scattered is it?"],
+                values: ["variance", "Spread around the mean", "Are values close or mixed?"],
               },
             ],
           },
@@ -1653,32 +1665,32 @@ from scipy import stats
 scores = np.array([88, 92, 76, 95, 84])
 d = stats.describe(scores)
 
-print("nobs:", d.nobs)
-print("mean:", d.mean)
-print("variance:", d.variance)`,
+print("count (nobs):", d.nobs)
+print("average (mean):", d.mean)
+print("spread (variance):", d.variance)`,
           },
           {
             type: "callout",
             variant: "info",
             content:
-              "**Remember:** A high mean with high variance means values are spread out. A tight cluster means low variance.",
+              "**Remember:** High variance = mixed values (some low, some high). Low variance = most values sit near the average.",
           },
           {
             type: "callout",
             variant: "tip",
             content:
-              "**Tip:** Always print `nobs` first — you should know how many data points your summary is based on.",
+              "**Tip:** Always check `nobs` first. A summary of 5 scores is different from a summary of 500.",
           },
           quiz(
-            "Scores are [88, 92, 76, 95, 84]. After `d = stats.describe(scores)`, what does `d.nobs` tell you?",
+            "After `d = stats.describe(scores)`, what is `d.nobs`?",
             [
-              "How many scores were included in the summary",
-              "The highest score in the class only",
-              "The name of the teacher who graded the quiz",
-              "Whether students used pen or pencil",
+              "How many scores were used",
+              "The highest score only",
+              "The teacher’s name",
+              "Whether the quiz was online",
             ],
             0,
-            "nobs is the count of values — always know how many data points your summary is based on.",
+            "nobs is the count — how many numbers went into the summary.",
           ),
         ],
         challenge: challenge(
@@ -1707,18 +1719,18 @@ print(stats.describe(scores).mean)`,
           {
             type: "text",
             content:
-              "**Introduction:** Sometimes you wonder: **“Could this difference just be random luck?”**\n\nA **hypothesis test** is a careful way to check that. SciPy returns a **p-value** — one clue about how surprising your data look under a simple assumption.\n\nIn plain words:\n\n• You start with a plain question about your data\n• SciPy runs a test (here: one-sample t-test)\n• You get a **statistic** and a **p-value**\n• A p-value is **not proof** — it is one piece of evidence\n\n**Real-life example:** Did a new study method change average scores, or could the bump be normal random variation?",
+              "**Introduction:** Sometimes your numbers look different from what you expected. The big question is: **Is this a real change, or just luck?**\n\nA **hypothesis test** helps check that carefully. In this lesson you use `stats.ttest_1samp`:\n\n• You give SciPy your sample numbers\n• You give a reference value (like “usual average = 20”)\n• SciPy returns a **statistic** and a **p-value**\n• The p-value is a **clue about surprise** — not final proof\n\n**Real-life example:** Your class usually averages 20 on a quiz. Today’s scores look a bit higher. Did a new study method help — or could this bump happen by chance?",
           },
           {
             type: "text",
             content:
-              "**In this topic you will learn:**\n\n• How to run `stats.ttest_1samp`\n• How to read the p-value gently\n• Why context and data quality still matter most",
+              "**In this topic you will learn:**\n\n• How to run `stats.ttest_1samp`\n• How to read the p-value in simple words\n• Why a small p-value means “this looks surprising”\n• Why you still need a clear question and good data",
           },
           {
             type: "scenario",
             title: "Think of it like this",
             content:
-              "You flip a coin 10 times and get 9 heads. A hypothesis test asks: “If the coin were fair, how surprising would 9 heads be?” The p-value helps answer that — but you still need to ask whether the coin is bent or the flips were fair.",
+              "A fair coin should give about half heads. If you get 9 heads in 10 flips, that feels odd. A test asks: “If the coin were fair, how surprising is 9 heads?” The p-value answers that “how surprising” part.",
           },
           {
             type: "table",
@@ -1744,9 +1756,9 @@ print(stats.describe(scores).mean)`,
               {
                 label: "3",
                 values: [
-                  "Read result",
+                  "Read p-value",
                   "`print(p)`",
-                  "How surprising under the assumption",
+                  "How surprising under the old idea",
                 ],
               },
             ],
@@ -1758,6 +1770,7 @@ print(stats.describe(scores).mean)`,
             content: `import numpy as np
 from scipy import stats
 
+# Compare these scores to a usual mean of 20
 sample = np.array([20, 22, 19, 21, 23])
 stat, p = stats.ttest_1samp(sample, popmean=20)
 
@@ -1768,24 +1781,24 @@ print("p-value:", p)`,
             type: "callout",
             variant: "warning",
             content:
-              "**Watch out:** A small p-value does not automatically mean “important in real life.” Always ask: Is the question clear? Is the data trustworthy?",
+              "**Watch out:** A small p-value does **not** automatically mean “important in real life.” Ask: Is the question clear? Is the data trustworthy?",
           },
           {
             type: "callout",
             variant: "tip",
             content:
-              "**Tip:** `ttest_1samp` returns two values — use the **second** one (`p`) when you want the p-value.",
+              "**Tip:** `ttest_1samp` returns two values. Use the **second** one (`p`) for the p-value. Small p ≈ more surprising. Large p ≈ could easily be luck.",
           },
           quiz(
-            "A p-value helps you…",
+            "A p-value helps you judge…",
             [
-              "Judge how surprising data are under an assumption",
-              "Compile Java",
-              "Resize images",
-              "Name variables",
+              "How surprising the data look under a simple assumption",
+              "How to compile Java",
+              "How to resize images",
+              "How to name variables",
             ],
             0,
-            "p-values help interpret evidence against a simple assumption.",
+            "The p-value is about surprise under an assumption — not automatic proof.",
           ),
         ],
         challenge: challenge(
@@ -1822,33 +1835,74 @@ print(p)`,
           {
             type: "text",
             content:
-              "**Definition:** Both NumPy and SciPy offer linear algebra. **`scipy.linalg`** adds more solvers and routines on top of the same matrix ideas.\n\n**Real-life example:** Balancing ingredients in recipes scaled as equations — matrices and solvers find amounts that fit constraints.",
+              "**Introduction:** NumPy already stores numbers in tables (matrices). **Linear algebra** is the math of those tables — multiplying them, measuring them, and solving equation systems.\n\n**NumPy** gives you the arrays. **`scipy.linalg`** adds extra tools for matrix jobs: determinants, solvers, eigenvalues, and more.\n\nIn simple words:\n\n• A matrix is a grid of numbers (rows and columns)\n• SciPy’s `linalg` module helps you work with that grid\n• You still build the matrix with NumPy\n• Then you call SciPy for the harder matrix tools\n\n**Real-life example:** A bakery mixes flour and sugar with two recipes and two total costs. That story becomes equations in a matrix — SciPy can help solve them.",
           },
           {
             type: "text",
             content:
-              "**In this topic you will learn:**\n\n• When to open `scipy.linalg`\n• Import style\n• A tiny det example",
+              "**In this topic you will learn:**\n\n• Why SciPy has its own `linalg` module\n• How to import `from scipy import linalg`\n• What a determinant (`det`) is in beginner words\n• How to try `linalg.det` on a small matrix",
+          },
+          {
+            type: "scenario",
+            title: "Think of it like this",
+            content:
+              "NumPy is the notebook where you write the number grid. SciPy `linalg` is the calculator that answers questions about that grid — like “how special is this matrix?” or “what values solve these equations?”",
+          },
+          {
+            type: "table",
+            title: "NumPy vs SciPy linalg",
+            columns: ["Tool", "Job", "Beginner tip"],
+            rows: [
+              {
+                label: "1",
+                values: [
+                  "NumPy arrays",
+                  "Store the matrix",
+                  "Start with `np.array([...])`",
+                ],
+              },
+              {
+                label: "2",
+                values: [
+                  "`scipy.linalg`",
+                  "Solve / measure matrices",
+                  "Use for det, solve, eigvals",
+                ],
+              },
+            ],
           },
           {
             type: "code",
             lang: "python",
-            label: "Determinant with SciPy",
+            label: "Try it: determinant with SciPy",
             content: `import numpy as np
 from scipy import linalg
 
 A = np.array([[1.0, 2.0], [3.0, 4.0]])
 print("det:", linalg.det(A))`,
           },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "**Remember:** A determinant near **0** can mean the matrix is “badly behaved” for solving — like equations that do not have a clear unique answer.",
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "**Tip:** Keep matrices as floats (`1.0`, `2.0`) so SciPy solvers behave more smoothly.",
+          },
           quiz(
             "scipy.linalg is mainly for…",
             [
-              "Matrix and linear-algebra routines",
+              "Matrix and linear-algebra tools",
               "CSS styling",
               "Email servers",
-              "Only plotting pies",
+              "Only drawing pie charts",
             ],
             0,
-            "It focuses on linear algebra tools.",
+            "scipy.linalg focuses on matrix math: determinants, solvers, eigenvalues, and more.",
           ),
         ],
         challenge: challenge(
@@ -1856,6 +1910,7 @@ print("det:", linalg.det(A))`,
           "For A = [[2,0],[0,3]], print linalg.det(A).",
           `import numpy as np
 from scipy import linalg
+# build A, then print linalg.det(A)
 `,
           `import numpy as np
 from scipy import linalg
@@ -1875,36 +1930,86 @@ print(linalg.det(A))`,
           {
             type: "text",
             content:
-              "**Definition:** **`linalg.solve(A, b)`** finds `x` in `A x = b`. An **inverse** undoes a matrix multiply when it exists.\n\n**Real-life example:** Two shop deals with unknown item prices — two equations, two unknowns — solve the system.",
+              "**Introduction:** Many real problems become **equations with unknowns**. In matrix form we write:\n\n**A x = b**\n\n• **A** — the known numbers (coefficients)\n• **b** — the known results\n• **x** — the unknown values you want\n\nSciPy’s **`linalg.solve(A, b)`** finds **x**. An **inverse** (when it exists) is like an “undo” button for matrix multiplication.\n\n**Real-life example:** A shop sells apples and bananas. Two deals give two totals. You do not know the price of each fruit. Two equations → two unknowns → `solve` finds the prices.",
           },
           {
             type: "text",
             content:
-              "**In this topic you will learn:**\n\n• Solve a 2×2 system\n• Compute an inverse\n• Check `A @ x` ≈ `b`",
+              "**In this topic you will learn:**\n\n• How to set up a small 2×2 system\n• How to call `linalg.solve(A, b)`\n• How to check the answer with `A @ x`\n• What an inverse means in plain words",
+          },
+          {
+            type: "scenario",
+            title: "Think of it like this",
+            content:
+              "Deal 1: 3 apples + 1 banana = $9. Deal 2: 1 apple + 2 bananas = $8. SciPy searches for apple price and banana price that fit both deals at once.",
+          },
+          {
+            type: "table",
+            title: "solve in three steps",
+            columns: ["Step", "What you write", "What it means"],
+            rows: [
+              {
+                label: "1",
+                values: [
+                  "Build A and b",
+                  "`A = np.array([[...]])`",
+                  "Known matrix and totals",
+                ],
+              },
+              {
+                label: "2",
+                values: [
+                  "Solve",
+                  "`x = linalg.solve(A, b)`",
+                  "Find the unknowns",
+                ],
+              },
+              {
+                label: "3",
+                values: [
+                  "Check",
+                  "`print(A @ x)`",
+                  "Should match b (or be very close)",
+                ],
+              },
+            ],
           },
           {
             type: "code",
             lang: "python",
-            label: "Solve Ax = b",
+            label: "Try it: solve Ax = b",
             content: `import numpy as np
 from scipy import linalg
 
 A = np.array([[3.0, 1.0], [1.0, 2.0]])
 b = np.array([9.0, 8.0])
+
 x = linalg.solve(A, b)
 print("x =", x)
-print("Check A@x =", A @ x)`,
+print("Check A @ x =", A @ x)`,
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "**Remember:** Prefer `linalg.solve` over computing an inverse by hand. Solving is usually safer and clearer for beginners.",
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "**Tip:** Always check with `A @ x`. If it matches `b`, your solution fits the equations.",
           },
           quiz(
             "Two shop deals give two equations with two unknown prices. Why use `linalg.solve(A, b)`?",
             [
               "It finds the x values that make A @ x equal b",
-              "It turns the matrix into a pie chart automatically",
-              "It removes duplicate rows from a spreadsheet",
-              "It picks random colors for a dashboard",
+              "It turns the matrix into a pie chart",
+              "It removes duplicate spreadsheet rows",
+              "It picks random dashboard colors",
             ],
             0,
-            "linalg.solve finds x in the linear system A x = b — exactly what you need for unknown prices.",
+            "linalg.solve finds x in A x = b — the unknowns that fit your equations.",
           ),
         ],
         challenge: challenge(
@@ -1912,6 +2017,7 @@ print("Check A@x =", A @ x)`,
           "Solve A=[[1,0],[0,2]], b=[4,10] with linalg.solve. Print x.",
           `import numpy as np
 from scipy import linalg
+# build A and b, solve, then print x
 `,
           `import numpy as np
 from scipy import linalg
@@ -1933,23 +2039,62 @@ print(x)`,
           {
             type: "text",
             content:
-              "**Definition:** **Eigenvalues** describe special stretch factors of a matrix — directions that only scale, not twist.\n\n**Real-life example:** Vibration modes of a bridge or guitar string relate to eigen-ideas: natural frequencies.",
+              "**Introduction:** Some matrices have special directions that only **stretch** or **shrink** — they do not twist sideways. The stretch amounts are called **eigenvalues**.\n\nIn simple words:\n\n• An eigenvalue is a special scaling factor of a matrix\n• SciPy can find them with `linalg.eigvals`\n• You do not need deep theory to try a small example\n• Real systems (vibration, stretch) often connect to this idea\n\n**Real-life example:** A guitar string has natural notes it likes to vibrate at. Eigenvalues are a math cousin of those “natural modes.”",
           },
           {
             type: "text",
             content:
-              "**In this topic you will learn:**\n\n• Compute eigenvalues with SciPy\n• Read the printed numbers\n• Keep the story intuitive",
+              "**In this topic you will learn:**\n\n• What an eigenvalue means in beginner words\n• How to call `linalg.eigvals(A)`\n• How to read the printed numbers\n• Why a diagonal matrix is a friendly first example",
+          },
+          {
+            type: "scenario",
+            title: "Think of it like this",
+            content:
+              "Imagine a rubber sheet. Pulling in one direction stretches it by 2. Pulling in another stretches it by 5. Those stretch amounts are like eigenvalues — special scale factors for special directions.",
+          },
+          {
+            type: "table",
+            title: "Friendly first example",
+            columns: ["Matrix idea", "What you notice"],
+            rows: [
+              {
+                label: "1",
+                values: [
+                  "Diagonal A = [[2, 0], [0, 5]]",
+                  "Eigenvalues are often 2 and 5",
+                ],
+              },
+              {
+                label: "2",
+                values: [
+                  "`linalg.eigvals(A)`",
+                  "SciPy prints those stretch factors",
+                ],
+              },
+            ],
           },
           {
             type: "code",
             lang: "python",
-            label: "Eigenvalues",
+            label: "Try it: eigenvalues",
             content: `import numpy as np
 from scipy import linalg
 
 A = np.array([[2.0, 0.0], [0.0, 5.0]])
 vals = linalg.eigvals(A)
 print("Eigenvalues:", vals)`,
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "**Remember:** For a simple diagonal matrix, eigenvalues often match the numbers on the diagonal — a nice check for beginners.",
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "**Tip:** Do not worry about complex numbers yet. Focus on reading the printed stretch factors from a tiny matrix.",
           },
           quiz(
             "Eigenvalues are related to…",
@@ -1960,7 +2105,7 @@ print("Eigenvalues:", vals)`,
               "Wi-Fi passwords",
             ],
             0,
-            "They are characteristic stretch factors along special directions.",
+            "Eigenvalues are characteristic stretch factors along special directions.",
           ),
         ],
         challenge: challenge(
@@ -1968,6 +2113,7 @@ print("Eigenvalues:", vals)`,
           "For diagonal A=[[4,0],[0,9]], print linalg.eigvals(A).",
           `import numpy as np
 from scipy import linalg
+# build A, then print linalg.eigvals(A)
 `,
           `import numpy as np
 from scipy import linalg
