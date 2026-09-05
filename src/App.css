@@ -11192,6 +11192,45 @@ body {
   box-shadow: none;
 }
 
+.lesson-quiz-retry-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.lesson-quiz-retry {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid
+    color-mix(in srgb, var(--lesson-quiz-accent, #818cf8) 45%, transparent);
+  background: color-mix(in srgb, var(--lesson-quiz-accent, #818cf8) 12%, transparent);
+  color: var(--txt-1, #c0c8e0);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s,
+    color 0.15s;
+}
+
+.lesson-quiz-retry:hover {
+  border-color: color-mix(in srgb, var(--lesson-quiz-accent, #818cf8) 75%, #fff);
+  background: color-mix(in srgb, var(--lesson-quiz-accent, #818cf8) 20%, transparent);
+  color: var(--txt-0, #f0f0ff);
+}
+
+.lesson-quiz-retry-hint {
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.85rem;
+  color: var(--txt-3, #6e7891);
+}
+
 .lesson-quiz-slider-controls {
   display: flex;
   align-items: center;
