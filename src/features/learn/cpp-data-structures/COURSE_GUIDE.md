@@ -26,14 +26,18 @@ them, not just the API.
 
 ---
 
-## Chapters (9 chapters · 39 lessons)
+## Chapters (9 chapters · 43 lessons)
 
 1. **Complexity & the Machine Model** — time/space budgets, Big-O by
-   reading loops, where log n / n log n come from (merge sort), the
-   instruction cycle, memory hierarchy & locality, amortised cost.
+   reading loops, exact operation counts (f(n) → Big-O, triangular
+   sums, verifying a derivation with a run-time counter), where
+   log n / n log n come from (merge sort), the instruction cycle,
+   memory hierarchy & locality, amortised cost.
 2. **Linear vs Non-Linear · Arrays & Lists** — the taxonomy map, the List
-   ADT & static arrays, dynamic arrays / `vector` / amortised growth,
-   choosing the backbone.
+   ADT & static arrays, heap pointer discipline (null / dangling / wild,
+   pointer arithmetic), jagged `T**` arrays and the Rule of Three,
+   dynamic arrays / `vector` / amortised growth, choosing the backbone,
+   templates for generic structures.
 3. **Linked Lists** — nodes & `new`/`delete`, singly, doubly, circular,
    skip lists.
 4. **Stacks, Queues, Deques** — LIFO stack, FIFO queue & ring buffer,

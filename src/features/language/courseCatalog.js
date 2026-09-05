@@ -212,7 +212,7 @@ export const languageCourses = {
       tag: "Data Structures Course",
       icon: Cpu,
       description:
-        "Complexity and the CPU cycle, linear vs non-linear structures, every linked-list variant, skip lists, stacks/queues/deques, hashing and collisions, BST/AVL, heaps, graphs, and Huffman compression.",
+        "Complexity and the CPU cycle, pointer discipline and templates, linear vs non-linear structures, every linked-list variant, skip lists, stacks/queues/deques, hashing and collisions, BST/AVL, heaps, graphs, and Huffman compression.",
       href: "/learn/cpp-data-structures",
       accent: "#8b5cf6",
     },
@@ -286,7 +286,7 @@ export const languageCourses = {
       tag: "Data Structures Course",
       icon: Cpu,
       description:
-        "Complexity and the CPU cycle, linear vs non-linear structures, every linked-list variant, skip lists, stacks/queues/deques, hashing and collisions, BST/AVL, heaps, graphs, and Huffman compression.",
+        "Complexity and the CPU cycle, pointer discipline and templates, linear vs non-linear structures, every linked-list variant, skip lists, stacks/queues/deques, hashing and collisions, BST/AVL, heaps, graphs, and Huffman compression.",
       href: "/learn/cpp-data-structures",
       accent: "#8b5cf6",
     },
