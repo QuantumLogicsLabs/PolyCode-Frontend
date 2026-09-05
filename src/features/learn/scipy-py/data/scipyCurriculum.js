@@ -1835,33 +1835,74 @@ print(p)`,
           {
             type: "text",
             content:
-              "**Definition:** Both NumPy and SciPy offer linear algebra. **`scipy.linalg`** adds more solvers and routines on top of the same matrix ideas.\n\n**Real-life example:** Balancing ingredients in recipes scaled as equations — matrices and solvers find amounts that fit constraints.",
+              "**Introduction:** NumPy already stores numbers in tables (matrices). **Linear algebra** is the math of those tables — multiplying them, measuring them, and solving equation systems.\n\n**NumPy** gives you the arrays. **`scipy.linalg`** adds extra tools for matrix jobs: determinants, solvers, eigenvalues, and more.\n\nIn simple words:\n\n• A matrix is a grid of numbers (rows and columns)\n• SciPy’s `linalg` module helps you work with that grid\n• You still build the matrix with NumPy\n• Then you call SciPy for the harder matrix tools\n\n**Real-life example:** A bakery mixes flour and sugar with two recipes and two total costs. That story becomes equations in a matrix — SciPy can help solve them.",
           },
           {
             type: "text",
             content:
-              "**In this topic you will learn:**\n\n• When to open `scipy.linalg`\n• Import style\n• A tiny det example",
+              "**In this topic you will learn:**\n\n• Why SciPy has its own `linalg` module\n• How to import `from scipy import linalg`\n• What a determinant (`det`) is in beginner words\n• How to try `linalg.det` on a small matrix",
+          },
+          {
+            type: "scenario",
+            title: "Think of it like this",
+            content:
+              "NumPy is the notebook where you write the number grid. SciPy `linalg` is the calculator that answers questions about that grid — like “how special is this matrix?” or “what values solve these equations?”",
+          },
+          {
+            type: "table",
+            title: "NumPy vs SciPy linalg",
+            columns: ["Tool", "Job", "Beginner tip"],
+            rows: [
+              {
+                label: "1",
+                values: [
+                  "NumPy arrays",
+                  "Store the matrix",
+                  "Start with `np.array([...])`",
+                ],
+              },
+              {
+                label: "2",
+                values: [
+                  "`scipy.linalg`",
+                  "Solve / measure matrices",
+                  "Use for det, solve, eigvals",
+                ],
+              },
+            ],
           },
           {
             type: "code",
             lang: "python",
-            label: "Determinant with SciPy",
+            label: "Try it: determinant with SciPy",
             content: `import numpy as np
 from scipy import linalg
 
 A = np.array([[1.0, 2.0], [3.0, 4.0]])
 print("det:", linalg.det(A))`,
           },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "**Remember:** A determinant near **0** can mean the matrix is “badly behaved” for solving — like equations that do not have a clear unique answer.",
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "**Tip:** Keep matrices as floats (`1.0`, `2.0`) so SciPy solvers behave more smoothly.",
+          },
           quiz(
             "scipy.linalg is mainly for…",
             [
-              "Matrix and linear-algebra routines",
+              "Matrix and linear-algebra tools",
               "CSS styling",
               "Email servers",
-              "Only plotting pies",
+              "Only drawing pie charts",
             ],
             0,
-            "It focuses on linear algebra tools.",
+            "scipy.linalg focuses on matrix math: determinants, solvers, eigenvalues, and more.",
           ),
         ],
         challenge: challenge(
@@ -1869,6 +1910,7 @@ print("det:", linalg.det(A))`,
           "For A = [[2,0],[0,3]], print linalg.det(A).",
           `import numpy as np
 from scipy import linalg
+# build A, then print linalg.det(A)
 `,
           `import numpy as np
 from scipy import linalg
@@ -1888,36 +1930,86 @@ print(linalg.det(A))`,
           {
             type: "text",
             content:
-              "**Definition:** **`linalg.solve(A, b)`** finds `x` in `A x = b`. An **inverse** undoes a matrix multiply when it exists.\n\n**Real-life example:** Two shop deals with unknown item prices — two equations, two unknowns — solve the system.",
+              "**Introduction:** Many real problems become **equations with unknowns**. In matrix form we write:\n\n**A x = b**\n\n• **A** — the known numbers (coefficients)\n• **b** — the known results\n• **x** — the unknown values you want\n\nSciPy’s **`linalg.solve(A, b)`** finds **x**. An **inverse** (when it exists) is like an “undo” button for matrix multiplication.\n\n**Real-life example:** A shop sells apples and bananas. Two deals give two totals. You do not know the price of each fruit. Two equations → two unknowns → `solve` finds the prices.",
           },
           {
             type: "text",
             content:
-              "**In this topic you will learn:**\n\n• Solve a 2×2 system\n• Compute an inverse\n• Check `A @ x` ≈ `b`",
+              "**In this topic you will learn:**\n\n• How to set up a small 2×2 system\n• How to call `linalg.solve(A, b)`\n• How to check the answer with `A @ x`\n• What an inverse means in plain words",
+          },
+          {
+            type: "scenario",
+            title: "Think of it like this",
+            content:
+              "Deal 1: 3 apples + 1 banana = $9. Deal 2: 1 apple + 2 bananas = $8. SciPy searches for apple price and banana price that fit both deals at once.",
+          },
+          {
+            type: "table",
+            title: "solve in three steps",
+            columns: ["Step", "What you write", "What it means"],
+            rows: [
+              {
+                label: "1",
+                values: [
+                  "Build A and b",
+                  "`A = np.array([[...]])`",
+                  "Known matrix and totals",
+                ],
+              },
+              {
+                label: "2",
+                values: [
+                  "Solve",
+                  "`x = linalg.solve(A, b)`",
+                  "Find the unknowns",
+                ],
+              },
+              {
+                label: "3",
+                values: [
+                  "Check",
+                  "`print(A @ x)`",
+                  "Should match b (or be very close)",
+                ],
+              },
+            ],
           },
           {
             type: "code",
             lang: "python",
-            label: "Solve Ax = b",
+            label: "Try it: solve Ax = b",
             content: `import numpy as np
 from scipy import linalg
 
 A = np.array([[3.0, 1.0], [1.0, 2.0]])
 b = np.array([9.0, 8.0])
+
 x = linalg.solve(A, b)
 print("x =", x)
-print("Check A@x =", A @ x)`,
+print("Check A @ x =", A @ x)`,
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "**Remember:** Prefer `linalg.solve` over computing an inverse by hand. Solving is usually safer and clearer for beginners.",
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "**Tip:** Always check with `A @ x`. If it matches `b`, your solution fits the equations.",
           },
           quiz(
             "Two shop deals give two equations with two unknown prices. Why use `linalg.solve(A, b)`?",
             [
               "It finds the x values that make A @ x equal b",
-              "It turns the matrix into a pie chart automatically",
-              "It removes duplicate rows from a spreadsheet",
-              "It picks random colors for a dashboard",
+              "It turns the matrix into a pie chart",
+              "It removes duplicate spreadsheet rows",
+              "It picks random dashboard colors",
             ],
             0,
-            "linalg.solve finds x in the linear system A x = b — exactly what you need for unknown prices.",
+            "linalg.solve finds x in A x = b — the unknowns that fit your equations.",
           ),
         ],
         challenge: challenge(
@@ -1925,6 +2017,7 @@ print("Check A@x =", A @ x)`,
           "Solve A=[[1,0],[0,2]], b=[4,10] with linalg.solve. Print x.",
           `import numpy as np
 from scipy import linalg
+# build A and b, solve, then print x
 `,
           `import numpy as np
 from scipy import linalg
@@ -1946,23 +2039,62 @@ print(x)`,
           {
             type: "text",
             content:
-              "**Definition:** **Eigenvalues** describe special stretch factors of a matrix — directions that only scale, not twist.\n\n**Real-life example:** Vibration modes of a bridge or guitar string relate to eigen-ideas: natural frequencies.",
+              "**Introduction:** Some matrices have special directions that only **stretch** or **shrink** — they do not twist sideways. The stretch amounts are called **eigenvalues**.\n\nIn simple words:\n\n• An eigenvalue is a special scaling factor of a matrix\n• SciPy can find them with `linalg.eigvals`\n• You do not need deep theory to try a small example\n• Real systems (vibration, stretch) often connect to this idea\n\n**Real-life example:** A guitar string has natural notes it likes to vibrate at. Eigenvalues are a math cousin of those “natural modes.”",
           },
           {
             type: "text",
             content:
-              "**In this topic you will learn:**\n\n• Compute eigenvalues with SciPy\n• Read the printed numbers\n• Keep the story intuitive",
+              "**In this topic you will learn:**\n\n• What an eigenvalue means in beginner words\n• How to call `linalg.eigvals(A)`\n• How to read the printed numbers\n• Why a diagonal matrix is a friendly first example",
+          },
+          {
+            type: "scenario",
+            title: "Think of it like this",
+            content:
+              "Imagine a rubber sheet. Pulling in one direction stretches it by 2. Pulling in another stretches it by 5. Those stretch amounts are like eigenvalues — special scale factors for special directions.",
+          },
+          {
+            type: "table",
+            title: "Friendly first example",
+            columns: ["Matrix idea", "What you notice"],
+            rows: [
+              {
+                label: "1",
+                values: [
+                  "Diagonal A = [[2, 0], [0, 5]]",
+                  "Eigenvalues are often 2 and 5",
+                ],
+              },
+              {
+                label: "2",
+                values: [
+                  "`linalg.eigvals(A)`",
+                  "SciPy prints those stretch factors",
+                ],
+              },
+            ],
           },
           {
             type: "code",
             lang: "python",
-            label: "Eigenvalues",
+            label: "Try it: eigenvalues",
             content: `import numpy as np
 from scipy import linalg
 
 A = np.array([[2.0, 0.0], [0.0, 5.0]])
 vals = linalg.eigvals(A)
 print("Eigenvalues:", vals)`,
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "**Remember:** For a simple diagonal matrix, eigenvalues often match the numbers on the diagonal — a nice check for beginners.",
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "**Tip:** Do not worry about complex numbers yet. Focus on reading the printed stretch factors from a tiny matrix.",
           },
           quiz(
             "Eigenvalues are related to…",
@@ -1973,7 +2105,7 @@ print("Eigenvalues:", vals)`,
               "Wi-Fi passwords",
             ],
             0,
-            "They are characteristic stretch factors along special directions.",
+            "Eigenvalues are characteristic stretch factors along special directions.",
           ),
         ],
         challenge: challenge(
@@ -1981,6 +2113,7 @@ print("Eigenvalues:", vals)`,
           "For diagonal A=[[4,0],[0,9]], print linalg.eigvals(A).",
           `import numpy as np
 from scipy import linalg
+# build A, then print linalg.eigvals(A)
 `,
           `import numpy as np
 from scipy import linalg

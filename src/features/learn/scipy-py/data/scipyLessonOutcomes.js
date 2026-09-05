@@ -97,19 +97,19 @@ export const SCIPY_LESSON_OUTCOMES = {
     "Treat a p-value as a clue, not final proof",
   ],
   "scipy-19": [
-    "Compare NumPy linalg and SciPy linalg",
-    "Know when SciPy adds extra solvers",
-    "Import `scipy.linalg` confidently",
+    "Explain why scipy.linalg sits next to NumPy arrays",
+    "Import scipy.linalg and try linalg.det",
+    "Know that a determinant near 0 can mean a hard-to-solve matrix",
   ],
   "scipy-20": [
-    "Solve a linear system with SciPy",
-    "Compute a matrix inverse or determinant",
-    "Check that Ax ≈ b after solving",
+    "Set up A x = b and solve with linalg.solve",
+    "Check the answer with A @ x",
+    "Connect solve to a real two-unknown price story",
   ],
   "scipy-21": [
-    "Explain eigenvalues in simple words",
-    "Compute eigvals with SciPy",
-    "Connect eigen ideas to vibration or stretch stories",
+    "Explain eigenvalues as special stretch factors",
+    "Compute eigvals with SciPy on a small matrix",
+    "Connect eigen ideas to vibration or stretch examples",
   ],
   "scipy-22": [
     "Explain FFT as splitting a signal into frequencies",
