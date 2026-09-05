@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useId, useState } from "react";
 import { getPolyGuardAnalysisModeLabel } from "../config";
 import "../polyguard.css";
 
@@ -10,50 +10,159 @@ function scoreTone(score) {
   return "fail";
 }
 
+const PASS_LINE = 8; // scoreTone() calls anything from here up a pass
+
+/** Honours the OS "reduce motion" setting for the score reveal. */
+function usePrefersReducedMotion() {
+  const [reduced, setReduced] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      return undefined;
+    }
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onChange = (event) => setReduced(event.matches);
+    query.addEventListener("change", onChange);
+    return () => query.removeEventListener("change", onChange);
+  }, []);
+
+  return reduced;
+}
+
+/** Counts up to `target` so the score lands instead of just appearing. */
+function useCountUp(target, animate, duration = 700) {
+  const [value, setValue] = useState(animate ? 0 : target);
+
+  useEffect(() => {
+    if (!animate) {
+      setValue(target);
+      return undefined;
+    }
+
+    let frame = 0;
+    let start = 0;
+    const step = (now) => {
+      if (!start) start = now;
+      const progress = Math.min(1, (now - start) / duration);
+      setValue(target * (1 - Math.pow(1 - progress, 3)));
+      if (progress < 1) frame = requestAnimationFrame(step);
+    };
+
+    frame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frame);
+  }, [target, animate, duration]);
+
+  return value;
+}
+
 function ScoreRing({ score, tone, label, small = false }) {
+  // useId can contain ":", which is not safe inside an SVG url(#...) reference.
+  const gradientId = `pg-score-grad-${useId().replace(/:/g, "")}`;
+  const reduceMotion = usePrefersReducedMotion();
+
+  const hasScore = score != null && !Number.isNaN(Number(score));
+  const target = hasScore ? Math.min(10, Math.max(0, Number(score))) : 0;
+  const shown = useCountUp(target, hasScore && !reduceMotion);
+
   const radius = small ? 30 : 46;
-  const stroke = small ? 5 : 7;
+  const stroke = small ? 6 : 8;
   const size = (radius + stroke) * 2;
   const center = radius + stroke;
   const circumference = 2 * Math.PI * radius;
-  const pct = Math.min(100, Math.max(0, (Number(score) / 10) * 100));
-  const offset = circumference - (pct / 100) * circumference;
+
+  // Sweep the arc in from empty on mount, and again whenever the score moves.
+  const [drawn, setDrawn] = useState(false);
+  useEffect(() => {
+    if (reduceMotion) {
+      setDrawn(true);
+      return undefined;
+    }
+    setDrawn(false);
+    const frame = requestAnimationFrame(() => setDrawn(true));
+    return () => cancelAnimationFrame(frame);
+  }, [target, reduceMotion]);
+
+  const offset = circumference * (1 - (drawn ? target / 10 : 0));
+
+  // A notch on the track showing the score you have to reach to pass.
+  const passAngle = ((-90 + 360 * (PASS_LINE / 10)) * Math.PI) / 180;
+  const tickFrom = radius - stroke / 2 - 1;
+  const tickTo = radius + stroke / 2 + 1;
 
   return (
-    <div className={`pg-score-ring pg-tone-${tone}${small ? " is-small" : ""}`}>
-      <svg
-        className="pg-score-ring-svg"
-        width={size}
-        height={size}
-        viewBox={`0 0 ${size} ${size}`}
-        aria-hidden="true"
-      >
-        <circle
-          className="pg-score-ring-track"
-          cx={center}
-          cy={center}
-          r={radius}
-          fill="none"
-          strokeWidth={stroke}
-        />
-        <circle
-          className="pg-score-ring-progress"
-          cx={center}
-          cy={center}
-          r={radius}
-          fill="none"
-          strokeWidth={stroke}
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          strokeLinecap="round"
-          transform={`rotate(-90 ${center} ${center})`}
-        />
-      </svg>
-      <div className="pg-score-ring-center">
-        <strong>{score != null ? Number(score).toFixed(1) : "—"}</strong>
-        <span>/ 10</span>
+    <div
+      className={`pg-score-ring pg-tone-${tone}${small ? " is-small" : ""}`}
+      role="img"
+      aria-label={
+        hasScore
+          ? `Score ${target.toFixed(1)} out of 10 — ${label}. Pass line is ${PASS_LINE.toFixed(1)}.`
+          : "Score unavailable"
+      }
+      title={`Pass line: ${PASS_LINE.toFixed(1)} / 10`}
+    >
+      <div className="pg-score-ring-dial">
+        <svg
+          className="pg-score-ring-svg"
+          width={size}
+          height={size}
+          viewBox={`0 0 ${size} ${size}`}
+          aria-hidden="true"
+        >
+          <defs>
+            <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop className="pg-score-ring-stop-a" offset="0%" />
+              <stop className="pg-score-ring-stop-b" offset="100%" />
+            </linearGradient>
+          </defs>
+          <circle
+            className="pg-score-ring-disc"
+            cx={center}
+            cy={center}
+            r={Math.max(0, radius - stroke / 2)}
+          />
+          <circle
+            className="pg-score-ring-track"
+            cx={center}
+            cy={center}
+            r={radius}
+            fill="none"
+            strokeWidth={stroke}
+          />
+          <circle
+            className="pg-score-ring-progress"
+            cx={center}
+            cy={center}
+            r={radius}
+            fill="none"
+            stroke={`url(#${gradientId})`}
+            strokeWidth={stroke}
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            strokeLinecap="round"
+            transform={`rotate(-90 ${center} ${center})`}
+          />
+          <line
+            className="pg-score-ring-tick"
+            x1={center + Math.cos(passAngle) * tickFrom}
+            y1={center + Math.sin(passAngle) * tickFrom}
+            x2={center + Math.cos(passAngle) * tickTo}
+            y2={center + Math.sin(passAngle) * tickTo}
+          />
+        </svg>
+        <div className="pg-score-ring-center">
+          <strong>{hasScore ? shown.toFixed(1) : "—"}</strong>
+          <span>/ 10</span>
+        </div>
       </div>
-      <span className="pg-score-ring-label">{label}</span>
+      <span className="pg-score-ring-label">
+        <span className="pg-score-ring-label-dot" aria-hidden="true" />
+        {label}
+      </span>
     </div>
   );
 }
@@ -243,7 +352,7 @@ export default function PolyGuardReport({
           <span className="pg-analysis-mode-hint">{result.mlSecurityNote}</span>
         ) : null}
       </div>
-      <div className="pg-overview-card">
+      <div className={`pg-overview-card pg-tone-${tone}`}>
         <ScoreRing
           score={metrics.score}
           tone={tone}
