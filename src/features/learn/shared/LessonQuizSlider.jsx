@@ -23,36 +23,19 @@ function InlineText({ text, codeClassName = "numpy-inline-code" }) {
 
 function QuizSlide({
   block,
-  quizIndex,
-  accentColor,
-  quizSelection,
-  onQuizAnswer,
+  selected,
+  answered,
+  correct,
+  retrying,
+  onSelect,
+  onRetry,
   variant = "numpy",
 }) {
-  const [localSelection, setLocalSelection] = useState(null);
-  const [retrying, setRetrying] = useState(false);
-  const storedSelection =
-    quizSelection !== null && quizSelection !== undefined
-      ? quizSelection
-      : localSelection;
-  const selected = retrying ? null : storedSelection;
-  const answered = selected !== null;
-  const correct = selected === block.answer;
   const isNumpy = variant === "numpy";
   const questionClass = isNumpy ? "numpy-quiz-question" : "oops-interactive-head";
   const optionsClass = isNumpy ? "numpy-quiz-options" : "oops-quiz-options";
   const optionClass = isNumpy ? "numpy-quiz-option" : "oops-quiz-option";
   const feedbackClass = isNumpy ? "numpy-quiz-feedback" : "oops-quiz-feedback";
-
-  function handleSelect(index) {
-    const isCorrect = index === block.answer;
-    setRetrying(false);
-    if (typeof onQuizAnswer === "function" && quizIndex !== null) {
-      onQuizAnswer(quizIndex, index, isCorrect);
-    } else {
-      setLocalSelection(index);
-    }
-  }
 
   return (
     <article
@@ -82,7 +65,7 @@ function QuizSlide({
               className={`${optionClass} ${
                 answered && isAnswer ? "answer" : ""
               } ${isSelected ? "selected" : ""}`}
-              onClick={() => handleSelect(index)}
+              onClick={() => onSelect(index)}
             >
               {isNumpy ? (
                 <>
@@ -109,11 +92,7 @@ function QuizSlide({
             />
           </p>
           <div className="lesson-quiz-retry-row">
-            <button
-              type="button"
-              className="lesson-quiz-retry"
-              onClick={() => setRetrying(true)}
-            >
+            <button type="button" className="lesson-quiz-retry" onClick={onRetry}>
               ↻ Solve again
             </button>
           </div>
@@ -129,7 +108,13 @@ function QuizSlide({
 }
 
 /**
- * Carousel for lesson MCQs — one question visible at a time.
+ * Carousel for lesson MCQs — one question visible at a time, with a score
+ * summary once every question has been answered.
+ *
+ * Retries are tracked here rather than inside a slide so they survive
+ * navigation between questions. A retry only clears the *on-screen* answer;
+ * the recorded attempt stays put, so lesson progress and the read gate are
+ * never rolled back.
  */
 export default function LessonQuizSlider({
   quizzes = [],
@@ -139,15 +124,78 @@ export default function LessonQuizSlider({
   variant = "numpy",
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [retrying, setRetrying] = useState({});
+  const [localSelections, setLocalSelections] = useState({});
   const total = quizzes.length;
 
   if (!total) return null;
   if (!quizzes[activeIndex]?.block?.options) return null;
 
-  const current = quizzes[activeIndex];
-  const attemptedCount = quizzes.filter(
-    ({ quizIndex }) => getSelection?.(quizIndex) !== null,
-  ).length;
+  const slides = quizzes.map(({ block, quizIndex }, index) => {
+    const key = String(quizIndex ?? index);
+    const recorded = getSelection?.(quizIndex);
+    const stored =
+      recorded !== null && recorded !== undefined
+        ? recorded
+        : localSelections[key] ?? null;
+    const isRetrying = Boolean(retrying[key]);
+    const selected = isRetrying ? null : stored;
+    return {
+      key,
+      index,
+      block,
+      quizIndex,
+      selected,
+      isRetrying,
+      answered: selected !== null,
+      correct: selected !== null && selected === block.answer,
+    };
+  });
+
+  const answeredCount = slides.filter((slide) => slide.answered).length;
+  const correctCount = slides.filter((slide) => slide.correct).length;
+  const wrongCount = answeredCount - correctCount;
+  const complete = answeredCount === total;
+  const allCorrect = complete && wrongCount === 0;
+  const current = slides[activeIndex];
+
+  function handleSelect(slide, optionIndex) {
+    setRetrying((prev) => {
+      if (!prev[slide.key]) return prev;
+      const next = { ...prev };
+      delete next[slide.key];
+      return next;
+    });
+
+    const isCorrect = optionIndex === slide.block.answer;
+    if (
+      typeof onQuizAnswer === "function" &&
+      slide.quizIndex !== null &&
+      slide.quizIndex !== undefined
+    ) {
+      onQuizAnswer(slide.quizIndex, optionIndex, isCorrect);
+    } else {
+      setLocalSelections((prev) => ({ ...prev, [slide.key]: optionIndex }));
+    }
+  }
+
+  function handleRetry(slide) {
+    setRetrying((prev) => ({ ...prev, [slide.key]: true }));
+  }
+
+  function startOver() {
+    const all = {};
+    slides.forEach((slide) => {
+      all[slide.key] = true;
+    });
+    setRetrying(all);
+    setActiveIndex(0);
+  }
+
+  function reviewMissed() {
+    const firstWrong = slides.find((slide) => slide.answered && !slide.correct);
+    if (firstWrong) setActiveIndex(firstWrong.index);
+  }
 
   function goPrev() {
     setActiveIndex((index) => Math.max(0, index - 1));
@@ -175,21 +223,78 @@ export default function LessonQuizSlider({
           Question {activeIndex + 1} of {total}
         </span>
         <span className="lesson-quiz-slider-progress">
-          {attemptedCount}/{total} answered
+          {answeredCount}/{total} answered
         </span>
       </div>
 
       <div className="lesson-quiz-slider-viewport">
         <QuizSlide
-          key={current.quizIndex ?? activeIndex}
+          key={current.key}
           block={current.block}
-          quizIndex={current.quizIndex}
-          accentColor={accentColor}
-          quizSelection={getSelection?.(current.quizIndex) ?? null}
-          onQuizAnswer={onQuizAnswer}
+          selected={current.selected}
+          answered={current.answered}
+          correct={current.correct}
+          retrying={current.isRetrying}
+          onSelect={(optionIndex) => handleSelect(current, optionIndex)}
+          onRetry={() => handleRetry(current)}
           variant={variant}
         />
       </div>
+
+      {complete ? (
+        <div
+          className={`lesson-quiz-summary${
+            allCorrect ? " lesson-quiz-summary--perfect" : ""
+          }`}
+          role="status"
+          aria-live="polite"
+        >
+          <div className="lesson-quiz-summary-head">
+            <span className="lesson-quiz-summary-badge" aria-hidden>
+              {allCorrect ? "🎉" : "✅"}
+            </span>
+            <div className="lesson-quiz-summary-text">
+              <strong>
+                {allCorrect
+                  ? "Perfect — every answer correct!"
+                  : "Quick check complete"}
+              </strong>
+              <p>
+                {correctCount} correct
+                {wrongCount > 0 ? ` · ${wrongCount} to review` : ""} out of{" "}
+                {total}
+              </p>
+            </div>
+            <span className="lesson-quiz-summary-score">
+              {correctCount}
+              <small>/{total}</small>
+            </span>
+          </div>
+
+          <div className="lesson-quiz-summary-bar" aria-hidden>
+            <span style={{ width: `${(correctCount / total) * 100}%` }} />
+          </div>
+
+          <div className="lesson-quiz-summary-actions">
+            {wrongCount > 0 ? (
+              <button
+                type="button"
+                className="lesson-quiz-summary-btn"
+                onClick={reviewMissed}
+              >
+                Review what I missed
+              </button>
+            ) : null}
+            <button
+              type="button"
+              className="lesson-quiz-summary-btn"
+              onClick={startOver}
+            >
+              ↻ Start over
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       <div className="lesson-quiz-slider-controls">
         <button
@@ -203,22 +308,27 @@ export default function LessonQuizSlider({
         </button>
 
         <div className="lesson-quiz-slider-dots" role="tablist" aria-label="Questions">
-          {quizzes.map(({ quizIndex }, index) => {
-            const attempted = getSelection?.(quizIndex) !== null;
-            return (
-              <button
-                key={quizIndex ?? index}
-                type="button"
-                role="tab"
-                aria-selected={index === activeIndex}
-                aria-label={`Question ${index + 1}${attempted ? ", answered" : ""}`}
-                className={`lesson-quiz-slider-dot${
-                  index === activeIndex ? " lesson-quiz-slider-dot--active" : ""
-                }${attempted ? " lesson-quiz-slider-dot--done" : ""}`}
-                onClick={() => setActiveIndex(index)}
-              />
-            );
-          })}
+          {slides.map((slide) => (
+            <button
+              key={slide.key}
+              type="button"
+              role="tab"
+              aria-selected={slide.index === activeIndex}
+              aria-label={`Question ${slide.index + 1}${
+                slide.answered ? (slide.correct ? ", correct" : ", incorrect") : ""
+              }`}
+              className={`lesson-quiz-slider-dot${
+                slide.index === activeIndex ? " lesson-quiz-slider-dot--active" : ""
+              }${slide.answered ? " lesson-quiz-slider-dot--done" : ""}${
+                slide.answered
+                  ? slide.correct
+                    ? " lesson-quiz-slider-dot--right"
+                    : " lesson-quiz-slider-dot--wrong"
+                  : ""
+              }`}
+              onClick={() => setActiveIndex(slide.index)}
+            />
+          ))}
         </div>
 
         <button

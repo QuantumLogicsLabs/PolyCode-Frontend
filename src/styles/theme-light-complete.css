@@ -554,8 +554,77 @@ html[data-theme="light"] .lesson-annotator-fab-close,
   color: #64748b !important;
 }
 
+.app.theme-light .main-content.learn-content .lesson-quiz-summary {
+  background: #f8fafc !important;
+  border-color: rgba(37, 99, 235, 0.22) !important;
+}
+
+.app.theme-light .main-content.learn-content .lesson-quiz-summary--perfect {
+  background: #f0fdf4 !important;
+  border-color: rgba(22, 163, 74, 0.35) !important;
+}
+
+.app.theme-light .main-content.learn-content .lesson-quiz-summary-text strong {
+  color: #0f172a !important;
+}
+
+.app.theme-light .main-content.learn-content .lesson-quiz-summary-text p {
+  color: #64748b !important;
+}
+
+.app.theme-light .main-content.learn-content .lesson-quiz-summary-score {
+  color: #2563eb !important;
+}
+
+.app.theme-light
+  .main-content.learn-content
+  .lesson-quiz-summary--perfect
+  .lesson-quiz-summary-score {
+  color: #16a34a !important;
+}
+
+.app.theme-light .main-content.learn-content .lesson-quiz-summary-bar {
+  background: rgba(37, 99, 235, 0.15) !important;
+}
+
+.app.theme-light .main-content.learn-content .lesson-quiz-summary-bar span {
+  background: #2563eb !important;
+}
+
+.app.theme-light
+  .main-content.learn-content
+  .lesson-quiz-summary--perfect
+  .lesson-quiz-summary-bar
+  span {
+  background: #16a34a !important;
+}
+
+.app.theme-light .main-content.learn-content .lesson-quiz-summary-btn {
+  background: #ffffff !important;
+  border-color: rgba(37, 99, 235, 0.22) !important;
+  color: #334155 !important;
+}
+
+.app.theme-light .main-content.learn-content .lesson-quiz-summary-btn:hover {
+  background: #eff6ff !important;
+  border-color: rgba(37, 99, 235, 0.45) !important;
+  color: #1d4ed8 !important;
+}
+
 .app.theme-light .main-content.learn-content .lesson-quiz-slider-dot {
   background: #cbd5e1 !important;
+}
+
+.app.theme-light
+  .main-content.learn-content
+  .lesson-quiz-slider-dot--right:not(.lesson-quiz-slider-dot--active) {
+  background: #16a34a !important;
+}
+
+.app.theme-light
+  .main-content.learn-content
+  .lesson-quiz-slider-dot--wrong:not(.lesson-quiz-slider-dot--active) {
+  background: #e11d48 !important;
 }
 
 .app.theme-light .main-content.learn-content .lesson-quiz-slider-dot--active {
