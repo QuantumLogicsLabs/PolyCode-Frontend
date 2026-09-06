@@ -6,7 +6,7 @@ import LessonContentShell from "../../shared/LessonContentShell";
 import LessonChallengeTab from "../../shared/LessonChallengeTab";
 import CppDsLesson from "../components/CppDsLesson";
 import OopsSidebar from "../../oops-cpp/components/OopsSidebar";
-import CodeChallenge from "../../oops-cpp/components/CodeChallenge";
+import CppDsChallenge from "../components/CppDsChallenge";
 import {
   CPP_DATA_STRUCTURES_CHAPTERS,
   CPP_DATA_STRUCTURES_LESSONS,
@@ -206,7 +206,7 @@ export default function CppDataStructuresLessonPage() {
           videoTitle={`${lesson.title} — C++ Data Structures`}
         >
           {tab === "challenge" && hasChallenge ? (
-            <CodeChallenge
+            <CppDsChallenge
               challenge={{ id: lessonId, ...lesson.challenge }}
               accentColor={LEARN_ACCENT}
               isCompleted={isCompleted}

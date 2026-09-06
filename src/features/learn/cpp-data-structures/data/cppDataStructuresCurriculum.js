@@ -781,37 +781,37 @@ int main() {
           ),
         ],
         challenge: {
-          title: "Fused multiply-add",
+          title: "Do the calculation",
           description:
-            "Compute `a * b + c` in one expression - a multiply, an add, then the write-back of the result: the everyday work of the ALU stage.",
+            "An order has `price` per item, a `quantity`, and a flat `shipping` fee. Fill in `orderTotal` so it returns `price * quantity + shipping` - the kind of everyday arithmetic the Execute step does.",
           starterCode: `#include <iostream>
 using namespace std;
 
-int fma(int a, int b, int c) {
-    // TODO: a * b + c
+int orderTotal(int price, int quantity, int shipping) {
+    // TODO: return price times quantity, plus shipping
     return 0;
 }
 
 int main() {
-    cout << fma(3, 4, 5) << endl;    // 17
-    cout << fma(10, 10, -1) << endl; // 99
+    cout << orderTotal(20, 3, 5) << endl;   // 65
+    cout << orderTotal(100, 1, 0) << endl;  // 100
     return 0;
 }`,
           solutionCode: `#include <iostream>
 using namespace std;
 
-int fma(int a, int b, int c) {
-    return a * b + c;
+int orderTotal(int price, int quantity, int shipping) {
+    return price * quantity + shipping;
 }
 
 int main() {
-    cout << fma(3, 4, 5) << endl;    // 17
-    cout << fma(10, 10, -1) << endl; // 99
+    cout << orderTotal(20, 3, 5) << endl;   // 65
+    cout << orderTotal(100, 1, 0) << endl;  // 100
     return 0;
 }`,
           tests: [
-            { id: 1, label: "Computes a * b + c", keywords: [{ pattern: "a \\* b \\+ c" }], hint: "One multiply then one add." },
-            { id: 2, label: "Returns the result", keywords: [{ pattern: "return a \\* b \\+ c" }], hint: "return the expression directly." },
+            { id: 1, label: "Multiplies price by quantity", keywords: [{ pattern: "price\\s*\\*\\s*quantity" }], hint: "price * quantity" },
+            { id: 2, label: "Adds the shipping cost", keywords: [{ pattern: "\\+\\s*shipping" }], hint: "... + shipping" },
           ],
         },
       },
