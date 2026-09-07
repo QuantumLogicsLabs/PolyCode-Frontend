@@ -130,6 +130,18 @@ function Block({ block, step }) {
       );
     }
 
+    case "scenario":
+      return (
+        <div className="cppds-scenario">
+          <span className="cppds-scenario-label">
+            {block.title || "Think of it like this"}
+          </span>
+          <p>
+            <Inline text={block.content} />
+          </p>
+        </div>
+      );
+
     case "diagram":
       return (
         <Step n={step}>

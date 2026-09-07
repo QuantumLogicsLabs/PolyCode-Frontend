@@ -23,7 +23,7 @@
 .app.theme-light .navbar-brand .navbar-logo {
   padding: 5px;
   background: linear-gradient(145deg, #eef2ff 0%, #f8fafc 52%, #ecfeff 100%);
-  border: 1px solid rgba(79, 70, 229, 0.22);
+  border: 1px solid rgba(37, 99, 235, 0.22);
   box-shadow:
     0 1px 2px rgba(15, 23, 42, 0.06),
     inset 0 1px 0 rgba(255, 255, 255, 0.95);
@@ -31,8 +31,8 @@
 }
 
 .app.theme-light .navbar-brand:hover .navbar-logo {
-  border-color: rgba(79, 70, 229, 0.38);
-  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.12);
+  border-color: rgba(37, 99, 235, 0.38);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12);
 }
 
 /* ── Auth (login / signup) ── */

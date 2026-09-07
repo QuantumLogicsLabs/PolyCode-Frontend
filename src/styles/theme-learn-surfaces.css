@@ -262,7 +262,9 @@
 }
 
 .app.theme-light .main-content.learn-content .oops-sidebar-lesson-btn.current {
-  color: #2563eb;
+  color: #1d4ed8;
+  background: #eff6ff;
+  font-weight: 600;
 }
 
 .app.theme-light .main-content.learn-content .oops-sidebar-chapter-btn.done .oops-sb-check,

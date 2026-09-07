@@ -5986,6 +5986,64 @@ NAVBAR
   color: #111827;
 }
 
+/* Marquee pills + bottom CTA — light readability */
+.app.theme-light .polycode-landing .landing-tech-pill,
+.polycode-landing.polycode-landing--light .landing-tech-pill {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #475569;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.app.theme-light .polycode-landing .landing-cta-box,
+.polycode-landing.polycode-landing--light .landing-cta-box {
+  background:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.08), transparent 40%),
+    linear-gradient(315deg, rgba(14, 165, 233, 0.06), transparent 42%),
+    #ffffff;
+  border-color: rgba(37, 99, 235, 0.18);
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.06);
+}
+
+.app.theme-light .polycode-landing .landing-cta-box h2,
+.polycode-landing.polycode-landing--light .landing-cta-box h2 {
+  color: #0f172a;
+}
+
+.app.theme-light .polycode-landing .landing-cta-box p,
+.polycode-landing.polycode-landing--light .landing-cta-box p {
+  color: #475569;
+}
+
+/* Align landing brand mark with app navbar logo frame */
+.app.theme-light .polycode-landing .landing-brand-mark,
+.polycode-landing.polycode-landing--light .landing-brand-mark {
+  padding: 5px;
+  border-radius: 10px;
+  background: linear-gradient(145deg, #eef2ff 0%, #f8fafc 52%, #ecfeff 100%);
+  border: 1px solid rgba(37, 99, 235, 0.22);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.app.theme-light .polycode-landing .landing-logo,
+.polycode-landing.polycode-landing--light .landing-logo {
+  width: 32px;
+  height: 32px;
+}
+
+.app.theme-light .polycode-landing .landing-btn-primary,
+.app.theme-light .polycode-landing .landing-btn-hero-primary,
+.app.theme-light .polycode-landing .landing-mobile-cta,
+.polycode-landing.polycode-landing--light .landing-btn-primary,
+.polycode-landing.polycode-landing--light .landing-btn-hero-primary,
+.polycode-landing.polycode-landing--light .landing-mobile-cta {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+  border-color: transparent !important;
+  color: #ffffff !important;
+}
+
 /* ── Glass cards (overrides legacy solid card styles) ── */
 .polycode-landing .landing-feat-card {
   border: 1px solid rgba(255, 255, 255, 0.12);

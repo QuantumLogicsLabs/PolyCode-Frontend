@@ -36,6 +36,10 @@ function objectives(items) {
   return { type: "objectives", items };
 }
 
+function scenario(title, content) {
+  return { type: "scenario", title, content };
+}
+
 // Styled comparison table. `rows` is an array of ["Row label", cell, cell, ...].
 function table(title, columns, rows, options = {}) {
   return {
@@ -73,7 +77,14 @@ const RAW_CPP_DATA_STRUCTURES_CHAPTERS = [
             "Explain why we care how a program *grows*, not how many seconds it takes today",
           ]),
           text(
-            "Imagine two ways to look up a friend's number in a thick paper phone book. One: start at page 1 and flip forward until you find it. Two: open it near the middle, notice whether you've gone too far, and jump again. Both work. But as the phone book gets fatter, the first way turns into a slog while the second barely slows down.\n\nThis whole course is about choosing the second way on purpose. A **data structure** is simply a tidy way of keeping your information so the things you do most often - add something, find something, remove something, go through everything - stay quick.",
+            "**Introduction:** Every program spends its life doing the same handful of chores: put some information somewhere, find it again, remove it, go through all of it. How *quick* those chores feel depends almost entirely on how you decided to keep the information in the first place. A **data structure** is simply a tidy way of keeping your information so the things you do most often stay fast - and every tidy way charges you in one of two currencies: **time** and **space**.\n\n**Real-life example:** Two ways to look up a friend's number in a thick paper phone book. One: start at page 1 and flip forward until you find it. Two: open it near the middle, notice whether you've gone too far, and jump again. Both work. But as the phone book gets fatter, the first way turns into a slog while the second barely slows down. This whole course is about choosing the second way on purpose.",
+          ),
+          text(
+            "In this topic you will learn:\n\n- what **time** and **space** mean when we talk about the cost of a program\n- why we describe a cost by the way it *grows*, not in seconds\n- how to read the everyday speed labels: O(1), O(log n), O(n), O(n log n), O(n^2)\n- why `5n + 100` is simply \"O(n)\", and why we normally quote the worst case",
+          ),
+          scenario(
+            "Think of it like this",
+            "You are packing for a trip. One big rucksack is light to carry, but every time you want your charger you have to dig through the whole thing. Ten labelled pouches let you grab the charger instantly - but they weigh more and eat up more room in the boot. Neither choice is \"correct\". One is spending space to save time; the other is spending time to save space. Every structure in this course is a different point on that same trade, and Big-O is just the shared language for saying where a structure sits.",
           ),
           text(
             "Every choice costs you one of two things:\n\n- **Time** - how many little steps the computer has to do.\n- **Space** - how much extra memory it needs while doing them.\n\nVery often you can trade one for the other: spend more memory to go faster, or use less memory and go slower. Knowing that trade is most of the skill.",
@@ -185,7 +196,17 @@ int main() {
             "See with your own eyes why n^2 + n + 1 is simply \"O(n^2)\"",
           ]),
           text(
-            "A **loop** is just \"do this once for each item\". Most of the time you can size up how expensive a piece of code is by asking a single question: *how many times does the repeated part actually run?*",
+            "**Introduction:** You do not need to run a program to get a feel for how fast it is. Almost all of the cost lives in the **loops** - and a loop is just \"do this once for each item\". So you can usually size up a piece of code by asking one question: *how many times does the repeated part actually run?* Answer that, and the Big-O falls out on its own.\n\n**Real-life example:** A teacher marking homework. Reading each of 30 books once is one pass through the pile. But asking every pupil to swap books with every other pupil for peer marking is 30 x 30 handovers - the pile did not get bigger, the *pairing up* did. Same class, wildly different afternoon.",
+          ),
+          text(
+            "In this topic you will learn:\n\n- how to read a program's speed straight off its loops\n- the difference between steps that run **one after another** and steps that run **one inside another**\n- why a loop that halves its data gives you `log n`\n- why `n^2 + n + 1` is simply \"O(n^2)\" - with the numbers to prove it",
+          ),
+          scenario(
+            "Think of it like this",
+            "Two chores in a house with n rooms. Chore one: sweep each room once - you walk the house a single time, so the work rises exactly in step with the number of rooms. Chore two: in every room, check the light switch against every other room's fuse - now you are pairing rooms up, and adding one room adds a whole extra lap. Chore one is O(n); chore two is O(n^2). Nothing about the rooms changed. What changed is whether the second loop sits *beside* the first or *inside* it.",
+          ),
+          text(
+            "So the whole method is: find the repeated part, and count how often it runs.",
           ),
           text(
             "- Go through the list once -> **O(n)** (n items, one visit each).\n- For every item, go through the whole list again -> that's a loop **inside** a loop -> **O(n x n) = O(n^2)**.\n- Each step throws away half of what's left -> **O(log n)** (you finish in very few steps).\n- Do one full pass, then a second, *separate* full pass -> **O(n) + O(n)**, which is still just **O(n)** (two passes is a constant; we drop it).",
@@ -306,7 +327,14 @@ int main() {
             "Check a derivation by counting operations at run time",
           ]),
           text(
-            "Big-O is the headline. **f(n)** is the receipt behind it: the exact number of basic steps a piece of code performs for an input of size n. Reading the shape straight off a loop works most of the time - but when the loops are irregular, when you have to *justify* the answer, or when two versions look equally fast, you derive f(n) first and reduce it afterwards.",
+            "**Introduction:** Big-O is the headline; **f(n)** is the receipt behind it. Where Big-O says \"this grows like n squared\", f(n) says exactly how many basic steps the code performs for an input of size n. Eyeballing the shape off a loop works most of the time - but when the loops are lopsided, when you have to *justify* the answer to somebody, or when two versions look equally fast, you work out f(n) first and simplify it afterwards.\n\n**Real-life example:** A restaurant bill. \"About fifty pounds\" is the Big-O - good enough to decide whether you can afford it. The itemised receipt is f(n) - it tells you the starter was £6 and the wine was £24, which is the only way to find out *where* the money actually went.",
+          ),
+          text(
+            "In this topic you will learn:\n\n- how to count the exact steps of a program, line by line, to get **f(n)**\n- the five rules that turn f(n) into Big-O\n- how to handle a **triangular** nested loop with a sum instead of a guess\n- how to make the program count its own steps so you can check your working",
+          ),
+          scenario(
+            "Think of it like this",
+            "Imagine you are asked \"how long does the school run take?\" The Big-O answer is \"about twenty minutes\" - it tells you whether to leave now or after breakfast. The f(n) answer breaks it down: two minutes to get everyone in the car, four minutes per stop, one minute to park. That breakdown is what lets you notice that adding a third child adds four minutes, not twenty. Big-O tells you the shape of the cost; f(n) tells you its actual size - and when two programs share the same shape, f(n) is the only thing left that can tell them apart.",
           ),
           text(
             "Count one step per assignment, comparison, or arithmetic statement. Then ask of every line: **how many times does this line actually run?**",
@@ -483,7 +511,17 @@ int main() {
             "Recognise the divide-and-conquer recurrence behind both",
           ]),
           text(
-            "`log n` and `n log n` come from the same idea: **split the problem in half, again and again.** Binary search does almost no work at each split, so it costs `log n`. Merge sort does one `O(n)` pass at each split, so it costs `n log n`. Below is each one, explained slowly, with a complete program you can run.",
+            "**Introduction:** Two of the labels from the last lesson look mysterious until you see where they come from - and they both come from the *same* single idea: **split the problem in half, again and again.** Binary search does almost no work at each split, so it costs `log n`. Merge sort does one full `O(n)` pass at each split, so it costs `n log n`. That one difference - nothing per level versus everything per level - is the whole story.\n\n**Real-life example:** Guessing a number between 1 and 1,000. If you guess 1, 2, 3... you might need 1,000 guesses. If you always guess the middle of whatever range is left and ask \"higher or lower?\", you are home in ten. Halving is not a small improvement - it is the difference between a thousand steps and ten.",
+          ),
+          text(
+            "In this topic you will learn:\n\n- how **binary search** works step by step, and why halving gives `log n`\n- how **merge sort** works step by step, and why it gives `n log n`\n- the divide-and-conquer pattern sitting behind both\n- why binary search only works on **sorted** data",
+          ),
+          scenario(
+            "Think of it like this",
+            "You have lost one page in a 1,000-page book and you know the pages are numbered in order. You do not start at page 1. You open the middle, see whether your page is before or after, and throw away half the book. Then half of what's left, and half again. Ten opens and you are there. Now imagine a different job: sorting a shuffled 1,000-page manuscript. You split the pile in two, get each half sorted, then walk down the two sorted piles taking whichever page number is smaller. Splitting gives you about ten levels; each level has you touch all 1,000 pages once. Ten levels of a thousand pages - that is `n log n`.",
+          ),
+          text(
+            "Below is each one, explained slowly, with a complete program you can run.",
           ),
 
           text(
@@ -744,7 +782,14 @@ int main() {
             "Connect \"one operation\" in Big-O to real CPU work, and why constants still matter",
           ]),
           text(
-            "Picture a cook at one station. In front of them is a stack of index cards, each with a single tiny instruction: \"pick up the knife\", \"make one cut\", \"put the knife down\". For every card the cook does the same four things: **take the next card, read it, do what it says, note the result** - then reach for the next card.\n\nA computer's processor works exactly like that, just billions of cards a second. That repeating four-step routine is called the **instruction cycle** (you'll also hear \"CPU cycle\" or \"fetch-decode-execute cycle\").",
+            "**Introduction:** Big-O counts \"steps\", so it is worth knowing what a step actually is down at the metal. A processor does not understand your C++ line; it understands thousands of tiny machine instructions, and for every single one of them it repeats the same four-part routine: **fetch, decode, execute, write-back**. That routine is called the **instruction cycle** (you will also hear \"CPU cycle\" or \"fetch-decode-execute cycle\"), and knowing it explains why two programs with identical Big-O can finish minutes apart.\n\n**Real-life example:** A cook at one station with a stack of index cards in front of them, each card carrying one tiny instruction: \"pick up the knife\", \"make one cut\", \"put the knife down\". For every card the cook does the same four things - take the next card, read it, do what it says, note the result - then reaches for the next card. A processor works exactly like that, just billions of cards a second.",
+          ),
+          text(
+            "In this topic you will learn:\n\n- the four stages the CPU repeats for **every** machine instruction\n- how one innocent line of C++ turns into many instructions and memory trips\n- why \"one operation\" in Big-O is not one operation in real life\n- why the constants Big-O throws away can still be felt on the clock",
+          ),
+          scenario(
+            "Think of it like this",
+            "Two cooks are each handed 100 recipe cards, so on paper they have identical workloads. The first cook has every ingredient laid out within arm's reach. The second has to walk to the store cupboard for every single card. Both do 100 \"steps\" - and the second one finishes an hour later. Big-O is the card count. It is silent about how far the cook has to walk for each card, which in a real computer means: is the value already close to the processor, or does it have to be fetched from far away?",
           ),
           diagram("The four steps, repeated for every instruction", [
             { id: "fetch", label: "1. Fetch", color: ACCENT, items: ["Grab the next instruction", "The processor keeps a bookmark pointing at it", "Move the bookmark along"] },
@@ -827,7 +872,14 @@ int main() {
             "Explain why the same O(n) job can be much faster with data laid out in a row",
           ]),
           text(
-            "The processor is fast. Main memory is not - by comparison it's *glacial*. Asking memory for a value the CPU doesn't already have nearby can cost as much as running a few hundred normal instructions while it waits.\n\nTo hide that wait, the CPU keeps recently used data in a few small, very fast holding areas called **caches**. And it never fetches one lonely value - it grabs a whole **chunk of neighbouring memory** at once (about 64 bytes, roughly 16 whole numbers), betting that you'll want the neighbours too.",
+            "**Introduction:** The processor is fast. Main memory is not - by comparison it is *glacial*. Asking memory for a value the CPU does not already have nearby can cost as much as running a few hundred ordinary instructions while it stands there waiting. That single fact is why *where* your data sits matters as much as how many steps your algorithm takes, and it is the reason a plain row of numbers so often beats a cleverer structure with the same Big-O.\n\n**Real-life example:** Cooking with the ingredients on the worktop versus fetching each one from a shop down the road. The recipe has the same number of steps either way. One version takes twenty minutes; the other takes all afternoon, because almost all the time goes on the trips, not the cooking.",
+          ),
+          text(
+            "In simple words:\n\n- reaching out to main memory is *slow* - the CPU has to wait\n- so the CPU keeps recently used data in small, very fast holding areas called **caches**\n- and it never fetches one lonely value: it grabs a whole **chunk of neighbouring memory** at once (about 64 bytes, roughly 16 whole numbers), betting you will want the neighbours too\n- which means data laid out **in a row** gets most of its fetches for free",
+          ),
+          scenario(
+            "Think of it like this",
+            "You are a librarian fetching books for a reader. The books are on a shelf three floors down, so each trip is expensive - but you have a trolley, and the trolley holds sixteen books. If the reader wants sixteen books that sit next to each other on the shelf, that is **one** trip: you load the whole run onto the trolley and you are done. If they want sixteen books scattered across sixteen different shelves, that is sixteen trips down and back. Exactly the same number of books requested. Sixteen times the walking. That is the entire idea behind caches and why \"in a row\" wins.",
           ),
           table(
             "How far away is the data? (bigger gap = slower)",
@@ -943,7 +995,14 @@ int main() {
             "Know the basic rules for timing code honestly",
           ]),
           text(
-            "Some actions are cheap nearly every time, and then - once in a while - expensive. Think of a bookshelf. Adding a book is instant... until the shelf is full. Then you buy a bigger shelf and move every book across. That move is a chore. But it happens rarely, and each new shelf is *twice* the size, so the chore comes round less and less often.",
+            "**Introduction:** Up to now we have talked about the cost of *one* operation. But some operations are cheap nearly every time and then, once in a while, expensive - and quoting only the expensive case would be badly misleading. The honest way to describe them is the **amortised** cost: the average price per operation once you spread the rare expensive one across all the cheap ones around it.\n\n**Real-life example:** A bookshelf. Adding a book is instant... until the shelf is full. Then you buy a bigger shelf and move every book across, which is a proper chore. But it happens rarely, and each new shelf is *twice* the size of the last, so the chore comes round less and less often. Averaged over all the books you ever shelve, adding a book is still basically instant.",
+          ),
+          text(
+            "In this topic you will learn:\n\n- what **amortised** cost means: cheap almost always, rarely expensive, cheap on average\n- why a growable list stays fast overall even though it sometimes copies everything\n- why *doubling* is the trick that makes the maths work out\n- the basic rules for timing code honestly",
+          ),
+          scenario(
+            "Think of it like this",
+            "You pay for a bus pass once a month and then ride free for thirty days. On the first of the month a ride \"costs\" the whole pass; on the other twenty-nine days a ride costs nothing. Nobody sensibly describes that as \"an expensive way to travel\" - you divide the pass by the number of rides and quote *that*. Amortised analysis is exactly the same move applied to code: the rare resize is the monthly pass, and every cheap append that follows it is a free ride.",
           ),
           text(
             "A **growable list** (you'll meet it properly next chapter) behaves exactly like that bookshelf. Adding an item is instant, until it's full; then it grabs a block twice as big and copies everything over. The average cost, spread across *all* the adds, is what we call the **amortised** cost - and here it works out to basically instant per add.",
@@ -1068,7 +1127,17 @@ int main() {
             "Distinguish an abstract data type from a concrete implementation",
           ]),
           text(
-            "A **data structure** organises data; an **abstract data type (ADT)** is the *interface* - the operations and their guarantees - kept separate from how it is built. \"Stack\" is an ADT (`push` / `pop` / `top`, last-in-first-out). It can be *implemented* with an array or with linked nodes.",
+            "**Introduction:** Before we start building things, it helps to have a map of what we are going to build. Every structure in this course falls into one of two families, and the family is decided by one question: does each item have exactly one \"next\", or can an item connect to many others? That is the difference between **linear** and **non-linear**, and it is the single most useful way to organise everything ahead.\n\n**Real-life example:** A queue at a bus stop is linear - you are behind exactly one person and in front of exactly one person. A family tree is not: one parent can have four children, so there is no single \"next person\". Same people, completely different shape, and completely different questions you can ask cheaply.",
+          ),
+          text(
+            "In this topic you will learn:\n\n- what **linear** and **non-linear** data structures are\n- where arrays, lists, stacks, queues, trees, heaps, hash tables and graphs sit on the map\n- the difference between an **abstract data type** (what it promises) and an **implementation** (how it is built)",
+          ),
+          scenario(
+            "Think of it like this",
+            "\"Stack\" is a promise, not a thing. The promise is: you can put something on top, take the top thing off, and peek at the top thing - last in, first out. A cafeteria tray dispenser keeps that promise, and so does a pile of plates on a worktop, and so does a stack built out of an array or one built out of linked nodes. The promise is what your code depends on; the machinery underneath is a separate decision you can change later. That split - promise versus machinery - is what we mean by an **abstract data type**.",
+          ),
+          text(
+            "In precise terms, a **data structure** organises data, while an **abstract data type (ADT)** is the *interface*: the operations and their guarantees, kept deliberately separate from how it is built. \"Stack\" is an ADT (`push` / `pop` / `top`, last-in-first-out). It can be *implemented* with an array or with linked nodes.",
           ),
           text(
             "Structures fall into two families, decided by how elements relate:\n\n- **Linear** - elements form one sequence; each has at most one predecessor and one successor. Arrays, linked lists, stacks, queues, deques. You traverse them one way.\n- **Non-linear** - an element can connect to many others; there is no single \"next\". Trees (one parent, many children), heaps, hash tables (buckets), graphs (any-to-any).",
@@ -1141,7 +1210,17 @@ int main() {
             "Give the cost of access, search, and middle insert/erase on an array",
           ]),
           text(
-            "The **List ADT** is an ordered collection you can index into, insert into, and remove from. The **array** is its most basic implementation: a fixed-size, contiguous block. Element `i` lives at `base + i * sizeof(T)`, so indexing is one multiply-add - **`O(1)` random access**.",
+            "**Introduction:** The most ordinary thing you can ask of a collection is \"give me the fifth one\". The **array** is the structure built to answer that instantly: one unbroken block of memory with every element the same size, side by side. Because the elements are evenly spaced, the computer can *calculate* where element five is instead of hunting for it - and that one property is where the array's whole personality comes from, the good parts and the bad.\n\n**Real-life example:** A street of identical houses, numbered from 0. To find number 37 nobody walks the street reading door plates - you know each house is one width apart, so you go straight there. But now try inserting a new house between 12 and 13: every house after it has to be renumbered and shifted along. Instant lookup, painful insertion. That is an array.",
+          ),
+          text(
+            "In this topic you will learn:\n\n- what the **List ADT** promises: an ordered collection you can index, insert into and remove from\n- why `arr[i]` is `O(1)` no matter how big `i` is\n- what access, search, and inserting or erasing in the middle actually cost\n- why a fixed-size array cannot grow, and what C++ gives you instead",
+          ),
+          scenario(
+            "Think of it like this",
+            "Picture a row of numbered pigeonholes bolted to a wall, all the same size. Reaching into hole 9 takes exactly as long as reaching into hole 0 - you measure along the wall and put your hand in. That is `O(1)` access. But the row is bolted down: you cannot add a twenty-first hole because there is no wall left, and you cannot squeeze one in the middle without unbolting and re-hanging every hole to the right of it. Everything an array is good at, and everything it is bad at, comes from those holes being fixed and evenly spaced.",
+          ),
+          text(
+            "In precise terms, the **List ADT** is an ordered collection you can index into, insert into, and remove from. The **array** is its most basic implementation: a fixed-size, contiguous block. Element `i` lives at `base + i * sizeof(T)`, so indexing is one multiply-add - **`O(1)` random access**.",
           ),
           text(
             "Costs on a static array:\n\n- read / write by index: `O(1)`\n- search by value: `O(n)` unsorted, `O(log n)` if sorted (binary search)\n- insert or erase in the middle: `O(n)` - every later element shifts\n- append: `O(1)` *only if there is room* - and a raw array has no room, its size is fixed at creation",
@@ -1254,7 +1333,14 @@ int main() {
             "Match every new[] with exactly one delete[], then null the pointer",
           ]),
           text(
-            "Every structure from here on - dynamic arrays, linked lists, trees, graphs - is held together by pointers into the heap. The structure is only ever as safe as the pointer discipline around it, so this lesson is the discipline, in one place, before we start allocating in earnest.",
+            "**Introduction:** Every structure from here on - dynamic arrays, linked lists, trees, graphs - is held together by **pointers** into the heap. A pointer is just a variable that stores *where* something lives rather than the thing itself, and that small idea is what lets a structure grow while the program is running. It also means a structure is only ever as safe as the pointer discipline around it, so this lesson gathers that discipline in one place before we start allocating in earnest.\n\n**Real-life example:** A cloakroom ticket. The ticket is not your coat - it is a slip of paper saying *where your coat is*. Hand the ticket over and you get the coat. Lose the ticket and the coat is still hanging there, unreachable. Keep the ticket after the cloakroom has already given your coat away and you are holding a slip that points at somebody else's belongings. Those three situations are, in order, a working pointer, a memory leak, and a dangling pointer.",
+          ),
+          text(
+            "In this topic you will learn:\n\n- how to tell **null**, **void**, **dangling** and **wild** pointers apart\n- what one step of **pointer arithmetic** actually moves\n- why `p[3]` and `*(p + 3)` are the same thing\n- the rule that prevents most heap bugs: one `new[]`, one `delete[]`, then null the pointer",
+          ),
+          scenario(
+            "Think of it like this",
+            "A pointer is a house address written on a scrap of paper. `nullptr` is a blank scrap - honest, and if you try to visit it you fail immediately and loudly, which is exactly what you want. A **dangling** pointer is an address for a house that has since been demolished and rebuilt: the paper still looks perfectly fine, and the danger is that visiting it often *seems* to work. A **wild** pointer is a scrap you found on the floor and never wrote on - it holds whatever was already there. This is why the habit of writing `nullptr` straight after a `delete` matters so much: it turns the silent, dangerous case into the loud, obvious one.",
           ),
           text(
             "A pointer is a variable holding an **address**. `&` takes the address of something; `*` reads the value at that address.",
@@ -1421,7 +1507,14 @@ int main() {
             "Swap two rows in O(1) by moving pointers instead of elements",
           ]),
           text(
-            "A rectangle wastes space the moment the rows differ. Think of a car park with three levels of 4, 3 and 5 marked slots: a 3 x 5 rectangle allocates 15 slots and leaves 3 of them permanently empty. A **jagged** (or ragged) array fits the data instead - it is an array of row *pointers*, `T**`, where every row is its own heap block of its own length.",
+            "**Introduction:** A 2D array is a rectangle, and a rectangle wastes space the moment the rows are not all the same length. A **jagged** (or ragged) array fits the data instead: rather than one big rectangle, you keep an array of row *pointers*, and every row is its own separate block of its own length. It costs you a little bookkeeping and buys you exact-fit memory - plus one very useful trick we get to at the end.\n\n**Real-life example:** A multi-storey car park with three levels of 4, 3 and 5 marked slots. Force it into a 3 x 5 rectangle and you have paid for 15 slots while 3 of them can never be used. A jagged layout paints exactly 12 slots, because each level is allowed to be its own size.",
+          ),
+          text(
+            "In this topic you will learn:\n\n- how to allocate a `T**` grid where each row has its own length\n- the order you must free it in, and exactly what leaks if you get that order wrong\n- why a class holding a raw `T**` needs the **Rule of Three**\n- how to swap two rows in `O(1)` by moving pointers instead of elements",
+          ),
+          scenario(
+            "Think of it like this",
+            "A jagged array is a ring binder with a contents page. The contents page is the array of row pointers - it lists where each chapter starts, and nothing else. Each chapter is a separate bundle of pages, and the bundles are all different thicknesses. Two consequences follow immediately. First, if you shred the contents page before the chapters, the chapters are still sitting in the building but nobody can ever find them again - that is the leak. Second, swapping chapter one with chapter three does not mean retyping any pages: you just rewrite two lines on the contents page. That is the `O(1)` swap.",
           ),
           text(
             "Allocation happens in two steps: the array of row pointers first, then each row. A parallel `slots` array remembers how long each row is, because a raw row cannot tell you its own length.",
@@ -1630,7 +1723,17 @@ int main() {
             "Explain why push_back is amortised O(1) but insert-middle is O(n)",
           ]),
           text(
-            "A **dynamic array** - C++ `std::vector`, Java `ArrayList`, Python `list`, C# `List<T>` - wraps a raw array plus two numbers: **size** (elements in use) and **capacity** (slots allocated). `push_back` writes at index `size` and increments it - `O(1)` - until `size == capacity`. Then it allocates a larger block (usually 2x; MSVC uses 1.5x), moves the elements over, frees the old block, and continues. That resize is `O(n)`, but rare enough to be **amortised `O(1)`**.",
+            "**Introduction:** A plain array cannot grow, which is a serious problem when you do not know in advance how much data is coming. A **dynamic array** solves it with one honest trick: always own a block that is a bit bigger than you currently need, and when you finally fill it, quietly move into a block twice the size. This is the structure you will reach for more than any other - it is `std::vector` in C++, `ArrayList` in Java, `list` in Python, `List<T>` in C#.\n\n**Real-life example:** Renting a storage unit with more shelves than you have boxes. Adding a box is instant while there are spare shelves. When the unit fills, you rent a unit twice as big, carry everything over once, and carry on adding boxes instantly again.",
+          ),
+          text(
+            "In this topic you will learn:\n\n- the difference between **size** (what you use) and **capacity** (what you own)\n- what `push_back` does when the block is full, step by step\n- why appending is **amortised `O(1)`** but inserting in the middle is still `O(n)`\n- how `reserve` removes every regrow when you already know the final size",
+          ),
+          scenario(
+            "Think of it like this",
+            "Think of a guest list written on a sheet with room for sixteen names, of which ten are filled in. **Size** is ten - the names actually on the list. **Capacity** is sixteen - the lines you have room for. Adding an eleventh name is instant because the line is already there. When all sixteen are used you fetch a sheet with thirty-two lines, copy the sixteen names across once, and go back to adding names instantly. Deleting a name from the *middle*, though, means rewriting every name below it - which is why a vector is brilliant at the end and clumsy in the middle.",
+          ),
+          text(
+            "In precise terms, a dynamic array wraps a raw array plus two numbers: **size** (elements in use) and **capacity** (slots allocated). `push_back` writes at index `size` and increments it - `O(1)` - until `size == capacity`. Then it allocates a larger block (usually 2x; MSVC uses 1.5x), moves the elements over, frees the old block, and continues. That resize is `O(n)`, but rare enough to be **amortised `O(1)`**.",
           ),
           text(
             "`insert` and `erase` in the middle stay `O(n)` - the tail still shifts. `pop_back` is `O(1)`. Iteration is contiguous and cache-friendly.",
@@ -1751,7 +1854,14 @@ int main() {
             "Explain where std::deque sits between the two",
           ]),
           text(
-            "Almost every linear structure ahead is built on **a contiguous array** or **linked nodes**. That one choice drives every operation's cost.",
+            "**Introduction:** Almost every linear structure in the rest of this course - stacks, queues, deques - is built on one of exactly two foundations: **a contiguous array** or **linked nodes**. You only get to make that choice once per structure, and it quietly decides the cost of every operation afterwards. So it is worth learning to make it deliberately rather than by habit.\n\n**Real-life example:** A printed book versus a chain of sticky notes, each one telling you where the next is stuck. The book flips straight to page 200 and reads beautifully cover to cover, but slipping a new page in the middle means reprinting the rest. The sticky notes let you insert one anywhere in seconds - but there is no way to \"go to note 200\" except by following 199 notes first.",
+          ),
+          text(
+            "In this topic you will learn:\n\n- how contiguous arrays and linked nodes compare across the core operations\n- a sensible default, and the specific reasons to deviate from it\n- where `std::deque` sits between the two",
+          ),
+          scenario(
+            "Think of it like this",
+            "Two ways to keep a shopping list. Written on one sheet of paper, top to bottom: reading it in the shop is effortless, and you can glance at item four instantly - but squeezing \"milk\" in between items two and three means rewriting the bottom half. Written on separate cards clipped together in order: adding \"milk\" is one clip, no rewriting - but finding item four means going through the first three, and reading the whole list is a lot of card-shuffling. Neither is better. Ask yourself which you do more of - reading through, or inserting in the middle - and the answer picks itself.",
           ),
           text(
             "- index access: array `O(1)` / list `O(n)`\n- insert at front: array `O(n)` / list `O(1)`\n- insert/erase at a position you already hold: array `O(n)` / list `O(1)`\n- memory overhead: array ~0 / list 1-2 pointers per element\n- cache behaviour: array excellent / list poor\n- growth: array occasional realloc+move / list one allocation per node",
@@ -1832,7 +1942,14 @@ int main() {
             "Keep template definitions where the compiler can see them",
           ]),
           text(
-            "You have written `IntVector`. Nobody wants to write `DoubleVector` and `StringVector` beside it, then fix the same bug three times. A **template** is one definition with the type left blank; the compiler fills the blank in and generates a separate, fully type-checked version for each type you actually use. Every structure from here on - list, stack, queue, tree, heap - is worth writing this way once.",
+            "**Introduction:** You have just written `IntVector`. Nobody wants to write `DoubleVector` and `StringVector` next to it and then fix the same bug three times over. A **template** is one definition with the element type left blank; the compiler fills the blank in and generates a separate, fully type-checked version for every type you actually use. Every structure from here on - list, stack, queue, tree, heap - is worth writing this way once.\n\n**Real-life example:** A biscuit cutter. You cut the shape once, in metal, and then stamp it out of shortbread, gingerbread or chocolate dough. You did not design three cutters; you designed one and let the dough decide what comes out.",
+          ),
+          text(
+            "In this topic you will learn:\n\n- how to write a **function template** and a **class template**\n- what the compiler really produces when you write `DynamicArray<int>`\n- why templates cost you nothing at run time\n- the one-line rule that avoids the classic template linker error",
+          ),
+          scenario(
+            "Think of it like this",
+            "A template is a form with a blank on it, not a finished document. Writing `template <class T> class Box` is like printing a rental agreement that says \"vehicle: ______\". Nothing has been rented yet. The moment your code says `Box<int>`, the compiler fills in that blank and prints a real, complete, int-shaped agreement - and `Box<string>` prints a second, entirely separate one. This is why there is no run-time cost: all the filling-in happens before your program ever starts, and what runs is ordinary code that looks exactly like what you would have typed by hand.",
           ),
           text(
             "A **function template** puts the placeholder in the signature. `T` is not a type; it is a slot the compiler fills from the call.",
@@ -2056,7 +2173,17 @@ int main() {
             "Explain why linked structures are called dynamic",
           ]),
           text(
-            "A **node** is a small struct holding a value and one or more pointers to other nodes. Nodes are created on the **heap** at run time with `new` and released with `delete` - the list grows and shrinks one node at a time, with no big contiguous block and no resize. That per-node, run-time allocation is why linked structures are called **dynamic**.",
+            "**Introduction:** An array keeps everything side by side in one block of memory. A **linked structure** does the opposite: each item sits wherever there happens to be room, and carries the address of the next item with it. Nothing is next to anything else - the chain is held together entirely by those addresses, which are called **pointers**.\n\n**Real-life example:** A treasure hunt. Each clue is hidden in a different place, and every clue tells you where the next one is. The clues are scattered all over the park, but as long as you hold the first one you can reach every single one of them.",
+          ),
+          text(
+            "In this topic you will learn:\n\n- what a **node** is: a value plus one or more links\n- how to create nodes at run time with `new` and release them with `delete`\n- why the whole list is just a single pointer called the **head**\n- what \"dynamic\" actually means and why it matters",
+          ),
+          scenario(
+            "Think of it like this",
+            "Picture a train made of carriages that are never coupled in a fixed yard. Each carriage carries a note saying which carriage comes next, and the last one's note says \"nothing follows\" - that is `nullptr`. You can add a carriage anywhere by rewriting two notes, and you never have to shunt the whole train to make room. The catch is the flip side: there is no such thing as \"carriage number 7\". To reach the seventh carriage you must walk through the first six, because the only way in is the front.",
+          ),
+          text(
+            "In precise terms, a **node** is a small struct holding a value and one or more pointers to other nodes. Nodes are created on the **heap** at run time with `new` and released with `delete` - the list grows and shrinks one node at a time, with no big contiguous block and no resizing. That per-node, run-time allocation is exactly why linked structures are called **dynamic**.",
             {
               label: "A three-node chain by hand",
               content: `struct Node {
@@ -2155,6 +2282,16 @@ int main() {
             "State the cost of each and why push_back needs a tail pointer to be O(1)",
             "Explain how a dummy head node removes edge cases",
           ]),
+          text(
+            "**Introduction:** Now that you can build a chain of nodes, you need the handful of operations that make it useful: adding at the front, adding at the back, walking through it, and removing an item. Each one is just a matter of rewriting a couple of pointers - but *which* pointers you can reach decides whether an operation is instant or slow.\n\n**Real-life example:** A queue of people where each person only knows who is behind them. Adding someone at the front is instant. Adding someone at the very back means walking down the whole line to find out who is currently last - unless somebody is standing there keeping track of the end.",
+          ),
+          text(
+            "In this topic you will learn:\n\n- the four core operations: push_front, push_back, search and erase\n- what each one costs, and why\n- how a `tail` pointer turns `push_back` from `O(n)` into `O(1)`\n- the **dummy head** trick that makes deleting the first node stop being a special case",
+          ),
+          scenario(
+            "Think of it like this",
+            "Deleting from a linked list is like removing one carriage from a train. You cannot just unhook it - you have to find the carriage *in front* of it and hook that one directly onto whatever came after. Since each carriage only knows what follows it, you have to walk the train from the front keeping one hand on the previous carriage. And there is an annoying special case: if the carriage you are deleting is the very first one, there is no previous carriage, so the rule breaks. A **dummy head** - an empty carriage permanently parked at the front - makes that case disappear, because now there is always something in front.",
+          ),
           text(
             "A **singly linked list** keeps a `head` pointer; each node points only forward.\n\n- **push_front(x)** - new node, its `next = head`, then `head = new node`. `O(1)`.\n- **push_back(x)** - walk to the last node, link it on. `O(n)` - or `O(1)` if you also keep a `tail` pointer.\n- **traverse / search** - follow `next` from `head`. `O(n)`.\n- **erase(value)** - keep a `prev` pointer, set `prev->next = cur->next`, `delete cur`. `O(n)` to find, `O(1)` to unlink.",
             {
@@ -2283,7 +2420,17 @@ int main() {
             "Recognise std::list and the LRU-cache use case",
           ]),
           text(
-            "A **doubly linked list** node carries `prev` and `next`. It costs an extra pointer per node and more pointer updates per operation, and buys:\n\n- **`O(1)` erase given a pointer to the node** - no walk from head to find `prev`\n- **`O(1)` push_back / pop_back** with a `tail` pointer\n- backward traversal",
+            "**Introduction:** In a singly linked list every node points only forward, so you can never step backwards. A **doubly linked list** fixes that by giving each node a second pointer aimed at the node behind it. One extra pointer per node, and suddenly you can walk in either direction and remove a node without hunting for the one before it.\n\n**Real-life example:** Your browser's back and forward buttons. Each page you visit remembers both the page you came from and the page you went to next, so you can move either way through your history without reloading anything.",
+          ),
+          text(
+            "In this topic you will learn:\n\n- what the extra `prev` pointer costs and what it buys you\n- why deleting a node you already hold becomes `O(1)`\n- how `head` and `tail` together make both ends cheap\n- why `std::list` is built this way, and where you would actually use it",
+          ),
+          scenario(
+            "Think of it like this",
+            "Think of a music playlist. Each song knows the song before it and the song after it, so **next** and **previous** both work instantly. Now suppose you are on track 7 and want to delete it. In a singly linked playlist you would have to start at track 1 and walk forward until you found the track pointing at 7, just to unhook it. In a doubly linked playlist track 7 already knows that track 6 is behind it - so you introduce 6 and 8 to each other, drop 7, and you are done without moving from where you stand.",
+          ),
+          text(
+            "In precise terms, a **doubly linked list** node carries both `prev` and `next`. It costs an extra pointer per node and a few more pointer updates per operation, and buys:\n\n- **`O(1)` erase given a pointer to the node** - no walk from head to find `prev`\n- **`O(1)` push_back / pop_back** with a `tail` pointer\n- backward traversal",
             {
               label: "push_back with head and tail",
               content: `struct Node { int value; Node* prev; Node* next; };
@@ -2299,7 +2446,7 @@ void push_back(int x) {
             },
           ),
           text(
-            "This is what `std::list` is. It is the right pick for an **LRU cache** (`O(1)` move-to-front) or any workload that splices nodes it already holds a handle to.",
+            "This is exactly what `std::list` is. It is the right pick for an **LRU cache** - the \"least recently used\" cache that keeps whatever you touched most recently at the front and throws away whatever has sat at the back longest. Every touch is a move-to-front of a node you already hold, which is `O(1)` here and `O(n)` on anything else. The same reasoning applies to any workload that splices nodes it already has a handle to.",
           ),
           diagram("Pointer updates", [
             { id: "ins", label: "insert between A and B", color: C_GREEN, items: ["4 pointers rewired", "A.next, B.prev, new.prev, new.next"] },
@@ -2414,7 +2561,17 @@ int main() {
             "Write a traversal that stops after exactly one full pass",
           ]),
           text(
-            "In a **circular linked list** the last node's `next` points back to the first (and in a circular *doubly* linked list, `head->prev` points to the tail). There is no `nullptr` terminator - you stop when you arrive back where you started.",
+            "**Introduction:** A **circular linked list** has no end. Instead of the last node pointing at nothing, it points back at the first node, so the chain closes into a loop. That means there is no `nullptr` to stop you - you know you have finished a lap when you arrive back at the node you started from.\n\n**Real-life example:** Taking turns in a board game. After the last player it is the first player's turn again. Nobody \"reaches the end\" of the table; the turn order just keeps going round.",
+          ),
+          text(
+            "In simple words:\n\n- the last node links back to the first instead of to `nullptr`\n- there is no natural end, so every loop needs its own stopping rule\n- it is the natural shape for anything that repeats forever",
+          ),
+          scenario(
+            "Think of it like this",
+            "A circular list is a carousel. There is no first horse and no last horse - just horses going round. If you want to look at every horse exactly once, you pick one, note it, and keep going until that same horse comes back around. That is the whole traversal rule, and it is also the whole danger: write the usual `while (p != nullptr)` here and your program will ride the carousel forever, because `nullptr` never comes.",
+          ),
+          text(
+            "In precise terms: the last node's `next` points back to the first, and in a circular *doubly* linked list `head->prev` points to the tail as well. There is no `nullptr` terminator anywhere - you stop when you arrive back where you started.",
             {
               label: "Exactly one pass",
               content: `Node* p = head;
@@ -2513,10 +2670,17 @@ int main() {
             "Compare a skip list to a balanced BST",
           ]),
           text(
-            "An ordered singly linked list has `O(n)` search - you cannot binary search a list because you cannot jump to the middle. A **skip list** fixes this by stacking several sorted linked lists: level 0 has every node; level 1 has about half (an express lane); level 2 about a quarter; and so on.",
+            "**Introduction:** Searching a sorted linked list is slow, because you cannot jump to the middle - you have to walk. A **skip list** solves that by building extra lists on top of the real one, each holding roughly half the nodes of the list below. Those upper lists let you cover ground in big strides and only drop down to the slow, complete list when you are already close.\n\n**Real-life example:** A city rail network. The express line stops only at four major stations, the semi-fast line stops at twelve, and the local line stops everywhere. To reach a small station you ride the express as far as you can, switch down to the semi-fast, then finish on the local - far quicker than taking the local the entire way.",
           ),
           text(
-            "**Search** starts at the top-left, moves right while the next value is <= target, drops down a level when it would overshoot, and repeats. Each level roughly halves the distance left to cover, so search, insert and delete are all **`O(log n)` expected**.",
+            "In this topic you will learn:\n\n- why a sorted linked list cannot be binary searched\n- how stacked \"express lanes\" bring search down to `O(log n)`\n- how a coin flip decides each node's height, with no rebalancing needed\n- how a skip list compares with a balanced BST",
+          ),
+          scenario(
+            "Think of it like this",
+            "The clever part is how a skip list decides which nodes get to be express stops - it flips a coin. Every node is on the bottom line. Flip heads and it also joins the line above; flip heads again and it joins the one above that; stop at the first tails. Nobody plans it, nobody rebalances anything, and yet about half the nodes land on level 1, a quarter on level 2, and so on - which is exactly the spacing you wanted. Randomness does the job that rotations do in an AVL tree, and it does it with far less code.",
+          ),
+          text(
+            "In precise terms: level 0 holds every node; level 1 holds about half of them; level 2 about a quarter; and so on up. **Search** starts at the top-left, moves right while the next value is <= the target, drops down a level whenever moving right would overshoot, and repeats. Each level roughly halves the distance still to cover, so search, insert and delete are all **`O(log n)` expected**.",
           ),
           text(
             "A new node's **height** is set by coin flips: it is always on level 0; with probability 1/2 also on level 1; with probability 1/4 also on level 2; and so on. No rotations, no rebalancing - the randomness keeps the level populations right on average.",
@@ -2625,7 +2789,17 @@ int main() {
             "Name real systems built on a stack",
           ]),
           text(
-            "A **stack** exposes three `O(1)` operations at **one end**, the *top*: `push` (add), `pop` (remove the most recent), `top` / `peek` (look). **LIFO** - last in, first out.",
+            "**Introduction:** A **stack** is a container that only lets you touch one end. You add on top, you remove from the top, and you can look at the top - that is all. The most recently added item is always the first one to leave, which is why it is called **LIFO**: last in, first out.\n\n**Real-life example:** A stack of plates in a kitchen. You put clean plates on top and you take the top plate off. Getting to a plate in the middle would mean lifting everything above it first, so nobody does.",
+          ),
+          text(
+            "In simple words:\n\n- three operations, all `O(1)`: `push`, `pop`, `top`\n- the newest item always leaves first\n- restricting yourself to one end is what makes every operation cheap",
+          ),
+          scenario(
+            "Think of it like this",
+            "Think about the undo button. You typed a word, then bolded it, then changed the colour. Press undo and the colour change is reversed first - the most recent action, not the oldest. Press again and the bolding goes. Your editor is holding those actions on a stack, and undo is simply `pop`. The same shape shows up everywhere once you notice it: the browser back button, the trail of function calls your program is inside right now, and the breadcrumb of turns you retrace when a maze path dead-ends.",
+          ),
+          text(
+            "In precise terms, a stack exposes three `O(1)` operations at **one end**, the *top*: `push` (add), `pop` (remove the most recent), and `top` / `peek` (look without removing).",
           ),
           text(
             "Two natural implementations, both `O(1)`:\n\n- **array / vector-backed** - `push` is `push_back`, `pop` is `pop_back`. Cache-friendly, amortised `O(1)`. This is what `std::stack` uses by default.\n- **linked-list-backed** - push and pop at the head. True worst-case `O(1)`, no reallocation, but one node allocation per push.",
@@ -2722,10 +2896,17 @@ int main() {
             "Implement a circular buffer with wrap-around indices",
           ]),
           text(
-            "A **queue** adds at the **back** (`enqueue` / `push`) and removes from the **front** (`dequeue` / `pop`) - **FIFO**. Both `O(1)`.",
+            "**Introduction:** A **queue** is the opposite of a stack. You add at the back and remove from the front, so whoever arrived first also leaves first. That is **FIFO**: first in, first out - the rule people mean when they say something is fair.\n\n**Real-life example:** The line at a shop counter. New customers join at the back, the cashier serves the person at the front, and nobody jumps in the middle.",
           ),
           text(
-            "A plain array is a bad fit: removing the front by shifting everything down is `O(n)`. Two good implementations:\n\n- **linked list with head + tail** - dequeue at head, enqueue at tail, both `O(1)`.\n- **circular buffer (ring buffer)** - a fixed array with `front` and `count` indices that wrap with `% capacity`. `O(1)`, zero per-operation allocation, contiguous memory. The backbone of bounded producer/consumer queues, audio buffers, and network stacks.",
+            "In this topic you will learn:\n\n- the FIFO rule and the two `O(1)` operations, `enqueue` and `dequeue`\n- why a plain array makes a surprisingly bad queue\n- how a **ring buffer** gets `O(1)` at both ends out of a fixed array\n- where queues show up in real systems",
+          ),
+          scenario(
+            "Think of it like this",
+            "Here is the problem with using a plain array. When the front person is served, everybody else shuffles forward one place - and if there are a thousand people in line, that is a thousand movements for a single customer served. A **ring buffer** fixes this the way a cinema usher would: instead of making everyone shuffle, you just move the sign that says \"the line starts here\". The people never move at all. When the sign reaches the last seat it wraps round to seat one, which is what `% capacity` does in the code.",
+          ),
+          text(
+            "So a plain array is a bad fit: removing the front by shifting everything down is `O(n)`. Two good implementations instead:\n\n- **linked list with head + tail** - dequeue at head, enqueue at tail, both `O(1)`.\n- **circular buffer (ring buffer)** - a fixed array with `front` and `count` indices that wrap with `% capacity`. `O(1)`, zero per-operation allocation, contiguous memory. The backbone of bounded producer/consumer queues, audio buffers, and network stacks.",
             {
               label: "Ring buffer core",
               content: `int data[CAP], front = 0, count = 0;
@@ -2856,7 +3037,17 @@ int main() {
             "Recognise the sliding-window (monotonic deque) use case",
           ]),
           text(
-            "A **deque** (double-ended queue, said \"deck\") supports `O(1)` insert and remove at **both** ends: `push_front`, `push_back`, `pop_front`, `pop_back`. It is a strict superset of a stack and a queue.",
+            "**Introduction:** A **deque** (short for double-ended queue, said \"deck\") opens up both ends. You can add and remove at the front *and* at the back, and all four of those operations are `O(1)`. Anything a stack can do and anything a queue can do, a deque can do too.\n\n**Real-life example:** A queue at a hospital reception where urgent patients are added at the front while everyone else joins at the back, and people can also give up and leave from either end.",
+          ),
+          text(
+            "In simple words:\n\n- four `O(1)` operations: `push_front`, `push_back`, `pop_front`, `pop_back`\n- it does everything a stack does and everything a queue does\n- `std::stack` and `std::queue` are literally built on top of it",
+          ),
+          scenario(
+            "Think of it like this",
+            "Think of a train platform with doors at both ends of the carriage. People can board or step off at either door, so the carriage does not care which end is \"the front\". That flexibility is why a deque solves **sliding-window** problems: as your window moves along the data you add the new item at one end and drop the expired item off the other end, both instantly. With a stack or a plain queue one of those two moves would cost you `O(n)`.",
+          ),
+          text(
+            "In precise terms, a deque supports `O(1)` insert and remove at **both** ends: `push_front`, `push_back`, `pop_front`, `pop_back`. It is a strict superset of a stack and a queue.",
           ),
           text(
             "`std::deque` is a **map of fixed-size chunks** - an array of pointers to blocks. That gives `O(1)` push/pop at both ends, `O(1)` indexed access (two lookups), and - unlike `vector` - references to existing elements survive a push at either end. The trade: slightly slower iteration than `vector`, more overhead, non-contiguous storage.",
@@ -2933,10 +3124,20 @@ int main() {
             "Recognise monotonic stack / deque as one extra invariant",
           ]),
           text(
+            "**Introduction:** Stack, queue and deque are all the same underlying idea - a line of items with cheap ends. What separates them is simply **which ends you are allowed to touch**. Once you can name the ends a problem needs, the choice makes itself.\n\n**Real-life example:** Three ways of handling a pile of paperwork. Deal with the newest form first and you have a stack. Deal with them in the order they arrived and you have a queue. Handle the newest *and* the oldest depending on the situation and you have a deque.",
+          ),
+          text(
+            "In simple words:\n\n- one end only, in and out -> **stack**\n- in at one end, out at the other -> **queue**\n- both ends, both ways -> **deque**\n- you need the biggest or smallest item rather than the oldest or newest -> that is a **heap**, not any of these",
+          ),
+          scenario(
+            "Think of it like this",
+            "The trap to avoid is reaching for a queue when what you actually want is a heap. A queue answers \"who has been waiting longest?\". A heap answers \"who is most important?\". A hospital that served patients purely in arrival order would be a queue - and it would also be a scandal. Ask yourself which question your problem is really asking before you pick the container.",
+          ),
+          text(
             "All three are linear and give `O(1)` ends. Choose by *which* ends you use:\n\n- only one end -> **stack**\n- add at one end, remove at the other -> **queue**\n- both ends -> **deque**\n- you need the current **minimum or maximum** fast, not insertion order -> that is a **heap / priority queue** (Chapter 7), not one of these",
           ),
           text(
-            "A **monotonic stack** (discard dominated elements so the stack stays sorted) solves \"next greater element\" and \"largest rectangle in a histogram\" in `O(n)`. A **monotonic deque** solves sliding-window maximum in `O(n)`. Same containers, one extra rule.",
+            "There is one variation worth knowing. A **monotonic stack** is an ordinary stack with a single added rule: before pushing a new item, throw away anything already on the stack that the newcomer beats. Nothing you discarded can ever be the answer again, so the stack stays sorted for free. That one rule solves \"next greater element\" and \"largest rectangle in a histogram\" in `O(n)`. The same idea on a deque solves sliding-window maximum in `O(n)`. Same containers as before - just one extra rule about what you are allowed to keep.",
           ),
           table(
             "The three adapters side by side",
@@ -3011,7 +3212,17 @@ int main() {
             "List the three properties of a good hash function",
           ]),
           text(
-            "A **hash table** stores key -> value pairs so that lookup, insert and delete are **`O(1)` on average**. The trick: a **hash function** maps a key to an integer, and `hash(key) % bucket_count` picks a slot in an array. You do not search - you *compute* where the entry lives.",
+            "**Introduction:** A **hash table** stores pairs of key and value, and finds any of them almost instantly. The trick is that it never searches. It runs the key through a small calculation called a **hash function**, and that calculation *tells* it which slot of an array the entry lives in. One computation, one jump, done.\n\n**Real-life example:** Lockers at a gym. Instead of trying every locker until you find your bag, the front desk turns your membership number into a locker number. You walk straight to that locker.",
+          ),
+          text(
+            "In this topic you will learn:\n\n- what a **hash function** does and what the **bucket array** is\n- why lookup is `O(1)` on average but can degrade to `O(n)`\n- the three things a good hash function must do\n- why a hash table can never give you its keys in sorted order",
+          ),
+          scenario(
+            "Think of it like this",
+            "Think of a library that files books by a rule instead of by searching. The rule takes the book's title, does a bit of arithmetic on the letters, and produces a shelf number. Putting a book away and fetching it are the *same* calculation, so both are instant no matter how many books the library holds. Two things follow from this. First, the rule must spread books evenly - if half the titles land on shelf 7, that shelf becomes a pile you have to dig through. Second, the shelves are in no meaningful order, so \"show me every book starting with M\" is impossible; you would have to walk the whole library.",
+          ),
+          text(
+            "In precise terms: a hash function maps a key to an integer, and `hash(key) % bucket_count` turns that integer into a slot in an array. Lookup, insert and delete are all **`O(1)` on average** because you compute the location instead of hunting for it.",
           ),
           text(
             "A good hash function is:\n\n- **deterministic** - the same key always hashes the same\n- **fast** - it runs on every single operation\n- **uniform** - it spreads keys evenly across buckets, so no slot gets overloaded; similar keys like `user1` and `user2` should land far apart",
@@ -3097,7 +3308,17 @@ int main() {
             "Name the three probe sequences and the clustering problem",
           ]),
           text(
-            "Two different keys can hash to the same bucket - a **collision**. The two resolution families:",
+            "**Introduction:** A hash function turns a key into a slot number, but there are only so many slots and unlimited possible keys. Sooner or later two different keys are handed the same slot. That is a **collision**, and every hash table needs a plan for it. There are two families of plan: let the slot hold more than one entry, or send the newcomer to a different slot.\n\n**Real-life example:** Two students at the gym are assigned locker 42. Either you make locker 42 big enough to hold both bags, or you tell the second student to take the next free locker down the row.",
+          ),
+          text(
+            "In simple words:\n\n- **separate chaining** - each slot holds a little list, and colliding keys simply join that list\n- **open addressing** - each slot holds one entry, and a collision sends you hunting for another free slot\n- neither is wrong; they trade memory against cache friendliness",
+          ),
+          scenario(
+            "Think of it like this",
+            "Picture a cloakroom with numbered hooks. **Chaining** means each hook can take several coats stacked on it - when you come back you look at that one hook and flick through its two or three coats. **Open addressing** means one coat per hook, so if your hook is taken the attendant hangs your coat on the next free hook along and remembers the rule. Chaining stays calm when the room is crowded. Open addressing is quicker to walk to while there is space, but once the room is nearly full the attendant is walking further and further down the row for every single coat.",
+          ),
+          text(
+            "Both approaches solve the same problem - two different keys landing on the same bucket. Here is how each one works in detail.",
           ),
           text(
             "**Separate chaining** - each bucket holds a short list (or small vector) of entries. Insert pushes onto the bucket's list; lookup hashes, then scans that one short list. Simple, degrades gracefully, tolerates load factor above 1. Cost: pointers plus a node allocation per entry. This is what `std::unordered_map` uses.",
@@ -3220,10 +3441,20 @@ int main() {
             "Choose between unordered_map and map",
           ]),
           text(
-            "**Load factor** a = entries / buckets. It is the dial trading space for speed: low a means few collisions but wasted slots; high a means compact but slower. Chaining targets a around 1; open addressing around 0.5 to 0.7.",
+            "**Introduction:** A hash table is only fast while it has room to breathe. The **load factor** is simply how full it is - the number of entries divided by the number of slots. As it climbs, collisions climb with it and lookups slow down. So when the table gets too crowded it builds a bigger one and moves everything across, which is called **rehashing**.\n\n**Real-life example:** A car park. Half full, you drive in and park immediately. Ninety percent full, you crawl up and down the rows hunting for the one free space. Once it is like that every day, the owner builds a bigger car park.",
           ),
           text(
-            "When a crosses `max_load_factor`, the table **rehashes**: allocate a bucket array about 2x bigger, recompute every key's slot, move the entries. That one operation is `O(n)`, but amortised over the inserts that triggered it, insert stays **amortised `O(1)`** - the dynamic-array story again.",
+            "In this topic you will learn:\n\n- what the **load factor** is and what it trades away\n- what happens during a **rehash** and why it costs `O(n)`\n- why a single insert is still **amortised `O(1)`** despite that\n- when to pick `unordered_map` and when to pick `map`",
+          ),
+          scenario(
+            "Think of it like this",
+            "Moving to the bigger car park is genuinely expensive - every car has to be driven across. But you only do it when the number of cars has *doubled*, so the cost is spread over all the cars that arrived since the last move. Averaged out, each car pays a tiny fixed share of the moving cost. That is what **amortised `O(1)`** means: one operation is occasionally slow, but the long-run average per operation stays constant. It is the exact same argument as a `vector` doubling its capacity.",
+          ),
+          text(
+            "In precise terms: **load factor** a = entries / buckets. It is the dial trading space for speed - a low a means few collisions but many wasted slots; a high a means compact storage but slower probes. Chaining aims for a around 1; open addressing wants 0.5 to 0.7.",
+          ),
+          text(
+            "When a crosses `max_load_factor`, the table **rehashes**: it allocates a bucket array about 2x bigger, recomputes every key's slot (the slot depends on the bucket count, so old positions are meaningless), and moves the entries across. That one operation is `O(n)`, but spread over the inserts that triggered it, insert stays **amortised `O(1)`**.",
           ),
           text(
             "The C++ tools:\n\n- `std::unordered_map` / `unordered_set` - hash table, average `O(1)`, no order, has `bucket_count()`, `load_factor()`, `reserve()`\n- `std::map` / `set` - balanced BST (Chapter 6), `O(log n)`, **keys stay sorted**, supports range queries",
@@ -3325,7 +3556,17 @@ int main() {
             "Explain primary vs secondary indexes and their write cost",
           ]),
           text(
-            "An **index** is a secondary structure mapping a search key to the location of the full record, so you do not scan everything. A hash table *is* an in-memory index; databases and file systems build the same idea on disk.",
+            "**Introduction:** An **index** is an extra structure kept alongside your real data whose only job is to tell you where something is, so you never have to look through everything. The data itself does not move; the index just points at it.\n\n**Real-life example:** The index at the back of a textbook. The chapters are the real content; the index is a small sorted list of topics with page numbers. You look up \"photosynthesis\", get page 214, and turn straight there instead of skimming 400 pages.",
+          ),
+          text(
+            "In simple words:\n\n- a **hash index** answers \"find exactly this one\" instantly, but nothing else\n- an **ordered index** is sorted, so it also answers ranges and \"give me these in order\"\n- every index you add speeds up reads and slows down writes, because each write must update it too",
+          ),
+          scenario(
+            "Think of it like this",
+            "Compare a book's index with its table of contents. The index is alphabetical: perfect for \"where is the word *enzyme* mentioned?\", useless for \"what comes after chapter 5?\". The table of contents is in page order: perfect for ranges and sequence. That is exactly the hash-versus-ordered split. And here is the catch nobody mentions - if you add a new page to the book, you now have to correct *both* the index and the contents. That is why a database table with six indexes is fast to read and sluggish to write.",
+          ),
+          text(
+            "In precise terms: an index maps a search key to the location of the full record. A hash table *is* an in-memory index; databases and file systems build the same idea on disk, sized around disk pages rather than cache lines.",
           ),
           text(
             "**Hash index** - key -> bucket -> record location. `O(1)` average for **equality** (\"find user 42\"). Cannot do ranges or ordered scans.\n\n**Ordered index** - a sorted structure, almost always a **B-tree / B+ tree** (a broad, shallow balanced tree tuned for disk pages) or an in-memory balanced BST. `O(log n)` for equality *and* for **ranges** (\"all orders between two dates\"), plus sorted iteration.",
@@ -3399,7 +3640,17 @@ int main() {
             "Know how to supply a hash for a custom key type",
           ]),
           text(
-            "Failure modes:\n\n- **bad hash function** - collisions pile up and every operation drifts toward `O(n)`\n- **clustering** - open addressing with linear probing under high load\n- **hash-flood DoS** - an attacker sends keys chosen to all collide, turning an `O(1)` service into `O(n^2)`; the fix is a **randomly seeded** hash per process, which is why hash-table iteration order is deliberately unspecified\n- **expensive keys** - hashing a huge string on every lookup; cache the hash if keys are reused",
+            "**Introduction:** Everything good about a hash table depends on one assumption: that keys spread evenly across the slots. Break that assumption and the whole structure quietly collapses into a single long list, and your `O(1)` lookups become `O(n)` without a single error message.\n\n**Real-life example:** A gym whose locker rule is \"first letter of your surname\". It works fine until a group of forty people with surnames starting with K arrive at once - now one locker area is a scrum and the rest of the room is empty.",
+          ),
+          text(
+            "In this topic you will learn:\n\n- the common ways a hash table goes wrong in practice\n- what a **hash-flooding** attack is and how libraries defend against it\n- why you must never depend on `unordered_map`'s iteration order\n- how to supply your own hash function for a custom key type",
+          ),
+          scenario(
+            "Think of it like this",
+            "Now imagine somebody works out your locker rule and deliberately signs up forty accounts whose surnames all start with K. That is a **hash-flooding attack**: an attacker feeds a server keys engineered to collide, so an operation that should be instant turns into a full scan, and the server grinds to a halt under a trivial amount of traffic. The defence is simple - pick a fresh secret ingredient for the rule each time the program starts, so nobody can work the rule out in advance. That is also the reason iteration order changes between runs, and why you must never save it or rely on it.",
+          ),
+          text(
+            "The failure modes, precisely:\n\n- **bad hash function** - collisions pile up and every operation drifts toward `O(n)`\n- **clustering** - open addressing with linear probing under high load builds long runs of full slots\n- **hash-flood DoS** - an attacker sends keys chosen to all collide, turning an `O(1)` service into `O(n^2)`; the fix is a **randomly seeded** hash per process, which is exactly why iteration order is deliberately unspecified\n- **expensive keys** - hashing a huge string on every single lookup; cache the hash if the same keys are reused",
             {
               label: "A hash for a struct key",
               content: `#include <unordered_map>
@@ -3494,10 +3745,20 @@ int main() {
             "Implement a recursive in-order traversal",
           ]),
           text(
-            "A **tree** is a non-linear structure: one **root**, every other node has exactly one **parent**, and there are no cycles. A **binary tree** limits each node to at most two children, `left` and `right`. Terms: **leaf** (no children), **height** (edges on the longest root-to-leaf path), **depth** (edges from the root to a node), **balanced** (sibling subtree heights differ by at most 1 everywhere).",
+            "**Introduction:** A **tree** is a way of holding data that branches out instead of sitting in one straight line. One item sits at the top, and every other item hangs underneath exactly one item above it. Nothing ever loops back to where it came from, so if you keep walking downward you always finish.\n\n**Real-life example:** The folders on your computer. There is one folder at the top; inside it are more folders; inside those are files. Every folder sits inside exactly one other folder, and you never walk in a circle.",
           ),
           text(
-            "**Traversals**:\n\n- **pre-order** (node, left, right) - copy or serialise a tree\n- **in-order** (left, node, right) - on a BST, visits keys in **sorted** order\n- **post-order** (left, right, node) - delete children before the parent; evaluate expression trees\n- **level-order** (breadth-first, by depth) - uses a **queue**, not recursion",
+            "In this topic you will learn:\n\n- the names for the parts of a tree - root, parent, child, leaf\n- how to measure a tree using **height** and **depth**\n- what a **balanced** tree is and why balance decides your speed\n- the four orders in which you can visit every node, and what each one is good for",
+          ),
+          scenario(
+            "Think of it like this",
+            "A tree is a company org chart. The CEO at the top is the **root** - the one person with nobody above them. Everyone else reports to exactly one manager, and that manager is their **parent**. People with nobody reporting to them are **leaves**. Your **depth** is how many steps down from the CEO you sit. The **height** of the chart is the number of steps from the CEO down to the deepest person in the company. If one branch runs ten levels deep while the rest are two levels deep, the chart is lopsided - and lopsided is exactly what makes a tree slow.",
+          ),
+          text(
+            "Now the exact wording. A **tree** is non-linear: one **root**, every other node has exactly one **parent**, and there are no cycles. A **binary tree** is a tree where each node has at most two children, called `left` and `right`.\n\n- **leaf** - a node with no children at all\n- **height** - the number of edges on the longest path from the root down to a leaf\n- **depth** - the number of edges from the root down to one particular node\n- **balanced** - at every node, the two child subtrees differ in height by at most 1",
+          ),
+          text(
+            "A **traversal** is simply an order in which you visit every node exactly once. Think of walking through every room in a house: you always see every room, but the route changes depending on which door you take first. There are four standard routes.\n\n- **pre-order** (node, left, right) - copy or serialise a tree\n- **in-order** (left, node, right) - on a BST, visits keys in **sorted** order\n- **post-order** (left, right, node) - delete children before the parent; evaluate expression trees\n- **level-order** (breadth-first, by depth) - uses a **queue**, not recursion",
             {
               label: "Recursive traversal shape",
               content: `struct Node { int key; Node* left; Node* right; };
@@ -3522,8 +3783,12 @@ void inorder(Node* n) {
             { rowLabelHeader: "Traversal" },
           ),
           callout(
+            "tip",
+            "An easy way to remember the names: the word **pre**, **in** or **post** tells you when the node itself is visited - *before* its children, *between* them, or *after* them. The left child is always handled before the right one.",
+          ),
+          callout(
             "info",
-            "Recursion on a tree of height h uses `O(h)` call-stack space. A balanced tree gives h = `O(log n)`; a degenerate one gives h = n.",
+            "Recursion on a tree of height h uses `O(h)` call-stack space. A balanced tree gives h = `O(log n)`; a lopsided one gives h = n, which is as slow as a plain list.",
           ),
           quiz(
             "Which traversal of a binary search tree visits the keys in ascending order?",
@@ -3598,10 +3863,20 @@ int main() {
             "Explain why insertion order can make a plain BST degenerate",
           ]),
           text(
-            "A **BST** adds an ordering invariant: for every node, all keys in the **left** subtree are smaller and all keys in the **right** subtree are larger. Search becomes a series of left/right decisions.\n\n- **search / insert** - compare at the root, go left or right, repeat. `O(h)`.\n- **erase** - leaf: remove it. One child: splice past it. Two children: replace the key with its **in-order successor** (smallest key in the right subtree), then delete that node.\n- **min / max** - walk all the way left / right.",
+            "**Introduction:** A **binary search tree** (BST) is a binary tree that keeps its values in order. At every node, everything smaller sits on the left and everything larger sits on the right. Because of that one rule, you never have to look at most of the tree - at each step you throw away a whole side.\n\n**Real-life example:** Looking up a word in a paper dictionary. You open it near the middle, see you have landed too far along the alphabet, and flip backwards. You never read the pages you skipped, and each flip cuts the remaining pages roughly in half.",
           ),
           text(
-            "`h` is the whole story. A **balanced** BST gives h = `O(log n)`, so every operation is `O(log n)`. But inserting **already-sorted** data makes every node a right child - a degenerate \"linked list\", h = n, operations `O(n)`. That is exactly why self-balancing trees exist (next lesson).",
+            "In this topic you will learn:\n\n- the one ordering rule that makes a tree a BST\n- how search, insert and erase work step by step\n- why the tree's **height** decides whether it is fast or slow\n- how a badly ordered set of inserts can ruin the whole thing",
+          ),
+          scenario(
+            "Think of it like this",
+            "Picture the number-guessing game: someone thinks of a number from 1 to 100 and you guess. You say 50, they say \"higher\", so every number from 1 to 50 is gone in one move. You say 75, they say \"lower\", and half of what is left disappears again. A BST is that game frozen into a shape: the value at each node is the guess, and \"higher / lower\" tells you to walk right or left. Now imagine the same game where every answer is \"higher\" - you would be counting 1, 2, 3, 4 one at a time. That is exactly what happens when you build a BST from already-sorted data.",
+          ),
+          text(
+            "The rule in precise words: for every node, all keys in the **left** subtree are smaller and all keys in the **right** subtree are larger. Searching is then just a series of left/right decisions.\n\n- **search / insert** - compare at the root, go left or right, repeat. Costs `O(h)`, where `h` is the height.\n- **erase** - a leaf is simply removed. A node with one child is spliced past. A node with two children takes the value of its **in-order successor** (the smallest key in its right subtree), and that successor node is deleted instead.\n- **min / max** - walk all the way left, or all the way right.",
+          ),
+          text(
+            "`h` is the whole story. A **balanced** BST gives h = `O(log n)`, so every operation is `O(log n)`. But inserting **already-sorted** data makes every node a right child - the tree becomes a straight line, a \"linked list in disguise\", with h = n and operations back to `O(n)`. That is exactly why self-balancing trees exist (next lesson).",
           ),
           diagram("Same 7 keys, two shapes", [
             { id: "bal", label: "Balanced", color: C_GREEN, items: ["inserted 4,2,6,1,3,5,7", "height 3", "O(log n) ops"] },
@@ -3693,10 +3968,20 @@ int main() {
             "Give AVL's guaranteed complexities and the trade against red-black trees",
           ]),
           text(
-            "An **AVL tree** is a BST that repairs its own shape after every insert and erase. Invariant: for every node, `height(left) - height(right)` - the **balance factor** - is -1, 0, or +1.",
+            "**Introduction:** An **AVL tree** is a binary search tree that fixes its own shape. Every time you add or remove a value, it checks whether one side has grown taller than the other, and if so it shuffles a few nodes to even things out. You never end up with the long, slow, straight-line tree from the previous lesson.\n\n**Real-life example:** Stacking books on a shelf that tips over. Each time you add a book you glance at the shelf, and if one side is clearly heavier you move a book across. The shelf stays upright by itself and you never have to rebuild it from scratch.",
           ),
           text(
-            "A **rotation** re-hangs three pointers to lower the height on the heavy side while *preserving BST order*. After an insert you walk back toward the root; at the first node whose balance factor reaches +/-2 you apply one of four fixes:\n\n- **LL** (heavy left-left) -> one right rotation\n- **RR** (heavy right-right) -> one left rotation\n- **LR** (heavy left-right) -> left-rotate the child, then right-rotate\n- **RL** (heavy right-left) -> right-rotate the child, then left-rotate",
+            "In this topic you will learn:\n\n- the balance rule an AVL tree promises to keep\n- what a **rotation** actually does to the pointers\n- the four situations you can land in, and the fix for each\n- what AVL guarantees you, and what it costs compared with a red-black tree",
+          ),
+          scenario(
+            "Think of it like this",
+            "Think of a mobile hanging over a baby's cot. Hang one more toy on the left arm and the whole thing tilts. You do not take the mobile apart - you just unhook one arm and re-hook it a level up or down, and it hangs straight again. A **rotation** is that small re-hooking: three pointers move, the sorted order of everything is untouched, and the tall side gets shorter. And just as with the mobile, the fix is local - you never disturb the whole tree.",
+          ),
+          text(
+            "The precise rule: for every node, `height(left) - height(right)` - called the **balance factor** - must be -1, 0, or +1. If an insert or erase pushes any node outside that range, the tree repairs itself before the operation finishes.",
+          ),
+          text(
+            "A **rotation** re-hangs three pointers to lower the height on the heavy side while *keeping the BST order intact*. After an insert you walk back up toward the root; at the first node whose balance factor reaches +/-2 you apply one of four fixes:\n\n- **LL** (heavy left-left) -> one right rotation\n- **RR** (heavy right-right) -> one left rotation\n- **LR** (heavy left-right) -> left-rotate the child, then right-rotate\n- **RL** (heavy right-left) -> right-rotate the child, then left-rotate",
           ),
           diagram("RR case -> single left rotation", [
             { id: "before", label: "Before", color: C_RED, items: ["A - B - C leaning right", "A balance factor -2"] },
@@ -3795,7 +4080,17 @@ int main() {
             "Spot when a plain array beats both",
           ]),
           text(
-            "Both a balanced BST and a hash table give you a **map**. Choose by what you need beyond `get` / `put`:\n\n- equality lookups only, order irrelevant, want the best average case -> **hash table** (`unordered_map`), `O(1)` average\n- need sorted iteration, `lower_bound` / range queries, or **worst-case** guarantees -> **balanced BST** (`map`), `O(log n)` always\n- keys are integers in a small known range -> skip both, use a plain **array** (direct addressing, `O(1)` worst case)",
+            "**Introduction:** A **map** is anything that stores pairs - a key and the value that belongs to it - and hands you the value back when you give it the key. Both a balanced tree and a hash table do that job. This lesson is about picking the right one, because they behave very differently once you want more than plain lookups.\n\n**Real-life example:** Your phone's contacts app. Typing an exact name and getting one number is a hash-table job. Scrolling through everyone from **A** to **D** in alphabetical order is a tree job. The app needs the sorted view, so it uses the ordered one.",
+          ),
+          text(
+            "In simple words:\n\n- if you only ever look up one exact key, a **hash table** is fastest on average\n- if you need things in sorted order, or ranges, or a guaranteed worst case, use a **balanced tree**\n- if your keys are small whole numbers, skip both and use a plain array",
+          ),
+          scenario(
+            "Think of it like this",
+            "A hash table is the coat check at an event: you hand over a ticket number and the attendant walks straight to that hook. Instant - but if you asked \"give me every coat handed in between 7pm and 8pm\", they could not help, because the hooks are in no meaningful order. A balanced tree is a shelf of files sorted by date: finding one file takes a few more steps, but \"everything from March\" is easy because the neighbours are already next to each other.",
+          ),
+          text(
+            "Choose by what you need beyond `get` / `put`:\n\n- equality lookups only, order irrelevant, want the best average case -> **hash table** (`unordered_map`), `O(1)` average\n- need sorted iteration, `lower_bound` / range queries, or **worst-case** guarantees -> **balanced BST** (`map`), `O(log n)` always\n- keys are integers in a small known range -> skip both, use a plain **array** (direct addressing, `O(1)` worst case)",
           ),
           text(
             "Memory: hash tables waste empty buckets and store a hash per entry; trees store two or three pointers plus balance metadata per node. Hash tables have `O(n)` rehash pauses; trees give steady `O(log n)`.",
@@ -3876,10 +4171,20 @@ int main() {
             "Explain why a heap gives O(1) peek and O(log n) update but O(n) search",
           ]),
           text(
-            "A **binary heap** is a **complete** binary tree (every level full except possibly the last, which fills left to right) with the **heap-order** property: every node compares `>=` (max-heap) or `<=` (min-heap) to its children. So the root is the maximum (or minimum) - **`O(1)` to peek**.",
+            "**Introduction:** A **heap** is a tree with one job: always keep the most important item at the very top, so you can grab it instantly. It does *not* keep everything sorted - it only promises that no item sits above a more important one. That weaker promise is what makes it cheap to maintain.\n\n**Real-life example:** A hospital emergency room. Nobody sorts every waiting patient into a perfect order. All the staff guarantee is that the most urgent case is the one called next. When a new patient arrives, they are slotted in relative to the people around them, not ranked against the whole room.",
           ),
           text(
-            "Because the tree is complete, it packs perfectly into an array with **no pointers**. For a node at index `i` (0-based):\n\n- parent = `(i - 1) / 2`\n- left child = `2 * i + 1`\n- right child = `2 * i + 2`",
+            "In this topic you will learn:\n\n- the two rules every binary heap keeps: its **shape** and its **order**\n- why a heap needs no pointers at all and lives happily inside a plain array\n- the small index formulas that find a node's parent and children\n- why peeking is instant but searching for an ordinary value is slow",
+          ),
+          scenario(
+            "Think of it like this",
+            "Picture boarding a plane by priority group. Group 1 boards before group 2, and group 2 before group 3 - but inside group 2 nobody cares who stands where. That is a heap exactly: a strict rule going *down* the levels, and no rule at all *across* a level. So the gate agent can always answer \"who boards next?\" instantly, but \"is passenger Khan somewhere in the queue?\" still means looking at everybody.",
+          ),
+          text(
+            "In precise terms, a **binary heap** is a **complete** binary tree - every level is full except possibly the last, which fills in from the left - that also keeps the **heap-order** property: every node compares `>=` its children (a max-heap) or `<=` its children (a min-heap). So the root is always the largest or the smallest item, which makes peeking **`O(1)`**.",
+          ),
+          text(
+            "Because the tree is complete there are no gaps, so it packs perfectly into an array with **no pointers at all**. For a node at index `i` (0-based):\n\n- parent = `(i - 1) / 2`\n- left child = `2 * i + 1`\n- right child = `2 * i + 2`",
             {
               label: "Heap as an array",
               content: `// max-heap
@@ -3974,6 +4279,16 @@ int main() {
             "Explain why build-heap is O(n), not O(n log n)",
             "Use std::priority_queue as a max-heap and as a min-heap",
           ]),
+          text(
+            "**Introduction:** A heap only has to fix itself along one path, not across the whole structure. When you add an item you drop it at the bottom and let it climb until it is in a sensible spot - that is **sift-up**. When you remove the top item you move the last item up to fill the hole and let it sink back down - that is **sift-down**. Each of those walks is at most the height of the tree.\n\n**Real-life example:** A new patient walks into the emergency room with chest pain. The nurse does not re-rank the entire waiting room. She compares this patient with the one just ahead, swaps them, compares again with the next one up, and stops as soon as the person ahead is more urgent.",
+          ),
+          text(
+            "In this topic you will learn:\n\n- how **push** works by adding at the end and bubbling upward\n- how **pop** works by filling the hole and sinking downward\n- why turning a whole array into a heap is `O(n)`, not `O(n log n)`\n- how to use `std::priority_queue` as either a max-heap or a min-heap",
+          ),
+          scenario(
+            "Think of it like this",
+            "**Sift-up** is a bubble rising in a glass of water: it starts at the bottom, keeps floating past anything lighter than itself, and stops when it reaches its level. **Sift-down** is a stone dropped in the same glass: it keeps sinking past anything heavier until nothing below it can beat it. In both cases the item only ever moves along one straight path from top to bottom, and that path is at most `log n` steps long - which is why both operations are `O(log n)`.",
+          ),
           text(
             "Two operations keep the heap ordered:\n\n- **push(x)** - append at the end, then **sift-up**: while it beats its parent, swap with the parent. `O(log n)`.\n- **pop()** - save the root, move the last element to index 0, shrink, then **sift-down**: while it loses to its better child, swap with that child. `O(log n)`.\n- **peek** - `arr[0]`. `O(1)`.",
             {
@@ -4101,6 +4416,16 @@ int main() {
             "List the algorithms that lean on a priority queue",
           ]),
           text(
+            "**Introduction:** Once you can pull the largest item out of a heap cheaply, two useful things follow. Pull *everything* out one at a time and you have sorted the data - that is **heapsort**. Or keep the heap deliberately small and you can find the best few items out of a huge stream without ever holding the whole stream in memory - that is **top-k**.\n\n**Real-life example:** A talent show where thousands of people audition but only the top 10 scores matter. Nobody writes down and sorts every score. The judges keep a small board of the current best 10, and the moment an 11th score appears, the weakest one on the board is wiped off.",
+          ),
+          text(
+            "In this topic you will learn:\n\n- how heapsort works and where it sits next to quicksort and merge sort\n- the size-k heap trick for finding the k largest of n items\n- why that trick works on data too big to fit in memory\n- which well-known algorithms are quietly built on a priority queue",
+          ),
+          scenario(
+            "Think of it like this",
+            "For top-k, the surprising part is which heap you use. To keep the **10 largest** scores you keep a **min**-heap of size 10, so the *weakest* survivor sits on top where you can see it. Every new score is compared against that weakest one: if the newcomer is worse, throw it away immediately; if it is better, push it in and evict the weakest. The root of the heap is the doorman - it is the bar a newcomer has to clear to get in.",
+          ),
+          text(
             "**Heapsort**: build-heap in `O(n)`, then pop the max `n` times, each pop `O(log n)`, placing it at the shrinking end of the array -> **`O(n log n)`**, **in-place**, **not stable**. Its worst case is reliable (unlike quicksort), but its cache behaviour is poorer, so it is often the *fallback*: `std::sort` is introsort - quicksort that switches to heapsort when recursion goes too deep.",
           ),
           text(
@@ -4210,7 +4535,17 @@ int main() {
             "Recognise dense vs sparse and why a DAG matters",
           ]),
           text(
-            "A **graph** G = (V, E) is a set of **vertices** and **edges** connecting them - the most general data structure: trees and linked lists are just restricted graphs.",
+            "**Introduction:** A **graph** is just a set of things plus the connections between them. The things are called **vertices** (or nodes) and the connections are called **edges**. Unlike a tree, a graph has no top and no rules about who connects to whom - anything can link to anything, and loops are allowed.\n\n**Real-life example:** A city map. Each junction is a vertex and each road between two junctions is an edge. Some roads are one-way, some take longer than others, and you can absolutely drive in a circle and end up back where you started.",
+          ),
+          text(
+            "In this topic you will learn:\n\n- the vocabulary: vertex, edge, degree, path, cycle, connected\n- the difference between **directed** and **undirected** connections\n- what **weights** on edges mean and when you need them\n- what a **DAG** is, and why \"dense\" versus \"sparse\" changes how you store a graph",
+          ),
+          scenario(
+            "Think of it like this",
+            "Compare two social apps. On Facebook, friendship goes both ways - if you are my friend, I am yours - so the graph is **undirected**. On Instagram you can follow someone who does not follow you back, so the graph is **directed** and the arrow matters. Now add flight routes between cities: each route has a direction *and* a price, so those edges carry a number. That number is the **weight**, and it is the whole reason \"fewest stops\" and \"cheapest ticket\" are two different questions.",
+          ),
+          text(
+            "Written formally, a graph G = (V, E) is a set of **vertices** and a set of **edges** connecting them. It is the most general structure in the course - trees and linked lists are just graphs with extra restrictions bolted on.",
           ),
           text(
             "Pin these down before writing any code:\n\n- **directed vs undirected** - does edge (u, v) also mean (v, u)? One-way streets vs friendship.\n- **weighted vs unweighted** - does each edge carry a number (distance, cost, capacity)? Unweighted means every edge costs 1.\n- **cyclic vs acyclic** - a **DAG** (directed acyclic graph) models dependencies, build order and schedules, and enables topological sort.\n- **connected?** - is every vertex reachable? (Undirected: connected components. Directed: strongly connected components.)",
@@ -4292,6 +4627,16 @@ int main() {
             "Match each to dense vs sparse graphs",
             "Build an adjacency list from an edge list",
           ]),
+          text(
+            "**Introduction:** Knowing what a graph *is* does not tell you how to store one in memory. There are two standard ways. You can keep a big grid with a row and a column for every vertex and tick the boxes where edges exist - an **adjacency matrix**. Or you can give each vertex a short list of just its own neighbours - an **adjacency list**. The choice matters enormously once graphs get big.\n\n**Real-life example:** Recording who in a class of 30 knows whom. The grid version is a 30x30 attendance-style sheet with a tick in every box where two people know each other. The list version is 30 short lines: \"Ali: Sara, Omar\", \"Sara: Ali\", and so on.",
+          ),
+          text(
+            "In simple words:\n\n- a **matrix** answers \"are these two connected?\" instantly, but always takes |V| x |V| space even if there are barely any edges\n- a **list** only stores edges that actually exist, and gives you a vertex's neighbours directly\n- almost every real graph has far fewer edges than the maximum possible, so the list usually wins",
+          ),
+          scenario(
+            "Think of it like this",
+            "Imagine a wedding seating problem with 1,000 guests. The matrix is a million-cell spreadsheet where you tick a box for every pair who know each other - and since a typical guest knows maybe 20 others, over 99.9% of that spreadsheet is blank. The list is 1,000 short lines, one per guest, naming only the people they actually know. Same information, but one fits on a page and the other needs a warehouse. That gap is the difference between `O(V^2)` and `O(V + E)`.",
+          ),
           text(
             "**Adjacency matrix** - a |V| x |V| grid, `M[u][v] = 1` (or the weight) if the edge exists.\n\n- edge lookup \"is u -> v there?\" is `O(1)`\n- space is `O(|V|^2)` regardless of edge count\n- iterating one vertex's neighbours is `O(|V|)` even if it has two\n- great for **dense** graphs and algorithms that probe random edges (Floyd-Warshall)",
           ),
@@ -4389,6 +4734,16 @@ int main() {
             "Explain why you mark a node visited when you enqueue it",
           ]),
           text(
+            "**Introduction:** **Traversal** means visiting every vertex you can reach from a starting point, without visiting anything twice. There are two ways to do it. **BFS** (breadth-first search) explores everything one step away, then everything two steps away, and so on. **DFS** (depth-first search) picks one direction and follows it as far as it goes before backing up and trying another.\n\n**Real-life example:** Looking for a friend in a shopping mall. BFS is checking every shop on your floor first, then every shop on the next floor. DFS is walking down one corridor to the very end, checking each shop, then coming back and taking the next corridor.",
+          ),
+          text(
+            "In this topic you will learn:\n\n- why BFS uses a **queue** and DFS uses a **stack** (or recursion)\n- what each traversal is actually good at computing\n- why both cost `O(|V| + |E|)` on an adjacency list\n- the one bug almost everybody writes: marking a node visited too late",
+          ),
+          scenario(
+            "Think of it like this",
+            "BFS is a drop of ink spreading in water: it moves outward in perfect rings, so everything one step away is coloured before anything two steps away is touched. That is exactly why BFS finds the **shortest path in edges** - the first time the ink reaches a vertex, it got there by the shortest possible route. DFS is following a thread through a maze: you keep going deeper until you hit a dead end, then reel back to the last junction and try a different turn. Neither is better; they answer different questions.",
+          ),
+          text(
             "Both visit every reachable vertex once, in `O(|V| + |E|)` on an adjacency list. They differ only by the container holding the frontier:\n\n- **BFS** - a **queue** (FIFO). Explores in rings of increasing distance. Gives the **shortest path in an unweighted graph** (fewest edges), plus connected components and bipartite checks.\n- **DFS** - a **stack** (explicit, or the call stack via recursion). Plunges down one path, then backtracks. Powers cycle detection, topological sort, strongly connected components, and maze / backtracking problems.",
             {
               label: "BFS with a queue",
@@ -4415,7 +4770,7 @@ vector<int> bfs(const vector<vector<int>>& adj, int src) {
             },
           ),
           text(
-            "Key detail: mark a node **visited when you push it onto the frontier**, not when you pop it - otherwise it can be enqueued many times before it is first processed.",
+            "Key detail: mark a node **visited the moment you push it onto the frontier**, not when you later pop it off. If you wait, the same vertex can be pushed by several different neighbours before it is ever processed, and it ends up sitting in the queue many times over. It is the same reason a shop takes your name when you join the waiting list, not when you finally reach the counter.",
           ),
           table(
             "BFS vs DFS",
@@ -4514,7 +4869,17 @@ int main() {
             "Name the algorithm to reach for when Dijkstra's assumptions break",
           ]),
           text(
-            "BFS assumes every edge costs 1, so the fewest-edges path may not be the cheapest once weights differ. **Dijkstra's algorithm** replaces BFS's plain queue with a **min-heap / priority queue** keyed by distance-so-far:\n\n- start: `dist[src] = 0`, all others infinity, push (0, src)\n- repeatedly pop the closest unfinished vertex and **relax** each outgoing edge: if `dist[u] + w < dist[v]`, update `dist[v]` and push (dist[v], v)\n- `O((|V| + |E|) log |V|)` with a binary heap",
+            "**Introduction:** BFS treats every edge as costing exactly the same. The moment edges carry different costs - kilometres, minutes, money - the route with the fewest steps stops being the cheapest route. **Dijkstra's algorithm** is the fix: it is BFS with the plain queue swapped for a min-heap, so you always expand the vertex that is cheapest to reach so far.\n\n**Real-life example:** Google Maps. The route with the fewest turns is rarely the fastest one - a single motorway stretch can beat six short residential streets. Maps compares total travel time, not number of roads.",
+          ),
+          text(
+            "In this topic you will learn:\n\n- exactly why BFS gives wrong answers on a weighted graph\n- how Dijkstra uses a min-heap and a step called **relaxation**\n- the one condition Dijkstra needs in order to be correct\n- which algorithm to reach for when that condition does not hold",
+          ),
+          scenario(
+            "Think of it like this",
+            "Imagine planning a trip and always choosing to visit next whichever city you can currently reach most cheaply. Each time you arrive somewhere, you check its onward routes and ask: \"does going through here make any other city cheaper than my current best guess?\" If yes, you write down the better price. That check is **relaxation**, and repeating it while always picking the cheapest-so-far city is all Dijkstra is. It only works because prices are never negative - nobody pays you to travel - so once a city is reached at its cheapest price, no later route can beat it.",
+          ),
+          text(
+            "In precise terms, Dijkstra replaces BFS's plain queue with a **min-heap / priority queue** keyed by distance-so-far:\n\n- start: `dist[src] = 0`, all others infinity, push (0, src)\n- repeatedly pop the closest unfinished vertex and **relax** each outgoing edge: if `dist[u] + w < dist[v]`, update `dist[v]` and push (dist[v], v)\n- `O((|V| + |E|) log |V|)` with a binary heap",
           ),
           text(
             "Requirements and relatives:\n\n- Dijkstra needs **non-negative** weights. Negative edges -> **Bellman-Ford**, `O(|V| * |E|)`.\n- all-pairs shortest paths -> **Floyd-Warshall**, `O(|V|^3)`, matrix-friendly\n- minimum spanning tree -> **Prim** (heap, like Dijkstra) or **Kruskal** (sort edges + **union-find**)\n- shortest/longest path on a DAG -> topological order + one relax pass, `O(|V| + |E|)`",
@@ -4616,10 +4981,17 @@ int main() {
             "Distinguish lossless from lossy and know when each is acceptable",
           ]),
           text(
-            "Real data is **redundant** - some bytes are far more common than others, sequences repeat, neighbouring values are close. Compression re-encodes the data so likely things take fewer bits and unlikely things take more, for a smaller total.",
+            "**Introduction:** **Compression** works because real data repeats itself. Some letters appear far more often than others, whole phrases come back again and again, and neighbouring values are usually close together. If you give the common things short descriptions and the rare things long ones, the total gets smaller - and nothing is lost.\n\n**Real-life example:** Note-taking shorthand. You write \"govt\" instead of \"government\" because you write that word constantly, and you spell rare words out in full. Fewer strokes, same meaning.",
           ),
           text(
-            "**Entropy** (Shannon) is the average information per symbol, `H = -sum p(s) * log2 p(s)` bits. It is the hard floor: no lossless coder can average fewer than `H` bits per symbol. English text is around 4 - 4.5 bits/char of entropy versus 8 bits/char stored, so roughly 2x is free. Data that is already random (encrypted, or already compressed) has `H` near 8 and will not shrink.",
+            "In this topic you will learn:\n\n- what **redundancy** means and why it is the thing compression removes\n- what **entropy** is: the hard limit on how small data can get\n- why already-compressed or encrypted files refuse to shrink further\n- the difference between **lossless** and **lossy**, and when each is acceptable",
+          ),
+          scenario(
+            "Think of it like this",
+            "Think about how you describe where you live. To a neighbour you say \"three doors down\" - very few words, because most of the information is already shared between you. To a courier from another city you have to give the full address. Compression is the same trick: the more predictable something is, the fewer bits you need to pin it down. And that gives you the limit too - if every possibility were equally likely, like a truly random lottery number, there would be no shortcut and nothing to save.",
+          ),
+          text(
+            "That limit has a name. **Entropy** (Shannon) is the average amount of information per symbol, `H = -sum p(s) * log2 p(s)` bits. It is a hard floor: no lossless coder can average fewer than `H` bits per symbol, ever. English text carries roughly 4 - 4.5 bits per character of entropy but is stored at 8 bits per character, so about 2x shrinkage is free for the taking. Data that is already random - encrypted, or already compressed - has `H` near 8, which is why zipping a `.zip` gains you nothing.",
           ),
           text(
             "**Lossless** (ZIP, PNG, FLAC, gzip) - decompresses to the exact original bytes; required for text, code, archives. **Lossy** (JPEG, MP3, H.264) - discards detail humans barely perceive for much higher ratios; fine for photos, audio and video, never for a spreadsheet.",
@@ -4697,7 +5069,17 @@ int main() {
             "See how these front-ends feed an entropy coder",
           ]),
           text(
-            "**Run-length encoding (RLE)** - replace a run of one value with (value, count). `AAAAABBB` -> `A5B3`. Brilliant on data with long runs (bitmap masks, fax, simple graphics); it *expands* data with no runs, so real formats apply it selectively.",
+            "**Introduction:** Before any clever bit-level maths happens, a compressor first rearranges the data to make its repetition obvious. There are three classic ways to do that: note down long runs of the same value (**RLE**), point back to something you already wrote (**dictionary / LZ**), or store only how much each value changed from the last one (**delta**).\n\n**Real-life example:** Writing up meeting minutes. You write \"all six voted yes\" instead of six separate lines (that is RLE), you write \"same as last week's point 3\" instead of retyping it (that is a dictionary reference), and you write \"budget up by 2%\" instead of the full figure (that is delta).",
+          ),
+          text(
+            "In this topic you will learn:\n\n- how **run-length encoding** collapses repeated values, and when it backfires\n- how the **LZ family** points backwards at text it has already seen\n- how **delta coding** turns smooth data into small numbers near zero\n- why all three are only the first half of a real compressor",
+          ),
+          scenario(
+            "Think of it like this",
+            "Picture describing a knitting pattern out loud. \"Thirty red, then one white, then thirty red\" is **RLE** - you say the count instead of naming each stitch. \"Rows 5 to 9 are the same as rows 1 to 4\" is the **LZ dictionary** idea - you refer back rather than repeat. \"Each row is one stitch wider than the one before\" is **delta** - you describe the change, not the value. None of these three invents information; they just move the repetition somewhere a bit-counter can cash it in.",
+          ),
+          text(
+            "**Run-length encoding (RLE)** - replace a run of one value with (value, count). `AAAAABBB` -> `A5B3`. Brilliant on data with long runs (bitmap masks, fax, simple graphics); it *expands* data with no runs at all, so real formats switch it on only where it helps.",
           ),
           text(
             "**Dictionary / LZ family** - replace a repeated sequence with a reference to its earlier occurrence.\n\n- **LZ77** (gzip, zip, PNG): emit `(distance back, length, next literal)` over a sliding window\n- **LZ78 / LZW** (GIF, old `compress`): build an explicit dictionary of seen strings, emit dictionary indices",
@@ -4807,10 +5189,17 @@ int main() {
             "Argue informally why the greedy merge is optimal",
           ]),
           text(
-            "**Huffman coding** assigns each symbol a variable-length **bit** code so frequent symbols get short codes. It produces an **optimal prefix code** - no code is a prefix of another, so a decoder never needs lookahead or delimiters.",
+            "**Introduction:** **Huffman coding** gives every symbol its own pattern of bits, and it deliberately makes common symbols short and rare symbols long. It builds those codes by repeatedly joining the two rarest items together - and a min-heap is exactly the tool that hands you the two rarest items quickly.\n\n**Real-life example:** Morse code. The letter E is the most common letter in English, so it is a single dot. Q is rare, so it is dash-dash-dot-dash. Same idea, chosen by hand a century before Huffman proved how to choose it optimally.",
           ),
           text(
-            "The algorithm is a greedy merge driven by a **min-heap** (Chapter 7):\n\n1. Make a leaf node for each symbol with its frequency; push all leaves into a min-heap keyed by frequency.\n2. While the heap has more than one node: **pop the two smallest**, make a new internal node whose frequency is their sum and whose children are those two, **push it back**.\n3. The last node left is the **root**. The path to each leaf (left = 0, right = 1) is that symbol's code.",
+            "In this topic you will learn:\n\n- how to build a Huffman tree from symbol frequencies using a min-heap\n- what the **prefix property** is and why it makes decoding unambiguous\n- how to read a symbol's code off the tree\n- why merging the two rarest items every time really does give the best possible answer",
+          ),
+          scenario(
+            "Think of it like this",
+            "The **prefix property** is the reason phone numbers work. No country's dialling code is the start of another country's number - otherwise the phone network would never know when your number had finished. Huffman codes keep the same promise: because every symbol sits at a *leaf* of the tree, no symbol's bit pattern is ever the beginning of another symbol's. So a decoder can read bits one at a time and always know exactly where one symbol ends and the next begins - no commas, no lengths, no lookahead.",
+          ),
+          text(
+            "The algorithm itself is a greedy merge driven by a **min-heap** (Chapter 7):\n\n1. Make a leaf node for each symbol with its frequency; push all leaves into a min-heap keyed by frequency.\n2. While the heap has more than one node: **pop the two smallest**, make a new internal node whose frequency is their sum and whose children are those two, **push it back**.\n3. The last node left is the **root**. The path to each leaf (left = 0, right = 1) is that symbol's code.",
             {
               label: "The merge loop",
               content: `#include <queue>
@@ -4837,7 +5226,7 @@ HNode* root = pq.top();`,
             { id: "codes", label: "Codes", color: C_GREEN, items: ["A=0  B=10  C=110  D=111"] },
           ]),
           text(
-            "**Why greedy is optimal**: the two least-frequent symbols can always be made the deepest siblings without increasing total cost (an exchange argument); merging them into one super-symbol reduces the problem to n - 1 symbols, and induction finishes it. The total encoded size is `sum freq(s) * depth(s)`, which Huffman minimises; it lands within 1 bit/symbol of entropy. **Arithmetic / range coding** closes that last gap by not rounding to whole bits.",
+            "**Why greedy is optimal**: the two rarest symbols should end up furthest from the root, because depth is cost and you want to spend your longest codes on the symbols you use least. You can always swap them down to be the deepest pair of siblings without making the total any worse. Once they are paired, treat them as a single combined symbol - now you have one fewer symbol and exactly the same problem, so repeating the argument all the way down proves the result. The total encoded size is `sum freq(s) * depth(s)`, which Huffman minimises; it lands within 1 bit/symbol of entropy. **Arithmetic / range coding** closes that last gap by not rounding to whole bits.",
           ),
           table(
             "The finished code table for A:5 B:2 C:1 D:1",
@@ -4925,7 +5314,17 @@ int main() {
             "State the time and space complexity of the full pipeline",
           ]),
           text(
-            "**Decoding Huffman**: start at the root, read one bit at a time, go left on 0 and right on 1; on reaching a leaf, emit that symbol and jump back to the root. `O(total bits)`. Faster decoders use a lookup table indexed by the next `k` bits.",
+            "**Introduction:** Decoding is the easy half. You hold the same tree the encoder built, start at the root, and let the incoming bits steer you: 0 means go left, 1 means go right. The moment you land on a leaf you have decoded one whole symbol, so you write it out and jump straight back to the root for the next one.\n\n**Real-life example:** Following spoken directions with no map. \"Left, left, right\" - and you are at the shop. You then walk back to the same starting corner before following the next set of directions.",
+          ),
+          text(
+            "In simple words:\n\n- decoding is one walk down the tree per symbol\n- you never need to know a code's length in advance - the leaf tells you when to stop\n- every structure from this course shows up somewhere inside Huffman coding",
+          ),
+          scenario(
+            "Think of it like this",
+            "Decoding is a game of twenty questions where the answers arrive in advance. Each bit answers one yes/no question about which half of the remaining symbols you are in, and you keep narrowing until only one symbol is left - that is the leaf. Then the game restarts from the top for the next symbol. Because common symbols were placed near the root, most of these games finish in one or two questions.",
+          ),
+          text(
+            "Written precisely: start at the root, read one bit at a time, go left on 0 and right on 1; on reaching a leaf, emit that symbol and jump back to the root. Total cost is `O(total bits)`. Production decoders speed this up with a lookup table indexed by the next `k` bits, so several levels of the walk happen in one array read.",
           ),
           text(
             "Huffman coding is a tour of the whole course:\n\n- a **hash map** counts symbol frequencies in one `O(n)` pass\n- a **min-heap** yields the two rarest nodes in `O(log k)` each\n- a **binary tree** encodes the prefix code; the **path** to a leaf (a walk, like tree traversal) is the codeword\n- an array-backed **bitstream** is the output\n- decoding is tree traversal driven by input bits",
