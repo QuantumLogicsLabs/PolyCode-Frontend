@@ -275,7 +275,8 @@ squared = 5 ** 2          # 25`,
             {
               label: "Reading input",
               content: `puts "Enter your name:"
-name = gets.chomp
+input = gets&.chomp
+name = (input.nil? || input.strip.empty?) ? "Guest" : input
 puts "Welcome, #{name}!"`,
             },
           ),
@@ -332,7 +333,9 @@ end`,
             "Ruby introduces an elegant opposite to `if`: the `unless` statement. It executes only when a condition is **false**.",
             {
               label: "Using unless",
-              content: `unless health > 0
+              content: `health = 0
+
+unless health > 0
   puts "Game Over"
 end
 # Reads exactly like English: "Unless health is greater than 0, print Game Over."`,
@@ -425,9 +428,13 @@ puts "Liftoff!"`,
             "Just as `unless` is the opposite of `if`, Ruby has `until` as the opposite of `while`. An `until` loop repeats as long as a condition is **false**.",
             {
               label: "Until loop",
-              content: `until balance >= 100
+              content: `balance = 0
+
+until balance >= 100
   balance += 10
-end`,
+end
+
+puts "Final balance: #{balance}"`,
             },
           ),
           callout("warning", "Always ensure something inside the loop modifies the condition over time. Otherwise, the loop runs forever!"),
@@ -519,7 +526,9 @@ say_hello # Calling the method`,
               label: "Implicit returns",
               content: `def double_score(s)
   s * 2  # The 'return' is invisible but happens automatically!
-end`,
+end
+
+puts double_score(5)`,
             },
           ),
           callout("tip", "Method names should be written in `snake_case`. Methods that return true/false should end in a question mark, like `game_over?`."),
@@ -915,10 +924,15 @@ rex.bark`,
             {
               label: "Constructor",
               content: `class Hero
+  attr_reader :name
+
   def initialize(name)
     @name = name
   end
-end`,
+end
+
+hero = Hero.new("Arthur")
+puts hero.name`,
             },
           ),
           text(
@@ -966,6 +980,12 @@ h.name = "Super Nova"  # Setter works!`,
             {
               label: "Private mechanics",
               content: `class BankAccount
+  attr_reader :balance
+
+  def initialize(initial_balance)
+    @balance = initial_balance
+  end
+
   def withdraw(amount)
     deduct_funds(amount) # Safe internal call
   end
@@ -975,7 +995,11 @@ h.name = "Super Nova"  # Setter works!`,
   def deduct_funds(amount)
     @balance -= amount
   end
-end`,
+end
+
+account = BankAccount.new(100)
+account.withdraw(30)
+puts "Remaining balance: $#{account.balance}"`,
             },
           ),
           text(
@@ -1138,7 +1162,11 @@ puts "Program continues safely!"`,
   when "-" then a - b
   else "Invalid"
   end
-end`,
+end
+
+puts calculate(10, 5, "+")
+puts calculate(10, 5, "-")
+puts calculate(10, 5, "*")`,
             },
           ),
           text(

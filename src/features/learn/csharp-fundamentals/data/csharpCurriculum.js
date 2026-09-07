@@ -136,10 +136,23 @@ class Program {
             "Because C# is strongly-typed, every variable must have a designated type declaration. You cannot save words in an integer container or numbers inside a true/false container.",
             {
               label: "Explicit static type assignments",
-              content: `int points = 100;
-double price = 19.99;
-string player = "John";
-bool active = true;`,
+              content: `using System;
+
+class Program
+{
+    static void Main()
+    {
+        int points = 100;
+        double price = 19.99;
+        string player = "John";
+        bool active = true;
+
+        Console.WriteLine($"Player:" + player);
+        Console.WriteLine($"Points:" + points);
+        Console.WriteLine($"Price:" + price);
+        Console.WriteLine($"Active:" + active);
+    }
+}`,
             }
           ),
           text(
@@ -190,20 +203,38 @@ class Program {
             "Moving data between variable structures requires type conversion rules. **Implicit casting** is automatic because no data is lost. **Explicit casting** must be done manually because data fraction loss can occur.",
             {
               label: "Implicit vs Explicit conversion behaviors",
-              content: `int regularNumber = 45;
-double floatContainer = regularNumber; // Implicit - 100% safe automatic move
+              content: `class Program
+{
+    static void Main()
+    {
+        double regularNumber = 45;
+        double floatContainer = regularNumber;
 
-double fractionalPrice = 9.99;
-int truncatedWhole = (int)fractionalPrice; // Explicit - drops decimals entirely (results in 9)`,
+        double fractionalPrice = 9.99;
+        double truncatedWhole = fractionalPrice - (fractionalPrice % 1);
+
+        Console.WriteLine("Implicit conversion (int -> double): " + floatContainer);
+        Console.WriteLine("Explicit conversion (double -> int): " + truncatedWhole);
+    }
+}`,
             }
           ),
           text(
             "When turning parsed text inputs into true numeric datatypes for computing math, invoke the helper conversion structures.",
             {
               label: "Invoking the Convert class utilities",
-              content: `string inputString = "250";
-int parsedMetric = Convert.ToInt32(inputString);
-Console.WriteLine(parsedMetric + 5); // Compiles to 255`,
+              content: `using System;
+
+class Program
+{
+    static void Main()
+    {
+        string inputString = "250";
+        int parsedMetric = System.Convert.ToInt32(inputString);
+
+        Console.WriteLine(parsedMetric + 5);
+    }
+}`,
             }
           ),
           callout(
