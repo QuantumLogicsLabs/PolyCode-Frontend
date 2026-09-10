@@ -1,5 +1,98 @@
 /* Alternate palettes — scoped to learn content so navbar keeps default styling */
 
+.app.theme-classic {
+  --ink: #0c0a06;
+  --ink-2: #12100a;
+  --ink-3: #18140c;
+  --ink-4: #1e1910;
+  --border: rgba(255, 176, 0, 0.18);
+  --border-2: rgba(255, 176, 0, 0.28);
+  --txt-0: #fff8e7;
+  --txt-1: #e8dcc0;
+  --txt-2: #a89878;
+  --txt-3: #6f6248;
+  --acid: #ffb000;
+  --acid-rgb: 255, 176, 0;
+  --accent: #ffb000;
+  --acid-glow: rgba(255, 176, 0, 0.24);
+  --acid-dim: rgba(255, 176, 0, 0.14);
+  --cyan: #33ff99;
+  --cyan-dim: rgba(51, 255, 153, 0.14);
+  --violet: #d4a017;
+  --bg-card: #141008;
+  --glass: rgba(255, 176, 0, 0.04);
+  --glass-heavy: rgba(255, 176, 0, 0.08);
+  --vscode-panel: #1a1408;
+  --vscode-panel-2: #221a0c;
+  --vscode-border: rgba(255, 176, 0, 0.22);
+  --vscode-blue: #ffb000;
+  --vscode-blue-2: #ffc933;
+  --numpy-accent: #ffb000;
+  --course-accent: #ffb000;
+}
+
+.app.theme-midnight {
+  --ink: #060912;
+  --ink-2: #0a0f1e;
+  --ink-3: #0f1628;
+  --ink-4: #141c34;
+  --border: rgba(129, 140, 248, 0.24);
+  --border-2: rgba(167, 139, 250, 0.4);
+  --txt-0: #f8faff;
+  --txt-1: #e4e9ff;
+  --txt-2: #b8c2f0;
+  --txt-3: #8b98c9;
+  --acid: #a5b4fc;
+  --acid-rgb: 165, 180, 252;
+  --accent: #818cf8;
+  --acid-glow: rgba(99, 102, 241, 0.32);
+  --acid-dim: rgba(129, 140, 248, 0.16);
+  --cyan: #7dd3fc;
+  --cyan-dim: rgba(125, 211, 252, 0.14);
+  --violet: #c4b5fd;
+  --bg-card: #0a0f1f;
+  --glass: rgba(129, 140, 248, 0.06);
+  --glass-heavy: rgba(129, 140, 248, 0.11);
+  --vscode-panel: #12182c;
+  --vscode-panel-2: #181f38;
+  --vscode-border: rgba(129, 140, 248, 0.28);
+  --vscode-blue: #6366f1;
+  --vscode-blue-2: #818cf8;
+  --numpy-accent: #818cf8;
+  --course-accent: #a5b4fc;
+}
+
+.app.theme-slate {
+  --ink: #111318;
+  --ink-2: #151820;
+  --ink-3: #191c24;
+  --ink-4: #1d212c;
+  --border: rgba(148, 163, 184, 0.18);
+  --border-2: rgba(203, 213, 225, 0.28);
+  --txt-0: #f8fafc;
+  --txt-1: #e2e8f0;
+  --txt-2: #94a3b8;
+  --txt-3: #64748b;
+  --acid: #cbd5e1;
+  --acid-rgb: 203, 213, 225;
+  --accent: #94a3b8;
+  --acid-glow: rgba(226, 232, 240, 0.18);
+  --acid-dim: rgba(148, 163, 184, 0.12);
+  --cyan: #94a3b8;
+  --cyan-dim: rgba(148, 163, 184, 0.12);
+  --violet: #cbd5e1;
+  --bg-card: #171a22;
+  --glass: rgba(148, 163, 184, 0.04);
+  --glass-heavy: rgba(148, 163, 184, 0.08);
+  --vscode-panel: #1a1e28;
+  --vscode-panel-2: #222733;
+  --vscode-border: rgba(148, 163, 184, 0.22);
+  --vscode-blue: #64748b;
+  --vscode-blue-2: #94a3b8;
+  --numpy-accent: #94a3b8;
+  --course-accent: #cbd5e1;
+}
+
 .app.theme-classic .main-content.learn-content {
   --ink: #0c0a06;
   --ink-2: #12100a;

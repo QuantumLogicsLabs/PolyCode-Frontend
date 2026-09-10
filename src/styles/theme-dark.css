@@ -1,27 +1,28 @@
 /**
- * Dark themes (default, classic, midnight, ocean, slate):
- * unify interactive accents to yellow + black.
- * Light theme (.theme-light) is unchanged.
+ * Dark-family themes (default, classic, midnight, ocean, slate):
+ * interactive accents now follow each theme's own primary color
+ * (var(--acid) / var(--acid-rgb), already defined per theme) instead
+ * of being hardcoded to yellow. Light theme is unaffected.
  */
 
 .app:not(.theme-light) {
-  --poly-accent: #ffe566;
-  --poly-accent-bright: #fff3a8;
-  --poly-accent-dim: rgba(255, 229, 102, 0.14);
-  --poly-accent-border: rgba(255, 229, 102, 0.32);
+  --poly-accent: var(--acid);
+  --poly-accent-bright: color-mix(in srgb, var(--acid) 85%, white 15%);
+  --poly-accent-dim: rgba(var(--acid-rgb), 0.14);
+  --poly-accent-border: rgba(var(--acid-rgb), 0.32);
   --poly-accent-text: #03050a;
 
-  --vscode-blue: #c9a800;
-  --vscode-blue-2: #ffe566;
-  --learn-action-bg: #ffe566;
+  --vscode-blue: var(--acid);
+  --vscode-blue-2: var(--acid);
+  --learn-action-bg: var(--acid);
   --learn-action-text: #03050a;
-  --learn-pill-border: rgba(255, 229, 102, 0.28);
-  --learn-pill-bg: rgba(255, 229, 102, 0.1);
-  --learn-pill-text: #ffe566;
-  --profile-accent: #ffe566;
-  --lesson-accent: #ffe566;
-  --numpy-accent: #ffe566;
-  --course-accent: #ffe566;
+  --learn-pill-border: rgba(var(--acid-rgb), 0.28);
+  --learn-pill-bg: rgba(var(--acid-rgb), 0.1);
+  --learn-pill-text: var(--acid);
+  --profile-accent: var(--acid);
+  --lesson-accent: var(--acid);
+  --numpy-accent: var(--acid);
+  --course-accent: var(--acid);
 }
 
 /* ── Global buttons ── */
@@ -33,7 +34,7 @@
 .app:not(.theme-light) .btn-primary:hover {
   background: var(--poly-accent-bright);
   color: var(--poly-accent-text);
-  box-shadow: 0 10px 30px var(--acid-glow, rgba(255, 229, 102, 0.25));
+  box-shadow: 0 10px 30px var(--acid-glow);
 }
 
 /* ── Language hub / course cards ── */
@@ -94,7 +95,7 @@
 
 .polycode-landing:not(.polycode-landing--light) .landing-hero-shimmer,
 .app:not(.theme-light) .polycode-landing .landing-hero-shimmer {
-  background: linear-gradient(135deg, #ffe566 0%, #ffd028 50%, #fff3a8 100%);
+  background: linear-gradient(135deg, var(--acid) 0%, var(--poly-accent-bright) 50%, var(--acid) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -113,7 +114,7 @@
   color: var(--poly-accent-text);
 }
 
-/* ── Learn: chapter path + cards (unified yellow/black) ── */
+/* ── Learn: chapter path + cards (accent follows each theme) ── */
 .app:not(.theme-light) .main-content.learn-content {
   --ch-color: var(--poly-accent);
   --node-color: var(--poly-accent);
@@ -136,8 +137,8 @@
 }
 
 .app:not(.theme-light) .main-content.learn-content .oops-path-step-icon {
-  background: rgba(255, 229, 102, 0.1);
-  border: 1px solid rgba(255, 229, 102, 0.28);
+  background: rgba(var(--acid-rgb), 0.1);
+  border: 1px solid rgba(var(--acid-rgb), 0.28);
 }
 
 .app:not(.theme-light) .main-content.learn-content .oops-path-step-icon .learn-chapter-icon,
@@ -146,7 +147,7 @@
 }
 
 .app:not(.theme-light) .main-content.learn-content .oops-path-step-num {
-  color: rgba(255, 229, 102, 0.8);
+  color: rgba(var(--acid-rgb), 0.8);
 }
 
 .app:not(.theme-light) .main-content.learn-content .oops-path-step-progress {
@@ -160,9 +161,9 @@
 
 .app:not(.theme-light) .main-content.learn-content .oops-path-step.active,
 .app:not(.theme-light) .main-content.learn-content .oops-path-step.done {
-  border-color: rgba(255, 229, 102, 0.42);
-  background: rgba(255, 229, 102, 0.06);
-  box-shadow: 0 0 0 1px rgba(255, 229, 102, 0.1);
+  border-color: rgba(var(--acid-rgb), 0.42);
+  background: rgba(var(--acid-rgb), 0.06);
+  box-shadow: 0 0 0 1px rgba(var(--acid-rgb), 0.1);
 }
 
 .app:not(.theme-light) .main-content.learn-content .oops-chapter-card {
@@ -175,14 +176,14 @@
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 229, 102, 0.35),
+    rgba(var(--acid-rgb), 0.35),
     transparent
   ) !important;
 }
 
 .app:not(.theme-light) .main-content.learn-content .oops-chapter-icon-wrap {
-  background: rgba(255, 229, 102, 0.1);
-  border-color: rgba(255, 229, 102, 0.28);
+  background: rgba(var(--acid-rgb), 0.1);
+  border-color: rgba(var(--acid-rgb), 0.28);
 }
 
 .app:not(.theme-light) .main-content.learn-content .oops-chapter-progress-fill {
@@ -195,14 +196,14 @@
 }
 
 .app:not(.theme-light) .main-content.learn-content .numpy-inline-code {
-  background: rgba(255, 229, 102, 0.14);
-  color: #ffe566;
+  background: rgba(var(--acid-rgb), 0.14);
+  color: var(--acid);
 }
 
 .app:not(.theme-light) .main-content.learn-content .numpy-lesson-hero {
-  border-color: rgba(255, 229, 102, 0.32);
+  border-color: rgba(var(--acid-rgb), 0.32);
   background:
-    linear-gradient(135deg, rgba(255, 229, 102, 0.1), transparent 55%),
+    linear-gradient(135deg, rgba(var(--acid-rgb), 0.1), transparent 55%),
     rgba(255, 255, 255, 0.02);
 }
 
@@ -211,34 +212,35 @@
   --ch-color: var(--poly-accent);
 }
 
-/* Win over theme-midnight / theme-ocean learn-surface rules */
+/* Win over theme-midnight / theme-ocean learn-surface rules
+   (kept per-theme accurate via var(--acid-rgb), no longer forced to yellow) */
 .app.theme-midnight:not(.theme-light) .main-content.learn-content .oops-path-step.active,
 .app.theme-midnight:not(.theme-light) .main-content.learn-content .oops-path-step.done,
 .app.theme-ocean:not(.theme-light) .main-content.learn-content .oops-path-step.active,
 .app.theme-ocean:not(.theme-light) .main-content.learn-content .oops-path-step.done {
-  border-color: rgba(255, 229, 102, 0.42) !important;
-  background: rgba(255, 229, 102, 0.06) !important;
+  border-color: rgba(var(--acid-rgb), 0.42) !important;
+  background: rgba(var(--acid-rgb), 0.06) !important;
 }
 
 .app.theme-midnight:not(.theme-light) .main-content.learn-content .oops-chapter-card:hover {
-  border-color: rgba(255, 229, 102, 0.35) !important;
+  border-color: rgba(var(--acid-rgb), 0.35) !important;
   box-shadow:
     0 16px 40px rgba(0, 0, 0, 0.35),
-    0 0 0 1px rgba(255, 229, 102, 0.12) !important;
+    0 0 0 1px rgba(var(--acid-rgb), 0.12) !important;
 }
 
 .app.theme-midnight:not(.theme-light) .main-content.learn-content .oops-chapter-card::after {
   background: radial-gradient(
     circle,
-    rgba(255, 229, 102, 0.12) 0%,
+    rgba(var(--acid-rgb), 0.12) 0%,
     transparent 70%
   ) !important;
 }
 
 .app.theme-midnight:not(.theme-light) .main-content.learn-content .oops-lesson-item:hover,
 .app.theme-ocean:not(.theme-light) .main-content.learn-content .oops-lesson-item:hover {
-  background: rgba(255, 229, 102, 0.08) !important;
-  border-color: rgba(255, 229, 102, 0.2) !important;
+  background: rgba(var(--acid-rgb), 0.08) !important;
+  border-color: rgba(var(--acid-rgb), 0.2) !important;
 }
 
 .app.theme-midnight:not(.theme-light) .main-content.learn-content .oops-chapter-cta,
@@ -246,7 +248,7 @@
   background: var(--poly-accent) !important;
   color: var(--poly-accent-text) !important;
   border-color: transparent !important;
-  box-shadow: 0 10px 24px rgba(255, 229, 102, 0.2) !important;
+  box-shadow: 0 10px 24px rgba(var(--acid-rgb), 0.2) !important;
 }
 
 .app:not(.theme-light) .main-content.learn-content .oops-path-step-body {
