@@ -2,6 +2,8 @@ export const REQUIRED_QUIZ_COUNT = 2;
 
 const OPTION_MAX_LEN = 110;
 const MIN_OPTION_LEN = 14;
+// Splits prose into sentences without breaking after "e.g." / "i.e." etc.
+const SENTENCE_SPLIT = /(?<=[.!?])(?<!\b(?:e\.g|i\.e|etc|vs)\.)\s+/i;
 
 export function quizAttemptsKey(storagePrefix, lessonId) {
   return `${storagePrefix}_quiz_attempts_${lessonId}`;
@@ -67,15 +69,51 @@ function stripMarkdown(text = "") {
     .trim();
 }
 
+// Normalises whitespace but keeps `**` and backticks: LessonQuizSlider renders
+// them as bold/code, and stripping them corrupts options like `int**` or
+// `Dir['**/*']`. Use stripMarkdown only for comparisons and length checks.
+function cleanOption(text = "") {
+  return String(text).replace(/\s+/g, " ").trim();
+}
+
+// A cut can leave half a `code` or **bold** span behind; drop the dangling
+// marker so the slider doesn't render a stray backtick or asterisks.
+function dropDanglingMarkdown(text) {
+  let out = text;
+  if ((out.match(/`/g) || []).length % 2) {
+    const last = out.lastIndexOf("`");
+    out = out.slice(0, last) + out.slice(last + 1);
+  }
+  if ((out.match(/\*\*/g) || []).length % 2) {
+    const last = out.lastIndexOf("**");
+    out = out.slice(0, last) + out.slice(last + 2);
+  }
+  return out;
+}
+
 function truncateOption(text = "", max = OPTION_MAX_LEN) {
-  const clean = stripMarkdown(text);
+  const clean = cleanOption(text);
   if (clean.length <= max) return clean;
   const slice = clean.slice(0, max - 1).trim();
+  // Prefer ending on a sentence or clause break ("; " / dash) over a mid-phrase
+  // "…" cut: a cut-off correct answer stands out next to short distractors and
+  // gives the answer away. Abbreviations like "e.g." are not sentence ends.
+  const boundaries = [
+    ...[...slice.matchAll(/[.!?](?= )/g)]
+      .filter((match) => !/\b(e\.g|i\.e|etc|vs|[A-Za-z])$/i.test(slice.slice(0, match.index)))
+      .map((match) => slice.slice(0, match.index + 1)),
+    ...[...slice.matchAll(/(;| [—–]) /g)].map((match) => slice.slice(0, match.index)),
+  ].filter((text) => text.length >= max * 0.35);
+  if (boundaries.length) {
+    const longest = boundaries.reduce((a, b) => (b.length > a.length ? b : a));
+    const sentence = dropDanglingMarkdown(longest.trim());
+    if (stripMarkdown(sentence).length >= MIN_OPTION_LEN) return sentence;
+  }
   const lastSpace = slice.lastIndexOf(" ");
   if (lastSpace > max * 0.6) {
-    return `${slice.slice(0, lastSpace)}…`;
+    return `${dropDanglingMarkdown(slice.slice(0, lastSpace))}…`;
   }
-  return `${slice}…`;
+  return `${dropDanglingMarkdown(slice)}…`;
 }
 
 function isUsableOption(text = "") {
@@ -90,12 +128,19 @@ function hashString(value = "") {
   return Math.abs(hash);
 }
 
+// mulberry32 PRNG — uses 32-bit integer math (Math.imul) so it never loses
+// precision the way a plain `state * 1103515245` float product does.
 function seededShuffle(items, seed) {
   const arr = [...items];
-  let state = seed || 1;
+  let state = seed >>> 0;
+  const next = () => {
+    state = (state + 0x6d2b79f5) | 0;
+    let t = Math.imul(state ^ (state >>> 15), 1 | state);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
   for (let index = arr.length - 1; index > 0; index -= 1) {
-    state = (state * 1103515245 + 12345) & 0x7fffffff;
-    const swap = state % (index + 1);
+    const swap = Math.floor(next() * (index + 1));
     [arr[index], arr[swap]] = [arr[swap], arr[index]];
   }
   return arr;
@@ -166,7 +211,11 @@ function getExistingQuizTexts(theory = []) {
 function buildShuffledQuiz({ question, correct, wrongPool, explanation, seed, lang }) {
   const cleanCorrect = truncateOption(correct);
   const techPool = technicalDistractors(lang);
-  const wrong = [...new Set(wrongPool.map(truncateOption).filter(isUsableOption))]
+  // Wrap truncateOption: passing it straight to map() would feed the array
+  // index in as `max` and cut early pool entries down to a few characters.
+  const wrong = [
+    ...new Set(wrongPool.map((item) => truncateOption(item)).filter(isUsableOption)),
+  ]
     .filter((option) => normalizeOption(option) !== normalizeOption(cleanCorrect))
     .slice(0, 6);
 
@@ -212,8 +261,11 @@ function normalizeTableRow(row) {
 function sanitizeQuizBlock(quiz) {
   if (!quiz || quiz.type !== "quiz") return quiz;
 
+  // Hand-written options are shown in full — cutting them with "…" made the
+  // (usually longest) correct answer stand out. Generated options were already
+  // shortened when they were built.
   const options = (Array.isArray(quiz.options) ? quiz.options : [])
-    .map((option) => truncateOption(option) || "See the lesson above")
+    .map((option) => cleanOption(option) || "See the lesson above")
     .filter(Boolean);
 
   while (options.length < 4) {
@@ -223,14 +275,29 @@ function sanitizeQuizBlock(quiz) {
   let answer = Number.isInteger(quiz.answer) ? quiz.answer : 0;
   if (answer < 0 || answer >= options.length) answer = 0;
 
+  let finalOptions = options.slice(0, 4);
+  if (answer >= finalOptions.length) answer = 0;
+
+  // Hand-written quizzes are authored with the answer in a predictable slot,
+  // so shuffle them too. Generated quizzes are already shuffled. The seed is
+  // derived from the question text so the order is stable across visits.
+  if (!quiz._generated) {
+    const order = seededShuffle(
+      finalOptions.map((_, index) => index),
+      hashString(`${quiz.question || ""}|${finalOptions.join("|")}`),
+    );
+    finalOptions = order.map((index) => finalOptions[index]);
+    answer = order.indexOf(answer);
+  }
+
   return {
     ...quiz,
     question: quiz.question || "Quick check on this lesson",
-    options: options.slice(0, 4),
+    options: finalOptions,
     answer,
     explanation:
       quiz.explanation ||
-      options[answer] ||
+      finalOptions[answer] ||
       "Review the lesson text above, then try the challenge.",
   };
 }
@@ -256,9 +323,30 @@ function extractCodeBlocks(theory = []) {
   return blocks;
 }
 
+// Keywords that are followed by "(" in some language (Go `import (`, C `if (`,
+// PowerShell `foreach (` …) but are not function calls.
+const NON_CALL_KEYWORDS = new Set([
+  "if", "else", "elif", "for", "foreach", "while", "until", "do", "switch",
+  "case", "catch", "return", "import", "func", "function", "typeof",
+  "and", "or", "not", "in", "with", "using", "lock", "when", "match", "param",
+  "unless", "select", "var", "const",
+]);
+
 function extractFunctionCalls(code = "") {
-  const matches = [...String(code).matchAll(/(\w+(?:\.\w+)*)\s*\(/g)];
-  return [...new Set(matches.map((match) => match[1]))];
+  const source = String(code);
+  const matches = [...source.matchAll(/(\w+(?:\.\w+)*)\s*\(/g)];
+  return [
+    ...new Set(
+      matches
+        // A keyword called as a method (e.g. JS `promise.catch(`) is a real call.
+        .filter(
+          (match) =>
+            source[match.index - 1] === "." ||
+            !NON_CALL_KEYWORDS.has(match[1].toLowerCase()),
+        )
+        .map((match) => match[1]),
+    ),
+  ];
 }
 
 function extractImports(code = "") {
@@ -425,12 +513,25 @@ function describeApiCall(apiCall, corpus = "") {
   const hint = hints.find((item) => item.match.test(apiCall));
   if (hint) return hint.description;
 
+  // Only use a sentence of prose — a raw code line like `print(x())` is not a
+  // description of what the call does.
   const corpusLine = corpus
     .split(/\n/)
-    .find((line) => line.includes(apiCall) && line.length > apiCall.length + 8);
+    .find((line) => {
+      const text = stripMarkdown(line);
+      return (
+        text.includes(apiCall) &&
+        text.split(" ").length >= 5 &&
+        !/^(#|\/\/|--|::|rem\b)/i.test(text) &&
+        !/[;{}=]/.test(text) &&
+        !/^[\w.$]+\s*\(/.test(text)
+      );
+    });
   if (corpusLine) return truncateOption(stripMarkdown(corpusLine), 96);
 
-  return `Calls \`${apiCall}()\` as shown in the lesson`;
+  // No real description available. Callers skip the call rather than use a
+  // tautological "Calls x() as shown in the lesson" answer.
+  return null;
 }
 
 function collectCorpusText(theory = []) {
@@ -547,7 +648,7 @@ function buildFromDefinition(ctx, seed) {
       .map((item) => item.definition),
     ...ctx.texts
       .filter((text) => !text.toLowerCase().includes(def.term.toLowerCase()))
-      .map((text) => truncateOption(text.split(/(?<=[.!?])\s+/)[0], 96)),
+      .map((text) => truncateOption(text.split(SENTENCE_SPLIT)[0], 96)),
     `A library unrelated to ${ctx.chapter}`,
   ];
 
@@ -568,7 +669,7 @@ function buildFromImport(ctx, seed) {
     ...ctx.imports
       .filter((item) => item.alias !== imp.alias)
       .map((item) => item.module),
-    "The Python standard library root package only",
+    "The standard library's root package only",
     "A random variable name with no module behind it",
     "An optional nickname that changes every run",
   ];
@@ -587,10 +688,12 @@ function buildFromApiCall(ctx, seed) {
   if (!apiCall) return null;
 
   const correct = describeApiCall(apiCall, ctx.corpus);
+  if (!correct) return null;
   const wrongPool = [
     ...ctx.apiCalls
       .filter((call) => call !== apiCall)
-      .map((call) => describeApiCall(call, ctx.corpus)),
+      .map((call) => describeApiCall(call, ctx.corpus))
+      .filter(Boolean),
     ...technicalDistractors(inferLessonLang(ctx)),
   ];
 
@@ -615,14 +718,15 @@ function buildFromCodePresence(ctx, seed) {
   const wrongPool = [
     ...calls.filter((call) => call !== target),
     ...ctx.apiCalls.filter((call) => call !== target),
-    "A comment line that Python ignores",
+    "A comment line the program ignores",
     "A variable assignment with no function call",
   ];
 
   return buildShuffledQuiz({
     question: `Which function call appears in the **${block.label}** example?`,
     correct: `${target}()`,
-    wrongPool: wrongPool.map((item) => (item.includes("()") ? item : `${item}()`)),
+    // Only bare call names get "()" — not the sentence-style distractors.
+    wrongPool: wrongPool.map((item) => (/^[\w.]+$/.test(item) ? `${item}()` : item)),
     explanation: `The **${block.label}** snippet uses \`${target}()\`.`,
     seed: seed + 3,
   });
@@ -659,7 +763,7 @@ function buildFromChallenge(ctx, seed) {
   const test = ctx.challenge.tests[seed % ctx.challenge.tests.length];
   const wrongPool = [
     ...ctx.challenge.tests.filter((item) => item !== test),
-    "Submit code that never imports the required library",
+    "Submit code that never uses what the lesson taught",
     "Skip the required function and only print a message",
     "Hard-code the expected output without using the lesson API",
   ];
@@ -695,7 +799,7 @@ function buildFromInlineCode(ctx, seed) {
     wrongPool: [
       ...ctx.texts
         .filter((text) => !text.includes(token))
-        .map((text) => truncateOption(text.split(/(?<=[.!?])\s+/)[0], 96)),
+        .map((text) => truncateOption(text.split(SENTENCE_SPLIT)[0], 96)),
       `\`${token}\` is never mentioned in this lesson`,
       `\`${token}\` is only used in the challenge, not in theory`,
     ],
@@ -776,7 +880,7 @@ function buildFromConceptSentence(ctx, seed) {
   const candidates = ctx.texts
     .map((text) => {
       const sentence =
-        text.split(/(?<=[.!?])\s+/).find((part) => part.length >= 40) || text;
+        text.split(SENTENCE_SPLIT).find((part) => part.length >= 40) || text;
       return truncateOption(sentence, 96);
     })
     .filter(isUsableOption);
@@ -808,7 +912,7 @@ function buildTechnicalLastResort(ctx, slot, seed) {
       wrongPool: [
         "Rewrite the lesson without using any code",
         "Memorize quiz answers without running examples",
-        "Skip imports and hope the grader passes it",
+        "Skip the required setup and hope the grader passes it",
       ],
       explanation: ctx.challenge.description,
       seed: seed + slot,

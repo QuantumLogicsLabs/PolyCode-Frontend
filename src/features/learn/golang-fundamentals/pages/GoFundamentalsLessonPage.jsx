@@ -201,6 +201,7 @@ export default function GoFundamentalsLessonPage() {
           {tab === "theory" ? (
             <NumpyIntroTheory
               lesson={lesson}
+              quizStoragePrefix={READ_GATE_PREFIX}
               noteDraft={noteDraft}
               onNoteChange={setNoteDraft}
               onSaveNote={handleSaveNote}
