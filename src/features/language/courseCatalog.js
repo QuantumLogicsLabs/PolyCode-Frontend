@@ -521,6 +521,33 @@ export const languageCourses = {
       href: "/learn/forms-semantic-html",
       accent: "#22c55e",
     },
+    {
+      title: "CSS Variables & Modern CSS",
+      tag: "Advanced Course",
+      icon: Atom,
+      description:
+        "Custom properties, calc()/clamp()/min()/max(), container queries, and :has() — the modern CSS features shipping in every browser today.",
+      href: "/learn/css-modern-features",
+      accent: "#f97316",
+    },
+    {
+      title: "Sass & SCSS",
+      tag: "Advanced Course",
+      icon: Boxes,
+      description:
+        "Variables, nesting, mixins, functions, and partials — writing maintainable stylesheets with the most-used CSS preprocessor.",
+      href: "/learn/sass-scss",
+      accent: "#cf649a",
+    },
+    {
+      title: "Web Accessibility (a11y)",
+      tag: "Advanced Course",
+      icon: ScanEye,
+      description:
+        "ARIA roles, keyboard navigation, color contrast, and screen-reader friendly markup — building sites that work for everyone.",
+      href: "/learn/web-accessibility",
+      accent: "#0d9488",
+    },
   ],
   php: [
     {
@@ -1256,6 +1283,9 @@ export const learnNavByLanguage = {
     { label: "Responsive Design", to: "/learn/responsive-design" },
     { label: "CSS Animations", to: "/learn/css-animations" },
     { label: "Forms & Semantic HTML", to: "/learn/forms-semantic-html" },
+    { label: "CSS Variables & Modern CSS", to: "/learn/css-modern-features" },
+    { label: "Sass & SCSS", to: "/learn/sass-scss" },
+    { label: "Web Accessibility (a11y)", to: "/learn/web-accessibility" },
   ],
   java: [
     { label: "Java Fundamentals", to: "/learn/java-fundamentals" },
@@ -1418,7 +1448,10 @@ export function inferLanguageFromLearnPath(pathname = "") {
     pathname.startsWith("/learn/css-layouts") ||
     pathname.startsWith("/learn/responsive-design") ||
     pathname.startsWith("/learn/css-animations") ||
-    pathname.startsWith("/learn/forms-semantic-html")
+    pathname.startsWith("/learn/forms-semantic-html") ||
+    pathname.startsWith("/learn/css-modern-features") ||
+    pathname.startsWith("/learn/sass-scss") ||
+    pathname.startsWith("/learn/web-accessibility")
   ) {
     return "htmlcss";
   }
