@@ -728,6 +728,22 @@ const LEARN_COURSE_ROUTES = [
     ),
   },
   {
+    slug: "web-accessibility",
+    language: "HTML & CSS",
+    Hub: lazyWithChunkRetry(
+      () =>
+        import(
+          "./features/learn/web-accessibility-course/pages/WebAccessibilityHub"
+        ),
+    ),
+    Lesson: lazyWithChunkRetry(
+      () =>
+        import(
+          "./features/learn/web-accessibility-course/pages/WebAccessibilityLessonPage"
+        ),
+    ),
+  },
+  {
     slug: "batchfile-fundamentals",
     language: "Batchfile",
     Hub: lazyWithChunkRetry(
