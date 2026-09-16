@@ -97,6 +97,7 @@ export const COURSE_PROGRESS_REGISTRY = [
   { courseId: "responsive-design", storagePrefix: "responsive-design", scoped: false, notes: false },
   { courseId: "css-animations", storagePrefix: "css-animations", scoped: false, notes: false },
   { courseId: "forms-semantic-html", storagePrefix: "forms-semantic-html", scoped: false, notes: false },
+  { courseId: "web-accessibility", storagePrefix: "web-accessibility", scoped: false, notes: false },
   { courseId: "batchfile-fundamentals", storagePrefix: "batchfile-fundamentals", scoped: false, notes: false },
   { courseId: "batchfile-automation", storagePrefix: "batchfile-automation", scoped: false, notes: false },
   { courseId: "batchfile-projects", storagePrefix: "batchfile-projects", scoped: false, notes: false },
