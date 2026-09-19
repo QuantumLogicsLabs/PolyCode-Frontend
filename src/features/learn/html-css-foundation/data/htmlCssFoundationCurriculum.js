@@ -687,9 +687,129 @@ h1 {
   lessonTemplate({ id: "css-17", title: "Transforms", chapterTitle: "Advanced CSS", chapterColor: "#8b5cf6", theory: [objectives(["Move, rotate, scale, and skew elements"]), text("Transforms move, rotate, scale, and skew elements in 2D or 3D space.", { lang: "html", label: "Transform demo", content: htmlPage("Transforms", `      body { margin: 0; padding: 2rem; font-family: system-ui, sans-serif; background: #f8fafc; }\n      .tile { width: 180px; height: 180px; background: linear-gradient(135deg, #22c55e, #0ea5e9); color: white; display: grid; place-items: center; border-radius: 1rem; transform: rotate(-3deg); }\n      .tile:hover { transform: rotate(0deg) scale(1.03); }`, `    <main class="tile">Transform</main>`)}), callout("tip", "Pair transforms with subtle hover states."), quiz("Which property rotates an element?", ["transform", "transition", "animation", "filter"], 0, "Rotation is part of `transform`." )], challenge: { id: "css-17-challenge", language: "css", title: "Rotate a tile", description: "Write CSS that rotates and scales a tile on hover.", starterCode: `.tile {\n  /* initial transform */\n}\n.tile:hover {\n  /* hover transform */\n}\n`, solutionCode: `.tile { transform: rotate(-3deg); }\n.tile:hover { transform: rotate(0deg) scale(1.03); }\n`, tests: [{ id: 1, label: "Uses transform", keywords: [{ pattern: "transform:", flags: "i" }] }, { id: 2, label: "Uses hover state", keywords: [{ pattern: ":hover" }] }] } }),
   lessonTemplate({ id: "css-18", title: "Transitions", chapterTitle: "Advanced CSS", chapterColor: "#8b5cf6", theory: [objectives(["Animate property changes smoothly"]), text("Transitions smooth changes between states such as hover and focus.", { lang: "html", label: "Transition demo", content: htmlPage("Transitions", `      body { margin: 0; padding: 2rem; font-family: system-ui, sans-serif; background: #f8fafc; }\n      .btn { display: inline-block; background: #1d4ed8; color: white; padding: .9rem 1.1rem; border-radius: .75rem; transition: transform .2s ease, background .2s ease; }\n      .btn:hover { transform: translateY(-2px); background: #2563eb; }`, `    <main>\n      <a class="btn" href="#">Hover me</a>\n    </main>`)}), callout("info", "Transitions are best for simple interactive changes."), quiz("Which property defines how long the change takes?", ["transition-duration", "transform", "box-shadow", "border"], 0, "`transition-duration` controls the timing." )], challenge: { id: "css-18-challenge", language: "css", title: "Add hover transitions", description: "Write CSS that smoothly animates a button hover state.", starterCode: `.btn {\n  /* transition */\n}\n.btn:hover {\n  /* hover styles */\n}\n`, solutionCode: `.btn { transition: transform .2s ease, background .2s ease; }\n.btn:hover { transform: translateY(-2px); background: #2563eb; }\n`, tests: [{ id: 1, label: "Uses transition", keywords: [{ pattern: "transition:", flags: "i" }] }, { id: 2, label: "Uses hover transform", keywords: [{ pattern: "transform:", flags: "i" }] }] } }),
   lessonTemplate({ id: "css-19", title: "Animations", chapterTitle: "Advanced CSS", chapterColor: "#8b5cf6", theory: [objectives(["Use keyframes and animation properties"]), text("Animations let you create motion with keyframes and timing controls.", { lang: "html", label: "Animation demo", content: htmlPage("Animations", `      body { margin: 0; padding: 2rem; font-family: system-ui, sans-serif; background: #f8fafc; }\n      .spinner { width: 48px; height: 48px; border: 4px solid #cbd5e1; border-top-color: #0ea5e9; border-radius: 50%; animation: spin 1s linear infinite; }\n      @keyframes spin { to { transform: rotate(360deg); } }`, `    <main>\n      <div class="spinner"></div>\n      <p>Animations let you create motion with keyframes and timing controls.</p>\n    </main>`)}), callout("tip", "Keep motion purposeful and subtle."), quiz("Which at-rule defines animation frames?", ["@media", "@keyframes", "@supports", "@scope"], 1, "`@keyframes` defines animation frames." )], challenge: { id: "css-19-challenge", language: "css", title: "Animate a spinner", description: "Write CSS that spins a loading circle using keyframes.", starterCode: `.spinner {\n  /* animation */\n}\n@keyframes spin {\n  /* frames */\n}\n`, solutionCode: `.spinner { animation: spin 1s linear infinite; }\n@keyframes spin { to { transform: rotate(360deg); } }\n`, tests: [{ id: 1, label: "Uses animation", keywords: [{ pattern: "animation:", flags: "i" }] }, { id: 2, label: "Defines keyframes", keywords: [{ pattern: "@keyframes", flags: "i" }] }] } }),
-  lessonTemplate({ id: "css-20", title: "CSS Variables", chapterTitle: "Advanced CSS", chapterColor: "#8b5cf6", theory: [objectives(["Declare and reuse CSS custom properties"]), text("CSS variables keep theme values reusable and easy to update.", { lang: "html", label: "Variables demo", content: htmlPage("CSS Variables", `      :root { --brand: #0ea5e9; --surface: #eff6ff; --text: #0f172a; }\n      body { margin: 0; padding: 2rem; font-family: system-ui, sans-serif; background: var(--surface); color: var(--text); }\n      .card { background: white; border: 1px solid #dbeafe; border-left: 6px solid var(--brand); padding: 1rem; border-radius: 1rem; }`, `    <main class="card">\n      <h1>Theme variables</h1>\n      <p>CSS variables keep theme values reusable and easy to update.</p>\n    </main>`)}), callout("info", "Define variables once in `:root` and reuse them throughout the stylesheet."), quiz("Where are global CSS variables often declared?", ["body", ":root", "main", "header"], 1, "`:root` is the global root selector." )], challenge: { id: "css-20-challenge", language: "css", title: "Use CSS custom properties", description: "Write CSS variables for brand colors and use them in a card.", starterCode: `:root {\n  /* variables */\n}\n.card {\n  /* use variables */\n}\n`, solutionCode: `:root {\n  --brand: #0ea5e9;\n  --surface: #eff6ff;\n  --text: #0f172a;\n}\n.card {\n  border-left: 6px solid var(--brand);\n  background: white;\n  color: var(--text);\n}\n`, tests: [{ id: 1, label: "Defines variables", keywords: [{ pattern: "--brand" }] }, { id: 2, label: "Uses var()", keywords: [{ pattern: "var\\(", flags: "i" }] }] } }),
+  lessonTemplate({
+    id: "css-20",
+    title: "CSS Variables (Custom Properties)",
+    chapterTitle: "Advanced CSS",
+    chapterColor: "#8b5cf6",
+    theory: [
+      objectives(["Declare CSS custom properties in :root", "Reuse variables with var()", "Understand variable scope and cascading"]),
+      text(
+        "CSS variables (officially called custom properties) allow you to store specific values (like colors or font sizes) in one place and reuse them throughout your stylesheet, making themes and maintenance extremely easy.",
+        {
+          lang: "html",
+          label: "Variables demo",
+          content: htmlPage("CSS Variables", `      :root { --brand: #0ea5e9; --surface: #eff6ff; --text: #0f172a; }\n      body { margin: 0; padding: 2rem; font-family: system-ui, sans-serif; background: var(--surface); color: var(--text); }\n      .card { background: white; border: 1px solid #dbeafe; border-left: 6px solid var(--brand); padding: 1rem; border-radius: 1rem; }`, `    <main class="card">\n      <h1>Theme variables</h1>\n      <p>CSS variables keep theme values reusable and updateable.</p>\n    </main>`),
+        },
+      ),
+      table("CSS Variables Checklist", ["Concept", "Syntax", "Purpose"], [
+        ["Declaration", "--variable-name: value;", "Define custom property"],
+        ["Global Scope", ":root { ... }", "Available across the entire document"],
+        ["Usage", "property: var(--variable-name);", "Apply the stored value"],
+      ]),
+      callout("info", "Define variables once in `:root` and use `var(--name)` to apply them across your CSS."),
+      quiz("Where are global CSS variables typically declared?", ["body", ":root", "main", "header"], 1, "`:root` represents the document root element, making variables globally available."),
+    ],
+    challenge: {
+      id: "css-20-challenge",
+      language: "css",
+      title: "Use CSS Custom Properties",
+      description: "Define root variables for `--brand` and `--surface`, then apply them to a card component.",
+      starterCode: `:root {
+  /* Define variables here */
+}
+.card {
+  /* Use var() here */
+}
+`,
+      solutionCode: `:root {
+  --brand: #0ea5e9;
+  --surface: #eff6ff;
+}
+.card {
+  background: var(--surface);
+  border-color: var(--brand);
+}
+`,
+      tests: [
+        { id: 1, label: "Defines custom properties in :root", keywords: [{ pattern: ":root" }, { pattern: "--" }] },
+        { id: 2, label: "Uses var() function", keywords: [{ pattern: "var\\(" }] },
+      ],
+    },
+  }),
+  lessonTemplate({
+    id: "css-28",
+    title: "Introduction to Sass (SCSS)",
+    chapterTitle: "Advanced CSS",
+    chapterColor: "#8b5cf6",
+    theory: [
+      objectives(["Understand CSS preprocessors", "Use Sass variables and nesting", "Organize styles with mixins and partials"]),
+      text(
+        "Sass (Syntactically Awesome Style Sheets) is a CSS preprocessor that adds power features like variables, nested rules, mixins, and inheritance to standard CSS, making large stylesheets much cleaner and easier to maintain.",
+        {
+          lang: "scss",
+          label: "Sass / SCSS syntax example",
+          content: `// SCSS Syntax
+$brand-color: #0ea5e9;
+$surface-color: #f8fafc;
+
+.card {
+  background: $surface-color;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  
+  h2 {
+    color: $brand-color;
+    margin-bottom: 0.5rem;
+  }
+  
+  &:hover {
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.1);
+  }
+}`,
+        },
+      ),
+      table("Core Sass Features", ["Feature", "Syntax Example", "Benefit"], [
+        ["Variables", "$primary: #333;", "Store reusable colors/fonts"],
+        ["Nesting", ".card { h2 { color: red; } }", "Write cleaner hierarchical selectors"],
+        ["Mixins", "@mixin flex-center { ... }", "Reusable blocks of styles"],
+        ["Partials", "_buttons.scss", "Modular file separation"],
+      ]),
+      callout("tip", "Browsers cannot read Sass directly; it gets compiled into standard CSS before deployment."),
+      quiz("Which symbol is used to define a variable in Sass?", ["@", "$", "--", "#"], 1, "`$` is used to define Sass variables."),
+    ],
+    challenge: {
+      id: "css-28-challenge",
+      language: "css",
+      title: "Write Nested SCSS Rules",
+      description: "Write an SCSS block with a variable `$primary: #2563eb;` and a `.nav` container nesting `ul` and `li` elements inside it.",
+      starterCode: `// Define variable and nest selectors here
+`,
+      solutionCode: `$primary: #2563eb;
+
+.nav {
+  background: $primary;
+  padding: 1rem;
+  
+  ul {
+    list-style: none;
+    margin: 0;
+    
+    li {
+      color: white;
+    }
+  }
+}
+`,
+      tests: [
+        { id: 1, label: "Defines a Sass variable", keywords: [{ pattern: "\\$primary" }] },
+        { id: 2, label: "Nests ul inside .nav", keywords: [{ pattern: "\\.nav\\s*\\{[^}]*ul" }] },
+        { id: 3, label: "Nests li inside ul", keywords: [{ pattern: "ul\\s*\\{[^}]*li" }] },
+      ],
+    },
+  }),
   lessonTemplate({ id: "css-21", title: "Advanced Selectors & Rules", chapterTitle: "Advanced CSS", chapterColor: "#8b5cf6", theory: [objectives(["Use pseudo-classes and structural selectors", "Write advanced selector rules"]), text("Advanced selectors and rules help target complex patterns cleanly.", { lang: "html", label: "Advanced selector demo", content: htmlPage("Advanced Selectors & Rules", `      body { margin: 0; padding: 2rem; font-family: system-ui, sans-serif; background: #f8fafc; }\n      .list li:nth-child(odd) { background: #dbeafe; }\n      .list li:not(:last-child) { margin-bottom: .5rem; }\n      .list li:focus-visible { outline: 3px solid #0ea5e9; }`, `    <main>\n      <ul class="list">\n        <li>First</li>\n        <li>Second</li>\n        <li>Third</li>\n      </ul>\n    </main>`)}), callout("tip", "Advanced selectors reduce the need for extra classes."), quiz("Which selector targets every other list item?", [":first-child", ":nth-child(odd)", ":hover", ":focus"], 1, "`nth-child(odd)` targets alternating items." )], challenge: { id: "css-21-challenge", language: "css", title: "Target alternating rows", description: "Write CSS that styles odd list items and adds a focus outline.", starterCode: `.list li {\n  /* base styles */\n}\n`, solutionCode: `.list li:nth-child(odd) { background: #dbeafe; }\n.list li:focus-visible { outline: 3px solid #0ea5e9; }\n`, tests: [{ id: 1, label: "Uses nth-child", keywords: [{ pattern: "nth-child" }] }, { id: 2, label: "Uses focus-visible", keywords: [{ pattern: "focus-visible" }] }] } }),
-  lessonTemplate({ id: "css-22", title: "Responsive Web Design", chapterTitle: "Responsive Design & Best Practices", chapterColor: "#f59e0b", theory: [objectives(["Make layouts adapt to screen sizes"]), text("Responsive design makes layouts adapt to different screen sizes.", { lang: "html", label: "Responsive web design", content: htmlPage("Responsive Web Design", `      body { margin: 0; padding: 2rem; font-family: system-ui, sans-serif; background: #f8fafc; }\n      .container { width: min(100%, 960px); margin: 0 auto; }\n      .card { background: white; border: 1px solid #e2e8f0; padding: 1rem; border-radius: 1rem; }`, `    <main class="container">\n      <div class="card">Responsive design makes layouts adapt to different screen sizes.</div>\n    </main>`)}), callout("info", "Start with the smallest screen and scale up."), quiz("What makes a layout responsive?", ["Fixed widths only", "Flexible widths and breakpoints", "No CSS", "Absolute positioning"], 1, "Flexible widths and breakpoints make it responsive." )], challenge: { id: "css-22-challenge", language: "css", title: "Build a responsive container", description: "Write CSS for a centered container with a max width and flexible width.", starterCode: `.container {\n  /* responsive width */\n}\n`, solutionCode: `.container { width: min(100%, 960px); margin: 0 auto; }\n`, tests: [{ id: 1, label: "Uses max-style width", keywords: [{ pattern: "min\\(100%,\\s*960px\\)" }] }, { id: 2, label: "Centers content", keywords: [{ pattern: "margin:\\s*0\\s+auto" }] }] } }),
+  lessonTemplate({ id: "css-22", title: "Responsive Web Design", chapterTitle: "Responsive Design & Best Practices", chapterColor: "#f59e0b", theory: [objectives(["Make layouts adapt to screen sizes"]), text("Responsive design makes layouts adapt to different screen sizes.", { lang: "html", label: "Responsive web design", content: htmlPage("Responsive Web Design", `      body { margin: 0; padding: 2rem; font-family: system-ui, sans-serif; background: #f8fafc; }\n      .container { width: min(100%, 960px); margin: 0 auto; }\n      .card { background: white; border: 1px solid #e2e8f0; padding: 1rem; border-radius: 1rem; }`, `    <main class="container">\n      <div class="card">Responsive design makes layouts adapt to different screen sizes.</div>\n    </main>`)}), callout("info", "Start with the smallest screen and scale up."), quiz("What makes a layout responsive?", ["Fixed widths only", "Flexible widths and breakpoints", "No CSS", "Absolute positioning"], 1, "Flexible widths and breakpoints make it responsive." )], challenge: { id: "css-22-challenge", language: "css", title: "Build a responsive container", description: "Write CSS for a centered container with a max width and flexible width.", starterCode: `.container {\n  /* responsive width */\n}\n`, solutionCode: `.container { width: min(100%, 960px); margin: 0 auto; }\n`, tests: [{ id: 1, label: "Uses max-style width", keywords: [{ pattern: "min\\(100\%,\\s*960px\\)" }] }, { id: 2, label: "Centers content", keywords: [{ pattern: "margin:\\s*0\\s+auto" }] }] } }),
   lessonTemplate({ id: "css-23", title: "Media Queries", chapterTitle: "Responsive Design & Best Practices", chapterColor: "#f59e0b", theory: [objectives(["Change styles at different viewport widths"]), text("Media queries let styles change at different viewport widths.", { lang: "html", label: "Media queries demo", content: htmlPage("Media Queries", `      body { margin: 0; padding: 2rem; font-family: system-ui, sans-serif; background: #f8fafc; }\n      .grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }\n      @media (min-width: 768px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }\n      .card { background: white; border: 1px solid #e2e8f0; padding: 1rem; border-radius: 1rem; }`, `    <main class="grid">\n      <div class="card">Mobile first</div>\n      <div class="card">Two columns on larger screens</div>\n    </main>`)}), callout("tip", "Write base styles first, then add breakpoint overrides."), quiz("Which at-rule is used for responsive breakpoints?", ["@keyframes", "@media", "@supports", "@layer"], 1, "`@media` defines breakpoint-based rules." )], challenge: { id: "css-23-challenge", language: "css", title: "Add a breakpoint", description: "Write a media query that turns a single-column grid into two columns on larger screens.", starterCode: `.grid {\n  display: grid;\n  grid-template-columns: 1fr;\n}\n`, solutionCode: `.grid { display: grid; grid-template-columns: 1fr; }\n@media (min-width: 768px) {\n  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }\n}\n`, tests: [{ id: 1, label: "Uses media query", keywords: [{ pattern: "@media" }] }, { id: 2, label: "Changes columns", keywords: [{ pattern: "grid-template-columns" }] }] } }),
   lessonTemplate({ id: "css-24", title: "Responsive Images & Videos", chapterTitle: "Responsive Design & Best Practices", chapterColor: "#f59e0b", theory: [objectives(["Scale media across devices"]), text("Responsive media keeps images and videos flexible and fast.", { lang: "html", label: "Responsive media demo", content: htmlPage("Responsive Images & Videos", `      body { margin: 0; padding: 2rem; font-family: system-ui, sans-serif; background: #f8fafc; }\n      img, video { width: 100%; max-width: 100%; height: auto; border-radius: 1rem; display: block; }`, `    <main>\n      <img src="https://placehold.co/960x540" alt="Responsive media" />\n      <p>Images and videos should scale within the container.</p>\n    </main>`)}), callout("info", "Set `max-width: 100%` and `height: auto` for images."), quiz("Which styles make images responsive?", ["width: 100%; height: auto;", "position: absolute;", "float: left;", "display: inline;"], 0, "Responsive media uses width and height auto." )], challenge: { id: "css-24-challenge", language: "css", title: "Make media responsive", description: "Write CSS so images and videos scale with their container.", starterCode: `img, video {\n  /* responsive media */\n}\n`, solutionCode: `img, video { width: 100%; height: auto; max-width: 100%; display: block; }\n`, tests: [{ id: 1, label: "Sets width", keywords: [{ pattern: "width:\\s*100%", flags: "i" }] }, { id: 2, label: "Sets height auto", keywords: [{ pattern: "height:\\s*auto", flags: "i" }] }] } }),
   lessonTemplate({ id: "css-25", title: "CSS Optimization", chapterTitle: "Responsive Design & Best Practices", chapterColor: "#f59e0b", theory: [objectives(["Reduce duplication and keep styles maintainable"]), text("Optimization removes duplication and keeps styles easier to maintain.", { lang: "html", label: "CSS optimization demo", content: htmlPage("CSS Optimization", `      body { margin: 0; padding: 2rem; font-family: system-ui, sans-serif; background: #f8fafc; }\n      .btn, .chip { display: inline-flex; align-items: center; gap: .5rem; border-radius: 999px; }\n      .btn { padding: .75rem 1rem; background: #0ea5e9; color: white; }\n      .chip { padding: .35rem .65rem; background: #dbeafe; color: #1d4ed8; }`, `    <main>\n      <span class="chip">Reusable utility</span>\n      <a class="btn" href="#">Optimized CSS</a>\n    </main>`)}), callout("tip", "Group repeated declarations into shared classes or variables."), quiz("What helps reduce duplicated color values?", ["Variables", "Floats", "Tables", "Margins"], 0, "Variables and shared classes reduce duplication." )], challenge: { id: "css-25-challenge", language: "css", title: "Refactor shared styles", description: "Write CSS variables or shared classes to reduce repeated code.", starterCode: `:root {\n  /* variables */\n}\n`, solutionCode: `:root {\n  --brand: #0ea5e9;\n  --surface: #dbeafe;\n}\n.btn { background: var(--brand); }\n.chip { background: var(--surface); }\n`, tests: [{ id: 1, label: "Defines variables", keywords: [{ pattern: "--brand" }] }, { id: 2, label: "Uses var", keywords: [{ pattern: "var\\(" }] }] } }),
@@ -1180,6 +1300,7 @@ const [
   LESSON_CSS_18,
   LESSON_CSS_19,
   LESSON_CSS_20,
+  LESSON_CSS_28,
   LESSON_CSS_21,
   LESSON_CSS_22,
   LESSON_CSS_23,
@@ -1235,7 +1356,7 @@ const HTML_CSS_FOUNDATION_CHAPTER_DATA = [
     title: "Advanced CSS",
     icon: "sparkles",
     color: "#8b5cf6",
-    lessons: [LESSON_CSS_15, LESSON_CSS_16, LESSON_CSS_17, LESSON_CSS_18, LESSON_CSS_19, LESSON_CSS_20, LESSON_CSS_21],
+    lessons: [LESSON_CSS_15, LESSON_CSS_16, LESSON_CSS_17, LESSON_CSS_18, LESSON_CSS_19, LESSON_CSS_20, LESSON_CSS_28, LESSON_CSS_21],
   },
   {
     id: "css-responsive",
@@ -1294,5 +1415,3 @@ export const HTML_CSS_FOUNDATION_TOTAL_XP = HTML_CSS_FOUNDATION_LESSONS.reduce(
 export function getHtmlCssFoundationLessons() {
   return HTML_CSS_FOUNDATION_LESSONS;
 }
-
-
