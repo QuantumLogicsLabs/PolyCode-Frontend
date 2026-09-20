@@ -54,6 +54,10 @@ export default function GoFundamentalsCodeChallenge({
   const [results, setResults] = useState(null);
   const [output, setOutput] = useState(null);
   const [showSolution, setShowSolution] = useState(false);
+  // Read by the editor's onChange: Monaco fires it with the solution text when
+  // swapping it in, before the handler closure sees showSolution=true.
+  const showSolutionRef = useRef(false);
+  showSolutionRef.current = showSolution;
   const [running, setRunning] = useState(false);
   const activeChallengeId = useRef(challenge.id);
   const runTestsRef = useRef(null);
@@ -332,7 +336,7 @@ export default function GoFundamentalsCodeChallenge({
             onMount={handleEditorMount}
             theme={POLYCODE_VSCODE_THEME}
             onChange={(value) => {
-              if (!showSolution) {
+              if (!showSolutionRef.current) {
                 const next = value || "";
                 setCode(next);
                 if (isAuthenticated) onCodeChange?.(next);
