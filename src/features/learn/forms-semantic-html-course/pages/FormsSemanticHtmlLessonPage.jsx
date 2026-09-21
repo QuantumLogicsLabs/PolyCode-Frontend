@@ -5,7 +5,7 @@ import OopsSidebar from "../../oops-cpp/components/OopsSidebar";
 import LearnProfileMenu from "../../shared/LearnProfileMenu";
 import LessonContentShell from "../../shared/LessonContentShell";
 import HtmlCssLessonTheory from "../components/HtmlCssLessonTheory";
-import HtmlCssCodeChallenge from "../components/HtmlCssCodeChallenge";
+import HtmlCssCodeChallenge from "../../shared/HtmlCssCodeChallenge";
 import {
   FORMS_SEMANTIC_HTML_CHAPTERS,
   FORMS_SEMANTIC_HTML_LESSONS,

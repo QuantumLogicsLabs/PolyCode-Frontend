@@ -41,6 +41,8 @@ const RAW_WEB_ACCESSIBILITY_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "a11y-0-challenge",
+          language: "html",
           title: "Add a Language Attribute",
           description:
             "Screen readers use `lang` to choose the right pronunciation rules. Add `lang=\"en\"` to the `<html>` tag below.",
@@ -93,6 +95,8 @@ const RAW_WEB_ACCESSIBILITY_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "a11y-1-challenge",
+          language: "html",
           title: "Replace a Div with a Real Button",
           description:
             "Convert the clickable `<div>` into a real `<button>` element so it's keyboard-accessible by default.",
@@ -145,6 +149,8 @@ const RAW_WEB_ACCESSIBILITY_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "a11y-2-challenge",
+          language: "html",
           title: "Fix the Alt Text",
           description:
             "This product image has no alt text. Add a meaningful description.",
@@ -198,6 +204,8 @@ const RAW_WEB_ACCESSIBILITY_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "a11y-3-challenge",
+          language: "html",
           title: "Make a Custom Widget Focusable",
           description:
             "This custom dropdown trigger is a `<span>`, so it's not keyboard-reachable. Add `tabindex=\"0\"` to include it in the tab order.",
@@ -249,6 +257,8 @@ const RAW_WEB_ACCESSIBILITY_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "a11y-4-challenge",
+          language: "css",
           title: "Restore a Visible Focus Style",
           description:
             "This button removes its outline on focus without replacing it. Add a `:focus-visible` rule with a clearly visible outline.",
@@ -317,6 +327,8 @@ const RAW_WEB_ACCESSIBILITY_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "a11y-5-challenge",
+          language: "html",
           title: "Add a Skip Link",
           description:
             "Add a skip link before the nav that jumps to `#main-content` when clicked or activated.",
@@ -381,6 +393,8 @@ const RAW_WEB_ACCESSIBILITY_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "a11y-6-challenge",
+          language: "html",
           title: "Mark Up a Tab as Selected",
           description:
             "The 'Settings' tab is currently active, but `aria-selected` still says false on it. Fix it so the correct tab is marked selected.",
@@ -434,6 +448,8 @@ const RAW_WEB_ACCESSIBILITY_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "a11y-7-challenge",
+          language: "html",
           title: "Label an Icon Button",
           description:
             "This icon-only search button has no accessible name. Add an `aria-label`.",
@@ -485,6 +501,8 @@ const RAW_WEB_ACCESSIBILITY_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "a11y-8-challenge",
+          language: "html",
           title: "Announce a Cart Update Politely",
           description:
             "Add `aria-live=\"polite\"` to this cart-count element so screen reader users hear it change.",
@@ -532,6 +550,8 @@ const RAW_WEB_ACCESSIBILITY_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "a11y-9-challenge",
+          language: "css",
           title: "Fix Low-Contrast Text",
           description:
             "This light-gray text on white background fails contrast requirements. Change the color to a darker gray that passes.",
@@ -585,6 +605,8 @@ const RAW_WEB_ACCESSIBILITY_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "a11y-10-challenge",
+          language: "html",
           title: "Add a Text Cue to an Error Field",
           description:
             "This error field only signals via a red border. Add a visible error message paired with it.",
@@ -629,6 +651,8 @@ const RAW_WEB_ACCESSIBILITY_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "a11y-11-challenge",
+          language: "html",
           title: "Add a Real Label",
           description:
             "This input relies only on a placeholder. Add a proper `<label>` connected to it via `for`/`id`.",
