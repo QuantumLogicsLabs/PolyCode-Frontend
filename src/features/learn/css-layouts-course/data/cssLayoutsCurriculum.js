@@ -73,6 +73,8 @@ const RAW_CSS_LAYOUTS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csl-0-challenge",
+          language: "css",
           title: "Apply border-box Sizing",
           description:
             "Write a CSS rule for `.card` that sets `width: 250px`, a `1px solid #ccc` border, `16px` padding, and `box-sizing: border-box` so the rendered width stays exactly 250px.",
@@ -140,6 +142,8 @@ const RAW_CSS_LAYOUTS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csl-1-challenge",
+          language: "css",
           title: "Fix an Ignored Width",
           description:
             "Given a `.tag` element styled as `display: inline` that needs a fixed `width: 100px` to actually take effect, change only the `display` value to `inline-block` while keeping the width.",
@@ -209,6 +213,8 @@ const RAW_CSS_LAYOUTS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csl-2-challenge",
+          language: "css",
           title: "Contain an Absolute Child",
           description:
             "Given a `.card` that needs to act as the positioning context for a `.badge` inside it (positioned absolute, top: 8px, right: 8px), add the one property to `.card` that makes this work.",
@@ -301,6 +307,8 @@ const RAW_CSS_LAYOUTS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csl-3-challenge",
+          language: "css",
           title: "Stack Items Vertically",
           description:
             "Turn `.sidebar` into a flex container that stacks its children vertically with an 8px gap between them.",
@@ -375,6 +383,8 @@ const RAW_CSS_LAYOUTS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csl-4-challenge",
+          language: "css",
           title: "Center Everything",
           description:
             "Make `.hero` a flex container that centers its children both horizontally and vertically, with a `min-height` of 300px.",
@@ -452,6 +462,8 @@ const RAW_CSS_LAYOUTS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csl-5-challenge",
+          language: "css",
           title: "Wrapping Tag List",
           description:
             "Make `.tags` a flex container that wraps onto multiple lines with an 8px gap, and give each `.tag` a flex value of `0 1 auto` (don't grow, can shrink, size from content).",
@@ -550,6 +562,8 @@ const RAW_CSS_LAYOUTS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csl-6-challenge",
+          language: "css",
           title: "Fixed Sidebar Layout",
           description:
             "Give `.panel` a fixed 250px width that never grows or shrinks, and give `.main` a flex value that lets it grow to fill remaining space starting from 0.",
@@ -627,6 +641,8 @@ const RAW_CSS_LAYOUTS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csl-7-challenge",
+          language: "css",
           title: "Reorder a Call-to-Action",
           description:
             "Given three flex items (.a, .b, .c) laid out in that source order, use `order` on `.c` only so it visually appears first (before .a and .b).",
@@ -705,6 +721,8 @@ const RAW_CSS_LAYOUTS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csl-8-challenge",
+          language: "css",
           title: "Two-Item Header",
           description:
             "Style `.header` as a flex container with the brand on the left and a `.cta` button pushed to the far right, vertically centered, using `justify-content` and `align-items`.",
@@ -792,6 +810,8 @@ const RAW_CSS_LAYOUTS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csl-9-challenge",
+          language: "css",
           title: "Three Equal Columns",
           description:
             "Make `.grid` a grid container with 3 equal-width columns using the `fr` unit and an 8px gap.",
@@ -866,6 +886,8 @@ const RAW_CSS_LAYOUTS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csl-10-challenge",
+          language: "css",
           title: "Different Row and Column Spacing",
           description:
             "Set `.board` to have a 3-column grid with `20px` spacing between rows and `10px` spacing between columns, using the `gap` shorthand.",
@@ -945,6 +967,8 @@ const RAW_CSS_LAYOUTS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csl-11-challenge",
+          language: "css",
           title: "Span a Banner Across Columns",
           description:
             "Given a 4-column grid, make `.banner` span all 4 columns (from line 1 to line 5) while staying in the first row.",
@@ -1046,6 +1070,8 @@ const RAW_CSS_LAYOUTS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csl-12-challenge",
+          language: "css",
           title: "Two-Column Page with Full-Width Footer",
           description:
             "Define `grid-template-areas` for a layout with a full-width \"nav\" row on top, a \"side\" and \"content\" side-by-side row, and a full-width \"footer\" row, then assign `.footer` to the footer area.",
@@ -1137,6 +1163,8 @@ const RAW_CSS_LAYOUTS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csl-13-challenge",
+          language: "css",
           title: "Guarantee a Minimum Column Width",
           description:
             "Rewrite `.cards` to use `repeat(4, minmax(120px, 1fr))` for its columns so each of the 4 columns never shrinks below 120px.",
@@ -1210,6 +1238,8 @@ const RAW_CSS_LAYOUTS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csl-14-challenge",
+          language: "css",
           title: "Stretchy Card Grid",
           description:
             "Set `.cards` to use `auto-fit` with `minmax(150px, 1fr)` so that a small number of cards stretch to fill the available row width.",
@@ -1297,6 +1327,8 @@ const RAW_CSS_LAYOUTS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csl-15-challenge",
+          language: "css",
           title: "Pick the Right Layout Method",
           description:
             "Store a string `choice` describing which layout method (Flexbox or Grid) best fits a single-row list of filter chips that need to wrap onto new lines, and print your reasoning as a comment above it.",
@@ -1380,6 +1412,8 @@ const RAW_CSS_LAYOUTS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csl-16-challenge",
+          language: "css",
           title: "Card with a Pinned Footer Button",
           description:
             "Make `.product-card` a flex column where the `.buy-btn` inside it always sits at the bottom, regardless of how much text is above it, using `margin-top: auto` on the button.",
@@ -1483,6 +1517,8 @@ const RAW_CSS_LAYOUTS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csl-17-challenge",
+          language: "css",
           title: "Add a Featured Card",
           description:
             "Extend the gallery: make one card, `.card.featured`, span 2 grid columns (using `grid-column: span 2`) so it stands out from the rest of the auto-fit grid.",

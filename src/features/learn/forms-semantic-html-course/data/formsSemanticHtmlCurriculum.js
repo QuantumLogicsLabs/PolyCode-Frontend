@@ -60,6 +60,8 @@ const RAW_FORMS_SEMANTIC_HTML_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "fsh-0-challenge",
+          language: "html",
           title: "Spot the Semantic Opportunity",
           description:
             "Replace the generic `<div class=\"footer\">` wrapper with the correct semantic element that conveys the same meaning natively.",
@@ -126,6 +128,8 @@ const RAW_FORMS_SEMANTIC_HTML_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "fsh-1-challenge",
+          language: "html",
           title: "Wrap Page Content in Landmarks",
           description:
             "Given a plain nav list and a content paragraph, wrap the nav in `<header><nav>...</nav></header>` and the paragraph in `<main>...</main>`.",
@@ -205,6 +209,8 @@ const RAW_FORMS_SEMANTIC_HTML_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "fsh-2-challenge",
+          language: "html",
           title: "Choose the Right Wrapper",
           description:
             "Given a self-contained product review that could be shared/syndicated on its own, wrap it in the correct semantic element (not `<div>` or `<section>`).",
@@ -276,6 +282,8 @@ const RAW_FORMS_SEMANTIC_HTML_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "fsh-3-challenge",
+          language: "html",
           title: "Caption an Image Properly",
           description:
             "Wrap an existing `<img>` in a `<figure>` and add a `<figcaption>` reading \"Diagram of the water cycle\".",
@@ -335,6 +343,8 @@ const RAW_FORMS_SEMANTIC_HTML_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "fsh-4-challenge",
+          language: "html",
           title: "Build a Native FAQ Toggle",
           description:
             "Use `<details>` and `<summary>` to create a collapsible FAQ item: summary text \"What is your return policy?\", with a hidden paragraph explaining a 30-day return window.",
@@ -401,6 +411,8 @@ const RAW_FORMS_SEMANTIC_HTML_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "fsh-5-challenge",
+          language: "html",
           title: "Fix a Skipped Heading Level",
           description:
             "Given a page with `<h1>` followed directly by `<h3>` (skipping `h2`), fix the heading level to be a proper `<h2>` instead.",
@@ -414,7 +426,7 @@ const RAW_FORMS_SEMANTIC_HTML_CHAPTERS = [
           tests: [
             { id: 1, label: "Keeps the h1", keywords: [{ pattern: "<h1>" }] },
             { id: 2, label: "Uses h2 instead of h3", keywords: [{ pattern: "<h2>First Subsection</h2>" }] },
-            { id: 3, label: "No longer skips to h3", keywords: [{ pattern: "^(?!.*<h3>).*$" }] },
+            { id: 3, label: "No longer skips to h3", keywords: [{ pattern: "^(?!.*<h3>).*$", flags: "is" }] },
           ],
         },
       },
@@ -474,6 +486,8 @@ const RAW_FORMS_SEMANTIC_HTML_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "fsh-6-challenge",
+          language: "html",
           title: "Use the Right Input Types",
           description:
             "Given generic `type=\"text\"` inputs for an email and a numeric quantity (1-10), change them to the more appropriate `email` and `number` types (with `min`/`max` on quantity).",
@@ -530,6 +544,8 @@ const RAW_FORMS_SEMANTIC_HTML_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "fsh-7-challenge",
+          language: "html",
           title: "Link a Label to Its Input",
           description:
             "Given a `<label>` and `<input>` with no connection, add matching `for` and `id` attributes to link them (\"phone-input\").",
@@ -593,6 +609,8 @@ const RAW_FORMS_SEMANTIC_HTML_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "fsh-8-challenge",
+          language: "html",
           title: "Add a Missing Label",
           description:
             "Given an input with only a `placeholder` (no label), add a proper `<label>` linked via `for`/`id`, keeping the placeholder as a supplementary hint.",
@@ -669,6 +687,8 @@ const RAW_FORMS_SEMANTIC_HTML_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "fsh-9-challenge",
+          language: "html",
           title: "Build a Labeled Dropdown",
           description:
             "Create a `<select>` for \"Favorite season\" with options for Spring, Summer, Fall, and Winter, properly linked to a `<label>`.",
@@ -740,6 +760,8 @@ const RAW_FORMS_SEMANTIC_HTML_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "fsh-10-challenge",
+          language: "html",
           title: "Group Radio Buttons in a Fieldset",
           description:
             "Wrap two radio buttons (name=\"size\", values \"small\" and \"large\") in a `<fieldset>` with a `<legend>` reading \"Choose a size\".",
@@ -803,6 +825,8 @@ const RAW_FORMS_SEMANTIC_HTML_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "fsh-11-challenge",
+          language: "html",
           title: "Add an Explicit Button Type",
           description:
             "Given a `<button>` with no `type` attribute inside a form (which defaults to submitting), add an explicit `type=\"button\"` so it does NOT submit the form (since it's meant to just toggle a preview, not submit).",
@@ -815,7 +839,7 @@ const RAW_FORMS_SEMANTIC_HTML_CHAPTERS = [
 </form>`,
           tests: [
             { id: 1, label: "Adds an explicit type attribute", keywords: [{ pattern: "type=\"button\"" }] },
-            { id: 2, label: "Does not use type=\"submit\"", keywords: [{ pattern: "^(?!.*type=\"submit\").*$" }] },
+            { id: 2, label: "Does not use type=\"submit\"", keywords: [{ pattern: "^(?!.*type=\"submit\").*$", flags: "is" }] },
             { id: 3, label: "Keeps the button text", keywords: [{ pattern: "Toggle Preview" }] },
           ],
         },
@@ -880,6 +904,8 @@ const RAW_FORMS_SEMANTIC_HTML_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "fsh-12-challenge",
+          language: "html",
           title: "Add Built-in Validation",
           description:
             "Add `required` and `min=\"18\"` `max=\"100\"` to an age input so users must enter a value between 18 and 100.",
@@ -946,6 +972,8 @@ const RAW_FORMS_SEMANTIC_HTML_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "fsh-13-challenge",
+          language: "html",
           title: "Link an Error Message with ARIA",
           description:
             "Given an email input and an error `<span id=\"email-err\">`, add `aria-describedby=\"email-err\"` and `aria-invalid=\"true\"` to the input.",
@@ -1017,6 +1045,8 @@ const RAW_FORMS_SEMANTIC_HTML_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "fsh-14-challenge",
+          language: "css",
           title: "Style Valid and Invalid States",
           description:
             "Add CSS so any `input:valid` gets a `2px solid green` border and any `input:invalid:not(:placeholder-shown)` gets a `2px solid red` border.",
@@ -1100,6 +1130,8 @@ input:invalid:not(:placeholder-shown) {
           },
         ],
         challenge: {
+          id: "fsh-15-challenge",
+          language: "html",
           title: "Add a novalidate Error Pattern",
           description:
             "Add `novalidate` to the `<form>`, and add `aria-invalid=\"true\"` plus `aria-describedby=\"name-error\"` to the name input, matching an existing `<p id=\"name-error\" role=\"alert\">`.",
@@ -1180,6 +1212,8 @@ input:invalid:not(:placeholder-shown) {
           },
         ],
         challenge: {
+          id: "fsh-16-challenge",
+          language: "html",
           title: "Add Terms Acceptance",
           description:
             "Add a required checkbox labeled \"I agree to the Terms of Service\" (name=\"terms\") to the end of the signup fieldset.",
@@ -1290,6 +1324,8 @@ input:invalid:not(:placeholder-shown) {
           },
         ],
         challenge: {
+          id: "fsh-17-challenge",
+          language: "html",
           title: "Add a Phone Number Field",
           description:
             "Add a new optional phone field (`type=\"tel\"`, `id=\"cf-phone\"`, `name=\"phone\"`, `autocomplete=\"tel\"`) with a matching `<label>`, placed after the email field's wrapping `<div>`.",
