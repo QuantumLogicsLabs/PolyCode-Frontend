@@ -73,6 +73,8 @@ const RAW_RESPONSIVE_DESIGN_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "rwd-0-challenge",
+          language: "css",
           title: "Convert Fixed Columns to Fluid",
           description:
             "Given two columns currently set to fixed pixel widths (`400px` and `800px`), convert them to percentage widths that total 100% (e.g. 33% and 67%), keeping the flex row.",
@@ -131,6 +133,8 @@ const RAW_RESPONSIVE_DESIGN_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "rwd-1-challenge",
+          language: "html",
           title: "Add the Viewport Meta Tag",
           description:
             "Add the standard responsive viewport meta tag to the `<head>` so the page renders at the device's actual width with no initial zoom.",
@@ -195,6 +199,8 @@ const RAW_RESPONSIVE_DESIGN_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "rwd-2-challenge",
+          language: "css",
           title: "Cap a Fluid Container",
           description:
             "Style `.container` to be full-width but never exceed `960px`, and center it horizontally with `margin: 0 auto`.",
@@ -274,6 +280,8 @@ const RAW_RESPONSIVE_DESIGN_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "rwd-3-challenge",
+          language: "css",
           title: "Add a Breakpoint",
           description:
             "Add a media query so that at `min-width: 600px`, `.card` gets `padding: 24px` (its base padding is `12px`).",
@@ -357,6 +365,8 @@ const RAW_RESPONSIVE_DESIGN_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "rwd-4-challenge",
+          language: "css",
           title: "Write Mobile-First Columns",
           description:
             "Write `.layout` as a single-column grid by default, becoming 2 columns at `min-width: 700px`.",
@@ -437,6 +447,8 @@ const RAW_RESPONSIVE_DESIGN_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "rwd-5-challenge",
+          language: "css",
           title: "Three-Tier Padding Scale",
           description:
             "Set `.section` to `padding: 12px` by default, `20px` at `min-width: 600px`, and `32px` at `min-width: 1000px`.",
@@ -530,6 +542,8 @@ const RAW_RESPONSIVE_DESIGN_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "rwd-6-challenge",
+          language: "css",
           title: "Convert px to rem",
           description:
             "Given a root font-size of 16px, convert a heading currently set to `font-size: 32px` into the equivalent `rem` value.",
@@ -596,6 +610,8 @@ h1 {
           },
         ],
         challenge: {
+          id: "rwd-7-challenge",
+          language: "css",
           title: "Full-Height Hero Section",
           description:
             "Make `.hero` take up the full viewport height using `100vh`, and set its width to `100%` (fill its container, not the raw viewport width).",
@@ -664,6 +680,8 @@ h1 {
           },
         ],
         challenge: {
+          id: "rwd-8-challenge",
+          language: "css",
           title: "Fluid Font Size with clamp",
           description:
             "Set `h2` font-size to `clamp(1.25rem, 3vw, 2rem)` — never below 1.25rem, never above 2rem, scaling with viewport width in between.",
@@ -737,6 +755,8 @@ h1 {
           },
         ],
         challenge: {
+          id: "rwd-9-challenge",
+          language: "html",
           title: "Add a srcset to an Image",
           description:
             "Add a `srcset` listing `small.jpg 500w` and `large.jpg 1000w`, plus a `sizes` of `(max-width: 500px) 100vw, 50vw` to the existing `<img>`.",
@@ -798,6 +818,8 @@ h1 {
           },
         ],
         challenge: {
+          id: "rwd-10-challenge",
+          language: "html",
           title: "Art-Direct a Banner Image",
           description:
             "Add a `<picture>` with one `<source>` for `min-width: 800px` using `banner-wide.jpg`, falling back to an `<img>` with `banner-mobile.jpg` and appropriate `alt` text.",
@@ -864,6 +886,8 @@ h1 {
           },
         ],
         challenge: {
+          id: "rwd-11-challenge",
+          language: "css",
           title: "Define a Two-Step Type Scale",
           description:
             "Define `--body-size: clamp(1rem, 0.9rem + 0.4vw, 1.125rem)` and `--heading-size: clamp(1.5rem, 1.2rem + 1vw, 2.25rem)` on `:root`, then apply them to `body` and `h1` respectively using `var()`.",
@@ -979,6 +1003,8 @@ h1 {
           },
         ],
         challenge: {
+          id: "rwd-12-challenge",
+          language: "css",
           title: "Show a Menu on Checkbox Toggle",
           description:
             "Using the same checkbox-hack pattern, write the CSS rule that shows `.menu-list` (currently `display: none`) when `#menu-toggle` is checked, using the sibling combinator.",
@@ -1059,6 +1085,8 @@ h1 {
           },
         ],
         challenge: {
+          id: "rwd-13-challenge",
+          language: "css",
           title: "Stack-to-Grid Layout",
           description:
             "Make `.page` a flex column by default, then switch it to a 2-column grid (`160px 1fr`) at `min-width: 800px`.",
@@ -1151,6 +1179,8 @@ h1 {
           },
         ],
         challenge: {
+          id: "rwd-14-challenge",
+          language: "css",
           title: "Set Up a Query Container",
           description:
             "Mark `.widget-wrapper` as a container with `container-type: inline-size`, then add a `@container (min-width: 300px)` rule that changes `.widget` to `flex-direction: row`.",
@@ -1245,6 +1275,8 @@ h1 {
           },
         ],
         challenge: {
+          id: "rwd-15-challenge",
+          language: "css",
           title: "Add a Debug Outline Utility",
           description:
             "Write a `.debug *` rule that adds a `1px dashed red` outline to every descendant, useful for visually auditing layout during development.",
@@ -1310,6 +1342,8 @@ h1 {
           },
         ],
         challenge: {
+          id: "rwd-16-challenge",
+          language: "css",
           title: "Fix an Overflowing Image",
           description:
             "Given `.photo { width: 900px; }`, fix it so the image scales down to fit its container without ever exceeding 100% width, keeping its aspect ratio.",
@@ -1416,6 +1450,8 @@ h1 {
           },
         ],
         challenge: {
+          id: "rwd-17-challenge",
+          language: "css",
           title: "Add a Responsive Footer",
           description:
             "Add a `.footer` that uses `display: flex`, `flex-wrap: wrap`, `justify-content: space-between`, and `gap: 12px`, matching the fluid, no-media-query philosophy of the rest of the page.",

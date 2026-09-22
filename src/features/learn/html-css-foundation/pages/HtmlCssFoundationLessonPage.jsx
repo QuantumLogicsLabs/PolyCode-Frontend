@@ -4,7 +4,7 @@ import NumpyIntroTheory from "../../numpy-py/components/NumpyIntroTheory";
 import OopsSidebar from "../../oops-cpp/components/OopsSidebar";
 import LearnProfileMenu from "../../shared/LearnProfileMenu";
 import LessonContentShell from "../../shared/LessonContentShell";
-import HtmlCssCodeChallenge from "../components/HtmlCssCodeChallenge";
+import HtmlCssCodeChallenge from "../../shared/HtmlCssCodeChallenge";
 import {
   HTML_CSS_FOUNDATION_CHAPTERS,
   HTML_CSS_FOUNDATION_LESSONS,

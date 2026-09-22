@@ -69,6 +69,8 @@ const RAW_CSS_ANIMATIONS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csa-0-challenge",
+          language: "css",
           title: "Animate a Hover Color Change",
           description:
             "Give `.link` a `transition-property: color` and `transition-duration: 0.2s`, so its `:hover` color change (already defined) animates smoothly.",
@@ -150,6 +152,8 @@ const RAW_CSS_ANIMATIONS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csa-1-challenge",
+          language: "css",
           title: "Apply an ease-in-out Curve",
           description:
             "Add `transition-timing-function: ease-in-out` to `.panel`, which already transitions `opacity` over `0.4s`.",
@@ -224,6 +228,8 @@ const RAW_CSS_ANIMATIONS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csa-2-challenge",
+          language: "css",
           title: "Two Properties, One Line",
           description:
             "Write a single `transition` shorthand declaration on `.tile` that animates `transform` over `0.25s ease` and `opacity` over `0.5s linear`.",
@@ -306,6 +312,8 @@ const RAW_CSS_ANIMATIONS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csa-3-challenge",
+          language: "css",
           title: "Scale on Hover",
           description:
             "Add a `:hover` rule for `.thumb` that applies `transform: scale(1.1)`, with the existing `transition` already handling the smoothness.",
@@ -380,6 +388,8 @@ const RAW_CSS_ANIMATIONS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csa-4-challenge",
+          language: "css",
           title: "Rotate Around the Bottom-Right Corner",
           description:
             "Set `.corner-fold` to have `transform-origin: bottom right`, so its `:hover` rotation (already defined as `rotate(-10deg)`) pivots from that corner.",
@@ -458,6 +468,8 @@ const RAW_CSS_ANIMATIONS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csa-5-challenge",
+          language: "css",
           title: "Combine Scale and Rotate",
           description:
             "On `:hover`, apply both `scale(1.15)` and `rotate(5deg)` to `.sticker` in a single `transform` declaration, scale first.",
@@ -550,6 +562,8 @@ const RAW_CSS_ANIMATIONS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csa-6-challenge",
+          language: "css",
           title: "Fade-In Keyframes",
           description:
             "Write a `@keyframes fade-in` going from `opacity: 0` to `opacity: 1`, then apply it to `.toast` with `animation-name: fade-in` and `animation-duration: 0.3s`.",
@@ -629,6 +643,8 @@ const RAW_CSS_ANIMATIONS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csa-7-challenge",
+          language: "css",
           title: "Infinite Pulsing Dot",
           description:
             "Using an existing `@keyframes pulse` (scale 1 to 1.2 and back), apply it to `.dot` with the `animation` shorthand: 1 second duration, ease-in-out, looping infinitely.",
@@ -719,6 +735,8 @@ const RAW_CSS_ANIMATIONS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csa-8-challenge",
+          language: "css",
           title: "Play Once and Stay",
           description:
             "Using the existing `@keyframes reveal` (opacity 0 to 1), apply it to `.callout` so it plays exactly once and keeps the final (opacity: 1) state afterward.",
@@ -814,6 +832,8 @@ const RAW_CSS_ANIMATIONS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csa-9-challenge",
+          language: "css",
           title: "Three-Step Color Shift",
           description:
             "Write `@keyframes color-shift` with steps at `0%` (background: `#4a90d9`), `50%` (background: `#d9534f`), and `100%` (background: `#4a90d9`), then apply it to `.strip` over `2s` infinitely.",
@@ -894,6 +914,8 @@ const RAW_CSS_ANIMATIONS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csa-10-challenge",
+          language: "css",
           title: "Pause an Animation on Focus",
           description:
             "Add a rule so that `.marquee` (already animating) pauses its animation when it receives keyboard focus (`:focus`), using `animation-play-state: paused`.",
@@ -972,6 +994,8 @@ const RAW_CSS_ANIMATIONS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csa-11-challenge",
+          language: "css",
           title: "Stagger Four Cards",
           description:
             "Given `.card` items that already use `animation: fade-up 0.3s forwards`, add `:nth-child(1)` through `:nth-child(4)` rules with increasing `animation-delay` values (0s, 0.1s, 0.2s, 0.3s).",
@@ -1068,6 +1092,8 @@ const RAW_CSS_ANIMATIONS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csa-12-challenge",
+          language: "css",
           title: "Replace top with transform",
           description:
             "Given `.slide { position: relative; transition: top 0.3s; } .slide:hover { top: -8px; }`, rewrite it to achieve the same visual movement using `transform: translateY(-8px)` instead of `top`.",
@@ -1088,7 +1114,7 @@ const RAW_CSS_ANIMATIONS_CHAPTERS = [
           tests: [
             { id: 1, label: "Transitions transform, not top", keywords: [{ pattern: "transition:\\s*transform" }] },
             { id: 2, label: "Hover uses translateY", keywords: [{ pattern: "transform:\\s*translateY\\(-8px\\)" }] },
-            { id: 3, label: "No longer animates top", keywords: [{ pattern: "^(?!.*transition:\\s*top).*$" }] },
+            { id: 3, label: "No longer animates top", keywords: [{ pattern: "^(?!.*transition:\\s*top).*$", flags: "is" }] },
           ],
         },
       },
@@ -1145,6 +1171,8 @@ const RAW_CSS_ANIMATIONS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csa-13-challenge",
+          language: "css",
           title: "Disable a Spin for Reduced Motion",
           description:
             "Given `.loader { animation: spin 1s linear infinite; }`, add a `prefers-reduced-motion: reduce` media query that sets `.loader`'s animation to `none`.",
@@ -1218,6 +1246,8 @@ const RAW_CSS_ANIMATIONS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csa-14-challenge",
+          language: "css",
           title: "Hint at an Opacity Change",
           description:
             "Add `will-change: opacity` to `.fade-target`'s `:hover` rule, which already transitions and changes `opacity` to `0.6`.",
@@ -1308,6 +1338,8 @@ const RAW_CSS_ANIMATIONS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csa-15-challenge",
+          language: "css",
           title: "Build a Dot-Pulse Loader",
           description:
             "Write `@keyframes dot-pulse` scaling from `1` to `1.4` and back to `1`, then apply it to `.dot` with a `0.6s` linear infinite loop.",
@@ -1398,6 +1430,8 @@ const RAW_CSS_ANIMATIONS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csa-16-challenge",
+          language: "css",
           title: "Add an Active State",
           description:
             "Given `.chip` with a hover lift (`transform: translateY(-2px)`), add an `:active` rule that resets `transform` to `translateY(0)` and adds `opacity: 0.9`, simulating a 'pressed' feel.",
@@ -1512,6 +1546,8 @@ const RAW_CSS_ANIMATIONS_CHAPTERS = [
           },
         ],
         challenge: {
+          id: "csa-17-challenge",
+          language: "css",
           title: "Speed Up the Flip on Focus",
           description:
             "Add a `:focus-within` rule to `.flip-card` that triggers the same flip as `:hover` (targeting `.flip-card-inner`), so keyboard users tabbing to a focusable element inside the card can also see the flip.",
