@@ -744,6 +744,33 @@ const LEARN_COURSE_ROUTES = [
     ),
   },
   {
+    slug: "css-modern-features",
+    language: "HTML & CSS",
+    Hub: lazyWithChunkRetry(
+      () =>
+        import(
+          "./features/learn/css-modern-features-course/pages/CssModernFeaturesHub"
+        ),
+    ),
+    Lesson: lazyWithChunkRetry(
+      () =>
+        import(
+          "./features/learn/css-modern-features-course/pages/CssModernFeaturesLessonPage"
+        ),
+    ),
+  },
+  {
+    slug: "sass-scss",
+    language: "HTML & CSS",
+    Hub: lazyWithChunkRetry(
+      () => import("./features/learn/sass-scss-course/pages/SassScssHub"),
+    ),
+    Lesson: lazyWithChunkRetry(
+      () =>
+        import("./features/learn/sass-scss-course/pages/SassScssLessonPage"),
+    ),
+  },
+  {
     slug: "batchfile-fundamentals",
     language: "Batchfile",
     Hub: lazyWithChunkRetry(

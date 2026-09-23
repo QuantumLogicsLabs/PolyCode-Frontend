@@ -1,43 +1,43 @@
 import React, { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
-  WEB_ACCESSIBILITY_CHAPTERS,
-  WEB_ACCESSIBILITY_LESSONS,
-  WEB_ACCESSIBILITY_TOTAL_XP,
-} from "../data/webAccessibilityCurriculum";
-import useWebAccessibilityProgress from "../hooks/useWebAccessibilityProgress";
+  SASS_SCSS_CHAPTERS,
+  SASS_SCSS_LESSONS,
+  SASS_SCSS_TOTAL_XP,
+} from "../data/sassScssCurriculum";
+import useSassScssProgress from "../hooks/useSassScssProgress";
 import CourseCertificate from "../../shared/CourseCertificate";
 import LearnChapterPathOverview from "../../shared/LearnChapterPathOverview";
 import LearnChapterGrid from "../../shared/LearnChapterGrid";
 import LearnChapterIcon from "../../shared/LearnChapterIcon";
 
-const BASE_PATH = "/learn/web-accessibility";
-const ACCENT = "#0d9488";
+const BASE_PATH = "/learn/sass-scss";
+const ACCENT = "#cf649a";
 
 const LEARNING_PATH = [
   {
     level: "Beginner",
-    chapters: ["a11y-foundations"],
-    color: "#0d9488",
-    summary: "WCAG's POUR principles, semantic HTML, and writing meaningful alt text.",
+    chapters: ["scss-foundations"],
+    color: "#cf649a",
+    summary: "Sass vs CSS variables, BEM nesting with &, and #{} interpolation.",
   },
   {
     level: "Intermediate",
-    chapters: ["a11y-keyboard-focus"],
-    color: "#f59e0b",
-    summary: "Keyboard navigation, visible focus indicators, and skip links.",
+    chapters: ["scss-mixins", "scss-modules"],
+    color: "#8b5cf6",
+    summary: "Mixins, @content, @extend, and the module system with @use and @forward.",
   },
   {
     level: "Advanced",
-    chapters: ["a11y-aria-screen-readers", "a11y-color-forms"],
-    color: "#7c3aed",
-    summary: "ARIA roles, live regions, color contrast, and accessible forms.",
+    chapters: ["scss-data", "scss-logic"],
+    color: "#0ea5e9",
+    summary: "Lists, maps and loops, @if, @for, and writing your own functions.",
   },
   {
     level: "Expert",
-    chapters: ["a11y-meaningful-content", "a11y-interactive-components"],
+    chapters: ["scss-real-world"],
     color: "#dc2626",
-    summary: "Link text, data tables, hidden content, dialogs, disclosures, and captions.",
+    summary: "Maps to custom properties, @error guards, and a full button system.",
   },
 ];
 
@@ -48,7 +48,7 @@ function lessonPlainText(lesson) {
     .join(" ");
 }
 
-export default function WebAccessibilityHub() {
+export default function SassScssHub() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
@@ -57,31 +57,31 @@ export default function WebAccessibilityHub() {
     completedMap: progress,
     bookmarks,
     lastLessonId,
-  } = useWebAccessibilityProgress();
+  } = useSassScssProgress();
 
   const completedCount = Object.keys(progress).length;
-  const earnedXP = WEB_ACCESSIBILITY_LESSONS.filter(
+  const earnedXP = SASS_SCSS_LESSONS.filter(
     (lesson) => progress[lesson.id],
   ).reduce((sum, lesson) => sum + lesson.xp, 0);
   const pct =
-    Math.round((completedCount / WEB_ACCESSIBILITY_LESSONS.length) * 100) || 0;
+    Math.round((completedCount / SASS_SCSS_LESSONS.length) * 100) || 0;
 
   const nextLesson =
-    WEB_ACCESSIBILITY_LESSONS.find((lesson) => !progress[lesson.id]) ||
-    WEB_ACCESSIBILITY_LESSONS[0];
+    SASS_SCSS_LESSONS.find((lesson) => !progress[lesson.id]) ||
+    SASS_SCSS_LESSONS[0];
   const resumeLesson =
-    WEB_ACCESSIBILITY_LESSONS.find((lesson) => lesson.id === lastLessonId) ||
+    SASS_SCSS_LESSONS.find((lesson) => lesson.id === lastLessonId) ||
     nextLesson;
-  const completedChapters = WEB_ACCESSIBILITY_CHAPTERS.filter((chapter) =>
+  const completedChapters = SASS_SCSS_CHAPTERS.filter((chapter) =>
     chapter.lessons.every((lesson) => progress[lesson.id]),
   ).length;
   const bookmarkedLessons = bookmarks
-    .map((id) => WEB_ACCESSIBILITY_LESSONS.find((lesson) => lesson.id === id))
+    .map((id) => SASS_SCSS_LESSONS.find((lesson) => lesson.id === id))
     .filter(Boolean);
 
   const filteredLessons = useMemo(() => {
     const query = search.trim().toLowerCase();
-    return WEB_ACCESSIBILITY_LESSONS.filter((lesson) => {
+    return SASS_SCSS_LESSONS.filter((lesson) => {
       const matchesQuery =
         !query ||
         lesson.title.toLowerCase().includes(query) ||
@@ -106,17 +106,17 @@ export default function WebAccessibilityHub() {
         >
           ← HTML & CSS courses
         </Link>
-        <div className="oops-hero-badge">CSS · ADVANCED COURSE</div>
+        <div className="oops-hero-badge">SCSS · ADVANCED COURSE</div>
         <h1 className="oops-hero-title">
-          Web Accessibility
+          Sass
           <br />
           <span className="oops-hero-accent" style={{ color: ACCENT }}>
-            (a11y)
+            & SCSS
           </span>
         </h1>
         <p className="oops-hero-sub">
-          Build sites everyone can use — semantic HTML, keyboard access, ARIA, and color contrast, following WCAG. {WEB_ACCESSIBILITY_CHAPTERS.length}{" "}
-          chapters, {WEB_ACCESSIBILITY_LESSONS.length} lessons, hands-on challenges.
+          Variables, nesting, mixins, modules, maps and loops — written in SCSS, compiled right in your browser so you can see the CSS it produces. {SASS_SCSS_CHAPTERS.length}{" "}
+          chapters, {SASS_SCSS_LESSONS.length} lessons, hands-on challenges.
         </p>
 
         <div className="oops-hero-grid">
@@ -124,8 +124,8 @@ export default function WebAccessibilityHub() {
             <div className="oops-xp-meta">
               <span>
                 {isAuthenticated
-                  ? `${completedCount}/${WEB_ACCESSIBILITY_LESSONS.length} lessons · ${earnedXP}/${WEB_ACCESSIBILITY_TOTAL_XP} XP`
-                  : `Sign in to track progress · ${WEB_ACCESSIBILITY_LESSONS.length} lessons`}
+                  ? `${completedCount}/${SASS_SCSS_LESSONS.length} lessons · ${earnedXP}/${SASS_SCSS_TOTAL_XP} XP`
+                  : `Sign in to track progress · ${SASS_SCSS_LESSONS.length} lessons`}
               </span>
               <span>{isAuthenticated ? `${pct}%` : "—"}</span>
             </div>
@@ -184,18 +184,18 @@ export default function WebAccessibilityHub() {
 
       <div className="oops-guide-tools">
         <div className="oops-tool-panel oops-tool-panel-main">
-          <span className="oops-interactive-label">Find a Web Accessibility topic</span>
+          <span className="oops-interactive-label">Find a Sass topic</span>
           <div className="oops-search-row">
             <input
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search ARIA, contrast, keyboard nav..."
-              aria-label="Search Web Accessibility lessons"
+              placeholder="Search mixins, @use, maps..."
+              aria-label="Search Sass & SCSS lessons"
             />
             <div
               className="oops-filter-tabs"
-              aria-label="Filter Web Accessibility lessons"
+              aria-label="Filter Sass & SCSS lessons"
             >
               {[
                 ["all", "All"],
@@ -272,19 +272,19 @@ export default function WebAccessibilityHub() {
         <div className="oops-stat-tile">
           <span>Lessons</span>
           <strong>
-            {completedCount}/{WEB_ACCESSIBILITY_LESSONS.length}
+            {completedCount}/{SASS_SCSS_LESSONS.length}
           </strong>
         </div>
         <div className="oops-stat-tile">
           <span>Chapters</span>
           <strong>
-            {completedChapters}/{WEB_ACCESSIBILITY_CHAPTERS.length}
+            {completedChapters}/{SASS_SCSS_CHAPTERS.length}
           </strong>
         </div>
         <div className="oops-stat-tile">
           <span>XP</span>
           <strong>
-            {earnedXP}/{WEB_ACCESSIBILITY_TOTAL_XP}
+            {earnedXP}/{SASS_SCSS_TOTAL_XP}
           </strong>
         </div>
         <div className="oops-stat-tile">
@@ -297,13 +297,13 @@ export default function WebAccessibilityHub() {
         <div className="matplotlib-path-label">
           <span>Your path · Beginner to Expert</span>
           <small>
-            {WEB_ACCESSIBILITY_CHAPTERS.length} chapters ·{" "}
-            {WEB_ACCESSIBILITY_LESSONS.length} lessons
+            {SASS_SCSS_CHAPTERS.length} chapters ·{" "}
+            {SASS_SCSS_LESSONS.length} lessons
           </small>
         </div>
         <div className="matplotlib-path-grid">
           {LEARNING_PATH.map((stage) => {
-            const stageChapters = WEB_ACCESSIBILITY_CHAPTERS.filter((ch) =>
+            const stageChapters = SASS_SCSS_CHAPTERS.filter((ch) =>
               stage.chapters.includes(ch.id),
             );
             const stageLessons = stageChapters.flatMap((ch) => ch.lessons);
@@ -361,7 +361,7 @@ export default function WebAccessibilityHub() {
       </section>
 
       <LearnChapterPathOverview
-        chapters={WEB_ACCESSIBILITY_CHAPTERS}
+        chapters={SASS_SCSS_CHAPTERS}
         progress={progress}
         onChapterSelect={(chapter) =>
           navigate(`${BASE_PATH}/lesson/${chapter.lessons[0].id}`)
@@ -369,18 +369,18 @@ export default function WebAccessibilityHub() {
       />
 
       <LearnChapterGrid
-        chapters={WEB_ACCESSIBILITY_CHAPTERS}
+        chapters={SASS_SCSS_CHAPTERS}
         progress={progress}
         basePath={BASE_PATH}
         navigate={navigate}
       />
 
       <CourseCertificate
-        courseName="Web Accessibility (a11y)"
-        totalLessons={WEB_ACCESSIBILITY_LESSONS.length}
+        courseName="Sass & SCSS"
+        totalLessons={SASS_SCSS_LESSONS.length}
         completedCount={completedCount}
         earnedXP={earnedXP}
-        totalXP={WEB_ACCESSIBILITY_TOTAL_XP}
+        totalXP={SASS_SCSS_TOTAL_XP}
       />
     </div>
   );

@@ -1,43 +1,43 @@
 import React, { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
-  WEB_ACCESSIBILITY_CHAPTERS,
-  WEB_ACCESSIBILITY_LESSONS,
-  WEB_ACCESSIBILITY_TOTAL_XP,
-} from "../data/webAccessibilityCurriculum";
-import useWebAccessibilityProgress from "../hooks/useWebAccessibilityProgress";
+  CSS_MODERN_FEATURES_CHAPTERS,
+  CSS_MODERN_FEATURES_LESSONS,
+  CSS_MODERN_FEATURES_TOTAL_XP,
+} from "../data/cssModernFeaturesCurriculum";
+import useCssModernFeaturesProgress from "../hooks/useCssModernFeaturesProgress";
 import CourseCertificate from "../../shared/CourseCertificate";
 import LearnChapterPathOverview from "../../shared/LearnChapterPathOverview";
 import LearnChapterGrid from "../../shared/LearnChapterGrid";
 import LearnChapterIcon from "../../shared/LearnChapterIcon";
 
-const BASE_PATH = "/learn/web-accessibility";
-const ACCENT = "#0d9488";
+const BASE_PATH = "/learn/css-modern-features";
+const ACCENT = "#f97316";
 
 const LEARNING_PATH = [
   {
     level: "Beginner",
-    chapters: ["a11y-foundations"],
-    color: "#0d9488",
-    summary: "WCAG's POUR principles, semantic HTML, and writing meaningful alt text.",
+    chapters: ["cmf-custom-properties"],
+    color: "#f97316",
+    summary: "Custom property scope, fallbacks, and theming with design tokens.",
   },
   {
     level: "Intermediate",
-    chapters: ["a11y-keyboard-focus"],
-    color: "#f59e0b",
-    summary: "Keyboard navigation, visible focus indicators, and skip links.",
+    chapters: ["cmf-math", "cmf-selectors"],
+    color: "#eab308",
+    summary: "calc(), min() and max() for layout, plus :is(), :where(), :has() and :not().",
   },
   {
     level: "Advanced",
-    chapters: ["a11y-aria-screen-readers", "a11y-color-forms"],
+    chapters: ["cmf-cascade", "cmf-nesting-supports"],
     color: "#7c3aed",
-    summary: "ARIA roles, live regions, color contrast, and accessible forms.",
+    summary: "Cascade layers, global keywords, native nesting, @supports and @property.",
   },
   {
     level: "Expert",
-    chapters: ["a11y-meaningful-content", "a11y-interactive-components"],
+    chapters: ["cmf-layout-color"],
     color: "#dc2626",
-    summary: "Link text, data tables, hidden content, dialogs, disclosures, and captions.",
+    summary: "Named container queries, logical properties, color-mix() and light-dark().",
   },
 ];
 
@@ -48,7 +48,7 @@ function lessonPlainText(lesson) {
     .join(" ");
 }
 
-export default function WebAccessibilityHub() {
+export default function CssModernFeaturesHub() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
@@ -57,31 +57,31 @@ export default function WebAccessibilityHub() {
     completedMap: progress,
     bookmarks,
     lastLessonId,
-  } = useWebAccessibilityProgress();
+  } = useCssModernFeaturesProgress();
 
   const completedCount = Object.keys(progress).length;
-  const earnedXP = WEB_ACCESSIBILITY_LESSONS.filter(
+  const earnedXP = CSS_MODERN_FEATURES_LESSONS.filter(
     (lesson) => progress[lesson.id],
   ).reduce((sum, lesson) => sum + lesson.xp, 0);
   const pct =
-    Math.round((completedCount / WEB_ACCESSIBILITY_LESSONS.length) * 100) || 0;
+    Math.round((completedCount / CSS_MODERN_FEATURES_LESSONS.length) * 100) || 0;
 
   const nextLesson =
-    WEB_ACCESSIBILITY_LESSONS.find((lesson) => !progress[lesson.id]) ||
-    WEB_ACCESSIBILITY_LESSONS[0];
+    CSS_MODERN_FEATURES_LESSONS.find((lesson) => !progress[lesson.id]) ||
+    CSS_MODERN_FEATURES_LESSONS[0];
   const resumeLesson =
-    WEB_ACCESSIBILITY_LESSONS.find((lesson) => lesson.id === lastLessonId) ||
+    CSS_MODERN_FEATURES_LESSONS.find((lesson) => lesson.id === lastLessonId) ||
     nextLesson;
-  const completedChapters = WEB_ACCESSIBILITY_CHAPTERS.filter((chapter) =>
+  const completedChapters = CSS_MODERN_FEATURES_CHAPTERS.filter((chapter) =>
     chapter.lessons.every((lesson) => progress[lesson.id]),
   ).length;
   const bookmarkedLessons = bookmarks
-    .map((id) => WEB_ACCESSIBILITY_LESSONS.find((lesson) => lesson.id === id))
+    .map((id) => CSS_MODERN_FEATURES_LESSONS.find((lesson) => lesson.id === id))
     .filter(Boolean);
 
   const filteredLessons = useMemo(() => {
     const query = search.trim().toLowerCase();
-    return WEB_ACCESSIBILITY_LESSONS.filter((lesson) => {
+    return CSS_MODERN_FEATURES_LESSONS.filter((lesson) => {
       const matchesQuery =
         !query ||
         lesson.title.toLowerCase().includes(query) ||
@@ -108,15 +108,15 @@ export default function WebAccessibilityHub() {
         </Link>
         <div className="oops-hero-badge">CSS · ADVANCED COURSE</div>
         <h1 className="oops-hero-title">
-          Web Accessibility
+          CSS Variables
           <br />
           <span className="oops-hero-accent" style={{ color: ACCENT }}>
-            (a11y)
+            & Modern CSS
           </span>
         </h1>
         <p className="oops-hero-sub">
-          Build sites everyone can use — semantic HTML, keyboard access, ARIA, and color contrast, following WCAG. {WEB_ACCESSIBILITY_CHAPTERS.length}{" "}
-          chapters, {WEB_ACCESSIBILITY_LESSONS.length} lessons, hands-on challenges.
+          Custom properties, CSS math, modern selectors, cascade layers, nesting and container queries — the features shipping in every browser today. {CSS_MODERN_FEATURES_CHAPTERS.length}{" "}
+          chapters, {CSS_MODERN_FEATURES_LESSONS.length} lessons, hands-on challenges.
         </p>
 
         <div className="oops-hero-grid">
@@ -124,8 +124,8 @@ export default function WebAccessibilityHub() {
             <div className="oops-xp-meta">
               <span>
                 {isAuthenticated
-                  ? `${completedCount}/${WEB_ACCESSIBILITY_LESSONS.length} lessons · ${earnedXP}/${WEB_ACCESSIBILITY_TOTAL_XP} XP`
-                  : `Sign in to track progress · ${WEB_ACCESSIBILITY_LESSONS.length} lessons`}
+                  ? `${completedCount}/${CSS_MODERN_FEATURES_LESSONS.length} lessons · ${earnedXP}/${CSS_MODERN_FEATURES_TOTAL_XP} XP`
+                  : `Sign in to track progress · ${CSS_MODERN_FEATURES_LESSONS.length} lessons`}
               </span>
               <span>{isAuthenticated ? `${pct}%` : "—"}</span>
             </div>
@@ -184,18 +184,18 @@ export default function WebAccessibilityHub() {
 
       <div className="oops-guide-tools">
         <div className="oops-tool-panel oops-tool-panel-main">
-          <span className="oops-interactive-label">Find a Web Accessibility topic</span>
+          <span className="oops-interactive-label">Find a Modern CSS topic</span>
           <div className="oops-search-row">
             <input
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search ARIA, contrast, keyboard nav..."
-              aria-label="Search Web Accessibility lessons"
+              placeholder="Search :has(), @layer, container queries..."
+              aria-label="Search CSS Modern Features lessons"
             />
             <div
               className="oops-filter-tabs"
-              aria-label="Filter Web Accessibility lessons"
+              aria-label="Filter CSS Modern Features lessons"
             >
               {[
                 ["all", "All"],
@@ -272,19 +272,19 @@ export default function WebAccessibilityHub() {
         <div className="oops-stat-tile">
           <span>Lessons</span>
           <strong>
-            {completedCount}/{WEB_ACCESSIBILITY_LESSONS.length}
+            {completedCount}/{CSS_MODERN_FEATURES_LESSONS.length}
           </strong>
         </div>
         <div className="oops-stat-tile">
           <span>Chapters</span>
           <strong>
-            {completedChapters}/{WEB_ACCESSIBILITY_CHAPTERS.length}
+            {completedChapters}/{CSS_MODERN_FEATURES_CHAPTERS.length}
           </strong>
         </div>
         <div className="oops-stat-tile">
           <span>XP</span>
           <strong>
-            {earnedXP}/{WEB_ACCESSIBILITY_TOTAL_XP}
+            {earnedXP}/{CSS_MODERN_FEATURES_TOTAL_XP}
           </strong>
         </div>
         <div className="oops-stat-tile">
@@ -297,13 +297,13 @@ export default function WebAccessibilityHub() {
         <div className="matplotlib-path-label">
           <span>Your path · Beginner to Expert</span>
           <small>
-            {WEB_ACCESSIBILITY_CHAPTERS.length} chapters ·{" "}
-            {WEB_ACCESSIBILITY_LESSONS.length} lessons
+            {CSS_MODERN_FEATURES_CHAPTERS.length} chapters ·{" "}
+            {CSS_MODERN_FEATURES_LESSONS.length} lessons
           </small>
         </div>
         <div className="matplotlib-path-grid">
           {LEARNING_PATH.map((stage) => {
-            const stageChapters = WEB_ACCESSIBILITY_CHAPTERS.filter((ch) =>
+            const stageChapters = CSS_MODERN_FEATURES_CHAPTERS.filter((ch) =>
               stage.chapters.includes(ch.id),
             );
             const stageLessons = stageChapters.flatMap((ch) => ch.lessons);
@@ -361,7 +361,7 @@ export default function WebAccessibilityHub() {
       </section>
 
       <LearnChapterPathOverview
-        chapters={WEB_ACCESSIBILITY_CHAPTERS}
+        chapters={CSS_MODERN_FEATURES_CHAPTERS}
         progress={progress}
         onChapterSelect={(chapter) =>
           navigate(`${BASE_PATH}/lesson/${chapter.lessons[0].id}`)
@@ -369,18 +369,18 @@ export default function WebAccessibilityHub() {
       />
 
       <LearnChapterGrid
-        chapters={WEB_ACCESSIBILITY_CHAPTERS}
+        chapters={CSS_MODERN_FEATURES_CHAPTERS}
         progress={progress}
         basePath={BASE_PATH}
         navigate={navigate}
       />
 
       <CourseCertificate
-        courseName="Web Accessibility (a11y)"
-        totalLessons={WEB_ACCESSIBILITY_LESSONS.length}
+        courseName="CSS Variables & Modern CSS"
+        totalLessons={CSS_MODERN_FEATURES_LESSONS.length}
         completedCount={completedCount}
         earnedXP={earnedXP}
-        totalXP={WEB_ACCESSIBILITY_TOTAL_XP}
+        totalXP={CSS_MODERN_FEATURES_TOTAL_XP}
       />
     </div>
   );

@@ -26,7 +26,11 @@ import { formatRubyOutput, getRubyRuntimeError, runRubyCode } from "./runRuby";
 import { formatPhpOutput, getPhpRuntimeError, runPhpCode } from "./runPhp";
 import { formatGoOutput, getGoRuntimeError, runGoCode } from "./runGo";
 import { formatSqlOutput, getSqlRuntimeError, runSqlCode } from "./runSql";
-import { runHTML, runCSS } from "../../playground/services/BrowserExecutor";
+import {
+  runHTML,
+  runCSS,
+  runSCSS,
+} from "../../playground/services/BrowserExecutor";
 
 function normalizeLang(lang = "python") {
   const value = lang.toLowerCase();
@@ -46,6 +50,7 @@ function monacoLanguage(lang) {
   if (lang === "javascript") return "javascript";
   if (lang === "html") return "html";
   if (lang === "css") return "css";
+  if (lang === "scss") return "scss";
   if (lang === "csharp") return "csharp";
   if (lang === "ruby") return "ruby";
   if (lang === "php") return "php";
@@ -55,7 +60,7 @@ function monacoLanguage(lang) {
   return "python";
 }
 
-async function executeTheoryCode(source, lang) {
+async function executeTheoryCode(source, lang, block = {}) {
   if (lang === "cpp") {
     return runCppCode(source);
   }
@@ -76,6 +81,12 @@ async function executeTheoryCode(source, lang) {
       result,
       runtime: "preview",
       previewHTML: result?.previewHTML || null,
+    };
+  }
+  if (lang === "scss") {
+    return {
+      result: await runSCSS(source, { modules: block.modules }),
+      runtime: "browser",
     };
   }
   if (lang === "csharp") {
@@ -122,6 +133,11 @@ function formatTheoryOutput(result, lang) {
   if (lang === "html" || lang === "css") {
     return result?.error || result?.stderr || "Preview ready.";
   }
+  if (lang === "scss") {
+    const notes = (result?.warnings || []).join("\n");
+    const css = result?.stdout || "/* No CSS output. */";
+    return notes ? `${notes}\n\n${css}` : css;
+  }
   if (lang === "cpp") return formatCppOutput(result);
   if (lang === "javascript") return formatJavaScriptOutput(result);
   if (lang === "csharp") return formatCsharpOutput(result);
@@ -134,7 +150,7 @@ function formatTheoryOutput(result, lang) {
 }
 
 function getTheoryRuntimeError(result, lang) {
-  if (lang === "html" || lang === "css") {
+  if (lang === "html" || lang === "css" || lang === "scss") {
     return result?.error || result?.stderr || "";
   }
   if (lang === "cpp") return getCppRuntimeError(result);
@@ -206,7 +222,7 @@ export default function RunnableCodeBlock({
         result,
         runtime,
         previewHTML: htmlPreview,
-      } = await executeTheoryCode(code, lang);
+      } = await executeTheoryCode(code, lang, block);
       const runtimeError = getTheoryRuntimeError(result, lang);
 
       if (runtimeError) {
