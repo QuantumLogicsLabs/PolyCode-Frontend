@@ -1,5 +1,5 @@
 // PolyCode — C# Collections Interactive Course
-// 3 chapters · 7 lessons · Browser sandbox validation
+// 6 chapters · 13 lessons · Browser sandbox validation
 // Follows the exact same content shape as csharp-oop/data/csharpOopCurriculum.js
 
 const ACCENT = "#179c24"; // Distinct .NET Green branding color
@@ -160,7 +160,7 @@ Console.WriteLine(names[0]);    // Bob`,
           ]),
           callout(
             "tip",
-            "`List<T>` is generic — `T` is a placeholder for the element type. `List<int>`, `List<string>`, and `List<Car>` are all valid.",
+            "`List<T>` is generic — `T` is a stand-in for the element type. `List<int>`, `List<string>`, and `List<Car>` are all valid.",
           ),
           quiz(
             "Which method removes an element by value from a `List<T>`?",
@@ -655,6 +655,740 @@ class Program {
               id: 3,
               label: "Prints visitors.Count",
               keywords: [{ pattern: "visitors\\.Count" }],
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: "sorting-comparers",
+    title: "Sorting & Comparers",
+    icon: "🔠",
+    color: ACCENT,
+    lessons: [
+      {
+        id: "cs-col-7",
+        title: "Sorting Lists & IComparable<T>",
+        xp: 14,
+        theory: [
+          text(
+            "`List<T>.Sort()` orders a collection **in place** — it rearranges the existing list rather than returning a new one. For built-in types like `int` and `string`, C# already knows the natural order.",
+            {
+              label: "Sorting built-in types",
+              content: `List<int> scores = new List<int> { 42, 7, 19 };
+scores.Sort();
+Console.WriteLine(scores[0]);   // 7
+
+List<string> names = new List<string> { "Zara", "Ali", "Maryam" };
+names.Sort();
+Console.WriteLine(names[0]);    // Ali`,
+            },
+          ),
+          text(
+            "Try that with a class you wrote and it throws at runtime — C# has no idea whether one `Student` comes before another. You teach it by implementing **`IComparable<T>`** and its single method, `CompareTo`.",
+            {
+              label: "Making a class sortable",
+              content: `class Student : IComparable<Student> {
+    public string Name { get; set; }
+    public int Grade { get; set; }
+
+    public int CompareTo(Student other) {
+        return Grade.CompareTo(other.Grade);
+    }
+}
+
+List<Student> students = new List<Student> {
+    new Student { Name = "Ali", Grade = 80 },
+    new Student { Name = "Sara", Grade = 65 }
+};
+
+students.Sort();
+Console.WriteLine(students[0].Name);  // Sara`,
+            },
+          ),
+          text(
+            "`CompareTo` returns a number, not a boolean: **negative** means \"I come first\", **zero** means \"we tie\", **positive** means \"I come after\". You rarely compute it by hand — delegate to the `CompareTo` of the field you are ordering by.",
+          ),
+          callout(
+            "tip",
+            "To reverse the order, flip the call: `other.Grade.CompareTo(Grade)`. Calling `List.Reverse()` after sorting works too, but it costs a second pass.",
+          ),
+          quiz(
+            "What must `CompareTo` return when the current object should appear *before* the one passed in?",
+            [
+              "true",
+              "A negative number",
+              "A positive number",
+              "Zero",
+            ],
+            1,
+            "Sorting methods read the sign: negative means the current instance sorts first, zero means equal, positive means it sorts later.",
+          ),
+        ],
+        challenge: {
+          title: "Sort Students by Grade",
+          description:
+            "Make `Student` implement `IComparable<Student>` so that `CompareTo` orders students by `Grade` (lowest first). Then call `students.Sort()` and print the `Name` of the first student.",
+          starterCode: `using System;
+using System.Collections.Generic;
+
+class Student {
+    public string Name { get; set; }
+    public int Grade { get; set; }
+
+    // Implement IComparable<Student> and CompareTo here
+
+}
+
+class Program {
+    static void Main() {
+        List<Student> students = new List<Student> {
+            new Student { Name = "Ali", Grade = 80 },
+            new Student { Name = "Sara", Grade = 65 }
+        };
+
+        // Sort and print the first name
+
+    }
+}`,
+          solutionCode: `using System;
+using System.Collections.Generic;
+
+class Student : IComparable<Student> {
+    public string Name { get; set; }
+    public int Grade { get; set; }
+
+    public int CompareTo(Student other) {
+        return Grade.CompareTo(other.Grade);
+    }
+}
+
+class Program {
+    static void Main() {
+        List<Student> students = new List<Student> {
+            new Student { Name = "Ali", Grade = 80 },
+            new Student { Name = "Sara", Grade = 65 }
+        };
+
+        students.Sort();
+        Console.WriteLine(students[0].Name);
+    }
+}`,
+          tests: [
+            {
+              id: 1,
+              label: "Student implements IComparable<Student>",
+              keywords: [{ pattern: "Student\\s*:\\s*IComparable\\s*<\\s*Student\\s*>" }],
+            },
+            {
+              id: 2,
+              label: "Defines CompareTo using Grade",
+              keywords: [{ pattern: "CompareTo" }, { pattern: "Grade" }],
+            },
+            {
+              id: 3,
+              label: "Sorts the list and prints a name",
+              keywords: [{ pattern: "students\\.Sort\\s*\\(" }],
+            },
+          ],
+        },
+      },
+      {
+        id: "cs-col-8",
+        title: "Custom Comparers & Comparison Delegates",
+        xp: 15,
+        theory: [
+          text(
+            "`IComparable<T>` gives a type **one** built-in order. Real data needs several — students by grade today, by name tomorrow. For that, you pass the ordering *into* `Sort()` instead of baking it into the class.",
+            {
+              label: "A Comparison<T> lambda",
+              content: `List<Student> students = GetStudents();
+
+// Order by name
+students.Sort((a, b) => a.Name.CompareTo(b.Name));
+
+// Order by grade, highest first
+students.Sort((a, b) => b.Grade.CompareTo(a.Grade));`,
+            },
+          ),
+          text(
+            "The lambda is a **`Comparison<T>` delegate** — it takes two items and returns the same negative/zero/positive signal as `CompareTo`. Swapping `a` and `b` reverses the direction, which is the whole trick behind descending sorts.",
+          ),
+          text(
+            "When the same ordering is reused across a codebase, wrap it in a reusable **`IComparer<T>`** class instead of repeating the lambda.",
+            {
+              label: "A reusable IComparer<T>",
+              content: `class GradeDescending : IComparer<Student> {
+    public int Compare(Student a, Student b) {
+        return b.Grade.CompareTo(a.Grade);
+    }
+}
+
+students.Sort(new GradeDescending());`,
+            },
+          ),
+          text(
+            "Comparers are not only for sorting. `Dictionary` and `HashSet` accept one to control how keys are matched — `StringComparer.OrdinalIgnoreCase` is the common case.",
+            {
+              label: "Case-insensitive keys",
+              content: `var settings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+settings["Theme"] = "dark";
+Console.WriteLine(settings["theme"]);  // dark`,
+            },
+          ),
+          callout(
+            "info",
+            "`IComparable<T>` answers \"how does this type sort by default?\" — `IComparer<T>` answers \"how do I want to sort it right now?\" Use the first for a natural order, the second for everything else.",
+          ),
+          quiz(
+            "How do you turn `(a, b) => a.Grade.CompareTo(b.Grade)` into a descending sort?",
+            [
+              "Add .Reverse() inside the lambda",
+              "Swap the operands: b.Grade.CompareTo(a.Grade)",
+              "Return the negative of true",
+              "Descending sorts need IComparer",
+            ],
+            1,
+            "Swapping the two operands flips the sign the comparison returns, which reverses the resulting order — no extra pass needed.",
+          ),
+        ],
+        challenge: {
+          title: "Sort Names by Length",
+          description:
+            "Given a `List<string>` of names, call `Sort` with a comparison lambda that orders them by `Length`, shortest first, then print the first name in the sorted list.",
+          starterCode: `using System;
+using System.Collections.Generic;
+
+class Program {
+    static void Main() {
+        List<string> names = new List<string> { "Maryam", "Ali", "Zainab" };
+
+        // Sort by length using a comparison lambda
+
+
+        // Print the shortest name
+
+    }
+}`,
+          solutionCode: `using System;
+using System.Collections.Generic;
+
+class Program {
+    static void Main() {
+        List<string> names = new List<string> { "Maryam", "Ali", "Zainab" };
+
+        names.Sort((a, b) => a.Length.CompareTo(b.Length));
+
+        Console.WriteLine(names[0]);
+    }
+}`,
+          tests: [
+            {
+              id: 1,
+              label: "Sorts with a comparison lambda",
+              keywords: [{ pattern: "names\\.Sort\\s*\\(\\s*\\(" }],
+            },
+            {
+              id: 2,
+              label: "Compares by Length",
+              keywords: [{ pattern: "Length\\.CompareTo" }],
+            },
+            {
+              id: 3,
+              label: "Prints the first name",
+              keywords: [{ pattern: "names\\[0\\]" }],
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: "nested-collections",
+    title: "Nested & Multidimensional Collections",
+    icon: "🧮",
+    color: ACCENT,
+    lessons: [
+      {
+        id: "cs-col-9",
+        title: "2D & Jagged Arrays",
+        xp: 14,
+        theory: [
+          text(
+            "A **rectangular array** stores a grid in a single block of memory. You declare it with a comma inside the brackets and index it with two numbers: row first, then column.",
+            {
+              label: "A 2D array",
+              content: `int[,] grid = new int[2, 3];   // 2 rows, 3 columns
+grid[0, 0] = 1;
+grid[1, 2] = 9;
+
+Console.WriteLine(grid[1, 2]);        // 9
+Console.WriteLine(grid.GetLength(0)); // 2 — rows
+Console.WriteLine(grid.GetLength(1)); // 3 — columns`,
+            },
+          ),
+          text(
+            "`Length` on a 2D array gives the **total** number of cells, not the row count — that is what `GetLength(0)` and `GetLength(1)` are for. Nested `for` loops are the standard way to walk a grid.",
+            {
+              label: "Walking every cell",
+              content: `int[,] grid = { { 1, 2, 3 }, { 4, 5, 6 } };
+int total = 0;
+
+for (int row = 0; row < grid.GetLength(0); row++) {
+    for (int col = 0; col < grid.GetLength(1); col++) {
+        total += grid[row, col];
+    }
+}
+
+Console.WriteLine(total);  // 21`,
+            },
+          ),
+          text(
+            "A **jagged array** is an array *of arrays*, written `int[][]`. Each row is its own object, so rows can have different lengths — useful for ragged data like a list of scores per student.",
+            {
+              label: "Rows of different lengths",
+              content: `int[][] scores = new int[2][];
+scores[0] = new int[] { 90, 85 };
+scores[1] = new int[] { 70, 75, 80 };
+
+Console.WriteLine(scores[1][2]);      // 80
+Console.WriteLine(scores[1].Length);  // 3`,
+            },
+          ),
+          callout(
+            "info",
+            "Note the indexing difference: rectangular arrays use `grid[row, col]`, jagged arrays use `scores[row][col]`. Mixing the two up is the most common compile error here.",
+          ),
+          quiz(
+            "For `int[,] grid = new int[4, 5];`, what does `grid.Length` return?",
+            ["4", "5", "20", "It does not compile"],
+            2,
+            "Length counts every cell in the array — 4 rows × 5 columns = 20. Use GetLength(0) and GetLength(1) for the individual dimensions.",
+          ),
+        ],
+        challenge: {
+          title: "Sum a Grid",
+          description:
+            "Create an `int[,]` named `grid` holding `{ { 1, 2, 3 }, { 4, 5, 6 } }`. Use nested `for` loops with `GetLength` to add every cell into a `total`, then print it.",
+          starterCode: `using System;
+
+class Program {
+    static void Main() {
+        // Declare the 2D grid
+
+
+        int total = 0;
+
+        // Loop over every cell with nested for loops
+
+
+        Console.WriteLine(total);
+    }
+}`,
+          solutionCode: `using System;
+
+class Program {
+    static void Main() {
+        int[,] grid = { { 1, 2, 3 }, { 4, 5, 6 } };
+
+        int total = 0;
+
+        for (int row = 0; row < grid.GetLength(0); row++) {
+            for (int col = 0; col < grid.GetLength(1); col++) {
+                total += grid[row, col];
+            }
+        }
+
+        Console.WriteLine(total);
+    }
+}`,
+          tests: [
+            {
+              id: 1,
+              label: "Declares a 2D int array",
+              keywords: [{ pattern: "int\\[\\s*,\\s*\\]" }],
+            },
+            {
+              id: 2,
+              label: "Uses GetLength for both dimensions",
+              keywords: [
+                { pattern: "GetLength\\s*\\(\\s*0\\s*\\)" },
+                { pattern: "GetLength\\s*\\(\\s*1\\s*\\)" },
+              ],
+            },
+            {
+              id: 3,
+              label: "Accumulates into total",
+              keywords: [{ pattern: "total\\s*\\+=" }],
+            },
+          ],
+        },
+      },
+      {
+        id: "cs-col-10",
+        title: "Collections Inside Collections",
+        xp: 15,
+        theory: [
+          text(
+            "Any collection can hold another collection. A `List<List<int>>` is a resizable grid where each row can grow independently — the flexible cousin of the jagged array.",
+            {
+              label: "A list of lists",
+              content: `List<List<int>> rows = new List<List<int>>();
+rows.Add(new List<int> { 1, 2 });
+rows.Add(new List<int> { 3, 4, 5 });
+
+rows[0].Add(99);
+
+Console.WriteLine(rows[0].Count);  // 3
+Console.WriteLine(rows[1][2]);     // 5`,
+            },
+          ),
+          text(
+            "The pattern you will reach for most often is a dictionary whose values are lists — one key, many items. Grouping members by team, orders by customer, or log lines by date all look like this.",
+            {
+              label: "Dictionary of lists",
+              content: `var teams = new Dictionary<string, List<string>>();
+
+teams["Backend"] = new List<string>();
+teams["Backend"].Add("Ali");
+teams["Backend"].Add("Sara");
+
+Console.WriteLine(teams["Backend"].Count);  // 2`,
+            },
+          ),
+          text(
+            "The trap: the inner list does not exist until you create it. Calling `teams[\"Frontend\"].Add(...)` on a key you never initialised throws `KeyNotFoundException`. Check for the key first and create the list on demand.",
+            {
+              label: "Safe add-to-group",
+              content: `void AddMember(Dictionary<string, List<string>> teams, string team, string person) {
+    if (!teams.ContainsKey(team)) {
+        teams[team] = new List<string>();
+    }
+    teams[team].Add(person);
+}`,
+            },
+          ),
+          callout(
+            "warning",
+            "`teams[\"X\"]` on a missing key throws, while `teams[\"X\"] = value` creates it. Reading and writing behave differently — use `ContainsKey` or `TryGetValue` before you read.",
+          ),
+          quiz(
+            "What happens when you call `teams[\"Frontend\"].Add(\"Ali\")` and the key \"Frontend\" was never added?",
+            [
+              "The key is created automatically",
+              "It throws KeyNotFoundException",
+              "It returns null and does nothing",
+              "It adds to the first team instead",
+            ],
+            1,
+            "Reading a missing key with the indexer throws KeyNotFoundException. Initialise the inner list first, typically after a ContainsKey check.",
+          ),
+        ],
+        challenge: {
+          title: "Group Members by Team",
+          description:
+            "Create a `Dictionary<string, List<string>>` named `teams`. Initialise a `\"Backend\"` key with a new list, add `\"Ali\"` and `\"Sara\"` to it, then print the number of members on that team.",
+          starterCode: `using System;
+using System.Collections.Generic;
+
+class Program {
+    static void Main() {
+        // Create the dictionary of lists
+
+
+        // Initialise the Backend list and add two members
+
+
+        // Print the member count
+
+    }
+}`,
+          solutionCode: `using System;
+using System.Collections.Generic;
+
+class Program {
+    static void Main() {
+        Dictionary<string, List<string>> teams = new Dictionary<string, List<string>>();
+
+        teams["Backend"] = new List<string>();
+        teams["Backend"].Add("Ali");
+        teams["Backend"].Add("Sara");
+
+        Console.WriteLine(teams["Backend"].Count);
+    }
+}`,
+          tests: [
+            {
+              id: 1,
+              label: "Declares a dictionary of lists",
+              keywords: [
+                { pattern: "Dictionary\\s*<\\s*string\\s*,\\s*List\\s*<\\s*string\\s*>\\s*>" },
+              ],
+            },
+            {
+              id: 2,
+              label: "Initialises the inner list",
+              keywords: [{ pattern: "new\\s+List\\s*<\\s*string\\s*>" }],
+            },
+            {
+              id: 3,
+              label: "Prints the member count",
+              keywords: [{ pattern: "\\.Count" }],
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: "collection-interfaces",
+    title: "Collection Interfaces & Custom Iteration",
+    icon: "🔌",
+    color: ACCENT,
+    lessons: [
+      {
+        id: "cs-col-11",
+        title: "IEnumerable<T>, ICollection<T> & IList<T>",
+        xp: 15,
+        theory: [
+          text(
+            "Every collection in C# implements a stack of interfaces, each adding capability to the one below it. Knowing the layers tells you exactly how much power a method really needs.",
+          ),
+          diagram("The collection interface layers", [
+            {
+              id: "ienumerable",
+              label: "IEnumerable<T>",
+              color: "#f59e0b",
+              items: ["foreach only", "Weakest, most flexible"],
+            },
+            {
+              id: "icollection",
+              label: "ICollection<T>",
+              color: ACCENT,
+              items: ["Adds Count, Add, Remove", "No indexing"],
+            },
+            {
+              id: "ilist",
+              label: "IList<T>",
+              color: "#3b82f6",
+              items: ["Adds list[i] indexing", "Full random access"],
+            },
+          ]),
+          text(
+            "`List<T>` implements all three, but a method that only loops should ask for the weakest one. Accepting `IEnumerable<T>` means arrays, lists, sets, and query results all work — accepting `List<T>` shuts most of them out.",
+            {
+              label: "Program to the interface",
+              content: `// Works with List, array, HashSet, anything enumerable
+static int Total(IEnumerable<int> numbers) {
+    int sum = 0;
+    foreach (int n in numbers) {
+        sum += n;
+    }
+    return sum;
+}
+
+Console.WriteLine(Total(new List<int> { 1, 2, 3 }));
+Console.WriteLine(Total(new int[] { 4, 5 }));
+Console.WriteLine(Total(new HashSet<int> { 6 }));`,
+            },
+          ),
+          text(
+            "The same idea applies to what you return. Handing back `IReadOnlyList<T>` instead of `List<T>` lets callers read and index your data without quietly adding to or clearing the collection you own.",
+          ),
+          callout(
+            "tip",
+            "The rule of thumb: **accept the weakest interface you can work with, return the weakest one the caller needs.** It widens what your code accepts and narrows what callers can break.",
+          ),
+          quiz(
+            "A method only needs to `foreach` over its argument. Which parameter type is the best choice?",
+            [
+              "List<T> — it is the most common",
+              "IEnumerable<T>",
+              "IList<T>",
+              "Array, so it cannot be modified",
+            ],
+            1,
+            "IEnumerable<T> is all a foreach requires, and accepting it lets callers pass lists, arrays, sets, or any other sequence.",
+          ),
+        ],
+        challenge: {
+          title: "Total Any Sequence",
+          description:
+            "Write a `static int Total(IEnumerable<int> numbers)` method that adds every value with a `foreach` loop and returns the sum. Call it once with a `List<int>` and once with an `int[]`, printing both results.",
+          starterCode: `using System;
+using System.Collections.Generic;
+
+class Program {
+    // Write Total(IEnumerable<int> numbers) here
+
+
+    static void Main() {
+        // Call Total with a List<int> and with an int[]
+
+    }
+}`,
+          solutionCode: `using System;
+using System.Collections.Generic;
+
+class Program {
+    static int Total(IEnumerable<int> numbers) {
+        int sum = 0;
+        foreach (int n in numbers) {
+            sum += n;
+        }
+        return sum;
+    }
+
+    static void Main() {
+        Console.WriteLine(Total(new List<int> { 1, 2, 3 }));
+        Console.WriteLine(Total(new int[] { 4, 5 }));
+    }
+}`,
+          tests: [
+            {
+              id: 1,
+              label: "Accepts IEnumerable<int>",
+              keywords: [{ pattern: "IEnumerable\\s*<\\s*int\\s*>" }],
+            },
+            {
+              id: 2,
+              label: "Sums with a foreach loop",
+              keywords: [{ pattern: "foreach" }, { pattern: "sum\\s*\\+=" }],
+            },
+            {
+              id: 3,
+              label: "Calls Total with two different sequence types",
+              keywords: [
+                { pattern: "Total\\s*\\(\\s*new\\s+List" },
+                { pattern: "Total\\s*\\(\\s*new\\s+int\\[" },
+              ],
+            },
+          ],
+        },
+      },
+      {
+        id: "cs-col-12",
+        title: "Writing Iterators with yield return",
+        xp: 16,
+        theory: [
+          text(
+            "You can produce a sequence without ever building a list to hold it. A method that returns `IEnumerable<T>` and uses **`yield return`** hands back one value at a time, resuming where it left off on each pass of the caller's `foreach`.",
+            {
+              label: "An iterator method",
+              content: `static IEnumerable<int> EvenOnly(List<int> numbers) {
+    foreach (int n in numbers) {
+        if (n % 2 == 0) {
+            yield return n;
+        }
+    }
+}
+
+foreach (int even in EvenOnly(new List<int> { 1, 2, 3, 4 })) {
+    Console.WriteLine(even);   // 2, then 4
+}`,
+            },
+          ),
+          text(
+            "Compare that with the manual version: build a `List<int>`, add matches, return it. The iterator never allocates that list — values are produced on demand, so a caller that stops after the first match never pays for the rest.",
+          ),
+          text(
+            "This on-demand behaviour is called **deferred execution**. The body of an iterator does not run when you call it — it runs when something starts iterating the result.",
+            {
+              label: "Nothing runs until you loop",
+              content: `var evens = EvenOnly(numbers);   // body has NOT run yet
+Console.WriteLine("created");
+
+foreach (int n in evens) {       // body starts running now
+    Console.WriteLine(n);
+}`,
+            },
+          ),
+          text(
+            "`yield break` ends the sequence early — useful for taking the first few items of something long or endless.",
+            {
+              label: "Stopping early with yield break",
+              content: `static IEnumerable<int> FirstThree(List<int> numbers) {
+    int count = 0;
+    foreach (int n in numbers) {
+        if (count == 3) {
+            yield break;
+        }
+        yield return n;
+        count++;
+    }
+}`,
+            },
+          ),
+          callout(
+            "warning",
+            "Deferred execution means the sequence is re-evaluated every time you loop it. If the underlying collection changed in between, you get different results — call `ToList()` when you need a fixed snapshot.",
+          ),
+          quiz(
+            "When does the body of a `yield return` iterator method actually execute?",
+            [
+              "Immediately when the method is called",
+              "When something starts iterating the returned sequence",
+              "Once per program run, cached",
+              "Only if the collection is a List<T>",
+            ],
+            1,
+            "Iterator methods use deferred execution — calling the method just creates the sequence, and the body runs as the caller iterates it.",
+          ),
+        ],
+        challenge: {
+          title: "Yield the Even Numbers",
+          description:
+            "Write a `static IEnumerable<int> EvenOnly(List<int> numbers)` method that uses `yield return` to produce only the even values. Loop over the result in `Main` and print each one.",
+          starterCode: `using System;
+using System.Collections.Generic;
+
+class Program {
+    // Write the EvenOnly iterator here
+
+
+    static void Main() {
+        List<int> numbers = new List<int> { 1, 2, 3, 4 };
+
+        // foreach over EvenOnly(numbers) and print each value
+
+    }
+}`,
+          solutionCode: `using System;
+using System.Collections.Generic;
+
+class Program {
+    static IEnumerable<int> EvenOnly(List<int> numbers) {
+        foreach (int n in numbers) {
+            if (n % 2 == 0) {
+                yield return n;
+            }
+        }
+    }
+
+    static void Main() {
+        List<int> numbers = new List<int> { 1, 2, 3, 4 };
+
+        foreach (int even in EvenOnly(numbers)) {
+            Console.WriteLine(even);
+        }
+    }
+}`,
+          tests: [
+            {
+              id: 1,
+              label: "Returns IEnumerable<int>",
+              keywords: [{ pattern: "IEnumerable\\s*<\\s*int\\s*>\\s+EvenOnly" }],
+            },
+            {
+              id: 2,
+              label: "Uses yield return",
+              keywords: [{ pattern: "yield\\s+return" }],
+            },
+            {
+              id: 3,
+              label: "Tests for even numbers and prints them",
+              keywords: [{ pattern: "%\\s*2\\s*==\\s*0" }, { pattern: "Console\\.WriteLine" }],
             },
           ],
         },
