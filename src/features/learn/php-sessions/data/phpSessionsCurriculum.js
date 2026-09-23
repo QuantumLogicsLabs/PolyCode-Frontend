@@ -1,5 +1,5 @@
 // PolyCode — PHP Sessions & Cookies interactive course
-// 4 chapters · 12 lessons · server/browser PHP challenges
+// 6 chapters · 18 lessons · server/browser PHP challenges
 // $_SESSION works normally via session_start() even in this sandbox.
 // Cookies are simulated by assigning directly into $_COOKIE (the same way
 // PHP Fundamentals/PHP Forms simulate $_GET/$_POST), since setcookie()'s
@@ -521,7 +521,7 @@ echo "Logged in with a fresh session ID";`,
         xp: 30,
         theory: [
           text(
-            "Final lesson: combine everything — verify credentials, regenerate the session ID, and store identity — into one complete, secure login handler.",
+            "Chapter capstone: combine everything so far — verify credentials, regenerate the session ID, and store identity — into one complete, secure login handler.",
             {
               label: "The full secure flow",
               content: `session_start();
@@ -559,6 +559,355 @@ if (isset($validUsers[$username]) && $validUsers[$username] === $password) {
             { id: 1, label: "Verifies credentials", keywords: [{ pattern: "\\$validUsers\\[" }] },
             { id: 2, label: "Regenerates session id", keywords: [{ pattern: "session_regenerate_id" }] },
             { id: 3, label: "Stores user_id", keywords: [{ pattern: "\\$_SESSION\\['user_id'\\]" }] },
+          ],
+        },
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // CHAPTER 5 — Session-Powered Features
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "session-powered-features",
+    title: "Session-Powered Features",
+    icon: "🛒",
+    color: "#10b981",
+    lessons: [
+      {
+        id: "sess-12",
+        title: "Flash Messages",
+        xp: 20,
+        theory: [
+          text(
+            "A **flash message** is a one-time notice — \"Profile saved\", \"Wrong password\" — that must survive exactly one redirect and then disappear. Store it in the session when the action happens, and on the next page **read it and remove it in the same step**, so a refresh doesn't show it again. It pairs naturally with Post/Redirect/Get.",
+            {
+              label: "Set once, show once",
+              content: `session_start();
+
+function flash(string $message): void {
+    $_SESSION['flash'] = $message;
+}
+
+function takeFlash(): ?string {
+    $message = $_SESSION['flash'] ?? null;
+    unset($_SESSION['flash']); // gone after the first read
+    return $message;
+}
+
+flash("Profile saved");          // during the POST, before redirecting
+echo takeFlash() ?? "(none)";    // next page: Profile saved
+echo "\\n";
+echo takeFlash() ?? "(none)";    // refresh: (none)`,
+            },
+          ),
+          quiz(
+            "Why does takeFlash() unset the message as soon as it reads it?",
+            [
+              "Sessions can only hold one value at a time",
+              "So the message appears on exactly one page view and not again on refresh or later pages",
+              "unset() is required before echo",
+              "To regenerate the session ID",
+            ],
+            1,
+            "A flash message is meant to be seen once. Reading and removing it together guarantees the next page load finds nothing, so the notice never repeats.",
+          ),
+        ],
+        challenge: {
+          title: "Build a One-Time Notice",
+          description: "Complete takeFlash(): read $_SESSION['flash'] (null if missing), unset it, and return it. The script sets a flash, then echoes takeFlash() twice using \"(none)\" as the fallback.",
+          starterCode: `${PHP_MAIN}session_start();\n$_SESSION['flash'] = "Order placed";\n\nfunction takeFlash(): ?string {\n    // read, remove, return\n\n}\n\necho (takeFlash() ?? "(none)") . "\\n";\necho takeFlash() ?? "(none)";`,
+          solutionCode: `${PHP_MAIN}session_start();\n$_SESSION['flash'] = "Order placed";\n\nfunction takeFlash(): ?string {\n    $message = $_SESSION['flash'] ?? null;\n    unset($_SESSION['flash']);\n    return $message;\n}\n\necho (takeFlash() ?? "(none)") . "\\n";\necho takeFlash() ?? "(none)";`,
+          tests: [
+            { id: 1, label: "Reads the flash with a null fallback", keywords: [{ pattern: "\\$_SESSION\\['flash'\\]\\s*\\?\\?\\s*null" }] },
+            { id: 2, label: "Removes it with unset()", keywords: [{ pattern: "unset\\s*\\(\\s*\\$_SESSION\\['flash'\\]\\s*\\)" }] },
+          ],
+        },
+      },
+      {
+        id: "sess-13",
+        title: "A Session Shopping Cart",
+        xp: 25,
+        theory: [
+          text(
+            "Sessions are ideal for state that belongs to one visitor but doesn't need a database yet — a shopping cart is the classic example. Store the cart as an array of **product id => quantity**, so adding the same product twice increases the quantity instead of creating a duplicate line. Keep prices on the server and look them up when totalling: never trust a price posted by the browser.",
+            {
+              label: "Cart helpers",
+              content: `session_start();
+$_SESSION['cart'] ??= [];
+
+function addToCart(int $productId, int $qty = 1): void {
+    $_SESSION['cart'][$productId] = ($_SESSION['cart'][$productId] ?? 0) + $qty;
+}
+
+function removeFromCart(int $productId): void {
+    unset($_SESSION['cart'][$productId]);
+}
+
+$prices = [1 => 4.50, 2 => 12.00]; // looked up server-side
+
+addToCart(1);
+addToCart(1);
+addToCart(2);
+
+$total = 0;
+foreach ($_SESSION['cart'] as $id => $qty) {
+    $total += $prices[$id] * $qty;
+}
+echo $total; // 21`,
+            },
+          ),
+          callout("warning", "Session data lives on the server, but a real shop should still re-check stock and prices at checkout — a cart built an hour ago may be out of date."),
+          quiz(
+            "Why store the cart as [productId => quantity] instead of a list of product ids?",
+            [
+              "PHP sessions can't store lists",
+              "Adding the same product again just increases its quantity, and each product appears once",
+              "It makes the session cookie smaller",
+              "Lists can't be counted",
+            ],
+            1,
+            "Keying by product id gives one entry per product. Adding again updates the quantity, and removing a product is a single unset() on its key.",
+          ),
+        ],
+        challenge: {
+          title: "Add to the Cart and Total It",
+          description: "Complete addToCart() so it increases the quantity for an existing product id (starting from 0). Then loop over $_SESSION['cart'], multiply each quantity by $prices[$id], and echo the total.",
+          starterCode: `${PHP_MAIN}session_start();\n$_SESSION['cart'] = [];\n$prices = [10 => 3.00, 20 => 5.00];\n\nfunction addToCart(int $productId, int $qty = 1): void {\n    // increase the quantity for this product\n\n}\n\naddToCart(10);\naddToCart(10);\naddToCart(20, 3);\n\n// total the cart and echo it`,
+          solutionCode: `${PHP_MAIN}session_start();\n$_SESSION['cart'] = [];\n$prices = [10 => 3.00, 20 => 5.00];\n\nfunction addToCart(int $productId, int $qty = 1): void {\n    $_SESSION['cart'][$productId] = ($_SESSION['cart'][$productId] ?? 0) + $qty;\n}\n\naddToCart(10);\naddToCart(10);\naddToCart(20, 3);\n\n$total = 0;\nforeach ($_SESSION['cart'] as $id => $qty) {\n    $total += $prices[$id] * $qty;\n}\necho $total;`,
+          tests: [
+            { id: 1, label: "Updates the quantity for that product", keywords: [{ pattern: "\\$_SESSION\\['cart'\\]\\[\\$productId\\]\\s*(=|\\+=)" }] },
+            { id: 2, label: "Loops over the cart by id and quantity", keywords: [{ pattern: "foreach\\s*\\(\\s*\\$_SESSION\\['cart'\\]\\s+as\\s+\\$\\w+\\s*=>\\s*\\$\\w+" }] },
+            { id: 3, label: "Uses server-side prices", keywords: [{ pattern: "\\$prices\\[\\$\\w+\\]" }] },
+          ],
+        },
+      },
+      {
+        id: "sess-14",
+        title: "Idle Timeouts & Absolute Expiry",
+        xp: 25,
+        theory: [
+          text(
+            "A session shouldn't live forever. An **idle timeout** logs the user out after a period of inactivity: store the time of the last request, and on each request compare it with the current time. An **absolute limit** caps the total session age even for someone who stays active. When either is exceeded, clear and destroy the session.",
+            {
+              label: "Enforcing both limits",
+              content: `session_start();
+
+const IDLE_LIMIT = 30 * 60;          // 30 minutes
+const ABSOLUTE_LIMIT = 8 * 60 * 60;  // 8 hours
+
+function sessionExpired(int $now): bool {
+    $idle = $now - ($_SESSION['last_activity'] ?? $now);
+    $age  = $now - ($_SESSION['created_at'] ?? $now);
+    return $idle > IDLE_LIMIT || $age > ABSOLUTE_LIMIT;
+}
+
+$now = time();
+$_SESSION['created_at'] = $now - 3600;    // logged in an hour ago
+$_SESSION['last_activity'] = $now - 2400; // idle for 40 minutes
+
+if (sessionExpired($now)) {
+    session_unset();
+    session_destroy();
+    echo "Session expired, please log in again";
+} else {
+    $_SESSION['last_activity'] = $now; // refresh on every request
+}`,
+            },
+          ),
+          diagram("Two clocks", [
+            { id: "idle", label: "Idle timeout", color: "#10b981", items: ["Resets on every request", "Catches abandoned tabs"] },
+            { id: "absolute", label: "Absolute limit", color: "#8b5cf6", items: ["Never resets", "Caps a stolen session's lifetime"] },
+          ]),
+          quiz(
+            "Why keep an absolute limit as well as an idle timeout?",
+            [
+              "Idle timeouts don't work in PHP",
+              "An attacker using a stolen session can keep it active forever; an absolute limit ends it regardless of activity",
+              "It makes sessions start faster",
+              "Browsers require both",
+            ],
+            1,
+            "Activity keeps resetting the idle clock, so on its own it can be kept alive indefinitely. The absolute limit is measured from login and never resets.",
+          ),
+        ],
+        challenge: {
+          title: "Check for an Idle Timeout",
+          description: "With an idle limit of 1800 seconds, compute how long the session has been idle ($now minus $_SESSION['last_activity']). If it exceeds the limit echo \"expired\"; otherwise update last_activity to $now and echo \"active\".",
+          starterCode: `${PHP_MAIN}session_start();\n$now = 1700000000;\n$_SESSION['last_activity'] = $now - 1900;\n$idleLimit = 1800;\n\n// compare the idle time with $idleLimit`,
+          solutionCode: `${PHP_MAIN}session_start();\n$now = 1700000000;\n$_SESSION['last_activity'] = $now - 1900;\n$idleLimit = 1800;\n\n$idle = $now - $_SESSION['last_activity'];\nif ($idle > $idleLimit) {\n    echo "expired";\n} else {\n    $_SESSION['last_activity'] = $now;\n    echo "active";\n}`,
+          tests: [
+            { id: 1, label: "Computes the idle time", keywords: [{ pattern: "\\$now\\s*-\\s*\\$_SESSION\\['last_activity'\\]" }] },
+            { id: 2, label: "Compares with the limit", keywords: [{ pattern: ">\\s*\\$idleLimit" }] },
+            { id: 3, label: "Refreshes last_activity when active", keywords: [{ pattern: "\\$_SESSION\\['last_activity'\\]\\s*=\\s*\\$now\\s*;" }] },
+          ],
+        },
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // CHAPTER 6 — Hardening Authentication
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "hardening-authentication",
+    title: "Hardening Authentication",
+    icon: "🧱",
+    color: "#ec4899",
+    lessons: [
+      {
+        id: "sess-15",
+        title: "Hashing Passwords with password_hash()",
+        xp: 25,
+        theory: [
+          text(
+            "Earlier login lessons compared plaintext passwords to keep the focus on sessions. Real apps **never store the password itself**. `password_hash()` produces a salted, slow hash (bcrypt by default), and `password_verify()` checks a login attempt against it. The salt and algorithm are stored inside the hash string, so you save just that one value. `password_needs_rehash()` tells you when to upgrade an old hash after a successful login.",
+            {
+              label: "Hash on sign-up, verify on login",
+              content: `// Sign-up: store only the hash
+$hash = password_hash("correct horse", PASSWORD_DEFAULT);
+echo strlen($hash) >= 60 ? "stored a hash\\n" : "";
+
+// Login: verify the attempt
+var_dump(password_verify("correct horse", $hash)); // bool(true)
+var_dump(password_verify("wrong", $hash));         // bool(false)
+
+// Hashing the same password twice gives different strings (new salt)
+var_dump($hash === password_hash("correct horse", PASSWORD_DEFAULT)); // bool(false)`,
+            },
+          ),
+          callout("warning", "Never use md5() or sha1() for passwords — they're built to be fast, which makes guessing billions of passwords cheap. password_hash() is deliberately slow and salted."),
+          quiz(
+            "Why can't you check a login by hashing the attempt and comparing with ===?",
+            [
+              "=== doesn't work on long strings",
+              "Each hash includes its own random salt, so hashing the same password again gives a different string — password_verify() reads the salt from the stored hash",
+              "password_hash() returns an array",
+              "PHP forbids comparing hashes",
+            ],
+            1,
+            "password_hash() generates a new salt every call. password_verify() extracts the salt and algorithm from the stored hash, re-hashes the attempt the same way, and compares safely.",
+          ),
+        ],
+        challenge: {
+          title: "Verify a Hashed Password",
+          description: "Store the hash of \"s3cret!\" in $users['ada'] using password_hash() with PASSWORD_DEFAULT. Then use password_verify() to check the submitted password and echo \"Welcome, ada\" or \"Invalid credentials\".",
+          starterCode: `${PHP_MAIN}$users = [];\n// store a hash for ada's password "s3cret!"\n\n$_POST['username'] = 'ada';\n$_POST['password'] = 's3cret!';\n\n// verify the submitted password against the stored hash`,
+          solutionCode: `${PHP_MAIN}$users = [];\n$users['ada'] = password_hash("s3cret!", PASSWORD_DEFAULT);\n\n$_POST['username'] = 'ada';\n$_POST['password'] = 's3cret!';\n\n$username = $_POST['username'] ?? '';\n$hash = $users[$username] ?? null;\n\nif ($hash !== null && password_verify($_POST['password'] ?? '', $hash)) {\n    echo "Welcome, $username";\n} else {\n    echo "Invalid credentials";\n}`,
+          tests: [
+            { id: 1, label: "Hashes with password_hash()", keywords: [{ pattern: "password_hash\\s*\\([^)]*PASSWORD_DEFAULT" }] },
+            { id: 2, label: "Checks with password_verify()", keywords: [{ pattern: "password_verify\\s*\\(" }] },
+          ],
+        },
+      },
+      {
+        id: "sess-16",
+        title: "Throttling Login Attempts",
+        xp: 25,
+        theory: [
+          text(
+            "Without a limit, a bot can try thousands of passwords a minute. **Throttling** counts failed attempts per account and locks further tries for a while once a threshold is reached. The counter must live on the **server** — in a database table or cache keyed by username (and often IP) — because a bot can simply discard its session cookie to reset anything stored in `$_SESSION`.",
+            {
+              label: "Counting failures per account",
+              content: `const MAX_ATTEMPTS = 5;
+const LOCK_SECONDS = 15 * 60;
+
+// Stand-in for a database table: username => [count, lockedUntil]
+$attempts = ['ada' => ['count' => 5, 'lockedUntil' => time() + 600]];
+
+function isLocked(array $attempts, string $user, int $now): bool {
+    return ($attempts[$user]['lockedUntil'] ?? 0) > $now;
+}
+
+function recordFailure(array &$attempts, string $user, int $now): void {
+    $count = ($attempts[$user]['count'] ?? 0) + 1;
+    $attempts[$user] = [
+        'count' => $count,
+        'lockedUntil' => $count >= MAX_ATTEMPTS ? $now + LOCK_SECONDS : 0,
+    ];
+}
+
+echo isLocked($attempts, 'ada', time()) ? "Too many attempts, try later" : "OK to try";`,
+            },
+          ),
+          callout("info", "Reset the counter after a successful login, and show the same \"Invalid credentials\" message for a wrong username and a wrong password so attackers can't discover which accounts exist."),
+          quiz(
+            "Why is a failed-attempt counter stored only in $_SESSION a weak defence?",
+            [
+              "$_SESSION can't store integers",
+              "An attacker's script can drop the session cookie and get a fresh session with the counter back at zero",
+              "Sessions expire after one request",
+              "It's slower than a database",
+            ],
+            1,
+            "The session is tied to a cookie the client controls. Throttling has to be keyed by something the attacker can't reset — the target username, and often the IP address — and stored server-side.",
+          ),
+        ],
+        challenge: {
+          title: "Lock an Account After Failures",
+          description: "Complete recordFailure(): increase the count for $user (starting from 0) and set lockedUntil to $now + 900 once the count reaches 3, else 0. After three failures echo \"locked\" or \"open\" using isLocked().",
+          starterCode: `${PHP_MAIN}$attempts = [];\n$now = 1700000000;\n\nfunction isLocked(array $attempts, string $user, int $now): bool {\n    return ($attempts[$user]['lockedUntil'] ?? 0) > $now;\n}\n\nfunction recordFailure(array &$attempts, string $user, int $now): void {\n    // bump the count, lock for 900 seconds at 3 failures\n\n}\n\nrecordFailure($attempts, 'ada', $now);\nrecordFailure($attempts, 'ada', $now);\nrecordFailure($attempts, 'ada', $now);\necho isLocked($attempts, 'ada', $now) ? "locked" : "open";`,
+          solutionCode: `${PHP_MAIN}$attempts = [];\n$now = 1700000000;\n\nfunction isLocked(array $attempts, string $user, int $now): bool {\n    return ($attempts[$user]['lockedUntil'] ?? 0) > $now;\n}\n\nfunction recordFailure(array &$attempts, string $user, int $now): void {\n    $count = ($attempts[$user]['count'] ?? 0) + 1;\n    $attempts[$user] = [\n        'count' => $count,\n        'lockedUntil' => $count >= 3 ? $now + 900 : 0,\n    ];\n}\n\nrecordFailure($attempts, 'ada', $now);\nrecordFailure($attempts, 'ada', $now);\nrecordFailure($attempts, 'ada', $now);\necho isLocked($attempts, 'ada', $now) ? "locked" : "open";`,
+          tests: [
+            { id: 1, label: "Increments the failure count", keywords: [{ pattern: "'count'" }, { pattern: "\\+\\s*1|\\+\\+|\\+=\\s*1" }] },
+            { id: 2, label: "Locks at 3 failures for 900 seconds", keywords: [{ pattern: ">=\\s*3" }, { pattern: "\\$now\\s*\\+\\s*900" }] },
+          ],
+        },
+      },
+      {
+        id: "sess-17",
+        title: "Role-Based Access Control",
+        xp: 30,
+        theory: [
+          text(
+            "Logging in answers *who* someone is (authentication); **authorization** answers *what they may do*. A simple, maintainable approach is to store the user's **role** in the session at login and map each role to a list of permissions. Pages then check a permission — `can('delete_posts')` — rather than hard-coding role names everywhere, so adding a new role means editing one map.",
+            {
+              label: "Roles mapped to permissions",
+              content: `session_start();
+
+const PERMISSIONS = [
+    'viewer' => ['read_posts'],
+    'editor' => ['read_posts', 'write_posts'],
+    'admin'  => ['read_posts', 'write_posts', 'delete_posts'],
+];
+
+function can(string $permission): bool {
+    $role = $_SESSION['role'] ?? null;
+    return $role !== null && in_array($permission, PERMISSIONS[$role] ?? [], true);
+}
+
+$_SESSION['user_id'] = 7;
+$_SESSION['role'] = 'editor'; // set at login from the users table
+
+echo can('write_posts') ? "can write\\n" : "cannot write\\n";   // can write
+echo can('delete_posts') ? "can delete\\n" : "403 Forbidden\\n"; // 403 Forbidden`,
+            },
+          ),
+          diagram("Two separate questions", [
+            { id: "authn", label: "Authentication", color: "#3b82f6", items: ["Who are you?", "Password check, session user_id"] },
+            { id: "authz", label: "Authorization", color: "#ec4899", items: ["What may you do?", "Role and permission checks"] },
+          ]),
+          callout("warning", "Load the role from your database at login and keep it server-side in the session — never read it from a cookie or form field, or users could promote themselves."),
+          quiz(
+            "Why check can('delete_posts') instead of $_SESSION['role'] === 'admin' on each page?",
+            [
+              "String comparison is slow",
+              "Permissions are defined in one map, so adding or changing a role doesn't require editing every page",
+              "Roles can't be stored in sessions",
+              "It avoids needing session_start()",
+            ],
+            1,
+            "Checking permissions decouples pages from role names. If a new 'moderator' role should also delete posts, you add it to the map once instead of hunting down every admin check.",
+          ),
+        ],
+        challenge: {
+          title: "Guard an Admin Action",
+          description: "Complete can(): read the role from $_SESSION['role'] and return whether $permission is in that role's list (strict in_array, empty list for unknown roles). Echo \"Deleted\" if the current user can 'delete_posts', otherwise \"403 Forbidden\".",
+          starterCode: `${PHP_MAIN}session_start();\n$_SESSION['role'] = 'editor';\n\n$permissions = [\n    'editor' => ['read_posts', 'write_posts'],\n    'admin'  => ['read_posts', 'write_posts', 'delete_posts'],\n];\n\nfunction can(array $permissions, string $permission): bool {\n    // look up the session role's permissions\n\n}\n\necho can($permissions, 'delete_posts') ? "Deleted" : "403 Forbidden";`,
+          solutionCode: `${PHP_MAIN}session_start();\n$_SESSION['role'] = 'editor';\n\n$permissions = [\n    'editor' => ['read_posts', 'write_posts'],\n    'admin'  => ['read_posts', 'write_posts', 'delete_posts'],\n];\n\nfunction can(array $permissions, string $permission): bool {\n    $role = $_SESSION['role'] ?? '';\n    return in_array($permission, $permissions[$role] ?? [], true);\n}\n\necho can($permissions, 'delete_posts') ? "Deleted" : "403 Forbidden";`,
+          tests: [
+            { id: 1, label: "Reads the role from the session", keywords: [{ pattern: "\\$_SESSION\\['role'\\]" }] },
+            { id: 2, label: "Checks the permission with strict in_array", keywords: [{ pattern: "in_array\\s*\\(\\s*\\$permission\\s*,[^;]*,\\s*true\\s*\\)" }] },
           ],
         },
       },

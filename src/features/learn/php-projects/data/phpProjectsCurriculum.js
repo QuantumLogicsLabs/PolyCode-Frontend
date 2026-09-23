@@ -1,5 +1,5 @@
 // PolyCode — PHP Projects capstone course
-// 4 chapters · 16 lessons · server/browser PHP challenges
+// 6 chapters · 24 lessons · server/browser PHP challenges
 // Milestone-based: each lesson's starter code carries forward the accumulated
 // classes from earlier lessons in the SAME chapter, building one real,
 // growing project per chapter — reinforcing Fundamentals through Laravel.
@@ -702,7 +702,7 @@ $router->add("DELETE", "/products/1", fn() =>
         xp: 40,
         theory: [
           text(
-            "Final lesson of the final course: combine the router, controller, validation, and middleware into one complete, working mini API — every piece from this chapter, wired together.",
+            "Final milestone for this project: combine the router, controller, validation, and middleware into one complete, working mini API — every piece from this chapter, wired together.",
             {
               label: "The complete mini API",
               content: `class Router {
@@ -746,6 +746,463 @@ echo $router->dispatch("GET", "/products");`,
           tests: [
             { id: 1, label: "Registers both GET and POST /products", keywords: [{ pattern: "\"GET\",\\s*\"/products\"" }, { pattern: "\"POST\",\\s*\"/products\"" }] },
             { id: 2, label: "Dispatches both routes", keywords: [{ pattern: "dispatch\\s*\\(" }] },
+          ],
+        },
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // CHAPTER 5 — Shopping Cart & Checkout
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "shopping-cart-checkout",
+    title: "Shopping Cart & Checkout",
+    icon: "🛍️",
+    color: "#10b981",
+    lessons: [
+      {
+        id: "proj-16",
+        title: "Milestone 1: Products & Cart Lines",
+        xp: 25,
+        theory: [
+          text(
+            "New project: a **shopping cart and checkout**, built over four milestones. Prices are stored as whole **pence** (integers), never floats — `0.1 + 0.2` is not exactly `0.3` in floating point, and money errors add up. The cart keys its lines by product SKU, so adding the same product twice raises the quantity instead of adding a second line.",
+            {
+              label: "Products and a cart keyed by SKU",
+              content: `final class Product {
+    public function __construct(
+        public readonly string $sku,
+        public readonly string $name,
+        public readonly int $pricePence,
+    ) {}
+}
+
+function money(int $pence): string {
+    return "£" . number_format($pence / 100, 2);
+}
+
+class Cart {
+    private array $lines = [];
+
+    public function add(Product $product, int $qty = 1): void {
+        $this->lines[$product->sku] ??= ['product' => $product, 'qty' => 0];
+        $this->lines[$product->sku]['qty'] += $qty;
+    }
+
+    public function lines(): array {
+        return array_values($this->lines);
+    }
+}
+
+$cart = new Cart();
+$mug = new Product("MUG-1", "Mug", 850);
+$cart->add($mug);
+$cart->add($mug, 2);
+echo count($cart->lines()); // 1 line, qty 3`,
+            },
+          ),
+          callout("info", "Every milestone in this chapter carries the previous one's code forward — Product, money() and Cart grow into a full checkout by milestone 4."),
+          quiz(
+            "Why store £8.50 as the integer 850 instead of the float 8.5?",
+            [
+              "Integers use less memory",
+              "Floats can't represent many decimal amounts exactly, so totals drift; whole pence add up exactly",
+              "number_format() only accepts integers",
+              "PHP floats can't be negative",
+            ],
+            1,
+            "Binary floating point can't store values like 0.1 exactly. Integer pence make every addition and multiplication exact, and you only convert to pounds for display.",
+          ),
+        ],
+        challenge: {
+          title: "Add Products to the Cart",
+          description: "Complete Cart::add() so it creates a line for a new SKU with qty 0 (use ??=) and then adds $qty. Add 1 mug, 2 more mugs and 1 pen, then echo each line as \"<name> x<qty> <money(price)>\" on its own line.",
+          starterCode: `${PHP_MAIN}final class Product {\n    public function __construct(\n        public readonly string $sku,\n        public readonly string $name,\n        public readonly int $pricePence,\n    ) {}\n}\n\nfunction money(int $pence): string {\n    return "£" . number_format($pence / 100, 2);\n}\n\nclass Cart {\n    private array $lines = [];\n\n    public function add(Product $product, int $qty = 1): void {\n        // create the line if needed, then add $qty\n\n    }\n\n    public function lines(): array {\n        return array_values($this->lines);\n    }\n}\n\n$cart = new Cart();\n$mug = new Product("MUG-1", "Mug", 850);\n$pen = new Product("PEN-1", "Pen", 199);\n$cart->add($mug);\n$cart->add($mug, 2);\n$cart->add($pen);\n\nforeach ($cart->lines() as $line) {\n    echo "{$line['product']->name} x{$line['qty']} " . money($line['product']->pricePence) . "\\n";\n}`,
+          solutionCode: `${PHP_MAIN}final class Product {\n    public function __construct(\n        public readonly string $sku,\n        public readonly string $name,\n        public readonly int $pricePence,\n    ) {}\n}\n\nfunction money(int $pence): string {\n    return "£" . number_format($pence / 100, 2);\n}\n\nclass Cart {\n    private array $lines = [];\n\n    public function add(Product $product, int $qty = 1): void {\n        $this->lines[$product->sku] ??= ['product' => $product, 'qty' => 0];\n        $this->lines[$product->sku]['qty'] += $qty;\n    }\n\n    public function lines(): array {\n        return array_values($this->lines);\n    }\n}\n\n$cart = new Cart();\n$mug = new Product("MUG-1", "Mug", 850);\n$pen = new Product("PEN-1", "Pen", 199);\n$cart->add($mug);\n$cart->add($mug, 2);\n$cart->add($pen);\n\nforeach ($cart->lines() as $line) {\n    echo "{$line['product']->name} x{$line['qty']} " . money($line['product']->pricePence) . "\\n";\n}`,
+          tests: [
+            { id: 1, label: "Keys the line by SKU", keywords: [{ pattern: "\\$this->lines\\[\\$product->sku\\]" }] },
+            { id: 2, label: "Increases the quantity", keywords: [{ pattern: "\\['qty'\\]\\s*\\+=\\s*\\$qty" }] },
+          ],
+        },
+      },
+      {
+        id: "proj-17",
+        title: "Milestone 2: Totals & Discount Codes",
+        xp: 30,
+        theory: [
+          text(
+            "Milestone 2 adds money maths to the Cart. `subtotal()` multiplies each line's price by its quantity. Discount codes live in a class constant mapping code → percent, and `discount()` uses `intdiv()` so the result stays whole pence — any fraction of a penny is dropped. An unknown or missing code simply gives 0%.",
+            {
+              label: "Subtotal, discount and total",
+              content: `class Cart {
+    private const CODES = ['SAVE10' => 10, 'HALF' => 50];
+    // ...add() and lines() from milestone 1...
+
+    public function subtotal(): int {
+        $sum = 0;
+        foreach ($this->lines as $line) {
+            $sum += $line['product']->pricePence * $line['qty'];
+        }
+        return $sum;
+    }
+
+    public function discount(?string $code): int {
+        $percent = self::CODES[$code] ?? 0;
+        return intdiv($this->subtotal() * $percent, 100);
+    }
+
+    public function total(?string $code = null): int {
+        return $this->subtotal() - $this->discount($code);
+    }
+}
+
+// 3 mugs at £8.50 + 1 pen at £1.99 = £27.49
+// SAVE10 → discount intdiv(2749 * 10, 100) = 274 → total £24.75`,
+            },
+          ),
+          callout("warning", "Always look discount codes up on the server. A percentage sent from the browser could be edited to 100."),
+          quiz(
+            "Why use intdiv($subtotal * $percent, 100) rather than $subtotal * $percent / 100?",
+            [
+              "intdiv() is the only way to divide in PHP",
+              "It keeps the discount a whole number of pence instead of producing a float like 274.9",
+              "It rounds up so the shop earns more",
+              "Division with / is slower",
+            ],
+            1,
+            "/ returns a float when the division isn't exact. intdiv() performs integer division, so every amount in the cart stays in exact whole pence.",
+          ),
+        ],
+        challenge: {
+          title: "Compute the Totals",
+          description: "Complete subtotal() (price × qty over every line) and discount() (percent from CODES, 0 for unknown codes, via intdiv). Echo the subtotal, the total with \"SAVE10\" and the total with \"BOGUS\" using money(), one per line.",
+          starterCode: `${PHP_MAIN}final class Product {\n    public function __construct(\n        public readonly string $sku,\n        public readonly string $name,\n        public readonly int $pricePence,\n    ) {}\n}\n\nfunction money(int $pence): string {\n    return "£" . number_format($pence / 100, 2);\n}\n\nclass Cart {\n    private const CODES = ['SAVE10' => 10, 'HALF' => 50];\n    private array $lines = [];\n\n    public function add(Product $product, int $qty = 1): void {\n        $this->lines[$product->sku] ??= ['product' => $product, 'qty' => 0];\n        $this->lines[$product->sku]['qty'] += $qty;\n    }\n\n    public function lines(): array {\n        return array_values($this->lines);\n    }\n\n    public function subtotal(): int {\n        // sum price * qty for every line\n\n    }\n\n    public function discount(?string $code): int {\n        // percent from CODES (0 if unknown), as whole pence\n\n    }\n\n    public function total(?string $code = null): int {\n        return $this->subtotal() - $this->discount($code);\n    }\n}\n\n$cart = new Cart();\n$cart->add(new Product("MUG-1", "Mug", 850), 3);\n$cart->add(new Product("PEN-1", "Pen", 199));\n\necho money($cart->subtotal()) . "\\n";\necho money($cart->total("SAVE10")) . "\\n";\necho money($cart->total("BOGUS"));`,
+          solutionCode: `${PHP_MAIN}final class Product {\n    public function __construct(\n        public readonly string $sku,\n        public readonly string $name,\n        public readonly int $pricePence,\n    ) {}\n}\n\nfunction money(int $pence): string {\n    return "£" . number_format($pence / 100, 2);\n}\n\nclass Cart {\n    private const CODES = ['SAVE10' => 10, 'HALF' => 50];\n    private array $lines = [];\n\n    public function add(Product $product, int $qty = 1): void {\n        $this->lines[$product->sku] ??= ['product' => $product, 'qty' => 0];\n        $this->lines[$product->sku]['qty'] += $qty;\n    }\n\n    public function lines(): array {\n        return array_values($this->lines);\n    }\n\n    public function subtotal(): int {\n        $sum = 0;\n        foreach ($this->lines as $line) {\n            $sum += $line['product']->pricePence * $line['qty'];\n        }\n        return $sum;\n    }\n\n    public function discount(?string $code): int {\n        $percent = self::CODES[$code] ?? 0;\n        return intdiv($this->subtotal() * $percent, 100);\n    }\n\n    public function total(?string $code = null): int {\n        return $this->subtotal() - $this->discount($code);\n    }\n}\n\n$cart = new Cart();\n$cart->add(new Product("MUG-1", "Mug", 850), 3);\n$cart->add(new Product("PEN-1", "Pen", 199));\n\necho money($cart->subtotal()) . "\\n";\necho money($cart->total("SAVE10")) . "\\n";\necho money($cart->total("BOGUS"));`,
+          tests: [
+            { id: 1, label: "Multiplies price by quantity", keywords: [{ pattern: "pricePence\\s*\\*\\s*\\$line\\['qty'\\]|\\$line\\['qty'\\]\\s*\\*\\s*\\$line\\['product'\\]->pricePence" }] },
+            { id: 2, label: "Looks the code up with a 0 fallback", keywords: [{ pattern: "self::CODES\\[\\$code\\]\\s*\\?\\?\\s*0" }] },
+            { id: 3, label: "Uses intdiv()", keywords: [{ pattern: "intdiv\\s*\\(" }] },
+          ],
+        },
+      },
+      {
+        id: "proj-18",
+        title: "Milestone 3: Stock Checks with Exceptions",
+        xp: 30,
+        theory: [
+          text(
+            "Checkout must not sell stock that isn't there. A `Checkout` service holds the stock levels and `place()` validates **every** line first, throwing a custom `OutOfStockException` for the first problem. Only when all lines pass does it reduce stock. Validating before changing anything means a failed checkout leaves stock untouched — the same all-or-nothing idea as a database transaction.",
+            {
+              label: "Validate everything, then commit",
+              content: `class OutOfStockException extends Exception {}
+
+class Checkout {
+    public function __construct(private array $stock) {}
+
+    public function place(Cart $cart, ?string $code = null): int {
+        foreach ($cart->lines() as $line) {
+            $available = $this->stock[$line['product']->sku] ?? 0;
+            if ($line['qty'] > $available) {
+                throw new OutOfStockException("Only $available left of {$line['product']->name}");
+            }
+        }
+        foreach ($cart->lines() as $line) {
+            $this->stock[$line['product']->sku] -= $line['qty'];
+        }
+        return $cart->total($code);
+    }
+}
+
+try {
+    $total = $checkout->place($cart, "SAVE10");
+    echo "Order placed: " . money($total);
+} catch (OutOfStockException $e) {
+    echo "Sorry: " . $e->getMessage();
+}`,
+            },
+          ),
+          quiz(
+            "Why does place() loop over the lines twice — once to check, once to reduce stock?",
+            [
+              "PHP can't throw inside a loop that modifies arrays",
+              "If a later line is out of stock, the earlier lines' stock hasn't been reduced yet, so nothing needs undoing",
+              "It makes checkout faster",
+              "The second loop is only for logging",
+            ],
+            1,
+            "Checking everything first means an exception can't leave stock half-updated. It's the in-memory version of wrapping the order in a transaction.",
+          ),
+        ],
+        challenge: {
+          title: "Guard Checkout Against Low Stock",
+          description: "Define OutOfStockException and complete Checkout::place(): throw it with \"Only <n> left of <name>\" if any line's qty exceeds stock, otherwise reduce stock and return $cart->total($code). Try one order that fails and one that succeeds, echoing \"Sorry: <message>\" or \"Order placed: <money>\" on separate lines.",
+          starterCode: `${PHP_MAIN}final class Product {\n    public function __construct(\n        public readonly string $sku,\n        public readonly string $name,\n        public readonly int $pricePence,\n    ) {}\n}\n\nfunction money(int $pence): string {\n    return "£" . number_format($pence / 100, 2);\n}\n\nclass Cart {\n    private const CODES = ['SAVE10' => 10, 'HALF' => 50];\n    private array $lines = [];\n\n    public function add(Product $product, int $qty = 1): void {\n        $this->lines[$product->sku] ??= ['product' => $product, 'qty' => 0];\n        $this->lines[$product->sku]['qty'] += $qty;\n    }\n\n    public function lines(): array {\n        return array_values($this->lines);\n    }\n\n    public function subtotal(): int {\n        $sum = 0;\n        foreach ($this->lines as $line) {\n            $sum += $line['product']->pricePence * $line['qty'];\n        }\n        return $sum;\n    }\n\n    public function discount(?string $code): int {\n        $percent = self::CODES[$code] ?? 0;\n        return intdiv($this->subtotal() * $percent, 100);\n    }\n\n    public function total(?string $code = null): int {\n        return $this->subtotal() - $this->discount($code);\n    }\n}\n\n// define OutOfStockException\n\nclass Checkout {\n    public function __construct(private array $stock) {}\n\n    public function place(Cart $cart, ?string $code = null): int {\n        // 1) throw if any line needs more than is in stock\n        // 2) reduce stock, return the total\n\n    }\n}\n\n$mug = new Product("MUG-1", "Mug", 850);\n$checkout = new Checkout(["MUG-1" => 2]);\n\nforeach ([3, 2] as $qty) {\n    $cart = new Cart();\n    $cart->add($mug, $qty);\n    try {\n        echo "Order placed: " . money($checkout->place($cart)) . "\\n";\n    } catch (OutOfStockException $e) {\n        echo "Sorry: " . $e->getMessage() . "\\n";\n    }\n}`,
+          solutionCode: `${PHP_MAIN}final class Product {\n    public function __construct(\n        public readonly string $sku,\n        public readonly string $name,\n        public readonly int $pricePence,\n    ) {}\n}\n\nfunction money(int $pence): string {\n    return "£" . number_format($pence / 100, 2);\n}\n\nclass Cart {\n    private const CODES = ['SAVE10' => 10, 'HALF' => 50];\n    private array $lines = [];\n\n    public function add(Product $product, int $qty = 1): void {\n        $this->lines[$product->sku] ??= ['product' => $product, 'qty' => 0];\n        $this->lines[$product->sku]['qty'] += $qty;\n    }\n\n    public function lines(): array {\n        return array_values($this->lines);\n    }\n\n    public function subtotal(): int {\n        $sum = 0;\n        foreach ($this->lines as $line) {\n            $sum += $line['product']->pricePence * $line['qty'];\n        }\n        return $sum;\n    }\n\n    public function discount(?string $code): int {\n        $percent = self::CODES[$code] ?? 0;\n        return intdiv($this->subtotal() * $percent, 100);\n    }\n\n    public function total(?string $code = null): int {\n        return $this->subtotal() - $this->discount($code);\n    }\n}\n\nclass OutOfStockException extends Exception {}\n\nclass Checkout {\n    public function __construct(private array $stock) {}\n\n    public function place(Cart $cart, ?string $code = null): int {\n        foreach ($cart->lines() as $line) {\n            $available = $this->stock[$line['product']->sku] ?? 0;\n            if ($line['qty'] > $available) {\n                throw new OutOfStockException("Only $available left of {$line['product']->name}");\n            }\n        }\n        foreach ($cart->lines() as $line) {\n            $this->stock[$line['product']->sku] -= $line['qty'];\n        }\n        return $cart->total($code);\n    }\n}\n\n$mug = new Product("MUG-1", "Mug", 850);\n$checkout = new Checkout(["MUG-1" => 2]);\n\nforeach ([3, 2] as $qty) {\n    $cart = new Cart();\n    $cart->add($mug, $qty);\n    try {\n        echo "Order placed: " . money($checkout->place($cart)) . "\\n";\n    } catch (OutOfStockException $e) {\n        echo "Sorry: " . $e->getMessage() . "\\n";\n    }\n}`,
+          tests: [
+            { id: 1, label: "Defines OutOfStockException", keywords: [{ pattern: "class\\s+OutOfStockException\\s+extends\\s+\\\\?Exception" }] },
+            { id: 2, label: "Throws when stock is short", keywords: [{ pattern: "throw\\s+new\\s+OutOfStockException\\s*\\(" }] },
+            { id: 3, label: "Reduces stock after validating", keywords: [{ pattern: "\\$this->stock\\[.+\\]\\s*-=" }] },
+          ],
+        },
+      },
+      {
+        id: "proj-19",
+        title: "Milestone 4: Printing a Receipt",
+        xp: 35,
+        theory: [
+          text(
+            "The last milestone turns an order into a readable receipt. `sprintf()` formats each line into fixed-width columns: `%-10s` left-aligns text in 10 characters, `%3d` right-aligns a number in 3, and `%8s` right-aligns the price. `str_repeat()` draws the divider. Building the receipt as a string (instead of echoing as you go) means it can also be emailed or saved.",
+            {
+              label: "Fixed-width receipt lines",
+              content: `function receiptLine(string $label, string $qty, string $amount): string {
+    return sprintf("%-10s %3s %8s", $label, $qty, $amount);
+}
+
+echo receiptLine("Mug", "3", "£25.50") . "\\n";
+echo receiptLine("Pen", "1", "£1.99") . "\\n";
+echo str_repeat("-", 23) . "\\n";
+echo receiptLine("TOTAL", "", "£27.49");`,
+            },
+          ),
+          callout("info", "sprintf() pads by bytes, not characters, so a multi-byte symbol like £ makes that column one character narrower. For perfect alignment with symbols, use mb_str_pad() (PHP 8.3+) or put the symbol in its own column."),
+          quiz(
+            "What does the format %-10s do in sprintf()?",
+            [
+              "Cuts the string to 10 characters",
+              "Pads the string with spaces to at least 10 characters, aligned left",
+              "Right-aligns a number with 10 decimal places",
+              "Removes 10 characters from the start",
+            ],
+            1,
+            "The number sets a minimum width and the minus sign means left-align, so shorter labels are padded with spaces on the right and the columns line up.",
+          ),
+        ],
+        challenge: {
+          title: "Render the Receipt",
+          description: "Complete receipt(): one sprintf(\"%-10s %3d %8s\", name, qty, amount) line per cart line (amount = price × qty as \"12.34\" via number_format), a divider of 23 dashes, then sprintf(\"%-14s %8s\", \"TOTAL\", total). Return the lines joined by \"\\n\" and echo it.",
+          starterCode: `${PHP_MAIN}final class Product {\n    public function __construct(\n        public readonly string $sku,\n        public readonly string $name,\n        public readonly int $pricePence,\n    ) {}\n}\n\nfunction money(int $pence): string {\n    return "£" . number_format($pence / 100, 2);\n}\n\nclass Cart {\n    private const CODES = ['SAVE10' => 10, 'HALF' => 50];\n    private array $lines = [];\n\n    public function add(Product $product, int $qty = 1): void {\n        $this->lines[$product->sku] ??= ['product' => $product, 'qty' => 0];\n        $this->lines[$product->sku]['qty'] += $qty;\n    }\n\n    public function lines(): array {\n        return array_values($this->lines);\n    }\n\n    public function subtotal(): int {\n        $sum = 0;\n        foreach ($this->lines as $line) {\n            $sum += $line['product']->pricePence * $line['qty'];\n        }\n        return $sum;\n    }\n\n    public function discount(?string $code): int {\n        $percent = self::CODES[$code] ?? 0;\n        return intdiv($this->subtotal() * $percent, 100);\n    }\n\n    public function total(?string $code = null): int {\n        return $this->subtotal() - $this->discount($code);\n    }\n}\n\nfunction receipt(Cart $cart, ?string $code = null): string {\n    $lines = [];\n    // one formatted row per cart line, a divider, then the total\n\n    return implode("\\n", $lines);\n}\n\n$cart = new Cart();\n$cart->add(new Product("MUG-1", "Mug", 850), 3);\n$cart->add(new Product("PEN-1", "Pen", 199));\necho receipt($cart, "SAVE10");`,
+          solutionCode: `${PHP_MAIN}final class Product {\n    public function __construct(\n        public readonly string $sku,\n        public readonly string $name,\n        public readonly int $pricePence,\n    ) {}\n}\n\nfunction money(int $pence): string {\n    return "£" . number_format($pence / 100, 2);\n}\n\nclass Cart {\n    private const CODES = ['SAVE10' => 10, 'HALF' => 50];\n    private array $lines = [];\n\n    public function add(Product $product, int $qty = 1): void {\n        $this->lines[$product->sku] ??= ['product' => $product, 'qty' => 0];\n        $this->lines[$product->sku]['qty'] += $qty;\n    }\n\n    public function lines(): array {\n        return array_values($this->lines);\n    }\n\n    public function subtotal(): int {\n        $sum = 0;\n        foreach ($this->lines as $line) {\n            $sum += $line['product']->pricePence * $line['qty'];\n        }\n        return $sum;\n    }\n\n    public function discount(?string $code): int {\n        $percent = self::CODES[$code] ?? 0;\n        return intdiv($this->subtotal() * $percent, 100);\n    }\n\n    public function total(?string $code = null): int {\n        return $this->subtotal() - $this->discount($code);\n    }\n}\n\nfunction receipt(Cart $cart, ?string $code = null): string {\n    $lines = [];\n    foreach ($cart->lines() as $line) {\n        $amount = number_format($line['product']->pricePence * $line['qty'] / 100, 2);\n        $lines[] = sprintf("%-10s %3d %8s", $line['product']->name, $line['qty'], $amount);\n    }\n    $lines[] = str_repeat("-", 23);\n    $lines[] = sprintf("%-14s %8s", "TOTAL", number_format($cart->total($code) / 100, 2));\n    return implode("\\n", $lines);\n}\n\n$cart = new Cart();\n$cart->add(new Product("MUG-1", "Mug", 850), 3);\n$cart->add(new Product("PEN-1", "Pen", 199));\necho receipt($cart, "SAVE10");`,
+          tests: [
+            { id: 1, label: "Formats rows with sprintf", keywords: [{ pattern: "sprintf\\s*\\(\\s*\"%-10s %3d %8s\"" }] },
+            { id: 2, label: "Draws the divider", keywords: [{ pattern: "str_repeat\\s*\\(\\s*\"-\"\\s*,\\s*23\\s*\\)" }] },
+            { id: 3, label: "Prints the discounted total", keywords: [{ pattern: "\\$cart->total\\s*\\(\\s*\\$code\\s*\\)" }] },
+          ],
+        },
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // CHAPTER 6 — Expense Report from CSV
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "expense-report-csv",
+    title: "Expense Report from CSV",
+    icon: "📑",
+    color: "#ec4899",
+    lessons: [
+      {
+        id: "proj-20",
+        title: "Milestone 1: Parsing CSV Rows",
+        xp: 25,
+        theory: [
+          text(
+            "Final project: turn a bank-style **CSV export** into an expense report. Splitting lines on commas by hand breaks as soon as a field contains a comma, like `\"Coffee, large\"`. `str_getcsv()` understands quoting. Read the first line as the **header**, then `array_combine()` each row with it so you work with `$row['amount']` instead of `$row[2]`.",
+            {
+              label: "Header-aware CSV parsing",
+              content: `$csv = <<<CSV
+date,category,amount,note
+2026-03-02,food,4.20,"Coffee, large"
+2026-03-02,travel,12.50,Train
+CSV;
+
+$lines = explode("\\n", trim($csv));
+$header = str_getcsv(array_shift($lines), ",", "\\"", "");
+
+foreach ($lines as $line) {
+    $row = array_combine($header, str_getcsv($line, ",", "\\"", ""));
+    echo "{$row['category']}: {$row['note']}\\n";
+}
+// food: Coffee, large
+// travel: Train`,
+            },
+          ),
+          callout("info", "The explicit \",\", \"\\\"\", \"\" arguments set the separator, the quote character and an empty escape character. PHP 8.4 deprecates relying on the default escape character, so passing it keeps the code warning-free."),
+          quiz(
+            "Why use str_getcsv() instead of explode(',', $line)?",
+            [
+              "explode() can't split strings",
+              "str_getcsv() respects quoted fields, so a comma inside \"Coffee, large\" doesn't split the field",
+              "str_getcsv() is required for files over 1MB",
+              "explode() removes the header row",
+            ],
+            1,
+            "CSV allows commas inside quoted fields. explode() would split \"Coffee, large\" into two broken fields; str_getcsv() treats it as one value.",
+          ),
+        ],
+        challenge: {
+          title: "Turn CSV Lines into Keyed Rows",
+          description: "Complete parseRows(): split the trimmed CSV into lines, read the header with csvFields(array_shift(...)), and array_combine() it with each remaining line. Echo the number of rows, then the first row's note.",
+          starterCode: `${PHP_MAIN}function csvFields(string $line): array {\n    return str_getcsv($line, ",", "\\"", "");\n}\n\nfunction parseRows(string $csv): array {\n    $rows = [];\n    // header first, then array_combine each line with it\n\n    return $rows;\n}\n\n$csv = <<<CSV\ndate,category,amount,note\n2026-03-02,food,4.20,"Coffee, large"\n2026-03-02,travel,12.50,Train\nCSV;\n\n$rows = parseRows($csv);\necho count($rows) . "\\n";\necho $rows[0]['note'];`,
+          solutionCode: `${PHP_MAIN}function csvFields(string $line): array {\n    return str_getcsv($line, ",", "\\"", "");\n}\n\nfunction parseRows(string $csv): array {\n    $lines = explode("\\n", trim($csv));\n    $header = csvFields(array_shift($lines));\n    $rows = [];\n    foreach ($lines as $line) {\n        $rows[] = array_combine($header, csvFields($line));\n    }\n    return $rows;\n}\n\n$csv = <<<CSV\ndate,category,amount,note\n2026-03-02,food,4.20,"Coffee, large"\n2026-03-02,travel,12.50,Train\nCSV;\n\n$rows = parseRows($csv);\necho count($rows) . "\\n";\necho $rows[0]['note'];`,
+          tests: [
+            { id: 1, label: "Reads the header row", keywords: [{ pattern: "array_shift\\s*\\(\\s*\\$lines\\s*\\)" }] },
+            { id: 2, label: "Keys each row with array_combine", keywords: [{ pattern: "array_combine\\s*\\(\\s*\\$header" }] },
+          ],
+        },
+      },
+      {
+        id: "proj-21",
+        title: "Milestone 2: Validating & Skipping Bad Rows",
+        xp: 30,
+        theory: [
+          text(
+            "Real exports contain bad rows, and one bad row shouldn't stop the whole import. For each line, check the **column count** first (in PHP 8, `array_combine()` throws a `ValueError` when the counts differ), then the date and the amount. Skip invalid rows and record an error with the **line number**, so the user can fix the file. Date parsing needs care: `createFromFormat()` quietly rolls `2026-02-30` over into March, so format the result back and compare.",
+            {
+              label: "Strict dates and per-line errors",
+              content: `function parseDate(string $value): ?DateTimeImmutable {
+    $date = DateTimeImmutable::createFromFormat('!Y-m-d', $value);
+    return $date && $date->format('Y-m-d') === $value ? $date : null;
+}
+
+var_dump(parseDate('2026-03-02') !== null); // bool(true)
+var_dump(parseDate('2026-02-30') !== null); // bool(false) — no 30th of February
+var_dump(parseDate('03/02/2026') !== null); // bool(false) — wrong format
+
+// Inside the import loop:
+// if (count($fields) !== count($header)) { $errors[] = "line $lineNo: ..."; continue; }`,
+            },
+          ),
+          callout("info", "The ! at the start of the format resets the time fields to midnight, so two expenses on the same day compare as equal dates."),
+          quiz(
+            "Why compare $date->format('Y-m-d') with the original string after createFromFormat()?",
+            [
+              "createFromFormat() always returns null",
+              "Out-of-range dates like 2026-02-30 are silently rolled over to a real date, and the round-trip check catches that",
+              "It converts the date to UTC",
+              "It is required before using DateTimeImmutable",
+            ],
+            1,
+            "PHP accepts day 30 in February and turns it into 2 March. Formatting the parsed date back and comparing reveals that the input wasn't a real calendar date.",
+          ),
+        ],
+        challenge: {
+          title: "Import with Validation",
+          description: "Complete importExpenses(): for each line (line numbers start at 2), record \"line N: expected 4 columns\", \"line N: invalid date\" or \"line N: invalid amount\" and skip it; otherwise create an Expense with the amount in pence (round(amount * 100)). Echo the number of imported expenses, then each error on its own line.",
+          starterCode: `${PHP_MAIN}final class Expense {\n    public function __construct(\n        public readonly DateTimeImmutable $date,\n        public readonly string $category,\n        public readonly int $amountPence,\n        public readonly string $note,\n    ) {}\n}\n\nfunction csvFields(string $line): array {\n    return str_getcsv($line, ",", "\\"", "");\n}\n\nfunction parseDate(string $value): ?DateTimeImmutable {\n    $date = DateTimeImmutable::createFromFormat('!Y-m-d', $value);\n    return $date && $date->format('Y-m-d') === $value ? $date : null;\n}\n\nfunction importExpenses(string $csv): array {\n    $lines = explode("\\n", trim($csv));\n    $header = csvFields(array_shift($lines));\n    $expenses = [];\n    $errors = [];\n\n    foreach ($lines as $i => $line) {\n        $lineNo = $i + 2;\n        // check the column count, the date and the amount; skip bad rows\n\n    }\n\n    return ['expenses' => $expenses, 'errors' => $errors];\n}\n\n$csv = <<<CSV\ndate,category,amount,note\n2026-03-02,food,4.20,"Coffee, large"\n2026-03-02,travel,12.50,Train\n2026-02-30,food,3.00,Bad date\n2026-03-05,food,abc,Bad amount\n2026-03-09,travel,6.00\n2026-04-01,food,18.75,Groceries\nCSV;\n\n$result = importExpenses($csv);\necho count($result['expenses']) . " imported\\n";\necho implode("\\n", $result['errors']);`,
+          solutionCode: `${PHP_MAIN}final class Expense {\n    public function __construct(\n        public readonly DateTimeImmutable $date,\n        public readonly string $category,\n        public readonly int $amountPence,\n        public readonly string $note,\n    ) {}\n}\n\nfunction csvFields(string $line): array {\n    return str_getcsv($line, ",", "\\"", "");\n}\n\nfunction parseDate(string $value): ?DateTimeImmutable {\n    $date = DateTimeImmutable::createFromFormat('!Y-m-d', $value);\n    return $date && $date->format('Y-m-d') === $value ? $date : null;\n}\n\nfunction importExpenses(string $csv): array {\n    $lines = explode("\\n", trim($csv));\n    $header = csvFields(array_shift($lines));\n    $expenses = [];\n    $errors = [];\n\n    foreach ($lines as $i => $line) {\n        $lineNo = $i + 2; // +1 for the header, +1 because humans count from 1\n        $fields = csvFields($line);\n        if (count($fields) !== count($header)) {\n            $errors[] = "line $lineNo: expected " . count($header) . " columns";\n            continue;\n        }\n        $row = array_combine($header, $fields);\n        $date = parseDate($row['date']);\n        if ($date === null) {\n            $errors[] = "line $lineNo: invalid date";\n            continue;\n        }\n        if (!is_numeric($row['amount']) || $row['amount'] <= 0) {\n            $errors[] = "line $lineNo: invalid amount";\n            continue;\n        }\n        $expenses[] = new Expense($date, $row['category'], (int) round($row['amount'] * 100), $row['note']);\n    }\n\n    return ['expenses' => $expenses, 'errors' => $errors];\n}\n\n$csv = <<<CSV\ndate,category,amount,note\n2026-03-02,food,4.20,"Coffee, large"\n2026-03-02,travel,12.50,Train\n2026-02-30,food,3.00,Bad date\n2026-03-05,food,abc,Bad amount\n2026-03-09,travel,6.00\n2026-04-01,food,18.75,Groceries\nCSV;\n\n$result = importExpenses($csv);\necho count($result['expenses']) . " imported\\n";\necho implode("\\n", $result['errors']);`,
+          tests: [
+            { id: 1, label: "Checks the column count before combining", keywords: [{ pattern: "count\\s*\\(\\s*\\$fields\\s*\\)\\s*!==?\\s*count\\s*\\(\\s*\\$header\\s*\\)" }] },
+            { id: 2, label: "Validates the date and amount", keywords: [{ pattern: "parseDate\\s*\\(" }, { pattern: "is_numeric\\s*\\(" }] },
+            { id: 3, label: "Stores the amount in pence", keywords: [{ pattern: "round\\s*\\([^;]*\\*\\s*100\\s*\\)" }] },
+          ],
+        },
+      },
+      {
+        id: "proj-22",
+        title: "Milestone 3: Grouping by Category & Month",
+        xp: 30,
+        theory: [
+          text(
+            "With clean `Expense` objects, the report is a pair of **group-and-sum** loops: one keyed by category, one keyed by month. The month key comes from `$expense->date->format('Y-m')`, which also sorts correctly as a string. `arsort()` orders categories by total, biggest first, keeping the keys; `ksort()` puts months in calendar order.",
+            {
+              label: "Two groupings over the same data",
+              content: `function totalsByCategory(array $expenses): array {
+    $totals = [];
+    foreach ($expenses as $e) {
+        $totals[$e->category] = ($totals[$e->category] ?? 0) + $e->amountPence;
+    }
+    arsort($totals);
+    return $totals;
+}
+
+function totalsByMonth(array $expenses): array {
+    $totals = [];
+    foreach ($expenses as $e) {
+        $month = $e->date->format('Y-m');
+        $totals[$month] = ($totals[$month] ?? 0) + $e->amountPence;
+    }
+    ksort($totals);
+    return $totals;
+}
+
+// totalsByCategory → ['food' => 2295, 'travel' => 1250]
+// totalsByMonth    → ['2026-03' => 1670, '2026-04' => 1875]`,
+            },
+          ),
+          quiz(
+            "Why use arsort() rather than rsort() on ['food' => 2295, 'travel' => 1250]?",
+            [
+              "rsort() only works on strings",
+              "arsort() sorts by value while keeping the category keys; rsort() would replace them with 0, 1, 2…",
+              "arsort() sorts alphabetically",
+              "They behave identically",
+            ],
+            1,
+            "The a in arsort() means associative: keys stay attached to their values. rsort() reindexes the array and the category names would be lost.",
+          ),
+        ],
+        challenge: {
+          title: "Total by Category and Month",
+          description: "Complete totalsByCategory() (sum pence per category, arsort) and totalsByMonth() (sum per $e->date->format('Y-m'), ksort). Echo each category as \"<category>: <money>\" and then each month the same way.",
+          starterCode: `${PHP_MAIN}final class Expense {\n    public function __construct(\n        public readonly DateTimeImmutable $date,\n        public readonly string $category,\n        public readonly int $amountPence,\n        public readonly string $note,\n    ) {}\n}\n\nfunction csvFields(string $line): array {\n    return str_getcsv($line, ",", "\\"", "");\n}\n\nfunction parseDate(string $value): ?DateTimeImmutable {\n    $date = DateTimeImmutable::createFromFormat('!Y-m-d', $value);\n    return $date && $date->format('Y-m-d') === $value ? $date : null;\n}\n\nfunction importExpenses(string $csv): array {\n    $lines = explode("\\n", trim($csv));\n    $header = csvFields(array_shift($lines));\n    $expenses = [];\n    $errors = [];\n\n    foreach ($lines as $i => $line) {\n        $lineNo = $i + 2; // +1 for the header, +1 because humans count from 1\n        $fields = csvFields($line);\n        if (count($fields) !== count($header)) {\n            $errors[] = "line $lineNo: expected " . count($header) . " columns";\n            continue;\n        }\n        $row = array_combine($header, $fields);\n        $date = parseDate($row['date']);\n        if ($date === null) {\n            $errors[] = "line $lineNo: invalid date";\n            continue;\n        }\n        if (!is_numeric($row['amount']) || $row['amount'] <= 0) {\n            $errors[] = "line $lineNo: invalid amount";\n            continue;\n        }\n        $expenses[] = new Expense($date, $row['category'], (int) round($row['amount'] * 100), $row['note']);\n    }\n\n    return ['expenses' => $expenses, 'errors' => $errors];\n}\n\nfunction money(int $pence): string {\n    return "£" . number_format($pence / 100, 2);\n}\n\nfunction totalsByCategory(array $expenses): array {\n    $totals = [];\n    // sum per category, biggest first\n\n    return $totals;\n}\n\nfunction totalsByMonth(array $expenses): array {\n    $totals = [];\n    // sum per Y-m, in calendar order\n\n    return $totals;\n}\n\n$csv = <<<CSV\ndate,category,amount,note\n2026-03-02,food,4.20,"Coffee, large"\n2026-03-02,travel,12.50,Train\n2026-02-30,food,3.00,Bad date\n2026-03-05,food,abc,Bad amount\n2026-03-09,travel,6.00\n2026-04-01,food,18.75,Groceries\nCSV;\n\n$expenses = importExpenses($csv)['expenses'];\nforeach (totalsByCategory($expenses) as $category => $pence) {\n    echo "$category: " . money($pence) . "\\n";\n}\nforeach (totalsByMonth($expenses) as $month => $pence) {\n    echo "$month: " . money($pence) . "\\n";\n}`,
+          solutionCode: `${PHP_MAIN}final class Expense {\n    public function __construct(\n        public readonly DateTimeImmutable $date,\n        public readonly string $category,\n        public readonly int $amountPence,\n        public readonly string $note,\n    ) {}\n}\n\nfunction csvFields(string $line): array {\n    return str_getcsv($line, ",", "\\"", "");\n}\n\nfunction parseDate(string $value): ?DateTimeImmutable {\n    $date = DateTimeImmutable::createFromFormat('!Y-m-d', $value);\n    return $date && $date->format('Y-m-d') === $value ? $date : null;\n}\n\nfunction importExpenses(string $csv): array {\n    $lines = explode("\\n", trim($csv));\n    $header = csvFields(array_shift($lines));\n    $expenses = [];\n    $errors = [];\n\n    foreach ($lines as $i => $line) {\n        $lineNo = $i + 2; // +1 for the header, +1 because humans count from 1\n        $fields = csvFields($line);\n        if (count($fields) !== count($header)) {\n            $errors[] = "line $lineNo: expected " . count($header) . " columns";\n            continue;\n        }\n        $row = array_combine($header, $fields);\n        $date = parseDate($row['date']);\n        if ($date === null) {\n            $errors[] = "line $lineNo: invalid date";\n            continue;\n        }\n        if (!is_numeric($row['amount']) || $row['amount'] <= 0) {\n            $errors[] = "line $lineNo: invalid amount";\n            continue;\n        }\n        $expenses[] = new Expense($date, $row['category'], (int) round($row['amount'] * 100), $row['note']);\n    }\n\n    return ['expenses' => $expenses, 'errors' => $errors];\n}\n\nfunction money(int $pence): string {\n    return "£" . number_format($pence / 100, 2);\n}\n\nfunction totalsByCategory(array $expenses): array {\n    $totals = [];\n    foreach ($expenses as $e) {\n        $totals[$e->category] = ($totals[$e->category] ?? 0) + $e->amountPence;\n    }\n    arsort($totals);\n    return $totals;\n}\n\nfunction totalsByMonth(array $expenses): array {\n    $totals = [];\n    foreach ($expenses as $e) {\n        $month = $e->date->format('Y-m');\n        $totals[$month] = ($totals[$month] ?? 0) + $e->amountPence;\n    }\n    ksort($totals);\n    return $totals;\n}\n\n$csv = <<<CSV\ndate,category,amount,note\n2026-03-02,food,4.20,"Coffee, large"\n2026-03-02,travel,12.50,Train\n2026-02-30,food,3.00,Bad date\n2026-03-05,food,abc,Bad amount\n2026-03-09,travel,6.00\n2026-04-01,food,18.75,Groceries\nCSV;\n\n$expenses = importExpenses($csv)['expenses'];\nforeach (totalsByCategory($expenses) as $category => $pence) {\n    echo "$category: " . money($pence) . "\\n";\n}\nforeach (totalsByMonth($expenses) as $month => $pence) {\n    echo "$month: " . money($pence) . "\\n";\n}`,
+          tests: [
+            { id: 1, label: "Groups by category", keywords: [{ pattern: "\\$totals\\[\\$e->category\\]" }] },
+            { id: 2, label: "Groups by month with format('Y-m')", keywords: [{ pattern: "->format\\s*\\(\\s*'Y-m'\\s*\\)" }] },
+            { id: 3, label: "Sorts both groupings", keywords: [{ pattern: "arsort\\s*\\(\\s*\\$totals\\s*\\)" }, { pattern: "ksort\\s*\\(\\s*\\$totals\\s*\\)" }] },
+          ],
+        },
+      },
+      {
+        id: "proj-23",
+        title: "Milestone 4: Exporting a JSON Summary",
+        xp: 40,
+        theory: [
+          text(
+            "Final milestone of the course: package the report as **JSON** so a dashboard or another service can use it. Build a plain array — counts, totals in pence, the groupings and the import errors — then `json_encode()` it. `JSON_PRETTY_PRINT` makes it readable, and `JSON_THROW_ON_ERROR` turns an encoding failure into an exception instead of a silent `false`. This project pulls together classes, validation, dates, sorting and serialization from across the PHP track.",
+            {
+              label: "Building the summary",
+              content: `function summary(array $expenses, array $errors): array {
+    $total = array_sum(array_map(fn(Expense $e) => $e->amountPence, $expenses));
+    return [
+        'imported' => count($expenses),
+        'skipped' => count($errors),
+        'total_pence' => $total,
+        'by_category' => totalsByCategory($expenses),
+        'by_month' => totalsByMonth($expenses),
+        'errors' => $errors,
+    ];
+}
+
+$result = importExpenses($csv);
+echo json_encode(
+    summary($result['expenses'], $result['errors']),
+    JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR,
+);`,
+            },
+          ),
+          quiz(
+            "What does JSON_THROW_ON_ERROR change about json_encode()?",
+            [
+              "It makes the output pretty-printed",
+              "Encoding failures throw a JsonException instead of returning false",
+              "It escapes all non-ASCII characters",
+              "It validates the data against a schema",
+            ],
+            1,
+            "Without the flag, json_encode() returns false on failure and you must remember to check json_last_error(). With it, a failure throws JsonException, which is much harder to miss.",
+          ),
+        ],
+        challenge: {
+          title: "Export the Report",
+          description: "Complete summary() so it returns imported, skipped, total_pence (sum of amountPence) and by_category. Echo json_encode() of it with JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR.",
+          starterCode: `${PHP_MAIN}final class Expense {\n    public function __construct(\n        public readonly DateTimeImmutable $date,\n        public readonly string $category,\n        public readonly int $amountPence,\n        public readonly string $note,\n    ) {}\n}\n\nfunction csvFields(string $line): array {\n    return str_getcsv($line, ",", "\\"", "");\n}\n\nfunction parseDate(string $value): ?DateTimeImmutable {\n    $date = DateTimeImmutable::createFromFormat('!Y-m-d', $value);\n    return $date && $date->format('Y-m-d') === $value ? $date : null;\n}\n\nfunction importExpenses(string $csv): array {\n    $lines = explode("\\n", trim($csv));\n    $header = csvFields(array_shift($lines));\n    $expenses = [];\n    $errors = [];\n\n    foreach ($lines as $i => $line) {\n        $lineNo = $i + 2; // +1 for the header, +1 because humans count from 1\n        $fields = csvFields($line);\n        if (count($fields) !== count($header)) {\n            $errors[] = "line $lineNo: expected " . count($header) . " columns";\n            continue;\n        }\n        $row = array_combine($header, $fields);\n        $date = parseDate($row['date']);\n        if ($date === null) {\n            $errors[] = "line $lineNo: invalid date";\n            continue;\n        }\n        if (!is_numeric($row['amount']) || $row['amount'] <= 0) {\n            $errors[] = "line $lineNo: invalid amount";\n            continue;\n        }\n        $expenses[] = new Expense($date, $row['category'], (int) round($row['amount'] * 100), $row['note']);\n    }\n\n    return ['expenses' => $expenses, 'errors' => $errors];\n}\n\nfunction totalsByCategory(array $expenses): array {\n    $totals = [];\n    foreach ($expenses as $e) {\n        $totals[$e->category] = ($totals[$e->category] ?? 0) + $e->amountPence;\n    }\n    arsort($totals);\n    return $totals;\n}\n\nfunction totalsByMonth(array $expenses): array {\n    $totals = [];\n    foreach ($expenses as $e) {\n        $month = $e->date->format('Y-m');\n        $totals[$month] = ($totals[$month] ?? 0) + $e->amountPence;\n    }\n    ksort($totals);\n    return $totals;\n}\n\nfunction summary(array $expenses, array $errors): array {\n    // imported, skipped, total_pence and by_category\n\n}\n\n$csv = <<<CSV\ndate,category,amount,note\n2026-03-02,food,4.20,"Coffee, large"\n2026-03-02,travel,12.50,Train\n2026-02-30,food,3.00,Bad date\n2026-03-05,food,abc,Bad amount\n2026-03-09,travel,6.00\n2026-04-01,food,18.75,Groceries\nCSV;\n\n$result = importExpenses($csv);\necho json_encode(summary($result['expenses'], $result['errors']), JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);`,
+          solutionCode: `${PHP_MAIN}final class Expense {\n    public function __construct(\n        public readonly DateTimeImmutable $date,\n        public readonly string $category,\n        public readonly int $amountPence,\n        public readonly string $note,\n    ) {}\n}\n\nfunction csvFields(string $line): array {\n    return str_getcsv($line, ",", "\\"", "");\n}\n\nfunction parseDate(string $value): ?DateTimeImmutable {\n    $date = DateTimeImmutable::createFromFormat('!Y-m-d', $value);\n    return $date && $date->format('Y-m-d') === $value ? $date : null;\n}\n\nfunction importExpenses(string $csv): array {\n    $lines = explode("\\n", trim($csv));\n    $header = csvFields(array_shift($lines));\n    $expenses = [];\n    $errors = [];\n\n    foreach ($lines as $i => $line) {\n        $lineNo = $i + 2; // +1 for the header, +1 because humans count from 1\n        $fields = csvFields($line);\n        if (count($fields) !== count($header)) {\n            $errors[] = "line $lineNo: expected " . count($header) . " columns";\n            continue;\n        }\n        $row = array_combine($header, $fields);\n        $date = parseDate($row['date']);\n        if ($date === null) {\n            $errors[] = "line $lineNo: invalid date";\n            continue;\n        }\n        if (!is_numeric($row['amount']) || $row['amount'] <= 0) {\n            $errors[] = "line $lineNo: invalid amount";\n            continue;\n        }\n        $expenses[] = new Expense($date, $row['category'], (int) round($row['amount'] * 100), $row['note']);\n    }\n\n    return ['expenses' => $expenses, 'errors' => $errors];\n}\n\nfunction totalsByCategory(array $expenses): array {\n    $totals = [];\n    foreach ($expenses as $e) {\n        $totals[$e->category] = ($totals[$e->category] ?? 0) + $e->amountPence;\n    }\n    arsort($totals);\n    return $totals;\n}\n\nfunction totalsByMonth(array $expenses): array {\n    $totals = [];\n    foreach ($expenses as $e) {\n        $month = $e->date->format('Y-m');\n        $totals[$month] = ($totals[$month] ?? 0) + $e->amountPence;\n    }\n    ksort($totals);\n    return $totals;\n}\n\nfunction summary(array $expenses, array $errors): array {\n    $total = array_sum(array_map(fn(Expense $e) => $e->amountPence, $expenses));\n    return [\n        'imported' => count($expenses),\n        'skipped' => count($errors),\n        'total_pence' => $total,\n        'by_category' => totalsByCategory($expenses),\n    ];\n}\n\n$csv = <<<CSV\ndate,category,amount,note\n2026-03-02,food,4.20,"Coffee, large"\n2026-03-02,travel,12.50,Train\n2026-02-30,food,3.00,Bad date\n2026-03-05,food,abc,Bad amount\n2026-03-09,travel,6.00\n2026-04-01,food,18.75,Groceries\nCSV;\n\n$result = importExpenses($csv);\necho json_encode(summary($result['expenses'], $result['errors']), JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);`,
+          tests: [
+            { id: 1, label: "Returns the four summary keys", keywords: [{ pattern: "'imported'\\s*=>" }, { pattern: "'skipped'\\s*=>" }, { pattern: "'total_pence'\\s*=>" }, { pattern: "'by_category'\\s*=>" }] },
+            { id: 2, label: "Sums the amounts in pence", keywords: [{ pattern: "amountPence" }] },
           ],
         },
       },

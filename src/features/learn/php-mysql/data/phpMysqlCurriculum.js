@@ -1,5 +1,5 @@
 // PolyCode — PHP MySQL interactive course
-// 4 chapters · 12 lessons · server/browser PHP challenges
+// 6 chapters · 18 lessons · server/browser PHP challenges
 // NOTE: there's no live MySQL server in the sandbox, so challenges use small
 // in-memory mock PDO-style classes (MockPDO, MockStatement) so real, idiomatic
 // PDO syntax still runs and produces real output — same approach as the
@@ -561,6 +561,347 @@ $repo = new ProductRepository($pdo); // the connection is injected, not created 
           solutionCode: `${PHP_MAIN}function computeOffset($page, $perPage) {\n    return ($page - 1) * $perPage;\n}\n\necho computeOffset(3, 10);`,
           tests: [
             { id: 1, label: "Implements the offset formula", keywords: [{ pattern: "\\(\\s*\\$page\\s*-\\s*1\\s*\\)\\s*\\*\\s*\\$perPage" }] },
+          ],
+        },
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // CHAPTER 5 — Working with Result Data
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "working-with-results",
+    title: "Working with Result Data",
+    icon: "📊",
+    color: "#10b981",
+    lessons: [
+      {
+        id: "mysql-12",
+        title: "Mapping Rows to Objects",
+        xp: 25,
+        theory: [
+          text(
+            "`FETCH_ASSOC` gives you arrays, but the rest of your app is easier to work with when it receives real objects. `PDO::FETCH_CLASS` fills a class's properties straight from the columns — fine for simple classes with public properties. For classes with typed, promoted or readonly properties, a **named constructor** like `User::fromRow()` is clearer: it maps each column explicitly and casts the values, since MySQL often returns numbers as strings.",
+            {
+              label: "Two ways to hydrate objects",
+              content: `// 1) Let PDO fill public properties
+class UserRow {
+    public $id;
+    public $name;
+}
+$rows = $pdo->query("SELECT id, name FROM users")
+    ->fetchAll(PDO::FETCH_CLASS, UserRow::class);
+
+// 2) Map explicitly with a named constructor
+final class User {
+    public function __construct(
+        public readonly int $id,
+        public readonly string $name,
+    ) {}
+
+    public static function fromRow(array $row): self {
+        return new self((int) $row['id'], $row['name']);
+    }
+}
+
+$stmt = $pdo->query("SELECT id, name FROM users");
+$users = array_map([User::class, 'fromRow'], $stmt->fetchAll(PDO::FETCH_ASSOC));`,
+            },
+          ),
+          callout("info", "PDO::FETCH_CLASS assigns properties before the constructor runs. Add PDO::FETCH_PROPS_LATE if your constructor must run first."),
+          quiz(
+            "Why cast (int) $row['id'] inside fromRow()?",
+            [
+              "PDO always returns ids as floats",
+              "Drivers commonly return numeric columns as strings, and the typed constructor parameter should receive a real int",
+              "Casting makes the query faster",
+              "It prevents SQL injection",
+            ],
+            1,
+            "With the MySQL driver, especially with emulated prepares, numeric columns often arrive as strings like \"7\". Casting in one place gives every User a real int id.",
+          ),
+        ],
+        challenge: {
+          title: "Hydrate Products from Rows",
+          description: "Complete Product::fromRow() so it builds a Product with (int) id, name, and (float) price. Map the fetched rows with array_map and echo each product as \"<id>: <name> £<price>\" (price with 2 decimals), one per line.",
+          starterCode: `${PHP_MAIN}class MockStatement {\n    public function fetchAll(): array {\n        return [\n            ['id' => '1', 'name' => 'Kettle', 'price' => '24.5'],\n            ['id' => '2', 'name' => 'Toaster', 'price' => '31'],\n        ];\n    }\n}\n\nfinal class Product {\n    public function __construct(\n        public readonly int $id,\n        public readonly string $name,\n        public readonly float $price,\n    ) {}\n\n    public static function fromRow(array $row): self {\n        // cast and build a Product\n\n    }\n}\n\n$stmt = new MockStatement();\n// map rows to Products and echo each one`,
+          solutionCode: `${PHP_MAIN}class MockStatement {\n    public function fetchAll(): array {\n        return [\n            ['id' => '1', 'name' => 'Kettle', 'price' => '24.5'],\n            ['id' => '2', 'name' => 'Toaster', 'price' => '31'],\n        ];\n    }\n}\n\nfinal class Product {\n    public function __construct(\n        public readonly int $id,\n        public readonly string $name,\n        public readonly float $price,\n    ) {}\n\n    public static function fromRow(array $row): self {\n        return new self((int) $row['id'], $row['name'], (float) $row['price']);\n    }\n}\n\n$stmt = new MockStatement();\n$products = array_map([Product::class, 'fromRow'], $stmt->fetchAll());\nforeach ($products as $p) {\n    echo "{$p->id}: {$p->name} £" . number_format($p->price, 2) . "\\n";\n}`,
+          tests: [
+            { id: 1, label: "Casts the id and price", keywords: [{ pattern: "\\(int\\)\\s*\\$row\\['id'\\]" }, { pattern: "\\(float\\)\\s*\\$row\\['price'\\]" }] },
+            { id: 2, label: "Maps rows with array_map", keywords: [{ pattern: "array_map\\s*\\(" }] },
+          ],
+        },
+      },
+      {
+        id: "mysql-13",
+        title: "Dynamic IN() Lists",
+        xp: 25,
+        theory: [
+          text(
+            "A query like `WHERE id IN (...)` needs one bound parameter **per value**, and you can't bind a whole array to a single `?`. Build the list of `?` markers from the array's length, then pass the values to `execute()`. Never `implode()` the raw values into the SQL string — that reopens SQL injection.",
+            {
+              label: "One ? per value",
+              content: `$ids = [4, 9, 15];
+
+$markers = implode(', ', array_fill(0, count($ids), '?')); // "?, ?, ?"
+$sql = "SELECT id, name FROM products WHERE id IN ($markers)";
+
+echo $sql; // SELECT id, name FROM products WHERE id IN (?, ?, ?)
+
+// $stmt = $pdo->prepare($sql);
+// $stmt->execute($ids);`,
+            },
+          ),
+          callout("warning", "An empty array would produce IN () — a SQL syntax error. Return an empty result early when there are no ids."),
+          quiz(
+            "Why not write \"... IN (\" . implode(',', $ids) . \")\"?",
+            [
+              "implode() doesn't work with integers",
+              "The values go straight into the SQL text, so a crafted value can inject SQL — each value must be bound",
+              "MySQL doesn't support IN()",
+              "It returns the rows in the wrong order",
+            ],
+            1,
+            "Concatenating values into SQL is exactly the injection risk prepared statements exist to prevent. Generating ?-markers keeps the SQL fixed and sends the values separately.",
+          ),
+        ],
+        challenge: {
+          title: "Build an IN() Query",
+          description: "Complete inQuery(): return an empty string for an empty array; otherwise return \"SELECT * FROM orders WHERE status IN (?, ?)\" with one ? per status, built with array_fill and implode. Echo the SQL for ['paid', 'shipped', 'refunded'].",
+          starterCode: `${PHP_MAIN}function inQuery(array $statuses): string {\n    // one ? per status, joined by ", "\n\n}\n\necho inQuery(['paid', 'shipped', 'refunded']);`,
+          solutionCode: `${PHP_MAIN}function inQuery(array $statuses): string {\n    if (count($statuses) === 0) {\n        return "";\n    }\n    $markers = implode(', ', array_fill(0, count($statuses), '?'));\n    return "SELECT * FROM orders WHERE status IN ($markers)";\n}\n\necho inQuery(['paid', 'shipped', 'refunded']);`,
+          tests: [
+            { id: 1, label: "Generates markers with array_fill", keywords: [{ pattern: "array_fill\\s*\\(\\s*0\\s*,\\s*count\\s*\\(" }] },
+            { id: 2, label: "Handles the empty case", keywords: [{ pattern: "count\\s*\\(\\s*\\$statuses\\s*\\)\\s*===?\\s*0|empty\\s*\\(\\s*\\$statuses\\s*\\)|!\\s*\\$statuses" }] },
+          ],
+        },
+      },
+      {
+        id: "mysql-14",
+        title: "Safe Sorting & LIKE Searches",
+        xp: 25,
+        theory: [
+          text(
+            "Bound parameters only work for **values**, not for identifiers like column names or keywords like `ASC`/`DESC`. To let users choose a sort order, map their input onto an **allow-list** of known columns. For search, bind the `LIKE` pattern as a value — but escape `%` and `_` in the user's text first, or a search for `50%` would match everything starting with 50.",
+            {
+              label: "Allow-listed ORDER BY and escaped LIKE",
+              content: `function orderBy(string $column, string $dir): string {
+    $columns = ['name' => 'name', 'price' => 'price', 'newest' => 'created_at'];
+    $col = $columns[$column] ?? 'name';
+    $direction = strtolower($dir) === 'desc' ? 'DESC' : 'ASC';
+    return "ORDER BY $col $direction";
+}
+
+function likePattern(string $term): string {
+    return '%' . addcslashes($term, '%_\\\\') . '%';
+}
+
+echo orderBy('price', 'desc') . "\\n";          // ORDER BY price DESC
+echo orderBy('price; DROP TABLE x', 'up') . "\\n"; // ORDER BY name ASC
+echo likePattern('50%_off');                    // %50\\%\\_off%
+
+// $stmt = $pdo->prepare("SELECT * FROM products WHERE name LIKE ? " . orderBy($col, $dir));
+// $stmt->execute([likePattern($term)]);`,
+            },
+          ),
+          quiz(
+            "Why can't you bind the column name in ORDER BY ? like a normal value?",
+            [
+              "PDO only supports one bound parameter per query",
+              "Bound parameters are sent as values, so ORDER BY ? would sort by a constant string, not by the column",
+              "Column names are case-sensitive",
+              "MySQL forbids ORDER BY in prepared statements",
+            ],
+            1,
+            "A bound parameter is always treated as data. The engine would sort by the literal text 'price', which is the same for every row. Identifiers have to come from your own allow-list.",
+          ),
+        ],
+        challenge: {
+          title: "Allow-list a Sort Column",
+          description: "Complete sortClause(): map $input through $allowed (falling back to \"created_at\") and use \"DESC\" only when $dir is \"desc\", else \"ASC\". Echo the clause for (\"title\", \"desc\") and for (\"id; DELETE\", \"x\"), one per line.",
+          starterCode: `${PHP_MAIN}function sortClause(string $input, string $dir): string {\n    $allowed = ['title' => 'title', 'date' => 'created_at'];\n    // pick a known column and direction\n\n}\n\necho sortClause('title', 'desc') . "\\n";\necho sortClause('id; DELETE', 'x');`,
+          solutionCode: `${PHP_MAIN}function sortClause(string $input, string $dir): string {\n    $allowed = ['title' => 'title', 'date' => 'created_at'];\n    $column = $allowed[$input] ?? 'created_at';\n    $direction = $dir === 'desc' ? 'DESC' : 'ASC';\n    return "ORDER BY $column $direction";\n}\n\necho sortClause('title', 'desc') . "\\n";\necho sortClause('id; DELETE', 'x');`,
+          tests: [
+            { id: 1, label: "Looks the column up in the allow-list", keywords: [{ pattern: "\\$allowed\\[\\$input\\]\\s*\\?\\?" }] },
+            { id: 2, label: "Only allows DESC or ASC", keywords: [{ pattern: "'DESC'" }, { pattern: "'ASC'" }] },
+          ],
+        },
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // CHAPTER 6 — Relations, Performance & Schema
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "relations-performance-schema",
+    title: "Relations, Performance & Schema",
+    icon: "🧮",
+    color: "#ec4899",
+    lessons: [
+      {
+        id: "mysql-15",
+        title: "JOINs: Nesting One-to-Many Rows",
+        xp: 25,
+        theory: [
+          text(
+            "A `JOIN` between customers and orders returns **flat rows**: a customer with three orders appears three times, once beside each order. Your PHP usually wants the opposite shape — each customer once, with a nested list of orders. Loop over the rows and group them by the parent's id. A `LEFT JOIN` also keeps customers with no orders, whose order columns come back as `null`.",
+            {
+              label: "Grouping flat JOIN rows",
+              content: `// SELECT c.id, c.name, o.id AS order_id, o.total
+// FROM customers c LEFT JOIN orders o ON o.customer_id = c.id
+$rows = [
+    ['id' => 1, 'name' => 'Amy', 'order_id' => 10, 'total' => 30],
+    ['id' => 1, 'name' => 'Amy', 'order_id' => 11, 'total' => 12],
+    ['id' => 2, 'name' => 'Ben', 'order_id' => null, 'total' => null],
+];
+
+$customers = [];
+foreach ($rows as $row) {
+    $customers[$row['id']] ??= ['name' => $row['name'], 'orders' => []];
+    if ($row['order_id'] !== null) {
+        $customers[$row['id']]['orders'][] = $row['total'];
+    }
+}
+
+foreach ($customers as $c) {
+    echo $c['name'] . ": " . count($c['orders']) . " orders\\n";
+}
+// Amy: 2 orders
+// Ben: 0 orders`,
+            },
+          ),
+          diagram("Same data, two shapes", [
+            { id: "flat", label: "JOIN result", color: "#f59e0b", items: ["One row per order", "Customer columns repeated"] },
+            { id: "nested", label: "Grouped in PHP", color: "#10b981", items: ["One entry per customer", "orders => [...]"] },
+          ]),
+          quiz(
+            "With a LEFT JOIN, what do the order columns contain for a customer who has no orders?",
+            [
+              "The customer is left out of the result",
+              "NULL — the customer row still appears once with empty order columns",
+              "Zero for every column",
+              "A copy of the previous customer's order",
+            ],
+            1,
+            "LEFT JOIN keeps every row from the left table. When there's no matching order, the right-hand columns are NULL, which is why the loop checks order_id !== null before adding an order.",
+          ),
+        ],
+        challenge: {
+          title: "Group Posts with Their Comments",
+          description: "Group the flat rows by post id into $posts[id] = ['title' => ..., 'comments' => [...]], skipping null comments. Echo \"<title> (<count>)\" for each post, one per line.",
+          starterCode: `${PHP_MAIN}$rows = [\n    ['post_id' => 1, 'title' => 'Hello', 'comment' => 'Nice!'],\n    ['post_id' => 1, 'title' => 'Hello', 'comment' => 'Thanks'],\n    ['post_id' => 2, 'title' => 'Update', 'comment' => null],\n];\n\n$posts = [];\n// group rows by post_id\n\nforeach ($posts as $post) {\n    echo $post['title'] . " (" . count($post['comments']) . ")\\n";\n}`,
+          solutionCode: `${PHP_MAIN}$rows = [\n    ['post_id' => 1, 'title' => 'Hello', 'comment' => 'Nice!'],\n    ['post_id' => 1, 'title' => 'Hello', 'comment' => 'Thanks'],\n    ['post_id' => 2, 'title' => 'Update', 'comment' => null],\n];\n\n$posts = [];\nforeach ($rows as $row) {\n    $posts[$row['post_id']] ??= ['title' => $row['title'], 'comments' => []];\n    if ($row['comment'] !== null) {\n        $posts[$row['post_id']]['comments'][] = $row['comment'];\n    }\n}\n\nforeach ($posts as $post) {\n    echo $post['title'] . " (" . count($post['comments']) . ")\\n";\n}`,
+          tests: [
+            { id: 1, label: "Groups by post_id", keywords: [{ pattern: "\\$posts\\[\\$row\\['post_id'\\]\\]" }] },
+            { id: 2, label: "Skips null comments", keywords: [{ pattern: "\\$row\\['comment'\\]\\s*!==?\\s*null|isset\\s*\\(\\s*\\$row\\['comment'\\]\\s*\\)" }] },
+          ],
+        },
+      },
+      {
+        id: "mysql-16",
+        title: "Avoiding the N+1 Query Problem",
+        xp: 30,
+        theory: [
+          text(
+            "The **N+1 problem**: you run 1 query to load N authors, then 1 more query **per author** to load their books — 101 round trips for 100 authors. Each query is fast, but the total is slow. The fix is to load all the children in **one** query with `IN (...)`, then group them by the foreign key in PHP. That's 2 queries no matter how many authors there are.",
+            {
+              label: "From N+1 queries to 2",
+              content: `// N+1: one query per author inside the loop
+foreach ($authors as $i => $author) {
+    $stmt = $pdo->prepare("SELECT title FROM books WHERE author_id = ?");
+    $stmt->execute([$author['id']]);
+    $authors[$i]['books'] = $stmt->fetchAll(PDO::FETCH_COLUMN);
+}
+
+// Batched: one query for every author's books
+$ids = array_column($authors, 'id');
+$markers = implode(', ', array_fill(0, count($ids), '?'));
+$stmt = $pdo->prepare("SELECT author_id, title FROM books WHERE author_id IN ($markers)");
+$stmt->execute($ids);
+
+$booksByAuthor = [];
+foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+    $booksByAuthor[$row['author_id']][] = $row['title'];
+}`,
+            },
+          ),
+          callout("info", "ORMs have the same trap — it's why Laravel offers eager loading with ->with('books'). Counting queries per page during development is the easiest way to spot it."),
+          quiz(
+            "Loading 50 authors and then each author's books separately runs how many queries?",
+            [
+              "2",
+              "50",
+              "51",
+              "100",
+            ],
+            2,
+            "One query fetches the 50 authors, then the loop adds one query per author: 1 + 50 = 51. Batching the books with IN () brings it down to 2.",
+          ),
+        ],
+        challenge: {
+          title: "Batch-Load the Books",
+          description: "MockDb counts every query. Replace the per-author loop with a single call to booksForAuthors() using array_column to collect the ids, group the rows by author_id, and echo \"<name>: <count>\" per author followed by \"queries: <n>\".",
+          starterCode: `${PHP_MAIN}class MockDb {\n    public int $queries = 0;\n    private array $books = [\n        ['author_id' => 1, 'title' => 'Dune'],\n        ['author_id' => 1, 'title' => 'Children of Dune'],\n        ['author_id' => 2, 'title' => 'Emma'],\n    ];\n\n    public function authors(): array {\n        $this->queries++;\n        return [['id' => 1, 'name' => 'Herbert'], ['id' => 2, 'name' => 'Austen']];\n    }\n\n    public function booksForAuthor(int $id): array {\n        $this->queries++;\n        return array_values(array_filter($this->books, fn($b) => $b['author_id'] === $id));\n    }\n\n    public function booksForAuthors(array $ids): array {\n        $this->queries++;\n        return array_values(array_filter($this->books, fn($b) => in_array($b['author_id'], $ids, true)));\n    }\n}\n\n$db = new MockDb();\n$authors = $db->authors();\n\n// N+1 version — replace this loop with one booksForAuthors() call\nforeach ($authors as $author) {\n    $books = $db->booksForAuthor($author['id']);\n    echo $author['name'] . ": " . count($books) . "\\n";\n}\necho "queries: " . $db->queries;`,
+          solutionCode: `${PHP_MAIN}class MockDb {\n    public int $queries = 0;\n    private array $books = [\n        ['author_id' => 1, 'title' => 'Dune'],\n        ['author_id' => 1, 'title' => 'Children of Dune'],\n        ['author_id' => 2, 'title' => 'Emma'],\n    ];\n\n    public function authors(): array {\n        $this->queries++;\n        return [['id' => 1, 'name' => 'Herbert'], ['id' => 2, 'name' => 'Austen']];\n    }\n\n    public function booksForAuthor(int $id): array {\n        $this->queries++;\n        return array_values(array_filter($this->books, fn($b) => $b['author_id'] === $id));\n    }\n\n    public function booksForAuthors(array $ids): array {\n        $this->queries++;\n        return array_values(array_filter($this->books, fn($b) => in_array($b['author_id'], $ids, true)));\n    }\n}\n\n$db = new MockDb();\n$authors = $db->authors();\n\n$byAuthor = [];\nforeach ($db->booksForAuthors(array_column($authors, 'id')) as $book) {\n    $byAuthor[$book['author_id']][] = $book['title'];\n}\n\nforeach ($authors as $author) {\n    echo $author['name'] . ": " . count($byAuthor[$author['id']] ?? []) . "\\n";\n}\necho "queries: " . $db->queries;`,
+          tests: [
+            { id: 1, label: "Collects ids with array_column", keywords: [{ pattern: "array_column\\s*\\(\\s*\\$authors\\s*,\\s*'id'\\s*\\)" }] },
+            { id: 2, label: "Loads books in one batched call", keywords: [{ pattern: "->booksForAuthors\\s*\\(" }] },
+            { id: 3, label: "No longer queries inside the loop", keywords: [{ pattern: "^(?![\\s\\S]*->booksForAuthor\\s*\\()" }] },
+          ],
+        },
+      },
+      {
+        id: "mysql-17",
+        title: "Schema Migrations",
+        xp: 25,
+        theory: [
+          text(
+            "Changing a table by hand on each server is how environments drift apart. **Migrations** are small, numbered SQL scripts kept in version control and applied in order. The database records which ones have already run in a `schema_migrations` table, so running the migrator again only applies the **pending** ones — every machine ends up with the same schema.",
+            {
+              label: "A tiny migration runner",
+              content: `$migrations = [
+    '001_create_users'    => "CREATE TABLE users (id INT PRIMARY KEY AUTO_INCREMENT, email VARCHAR(255) NOT NULL UNIQUE)",
+    '002_add_users_name'  => "ALTER TABLE users ADD COLUMN name VARCHAR(100) NULL",
+    '003_create_orders'   => "CREATE TABLE orders (id INT PRIMARY KEY AUTO_INCREMENT, user_id INT NOT NULL)",
+];
+
+// Read from: SELECT version FROM schema_migrations
+$applied = ['001_create_users'];
+
+ksort($migrations); // numbered names sort into run order
+foreach ($migrations as $version => $sql) {
+    if (in_array($version, $applied, true)) {
+        continue;
+    }
+    // $pdo->exec($sql);
+    // $pdo->prepare("INSERT INTO schema_migrations (version) VALUES (?)")->execute([$version]);
+    echo "applied $version\\n";
+}`,
+            },
+          ),
+          callout("warning", "Never edit a migration that has already run somewhere else — write a new one. Changing an applied script means other databases never receive the change."),
+          quiz(
+            "What is the schema_migrations table for?",
+            [
+              "It stores a backup of every table",
+              "It records which migrations have run, so only pending ones are applied next time",
+              "It holds the application's configuration",
+              "MySQL creates it automatically for every database",
+            ],
+            1,
+            "Each successful migration inserts its version into schema_migrations. The runner compares that list with the files it has and executes only the ones not yet recorded.",
+          ),
+        ],
+        challenge: {
+          title: "Apply Pending Migrations",
+          description: "Complete pending(): sort the migrations by key and return only the versions not in $applied. Echo each pending version on its own line, then \"<n> to run\".",
+          starterCode: `${PHP_MAIN}$migrations = [\n    '003_add_index' => "CREATE INDEX idx_email ON users (email)",\n    '001_users'     => "CREATE TABLE users (id INT PRIMARY KEY)",\n    '002_orders'    => "CREATE TABLE orders (id INT PRIMARY KEY)",\n];\n$applied = ['001_users'];\n\nfunction pending(array $migrations, array $applied): array {\n    // sort by version, keep only the ones not applied yet\n\n}\n\n$toRun = pending($migrations, $applied);\nforeach ($toRun as $version) {\n    echo $version . "\\n";\n}\necho count($toRun) . " to run";`,
+          solutionCode: `${PHP_MAIN}$migrations = [\n    '003_add_index' => "CREATE INDEX idx_email ON users (email)",\n    '001_users'     => "CREATE TABLE users (id INT PRIMARY KEY)",\n    '002_orders'    => "CREATE TABLE orders (id INT PRIMARY KEY)",\n];\n$applied = ['001_users'];\n\nfunction pending(array $migrations, array $applied): array {\n    ksort($migrations);\n    $versions = [];\n    foreach (array_keys($migrations) as $version) {\n        if (!in_array($version, $applied, true)) {\n            $versions[] = $version;\n        }\n    }\n    return $versions;\n}\n\n$toRun = pending($migrations, $applied);\nforeach ($toRun as $version) {\n    echo $version . "\\n";\n}\necho count($toRun) . " to run";`,
+          tests: [
+            { id: 1, label: "Sorts migrations by version", keywords: [{ pattern: "ksort\\s*\\(\\s*\\$migrations\\s*\\)" }] },
+            { id: 2, label: "Skips applied versions", keywords: [{ pattern: "in_array\\s*\\(\\s*\\$version\\s*,\\s*\\$applied|array_diff\\s*\\(" }] },
           ],
         },
       },

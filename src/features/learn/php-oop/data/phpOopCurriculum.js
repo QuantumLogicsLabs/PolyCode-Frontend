@@ -1,5 +1,5 @@
 // PolyCode — PHP OOP interactive course
-// 4 chapters · 16 lessons · server/browser PHP challenges
+// 6 chapters · 24 lessons · server/browser PHP challenges
 
 function quiz(question, options, answer, explanation) {
   return { type: "quiz", question, options, answer, explanation };
@@ -826,7 +826,7 @@ $point->lat = 0; // FATAL ERROR — cannot modify a readonly property`,
         xp: 30,
         theory: [
           text(
-            "Final lesson: combine everything from this course into one small, realistic model — a `Product` with a readonly id, an enum for category, encapsulated pricing, and a `__toString()` for display.",
+            "Chapter capstone: combine everything from the first four chapters into one small, realistic model — a `Product` with a readonly id, an enum for category, encapsulated pricing, and a `__toString()` for display.",
             {
               label: "A complete domain object",
               content: `enum Category: string {
@@ -872,6 +872,471 @@ class Product {
           tests: [
             { id: 1, label: "applyDiscount reduces price", keywords: [{ pattern: "\\$this->price\\s*-=" }] },
             { id: 2, label: "Implements __toString()", keywords: [{ pattern: "function\\s+__toString" }] },
+          ],
+        },
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // CHAPTER 5 — Class Design & Object Identity
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "class-design-identity",
+    title: "Class Design & Object Identity",
+    icon: "🧬",
+    color: "#10b981",
+    lessons: [
+      {
+        id: "oop-16",
+        title: "Class Constants & the final Keyword",
+        xp: 20,
+        theory: [
+          text(
+            "A **class constant** (`const`) is a value that belongs to the class and can never change — perfect for limits, default settings and fixed labels. You read it with `ClassName::NAME` from outside, or `self::NAME` inside the class. Marking a method `final` stops subclasses from overriding it, and marking a whole class `final` stops anyone extending it at all.",
+            {
+              label: "Constants and final",
+              content: `class Password {
+    public const MIN_LENGTH = 8;
+
+    final public static function isStrongEnough(string $value): bool {
+        return strlen($value) >= self::MIN_LENGTH;
+    }
+}
+
+echo Password::MIN_LENGTH;                     // 8
+var_dump(Password::isStrongEnough("hunter2")); // bool(false)
+
+final class Money {
+    // no class can extend Money
+}
+
+// class Euro extends Money {} // Fatal error: cannot inherit from final class`,
+            },
+          ),
+          callout("info", "Use final when a class or method enforces a rule that a subclass must not quietly change — a password check or a money calculation, for example. It documents intent and the engine enforces it."),
+          quiz(
+            "What happens if a subclass tries to override a method marked final?",
+            [
+              "The override silently replaces the parent method",
+              "PHP raises a fatal error — final methods cannot be overridden",
+              "The subclass version only runs when called statically",
+              "PHP renames the subclass method automatically",
+            ],
+            1,
+            "final is enforced by the engine when the class is compiled: declaring a method with the same name in a subclass is a fatal error, so the parent's behaviour is guaranteed.",
+          ),
+        ],
+        challenge: {
+          title: "Add a Constant and a final Method",
+          description: "Give Password a public constant MIN_LENGTH = 8 and a final static isStrongEnough(string $value): bool that compares strlen($value) against self::MIN_LENGTH. Echo \"weak\" or \"strong\" for \"hunter2\".",
+          starterCode: `${PHP_MAIN}class Password {\n    // add MIN_LENGTH and a final static isStrongEnough() method\n\n}\n\necho Password::isStrongEnough("hunter2") ? "strong" : "weak";`,
+          solutionCode: `${PHP_MAIN}class Password {\n    public const MIN_LENGTH = 8;\n\n    final public static function isStrongEnough(string $value): bool {\n        return strlen($value) >= self::MIN_LENGTH;\n    }\n}\n\necho Password::isStrongEnough("hunter2") ? "strong" : "weak";`,
+          tests: [
+            { id: 1, label: "Declares the MIN_LENGTH constant", keywords: [{ pattern: "const\\s+MIN_LENGTH\\s*=\\s*8" }] },
+            { id: 2, label: "Marks isStrongEnough() as final", keywords: [{ pattern: "final\\s+public\\s+static\\s+function\\s+isStrongEnough|final\\s+static\\s+public\\s+function\\s+isStrongEnough|public\\s+final\\s+static\\s+function\\s+isStrongEnough" }] },
+            { id: 3, label: "Reads the constant with self::", keywords: [{ pattern: "self::MIN_LENGTH" }] },
+          ],
+        },
+      },
+      {
+        id: "oop-17",
+        title: "Late Static Binding: self vs static",
+        xp: 25,
+        theory: [
+          text(
+            "Inside a class, `self` always means **the class where the code was written**, while `static` means **the class that was actually called at runtime**. The difference only shows up with inheritance — and it matters most in static factory methods, where `new self()` would always build the parent class even when you call the method on a child.",
+            {
+              label: "self vs static in a factory",
+              content: `class Model {
+    public static function create(): static {
+        return new static(); // the class it was called on
+    }
+
+    public static function createSelf(): self {
+        return new self();   // always Model
+    }
+}
+
+class User extends Model {}
+
+echo get_class(User::create());     // User
+echo get_class(User::createSelf()); // Model`,
+            },
+          ),
+          diagram("Where the name points", [
+            { id: "selfkw", label: "self::", color: "#10b981", items: ["Resolved when the class is written", "Always the defining class"] },
+            { id: "statickw", label: "static::", color: "#3b82f6", items: ["Resolved at call time", "The class you called the method on"] },
+          ]),
+          quiz(
+            "User extends Model, and Model::create() returns new static(). What does User::create() return?",
+            [
+              "A Model object",
+              "A User object",
+              "null, because static methods cannot create objects",
+              "A fatal error",
+            ],
+            1,
+            "static is bound late — to the class named in the call. Calling User::create() makes new static() build a User. new self() would have built a Model instead.",
+          ),
+        ],
+        challenge: {
+          title: "Fix the Factory",
+          description: "Model::create() currently returns new self(), so User::create() builds a Model. Change it to use late static binding (return type static, new static()) so the echo prints \"User\".",
+          starterCode: `${PHP_MAIN}class Model {\n    public static function create(): self {\n        return new self();\n    }\n}\n\nclass User extends Model {}\n\necho get_class(User::create());`,
+          solutionCode: `${PHP_MAIN}class Model {\n    public static function create(): static {\n        return new static();\n    }\n}\n\nclass User extends Model {}\n\necho get_class(User::create());`,
+          tests: [
+            { id: 1, label: "Creates the object with new static()", keywords: [{ pattern: "new\\s+static\\s*\\(" }] },
+            { id: 2, label: "Declares a static return type", keywords: [{ pattern: "\\)\\s*:\\s*static" }] },
+          ],
+        },
+      },
+      {
+        id: "oop-18",
+        title: "Cloning Objects & __clone",
+        xp: 25,
+        theory: [
+          text(
+            "Assigning an object to a new variable does **not** copy it — both variables point at the same object. `clone` makes a real copy, but only a **shallow** one: any property that holds another object still points at the original. Define `__clone()` to deep-copy those inner objects so the clone is fully independent.",
+            {
+              label: "Shallow copy vs deep copy",
+              content: `class Address {
+    public function __construct(public string $city) {}
+}
+
+class Customer {
+    public function __construct(public string $name, public Address $address) {}
+
+    public function __clone() {
+        $this->address = clone $this->address; // copy the inner object too
+    }
+}
+
+$a = new Customer("Amy", new Address("Leeds"));
+$b = clone $a;
+$b->address->city = "York";
+
+echo $a->address->city; // Leeds — unaffected thanks to __clone()`,
+            },
+          ),
+          callout("warning", "Without __clone(), changing $b->address->city above would also change $a's city, because both customers would share one Address object."),
+          quiz(
+            "What does clone do to a property that holds another object?",
+            [
+              "It deep-copies the inner object automatically",
+              "It copies the reference, so the clone and the original share the inner object — unless __clone() copies it",
+              "It sets the property to null",
+              "It throws an error unless the inner object is readonly",
+            ],
+            1,
+            "clone is shallow: scalar properties are copied, but object properties keep pointing at the same instance. __clone() runs on the new copy and is where you clone inner objects.",
+          ),
+        ],
+        challenge: {
+          title: "Deep-Copy an Order",
+          description: "Add a __clone() method to Order that clones its $address. Then the copy's city change must not affect the original, so the script echoes \"Leeds\".",
+          starterCode: `${PHP_MAIN}class Address {\n    public function __construct(public string $city) {}\n}\n\nclass Order {\n    public function __construct(public Address $address) {}\n    // add __clone() so the address is copied too\n\n}\n\n$original = new Order(new Address("Leeds"));\n$copy = clone $original;\n$copy->address->city = "York";\necho $original->address->city;`,
+          solutionCode: `${PHP_MAIN}class Address {\n    public function __construct(public string $city) {}\n}\n\nclass Order {\n    public function __construct(public Address $address) {}\n\n    public function __clone() {\n        $this->address = clone $this->address;\n    }\n}\n\n$original = new Order(new Address("Leeds"));\n$copy = clone $original;\n$copy->address->city = "York";\necho $original->address->city;`,
+          tests: [
+            { id: 1, label: "Defines __clone()", keywords: [{ pattern: "function\\s+__clone\\s*\\(" }] },
+            { id: 2, label: "Clones the inner address", keywords: [{ pattern: "\\$this->address\\s*=\\s*clone\\s+\\$this->address" }] },
+          ],
+        },
+      },
+      {
+        id: "oop-19",
+        title: "Comparing Objects & instanceof",
+        xp: 20,
+        theory: [
+          text(
+            "PHP has two ways to compare objects. `==` is true when both objects are the same class and every property is equal. `===` is only true when both variables refer to **the very same instance**. Separately, `instanceof` checks an object's type — including parent classes and interfaces it implements.",
+            {
+              label: "==, === and instanceof",
+              content: `class Point {
+    public function __construct(public int $x, public int $y) {}
+}
+
+$a = new Point(1, 2);
+$b = new Point(1, 2);
+$c = $a;
+
+var_dump($a == $b);  // true  — same class, same values
+var_dump($a === $b); // false — two different objects
+var_dump($a === $c); // true  — the same object
+
+interface Shape {}
+class Square implements Shape {}
+var_dump(new Square() instanceof Shape); // true`,
+            },
+          ),
+          quiz(
+            "$a and $b are two separate Point(1, 2) objects. Which comparison is true?",
+            [
+              "$a === $b",
+              "$a == $b",
+              "Both",
+              "Neither",
+            ],
+            1,
+            "== compares class and property values, so two equal Points match. === asks whether they are the same instance, and two separate new calls always create different instances.",
+          ),
+        ],
+        challenge: {
+          title: "Compare Two Points",
+          description: "Echo three results on separate lines as \"yes\"/\"no\": whether $a == $b, whether $a === $b, and whether $a is an instanceof Point.",
+          starterCode: `${PHP_MAIN}class Point {\n    public function __construct(public int $x, public int $y) {}\n}\n\n$a = new Point(3, 4);\n$b = new Point(3, 4);\n\n// echo yes/no for ==, ===, and instanceof Point`,
+          solutionCode: `${PHP_MAIN}class Point {\n    public function __construct(public int $x, public int $y) {}\n}\n\n$a = new Point(3, 4);\n$b = new Point(3, 4);\n\necho ($a == $b ? "yes" : "no") . "\\n";\necho ($a === $b ? "yes" : "no") . "\\n";\necho ($a instanceof Point ? "yes" : "no");`,
+          tests: [
+            { id: 1, label: "Compares with ==", keywords: [{ pattern: "\\$a\\s*==\\s*\\$b" }] },
+            { id: 2, label: "Compares with ===", keywords: [{ pattern: "\\$a\\s*===\\s*\\$b" }] },
+            { id: 3, label: "Checks instanceof Point", keywords: [{ pattern: "instanceof\\s+Point" }] },
+          ],
+        },
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // CHAPTER 6 — Built-in Interfaces & Composition
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "builtin-interfaces-composition",
+    title: "Built-in Interfaces & Composition",
+    icon: "🧩",
+    color: "#ec4899",
+    lessons: [
+      {
+        id: "oop-20",
+        title: "Countable & IteratorAggregate",
+        xp: 25,
+        theory: [
+          text(
+            "PHP ships with interfaces that let your own objects plug into the language. Implement `Countable` and `count($obj)` calls your `count()` method. Implement `IteratorAggregate` and `foreach` can loop over your object — `getIterator()` just returns something iterable, usually an `ArrayIterator` over an internal array.",
+            {
+              label: "A collection class",
+              content: `class Playlist implements Countable, IteratorAggregate {
+    private array $songs = [];
+
+    public function add(string $song): void {
+        $this->songs[] = $song;
+    }
+
+    public function count(): int {
+        return count($this->songs);
+    }
+
+    public function getIterator(): Iterator {
+        return new ArrayIterator($this->songs);
+    }
+}
+
+$list = new Playlist();
+$list->add("Intro");
+$list->add("Outro");
+
+echo count($list); // 2
+foreach ($list as $song) {
+    echo $song . "\\n";
+}`,
+            },
+          ),
+          callout("info", "Keeping $songs private and exposing only add(), count() and iteration means callers can read the collection but can't put it into an invalid state."),
+          quiz(
+            "After a class implements IteratorAggregate, what does foreach call to get the items?",
+            [
+              "count()",
+              "getIterator()",
+              "__toString()",
+              "current()",
+            ],
+            1,
+            "foreach sees the IteratorAggregate interface and calls getIterator(), then loops over whatever iterator it returns — an ArrayIterator in the example.",
+          ),
+        ],
+        challenge: {
+          title: "Make a Countable, Loopable Cart",
+          description: "Make Cart implement Countable and IteratorAggregate: count() returns the number of items and getIterator() returns new ArrayIterator($this->items). The script echoes the count, then each item on its own line.",
+          starterCode: `${PHP_MAIN}class Cart {\n    private array $items = [];\n\n    public function add(string $item): void {\n        $this->items[] = $item;\n    }\n    // implement Countable and IteratorAggregate\n\n}\n\n$cart = new Cart();\n$cart->add("Pen");\n$cart->add("Notebook");\n\necho count($cart) . "\\n";\nforeach ($cart as $item) {\n    echo $item . "\\n";\n}`,
+          solutionCode: `${PHP_MAIN}class Cart implements Countable, IteratorAggregate {\n    private array $items = [];\n\n    public function add(string $item): void {\n        $this->items[] = $item;\n    }\n\n    public function count(): int {\n        return count($this->items);\n    }\n\n    public function getIterator(): Iterator {\n        return new ArrayIterator($this->items);\n    }\n}\n\n$cart = new Cart();\n$cart->add("Pen");\n$cart->add("Notebook");\n\necho count($cart) . "\\n";\nforeach ($cart as $item) {\n    echo $item . "\\n";\n}`,
+          tests: [
+            { id: 1, label: "Implements both interfaces", keywords: [{ pattern: "implements[^{]*Countable" }, { pattern: "implements[^{]*IteratorAggregate" }] },
+            { id: 2, label: "Defines count(): int", keywords: [{ pattern: "function\\s+count\\s*\\(\\s*\\)\\s*:\\s*int" }] },
+            { id: 3, label: "Returns an ArrayIterator", keywords: [{ pattern: "new\\s+ArrayIterator\\s*\\(" }] },
+          ],
+        },
+      },
+      {
+        id: "oop-21",
+        title: "ArrayAccess: Objects with [] Syntax",
+        xp: 25,
+        theory: [
+          text(
+            "`ArrayAccess` lets an object be read and written with square brackets, like `$config['debug']`. You implement four methods: `offsetExists` (for `isset`), `offsetGet`, `offsetSet` and `offsetUnset`. The object stays in control — it can validate values, supply defaults, or refuse writes entirely.",
+            {
+              label: "A settings object",
+              content: `class Settings implements ArrayAccess {
+    private array $data = [];
+
+    public function offsetExists(mixed $key): bool {
+        return isset($this->data[$key]);
+    }
+
+    public function offsetGet(mixed $key): mixed {
+        return $this->data[$key] ?? null;
+    }
+
+    public function offsetSet(mixed $key, mixed $value): void {
+        $this->data[$key] = $value;
+    }
+
+    public function offsetUnset(mixed $key): void {
+        unset($this->data[$key]);
+    }
+}
+
+$s = new Settings();
+$s["theme"] = "dark";            // offsetSet
+echo $s["theme"];                // offsetGet → dark
+var_dump(isset($s["missing"])); // offsetExists → false`,
+            },
+          ),
+          callout("warning", "Since PHP 8.1 these methods need the exact types shown (mixed parameters, bool/mixed/void returns). Leaving the return types off triggers a deprecation notice."),
+          quiz(
+            "Which ArrayAccess method runs for isset($settings['theme'])?",
+            [
+              "offsetGet()",
+              "offsetExists()",
+              "offsetSet()",
+              "__isset()",
+            ],
+            1,
+            "isset() and empty() on an ArrayAccess object call offsetExists(). Reading a value calls offsetGet(), writing calls offsetSet(), and unset() calls offsetUnset().",
+          ),
+        ],
+        challenge: {
+          title: "Build an ArrayAccess Config",
+          description: "Make Config implement ArrayAccess with all four methods backed by $this->data, where offsetGet returns null for a missing key. Echo $config[\"env\"], then echo \"has debug\" or \"no debug\" on the next line using isset().",
+          starterCode: `${PHP_MAIN}class Config {\n    private array $data = [];\n    // implement ArrayAccess\n\n}\n\n$config = new Config();\n$config["env"] = "production";\n\necho $config["env"] . "\\n";\necho isset($config["debug"]) ? "has debug" : "no debug";`,
+          solutionCode: `${PHP_MAIN}class Config implements ArrayAccess {\n    private array $data = [];\n\n    public function offsetExists(mixed $key): bool {\n        return isset($this->data[$key]);\n    }\n\n    public function offsetGet(mixed $key): mixed {\n        return $this->data[$key] ?? null;\n    }\n\n    public function offsetSet(mixed $key, mixed $value): void {\n        $this->data[$key] = $value;\n    }\n\n    public function offsetUnset(mixed $key): void {\n        unset($this->data[$key]);\n    }\n}\n\n$config = new Config();\n$config["env"] = "production";\n\necho $config["env"] . "\\n";\necho isset($config["debug"]) ? "has debug" : "no debug";`,
+          tests: [
+            { id: 1, label: "Implements ArrayAccess", keywords: [{ pattern: "implements\\s+ArrayAccess" }] },
+            { id: 2, label: "Defines all four offset methods", keywords: [{ pattern: "function\\s+offsetExists" }, { pattern: "function\\s+offsetGet" }, { pattern: "function\\s+offsetSet" }, { pattern: "function\\s+offsetUnset" }] },
+          ],
+        },
+      },
+      {
+        id: "oop-22",
+        title: "JsonSerializable & Stringable",
+        xp: 20,
+        theory: [
+          text(
+            "By default `json_encode()` only sees an object's **public** properties. Implement `JsonSerializable` and its `jsonSerialize()` method decides exactly what goes into the JSON — hiding secrets, renaming fields or adding computed values. Any class with a `__toString()` method also automatically implements the built-in `Stringable` interface, so you can type-hint `Stringable` for anything printable.",
+            {
+              label: "Controlling JSON output",
+              content: `class User implements JsonSerializable {
+    public function __construct(
+        private int $id,
+        private string $email,
+        private string $passwordHash,
+    ) {}
+
+    public function jsonSerialize(): array {
+        return ["id" => $this->id, "email" => $this->email]; // no hash
+    }
+
+    public function __toString(): string {
+        return $this->email;
+    }
+}
+
+$u = new User(7, "amy@example.com", "x9f...");
+echo json_encode($u);             // {"id":7,"email":"amy@example.com"}
+var_dump($u instanceof Stringable); // true — because of __toString()`,
+            },
+          ),
+          quiz(
+            "Why implement jsonSerialize() on a User class that has a private passwordHash?",
+            [
+              "json_encode() can't encode objects at all without it",
+              "It lets the class choose exactly which fields appear in the JSON, so the hash is never exposed",
+              "It makes the object immutable",
+              "It is required for __toString() to work",
+            ],
+            1,
+            "jsonSerialize() is the single place that defines the object's public JSON shape. Returning only id and email guarantees the hash can't leak into an API response.",
+          ),
+        ],
+        challenge: {
+          title: "Serialize a Product Safely",
+          description: "Make Product implement JsonSerializable. jsonSerialize() must return [\"name\" => ..., \"price\" => ...] and leave out $costPrice. Echo json_encode($product).",
+          starterCode: `${PHP_MAIN}class Product {\n    public function __construct(\n        private string $name,\n        private float $price,\n        private float $costPrice,\n    ) {}\n    // implement JsonSerializable without exposing costPrice\n\n}\n\n$product = new Product("Lamp", 39.5, 12.0);\necho json_encode($product);`,
+          solutionCode: `${PHP_MAIN}class Product implements JsonSerializable {\n    public function __construct(\n        private string $name,\n        private float $price,\n        private float $costPrice,\n    ) {}\n\n    public function jsonSerialize(): array {\n        return ["name" => $this->name, "price" => $this->price];\n    }\n}\n\n$product = new Product("Lamp", 39.5, 12.0);\necho json_encode($product);`,
+          tests: [
+            { id: 1, label: "Implements JsonSerializable", keywords: [{ pattern: "implements\\s+JsonSerializable" }] },
+            { id: 2, label: "Defines jsonSerialize()", keywords: [{ pattern: "function\\s+jsonSerialize\\s*\\(" }] },
+          ],
+        },
+      },
+      {
+        id: "oop-23",
+        title: "Composition Over Inheritance",
+        xp: 30,
+        theory: [
+          text(
+            "Inheritance says a class **is a** kind of another. **Composition** says a class **has a** collaborator it delegates to. When behaviour needs to vary — how a price is discounted, how a message is sent — composing with an interface is usually more flexible than a subclass per variation: you can swap the collaborator at runtime and test each piece on its own. This is the Strategy pattern.",
+            {
+              label: "Swappable pricing strategies",
+              content: `interface DiscountPolicy {
+    public function apply(float $total): float;
+}
+
+class NoDiscount implements DiscountPolicy {
+    public function apply(float $total): float { return $total; }
+}
+
+class PercentOff implements DiscountPolicy {
+    public function __construct(private float $percent) {}
+    public function apply(float $total): float {
+        return $total * (1 - $this->percent / 100);
+    }
+}
+
+class Checkout {
+    public function __construct(private DiscountPolicy $policy) {}
+
+    public function total(array $prices): float {
+        return $this->policy->apply(array_sum($prices));
+    }
+}
+
+echo (new Checkout(new PercentOff(10)))->total([20, 30]); // 45`,
+            },
+          ),
+          diagram("Two ways to vary behaviour", [
+            { id: "inherit", label: "Inheritance", color: "#f59e0b", items: ["One subclass per variation", "Fixed when the object is created", "Deep hierarchies get rigid"] },
+            { id: "compose", label: "Composition", color: "#ec4899", items: ["Inject a collaborator", "Swap it at runtime", "Each piece tested alone"] },
+          ]),
+          quiz(
+            "What is the main advantage of Checkout receiving a DiscountPolicy instead of having subclasses like TenPercentCheckout?",
+            [
+              "Composition always runs faster",
+              "New discount rules can be added and swapped without changing or subclassing Checkout",
+              "PHP does not allow subclasses of Checkout",
+              "It removes the need for interfaces",
+            ],
+            1,
+            "Checkout depends only on the DiscountPolicy contract. Adding a new rule means writing one new small class — Checkout itself never changes, and there is no explosion of subclasses.",
+          ),
+        ],
+        challenge: {
+          title: "Inject a Shipping Strategy",
+          description: "Complete FlatRate (always returns its $fee) and FreeOver (returns 0 when $subtotal >= $threshold, else $fee). Order must hold a ShippingPolicy and use it in shipping(). Echo the shipping for a 60 subtotal with FlatRate(5), then with FreeOver(50, 5), separated by \",\".",
+          starterCode: `${PHP_MAIN}interface ShippingPolicy {\n    public function cost(float $subtotal): float;\n}\n\nclass FlatRate implements ShippingPolicy {\n    public function __construct(private float $fee) {}\n    public function cost(float $subtotal): float {\n        // always the flat fee\n\n    }\n}\n\nclass FreeOver implements ShippingPolicy {\n    public function __construct(private float $threshold, private float $fee) {}\n    public function cost(float $subtotal): float {\n        // 0 at or above the threshold, else the fee\n\n    }\n}\n\nclass Order {\n    // hold a ShippingPolicy and add shipping(float $subtotal): float\n\n}\n\n$a = new Order(new FlatRate(5));\n$b = new Order(new FreeOver(50, 5));\necho $a->shipping(60) . "," . $b->shipping(60);`,
+          solutionCode: `${PHP_MAIN}interface ShippingPolicy {\n    public function cost(float $subtotal): float;\n}\n\nclass FlatRate implements ShippingPolicy {\n    public function __construct(private float $fee) {}\n    public function cost(float $subtotal): float {\n        return $this->fee;\n    }\n}\n\nclass FreeOver implements ShippingPolicy {\n    public function __construct(private float $threshold, private float $fee) {}\n    public function cost(float $subtotal): float {\n        return $subtotal >= $this->threshold ? 0 : $this->fee;\n    }\n}\n\nclass Order {\n    public function __construct(private ShippingPolicy $policy) {}\n\n    public function shipping(float $subtotal): float {\n        return $this->policy->cost($subtotal);\n    }\n}\n\n$a = new Order(new FlatRate(5));\n$b = new Order(new FreeOver(50, 5));\necho $a->shipping(60) . "," . $b->shipping(60);`,
+          tests: [
+            { id: 1, label: "Order receives a ShippingPolicy", keywords: [{ pattern: "__construct\\s*\\(\\s*private\\s+ShippingPolicy\\s+\\$\\w+" }] },
+            { id: 2, label: "shipping() delegates to the policy", keywords: [{ pattern: "\\$this->\\w+->cost\\s*\\(" }] },
+            { id: 3, label: "FreeOver compares against the threshold", keywords: [{ pattern: "\\$subtotal\\s*>=\\s*\\$this->threshold" }] },
           ],
         },
       },
