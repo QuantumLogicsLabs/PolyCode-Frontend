@@ -1,5 +1,5 @@
 // PolyCode — PHP Forms interactive course
-// 4 chapters · 12 lessons · server/browser PHP challenges
+// 6 chapters · 18 lessons · server/browser PHP challenges
 // We simulate incoming request data the same way PHP Fundamentals does:
 // assigning directly into $_GET / $_POST / $_FILES at the top of the script,
 // since there's no real HTTP server in the sandbox.
@@ -515,7 +515,7 @@ if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
         xp: 30,
         theory: [
           text(
-            "Final lesson: combine everything from this course into one handler — validate required fields, sanitize output, and only proceed if the CSRF token matches.",
+            "Chapter capstone: combine everything from the first four chapters into one handler — validate required fields, sanitize output, and only proceed if the CSRF token matches.",
             {
               label: "A complete, safe handler shape",
               content: `if (!hash_equals($sessionToken, $_POST['csrf_token'] ?? '')) {
@@ -550,6 +550,332 @@ echo "Thanks, $safeName! Message received.";`,
             { id: 1, label: "Checks CSRF with hash_equals", keywords: [{ pattern: "hash_equals" }] },
             { id: 2, label: "Validates required fields", keywords: [{ pattern: "empty\\s*\\(" }] },
             { id: 3, label: "Sanitizes before output", keywords: [{ pattern: "htmlspecialchars" }] },
+          ],
+        },
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // CHAPTER 5 — Complex Inputs
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "complex-inputs",
+    title: "Complex Inputs",
+    icon: "☑️",
+    color: "#10b981",
+    lessons: [
+      {
+        id: "forms-12",
+        title: "Array Inputs with name=\"field[]\"",
+        xp: 20,
+        theory: [
+          text(
+            "Ending an input's name with `[]` tells PHP to collect every value with that name into an **array**. It's how you receive a list of tags, several phone numbers, or all ticked checkboxes. You can also use explicit keys, like `name=\"address[city]\"`, to receive a nested associative array.",
+            {
+              label: "Receiving lists and nested fields",
+              content: `// <input name="tags[]" value="php">
+// <input name="tags[]" value="forms">
+// <input name="address[city]" value="Leeds">
+$_POST['tags'] = ['php', 'forms'];
+$_POST['address'] = ['city' => 'Leeds'];
+
+foreach ($_POST['tags'] as $tag) {
+    echo htmlspecialchars($tag) . "\\n";
+}
+echo $_POST['address']['city']; // Leeds`,
+            },
+          ),
+          callout("warning", "Never assume the value is an array just because your HTML says tags[]. A crafted request can send tags=hello instead — check is_array() before looping."),
+          quiz(
+            "A form has three inputs all named skills[]. What does $_POST['skills'] contain after submission?",
+            [
+              "Only the last value",
+              "An array holding all three values",
+              "A comma-separated string",
+              "Only the first value",
+            ],
+            1,
+            "The [] suffix makes PHP append each submitted value to an array, so $_POST['skills'] is an indexed array with one entry per input.",
+          ),
+        ],
+        challenge: {
+          title: "Process a List of Skills",
+          description: "$_POST['skills'] holds an array. If it really is an array, echo the count and then the skills joined by \", \" (for example \"3: php, sql, css\"); otherwise echo \"No skills\".",
+          starterCode: `${PHP_MAIN}$_POST['skills'] = ['php', 'sql', 'css'];\n\n// check is_array(), then echo "<count>: <skills joined by , >"`,
+          solutionCode: `${PHP_MAIN}$_POST['skills'] = ['php', 'sql', 'css'];\n\nif (isset($_POST['skills']) && is_array($_POST['skills'])) {\n    echo count($_POST['skills']) . ": " . implode(", ", $_POST['skills']);\n} else {\n    echo "No skills";\n}`,
+          tests: [
+            { id: 1, label: "Guards with is_array()", keywords: [{ pattern: "is_array\\s*\\(\\s*\\$_POST\\['skills'\\]" }] },
+            { id: 2, label: "Joins the skills with implode", keywords: [{ pattern: "implode\\s*\\(" }] },
+          ],
+        },
+      },
+      {
+        id: "forms-13",
+        title: "Checkboxes, Radios & Selects",
+        xp: 25,
+        theory: [
+          text(
+            "Choice inputs have two quirks. An **unchecked checkbox is not sent at all**, so you test it with `isset()` rather than reading its value. And although a radio group or `<select>` only *offers* fixed options, the request can contain anything — so compare the submitted value against an **allow-list** with `in_array(..., true)` before trusting it.",
+            {
+              label: "Reading choice inputs safely",
+              content: `$_POST['plan'] = 'pro';
+// newsletter checkbox left unticked, so it's absent from $_POST
+
+$allowedPlans = ['free', 'pro', 'team'];
+$plan = in_array($_POST['plan'] ?? '', $allowedPlans, true)
+    ? $_POST['plan']
+    : 'free';
+
+$wantsNewsletter = isset($_POST['newsletter']);
+
+echo $plan;                            // pro
+echo $wantsNewsletter ? " yes" : " no"; // no`,
+            },
+          ),
+          diagram("Choice inputs", [
+            { id: "checkbox", label: "Checkbox", color: "#10b981", items: ["Sent only when ticked", "Test with isset()"] },
+            { id: "radio", label: "Radio / Select", color: "#3b82f6", items: ["One value sent", "Check against an allow-list"] },
+          ]),
+          quiz(
+            "Why pass true as the third argument to in_array() when checking an allowed value?",
+            [
+              "It makes the search case-insensitive",
+              "It uses strict comparison, so type juggling can't make an unexpected value match",
+              "It returns the matching key instead of a boolean",
+              "It is required for string arrays",
+            ],
+            1,
+            "Strict mode compares with ===. Without it, loose comparison can make surprising values match an allow-list entry — strict matching only accepts the exact values you listed.",
+          ),
+        ],
+        challenge: {
+          title: "Validate a Size Choice",
+          description: "Allowed sizes are S, M and L. Use in_array() in strict mode to accept $_POST['size'] or fall back to \"M\", then use isset() to read the gift-wrap checkbox. Echo \"<size>, gift wrap: yes|no\".",
+          starterCode: `${PHP_MAIN}$_POST['size'] = 'XXL';\n// the giftwrap checkbox was not ticked\n\n$allowedSizes = ['S', 'M', 'L'];\n// pick the size (fallback "M") and detect the checkbox`,
+          solutionCode: `${PHP_MAIN}$_POST['size'] = 'XXL';\n// the giftwrap checkbox was not ticked\n\n$allowedSizes = ['S', 'M', 'L'];\n$size = in_array($_POST['size'] ?? '', $allowedSizes, true) ? $_POST['size'] : 'M';\n$giftWrap = isset($_POST['giftwrap']);\n\necho "$size, gift wrap: " . ($giftWrap ? "yes" : "no");`,
+          tests: [
+            { id: 1, label: "Uses strict in_array()", keywords: [{ pattern: "in_array\\s*\\([^;]*,\\s*true\\s*\\)" }] },
+            { id: 2, label: "Detects the checkbox with isset()", keywords: [{ pattern: "isset\\s*\\(\\s*\\$_POST\\['giftwrap'\\]" }] },
+          ],
+        },
+      },
+      {
+        id: "forms-14",
+        title: "Multiple File Uploads & Error Codes",
+        xp: 25,
+        theory: [
+          text(
+            "With `<input type=\"file\" name=\"photos[]\" multiple>`, `$_FILES['photos']` is organised **by attribute, not by file**: `name`, `size`, `error` and `tmp_name` are each an array, and index `0` in each belongs to the first file. Loop over one of them and use the same index for the rest. Each `error` value is one of PHP's `UPLOAD_ERR_*` constants.",
+            {
+              label: "Walking a multi-file upload",
+              content: `$_FILES['photos'] = [
+    'name'  => ['beach.jpg', 'huge.png'],
+    'size'  => [120000, 0],
+    'error' => [UPLOAD_ERR_OK, UPLOAD_ERR_INI_SIZE],
+];
+
+foreach ($_FILES['photos']['name'] as $i => $name) {
+    $error = $_FILES['photos']['error'][$i];
+    echo match ($error) {
+        UPLOAD_ERR_OK       => "$name: ok",
+        UPLOAD_ERR_INI_SIZE,
+        UPLOAD_ERR_FORM_SIZE => "$name: too large",
+        UPLOAD_ERR_NO_FILE  => "no file chosen",
+        default             => "$name: upload failed",
+    } . "\\n";
+}`,
+            },
+          ),
+          callout("info", "UPLOAD_ERR_OK is 0, UPLOAD_ERR_INI_SIZE is 1 (over upload_max_filesize), UPLOAD_ERR_FORM_SIZE is 2, UPLOAD_ERR_PARTIAL is 3 and UPLOAD_ERR_NO_FILE is 4. Compare against the constants, not the numbers."),
+          quiz(
+            "In a multi-file upload, where is the error code for the second file?",
+            [
+              "$_FILES['photos'][1]['error']",
+              "$_FILES['photos']['error'][1]",
+              "$_FILES['photos']['error']",
+              "$_FILES[1]['photos']['error']",
+            ],
+            1,
+            "PHP groups multi-file uploads by attribute first, so the error array is $_FILES['photos']['error'] and the second file's code is at index 1.",
+          ),
+        ],
+        challenge: {
+          title: "Report on Each Upload",
+          description: "Loop over $_FILES['docs']['name'] and, using the same index into ['error'], echo \"<name>: ok\" for UPLOAD_ERR_OK or \"<name>: failed\" otherwise, one per line.",
+          starterCode: `${PHP_MAIN}$_FILES['docs'] = [\n    'name'  => ['cv.pdf', 'letter.pdf'],\n    'error' => [UPLOAD_ERR_OK, UPLOAD_ERR_PARTIAL],\n];\n\n// loop with the index, echo one status line per file`,
+          solutionCode: `${PHP_MAIN}$_FILES['docs'] = [\n    'name'  => ['cv.pdf', 'letter.pdf'],\n    'error' => [UPLOAD_ERR_OK, UPLOAD_ERR_PARTIAL],\n];\n\nforeach ($_FILES['docs']['name'] as $i => $name) {\n    $status = $_FILES['docs']['error'][$i] === UPLOAD_ERR_OK ? "ok" : "failed";\n    echo "$name: $status\\n";\n}`,
+          tests: [
+            { id: 1, label: "Loops with an index", keywords: [{ pattern: "foreach\\s*\\(\\s*\\$_FILES\\['docs'\\]\\['name'\\]\\s+as\\s+\\$\\w+\\s*=>" }] },
+            { id: 2, label: "Compares against UPLOAD_ERR_OK", keywords: [{ pattern: "UPLOAD_ERR_OK" }] },
+            { id: 3, label: "Reads the error at the same index", keywords: [{ pattern: "\\['error'\\]\\[\\$\\w+\\]" }] },
+          ],
+        },
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // CHAPTER 6 — Form Workflow Patterns
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "form-workflow-patterns",
+    title: "Form Workflow Patterns",
+    icon: "🔁",
+    color: "#ec4899",
+    lessons: [
+      {
+        id: "forms-15",
+        title: "Sticky Forms: Re-populating Fields",
+        xp: 20,
+        theory: [
+          text(
+            "When validation fails, nobody wants to retype the whole form. A **sticky form** writes the submitted values back into each field's `value` attribute (and re-ticks checkboxes with `checked`). Because this echoes user input into HTML, it must be escaped with `htmlspecialchars()`, which also turns quotes into entities so a value can't break out of the attribute.",
+            {
+              label: "Echoing submitted values back",
+              content: `$_POST['name'] = 'Amy "The Coder"';
+$_POST['terms'] = 'on';
+
+$name = $_POST['name'] ?? '';
+$terms = isset($_POST['terms']);
+?>
+<input type="text" name="name" value="<?= htmlspecialchars($name, ENT_QUOTES) ?>">
+<input type="checkbox" name="terms" <?= $terms ? 'checked' : '' ?>>`,
+            },
+          ),
+          callout("info", "Since PHP 8.1, htmlspecialchars() escapes both single and double quotes by default. Passing ENT_QUOTES explicitly keeps the intent obvious and stays safe on older versions."),
+          quiz(
+            "Why must a sticky form escape the value it writes into value=\"...\"?",
+            [
+              "Browsers refuse to display unescaped values",
+              "A value containing a quote could close the attribute and inject new HTML or script",
+              "It makes the form submit faster",
+              "Escaping is only needed for passwords",
+            ],
+            1,
+            "Echoing raw input into an attribute is an XSS hole: a value like \"><script>... ends the attribute and injects markup. htmlspecialchars() turns the quote into &quot; so it stays inside the value.",
+          ),
+        ],
+        challenge: {
+          title: "Re-fill the Email Field",
+          description: "Read $_POST['email'] with a \"\" fallback and echo an input tag whose value is escaped with htmlspecialchars($email, ENT_QUOTES): <input name=\"email\" value=\"...\">.",
+          starterCode: `${PHP_MAIN}$_POST['email'] = 'amy"@example.com';\n\n// echo <input name="email" value="..."> with the value escaped`,
+          solutionCode: `${PHP_MAIN}$_POST['email'] = 'amy"@example.com';\n\n$email = $_POST['email'] ?? '';\necho '<input name="email" value="' . htmlspecialchars($email, ENT_QUOTES) . '">';`,
+          tests: [
+            { id: 1, label: "Reads the field with a fallback", keywords: [{ pattern: "\\$_POST\\['email'\\]\\s*\\?\\?" }] },
+            { id: 2, label: "Escapes with ENT_QUOTES", keywords: [{ pattern: "htmlspecialchars\\s*\\(\\s*\\$email\\s*,\\s*ENT_QUOTES" }] },
+          ],
+        },
+      },
+      {
+        id: "forms-16",
+        title: "Reusable Validation Rules",
+        xp: 25,
+        theory: [
+          text(
+            "Hand-written `if` blocks for every field get repetitive. A common pattern is a small `validate()` function that takes the input and a list of rules per field and returns an **errors array keyed by field name** — so the form can show each message beside the right input. `filter_var()` accepts an `options` array for range checks, and `preg_match()` covers custom formats.",
+            {
+              label: "A rule-driven validator",
+              content: `function validate(array $data): array {
+    $errors = [];
+
+    if (trim($data['username'] ?? '') === '') {
+        $errors['username'] = 'Username is required';
+    } elseif (!preg_match('/^[a-z0-9_]{3,16}$/', $data['username'])) {
+        $errors['username'] = 'Use 3-16 lowercase letters, digits or _';
+    }
+
+    $age = filter_var($data['age'] ?? null, FILTER_VALIDATE_INT, [
+        'options' => ['min_range' => 13, 'max_range' => 120],
+    ]);
+    if ($age === false) {
+        $errors['age'] = 'Age must be a whole number from 13 to 120';
+    }
+
+    return $errors;
+}
+
+print_r(validate(['username' => 'Amy!', 'age' => '9']));`,
+            },
+          ),
+          quiz(
+            "Why return errors keyed by field name (['age' => '...']) rather than a plain list?",
+            [
+              "PHP arrays can't hold plain lists of strings",
+              "The form can display each message next to the field it belongs to",
+              "Keyed arrays are always sorted",
+              "It makes validation faster",
+            ],
+            1,
+            "With keys like 'username' and 'age', the template can check isset($errors['age']) and print that message under the age input — much clearer for the user than one list at the top.",
+          ),
+        ],
+        challenge: {
+          title: "Validate a Quantity Field",
+          description: "Complete validate(): use filter_var() with FILTER_VALIDATE_INT and options min_range 1 / max_range 10 on $data['qty']; on failure set $errors['qty'] = \"Choose 1 to 10\". Echo the errors as \"field: message\" lines.",
+          starterCode: `${PHP_MAIN}function validate(array $data): array {\n    $errors = [];\n    // validate qty as an int between 1 and 10\n\n    return $errors;\n}\n\n$errors = validate(['qty' => '25']);\nforeach ($errors as $field => $message) {\n    echo "$field: $message\\n";\n}`,
+          solutionCode: `${PHP_MAIN}function validate(array $data): array {\n    $errors = [];\n    $qty = filter_var($data['qty'] ?? null, FILTER_VALIDATE_INT, [\n        'options' => ['min_range' => 1, 'max_range' => 10],\n    ]);\n    if ($qty === false) {\n        $errors['qty'] = "Choose 1 to 10";\n    }\n    return $errors;\n}\n\n$errors = validate(['qty' => '25']);\nforeach ($errors as $field => $message) {\n    echo "$field: $message\\n";\n}`,
+          tests: [
+            { id: 1, label: "Uses FILTER_VALIDATE_INT", keywords: [{ pattern: "FILTER_VALIDATE_INT" }] },
+            { id: 2, label: "Sets min_range and max_range", keywords: [{ pattern: "'min_range'\\s*=>\\s*1" }, { pattern: "'max_range'\\s*=>\\s*10" }] },
+            { id: 3, label: "Keys the error by field", keywords: [{ pattern: "\\$errors\\['qty'\\]\\s*=" }] },
+          ],
+        },
+      },
+      {
+        id: "forms-17",
+        title: "Post/Redirect/Get",
+        xp: 25,
+        theory: [
+          text(
+            "If a POST handler echoes a success page directly, pressing **refresh** re-submits the form — a second order, a duplicate comment. The **Post/Redirect/Get** pattern fixes this: after a successful POST, send a redirect (`303 See Other`) to a normal GET page and stop. Refreshing then only repeats the harmless GET. On validation failure you don't redirect — you re-show the sticky form with its errors.",
+            {
+              label: "Redirect after a successful POST",
+              content: `function handle(string $method, array $post): string {
+    if ($method !== 'POST') {
+        return 'show form';
+    }
+    if (empty($post['comment'])) {
+        return 'show form with errors'; // no redirect on failure
+    }
+    // ...save the comment...
+    return 'redirect: /comments?saved=1';
+}
+
+echo handle('POST', ['comment' => 'Nice post!']);
+
+// In a real request the success branch ends with:
+// header('Location: /comments?saved=1', true, 303);
+// exit;`,
+            },
+          ),
+          diagram("Post/Redirect/Get", [
+            { id: "post", label: "POST", color: "#f59e0b", items: ["Validate and save", "Send 303 redirect"] },
+            { id: "redirect", label: "Redirect", color: "#ec4899", items: ["Browser follows Location", "No body to resubmit"] },
+            { id: "get", label: "GET", color: "#10b981", items: ["Show the result page", "Safe to refresh"] },
+          ]),
+          callout("warning", "Always call exit after header('Location: ...'). The header only asks the browser to leave — without exit, the rest of your script keeps running."),
+          quiz(
+            "What problem does Post/Redirect/Get solve?",
+            [
+              "It makes forms submit without JavaScript",
+              "Refreshing the page after a successful submission no longer re-sends the POST",
+              "It encrypts form data",
+              "It removes the need for validation",
+            ],
+            1,
+            "After the redirect the browser is showing a GET page, so refresh repeats that GET instead of re-posting the form — no duplicate orders or comments.",
+          ),
+        ],
+        challenge: {
+          title: "Decide Where to Go",
+          description: "Complete nextStep(): for a non-POST request return \"show form\"; for a POST with an empty 'title' return \"show errors\"; otherwise return \"redirect: /posts\". Echo the result for each of the three calls, one per line.",
+          starterCode: `${PHP_MAIN}function nextStep(string $method, array $post): string {\n    // GET -> "show form", invalid POST -> "show errors", valid POST -> "redirect: /posts"\n\n}\n\necho nextStep('GET', []) . "\\n";\necho nextStep('POST', ['title' => '']) . "\\n";\necho nextStep('POST', ['title' => 'Hello']) . "\\n";`,
+          solutionCode: `${PHP_MAIN}function nextStep(string $method, array $post): string {\n    if ($method !== 'POST') {\n        return "show form";\n    }\n    if (empty($post['title'])) {\n        return "show errors";\n    }\n    return "redirect: /posts";\n}\n\necho nextStep('GET', []) . "\\n";\necho nextStep('POST', ['title' => '']) . "\\n";\necho nextStep('POST', ['title' => 'Hello']) . "\\n";`,
+          tests: [
+            { id: 1, label: "Checks the request method", keywords: [{ pattern: "\\$method\\s*!==?\\s*'POST'|'POST'\\s*!==?\\s*\\$method|\\$method\\s*===?\\s*'POST'" }] },
+            { id: 2, label: "Validates the title with empty()", keywords: [{ pattern: "empty\\s*\\(\\s*\\$post\\['title'\\]" }] },
+            { id: 3, label: "Redirects on success", keywords: [{ pattern: "redirect: /posts" }] },
           ],
         },
       },

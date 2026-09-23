@@ -1,5 +1,5 @@
 // PolyCode — Laravel Basics interactive course
-// 4 chapters · 16 lessons · server/browser PHP challenges
+// 6 chapters · 24 lessons · server/browser PHP challenges
 // NOTE: Laravel itself isn't installed in this sandbox (no framework, no
 // artisan, no real router/ORM), so theory shows real Laravel syntax while
 // challenges use plain-PHP simulations of the same concepts — same approach
@@ -720,7 +720,7 @@ public function show(Product $product) {
         xp: 35,
         theory: [
           text(
-            "Final lesson: combine routing, a controller, validation, and Eloquent-style querying into one small, realistic CRUD flow for a `Product` resource — the same shape as a real `Route::resource('products', ProductController::class)`.",
+            "Chapter capstone: combine routing, a controller, validation, and Eloquent-style querying into one small, realistic CRUD flow for a `Product` resource — the same shape as a real `Route::resource('products', ProductController::class)`.",
             {
               label: "A resource controller shape",
               content: `Route::resource('products', ProductController::class);
@@ -756,6 +756,475 @@ class ProductController extends Controller {
           tests: [
             { id: 1, label: "Validates before storing", keywords: [{ pattern: "empty\\s*\\(\\s*\\$name\\s*\\)" }] },
             { id: 2, label: "Adds to $products on success", keywords: [{ pattern: "\\$this->products\\[\\]" }] },
+          ],
+        },
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // CHAPTER 5 — Eloquent in Depth
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "eloquent-in-depth",
+    title: "Eloquent in Depth",
+    icon: "🧠",
+    color: "#10b981",
+    lessons: [
+      {
+        id: "laravel-16",
+        title: "Eager Loading with with()",
+        xp: 25,
+        theory: [
+          text(
+            "Relationships like `$post->author` are **lazy** by default: Eloquent runs a query the first time you touch them. Inside a loop over 50 posts that's 1 query for the posts plus 50 for the authors — the N+1 problem. `with('author')` **eager loads** the relationship: Eloquent fetches all the authors in one extra query and attaches them, so the loop runs no more queries.",
+            {
+              label: "Lazy vs eager loading",
+              content: `// Lazy: 1 query for posts + 1 per post for its author
+$posts = Post::all();
+foreach ($posts as $post) {
+    echo $post->author->name;
+}
+
+// Eager: 2 queries in total
+$posts = Post::with('author')->get();
+
+// Several relations, and nested ones with dot notation
+$posts = Post::with(['author', 'comments.user'])->get();
+
+// Already have the models? Load the relation afterwards
+$posts->load('tags');
+
+// In AppServiceProvider::boot() — fail loudly on lazy loading during development
+Model::preventLazyLoading(! app()->isProduction());`,
+            },
+          ),
+          callout("info", "Eager loading runs a query like SELECT * FROM users WHERE id IN (...) — the same batching technique the PHP MySQL course uses to fix N+1 by hand."),
+          quiz(
+            "How many queries does Post::with('author')->get() run for 30 posts?",
+            [
+              "1",
+              "2",
+              "30",
+              "31",
+            ],
+            1,
+            "One query loads the posts, then one query loads every needed author with WHERE id IN (...). The count stays at 2 however many posts there are.",
+          ),
+        ],
+        challenge: {
+          title: "Simulate Eager Loading",
+          description: "Instead of calling findUser() once per post, collect the unique author ids with array_unique(array_column(...)), load them with one findUsers() call, and echo \"<title> by <name>\" per post, then \"queries: <n>\".",
+          starterCode: `${PHP_MAIN}$queries = 1; // loading $posts was query #1\n$users = [1 => 'Amy', 2 => 'Ben'];\n$posts = [\n    ['title' => 'Routing 101', 'user_id' => 1],\n    ['title' => 'Blade Tips', 'user_id' => 2],\n    ['title' => 'Eloquent', 'user_id' => 1],\n];\n\nfunction findUser(int $id): string {\n    global $queries, $users;\n    $queries++;\n    return $users[$id];\n}\n\nfunction findUsers(array $ids): array {\n    global $queries, $users;\n    $queries++;\n    return array_intersect_key($users, array_flip($ids));\n}\n\n// Lazy version — replace with one findUsers() call\nforeach ($posts as $post) {\n    echo $post['title'] . " by " . findUser($post['user_id']) . "\\n";\n}\necho "queries: $queries";`,
+          solutionCode: `${PHP_MAIN}$queries = 1; // loading $posts was query #1\n$users = [1 => 'Amy', 2 => 'Ben'];\n$posts = [\n    ['title' => 'Routing 101', 'user_id' => 1],\n    ['title' => 'Blade Tips', 'user_id' => 2],\n    ['title' => 'Eloquent', 'user_id' => 1],\n];\n\nfunction findUser(int $id): string {\n    global $queries, $users;\n    $queries++;\n    return $users[$id];\n}\n\nfunction findUsers(array $ids): array {\n    global $queries, $users;\n    $queries++;\n    return array_intersect_key($users, array_flip($ids));\n}\n\n$authors = findUsers(array_unique(array_column($posts, 'user_id')));\nforeach ($posts as $post) {\n    echo $post['title'] . " by " . $authors[$post['user_id']] . "\\n";\n}\necho "queries: $queries";`,
+          tests: [
+            { id: 1, label: "Collects unique author ids", keywords: [{ pattern: "array_unique\\s*\\(\\s*array_column\\s*\\(\\s*\\$posts\\s*,\\s*'user_id'\\s*\\)" }] },
+            { id: 2, label: "Loads authors with one findUsers() call", keywords: [{ pattern: "findUsers\\s*\\(\\s*array_unique" }] },
+            { id: 3, label: "No findUser() call inside the loop", keywords: [{ pattern: "^(?![\\s\\S]*\\bfindUser\\s*\\(\\s*\\$post)" }] },
+          ],
+        },
+      },
+      {
+        id: "laravel-17",
+        title: "Query Scopes",
+        xp: 25,
+        theory: [
+          text(
+            "When the same `where()` conditions appear all over your controllers — only published posts, only active users — move them onto the model as a **local scope**. A method named `scopePublished(Builder $query)` becomes a chainable `published()` call on the query builder. Scopes can take arguments too, and they compose with each other and with normal query methods.",
+            {
+              label: "Defining and chaining scopes",
+              content: `use Illuminate\\Database\\Eloquent\\Builder;
+
+class Post extends Model {
+    public function scopePublished(Builder $query): void {
+        $query->whereNotNull('published_at')
+              ->where('published_at', '<=', now());
+    }
+
+    public function scopeInCategory(Builder $query, string $slug): void {
+        $query->where('category', $slug);
+    }
+}
+
+// Reads like a sentence, and every controller uses the same rule
+$posts = Post::published()->inCategory('php')->latest()->get();`,
+            },
+          ),
+          quiz(
+            "You define scopePopular(Builder $query) on a model. How do you call it?",
+            [
+              "Post::scopePopular()->get()",
+              "Post::popular()->get()",
+              "Post::where('popular')->get()",
+              "Post::scope('popular')->get()",
+            ],
+            1,
+            "Eloquent strips the scope prefix and lower-cases the first letter, so scopePopular is called as popular(). Laravel passes the query builder in for you.",
+          ),
+        ],
+        challenge: {
+          title: "Build Chainable Scopes",
+          description: "Complete PostQuery's published() and inCategory() so each filters $this->rows and returns $this for chaining. Echo the titles of published PHP posts joined by \", \".",
+          starterCode: `${PHP_MAIN}class PostQuery {\n    public function __construct(private array $rows) {}\n\n    public function published(): static {\n        // keep rows where published is true\n\n    }\n\n    public function inCategory(string $category): static {\n        // keep rows in $category\n\n    }\n\n    public function titles(): array {\n        return array_column($this->rows, 'title');\n    }\n}\n\n$rows = [\n    ['title' => 'Traits', 'category' => 'php', 'published' => true],\n    ['title' => 'Drafted', 'category' => 'php', 'published' => false],\n    ['title' => 'Flexbox', 'category' => 'css', 'published' => true],\n    ['title' => 'Enums', 'category' => 'php', 'published' => true],\n];\n\necho implode(", ", (new PostQuery($rows))->published()->inCategory('php')->titles());`,
+          solutionCode: `${PHP_MAIN}class PostQuery {\n    public function __construct(private array $rows) {}\n\n    public function published(): static {\n        $this->rows = array_filter($this->rows, fn($r) => $r['published']);\n        return $this;\n    }\n\n    public function inCategory(string $category): static {\n        $this->rows = array_filter($this->rows, fn($r) => $r['category'] === $category);\n        return $this;\n    }\n\n    public function titles(): array {\n        return array_column($this->rows, 'title');\n    }\n}\n\n$rows = [\n    ['title' => 'Traits', 'category' => 'php', 'published' => true],\n    ['title' => 'Drafted', 'category' => 'php', 'published' => false],\n    ['title' => 'Flexbox', 'category' => 'css', 'published' => true],\n    ['title' => 'Enums', 'category' => 'php', 'published' => true],\n];\n\necho implode(", ", (new PostQuery($rows))->published()->inCategory('php')->titles());`,
+          tests: [
+            { id: 1, label: "Filters the rows", keywords: [{ pattern: "array_filter\\s*\\(\\s*\\$this->rows" }] },
+            { id: 2, label: "Returns $this for chaining", keywords: [{ pattern: "return\\s+\\$this\\s*;" }] },
+          ],
+        },
+      },
+      {
+        id: "laravel-18",
+        title: "Casts & Accessors",
+        xp: 25,
+        theory: [
+          text(
+            "Database columns arrive as simple values — `0`/`1`, JSON text, date strings. **Casts** convert them automatically: declare them in the model's `casts()` method (Laravel 11+; older versions use a `$casts` property) and `$user->is_admin` becomes a real boolean, `settings` a PHP array, `published_at` a Carbon date. An **accessor** adds a computed attribute: a method returning `Attribute::make(get: ...)` named `fullName` is read as `$user->full_name`.",
+            {
+              label: "Casting columns and computing attributes",
+              content: `use Illuminate\\Database\\Eloquent\\Casts\\Attribute;
+
+class User extends Model {
+    protected function casts(): array {
+        return [
+            'is_admin' => 'boolean',
+            'settings' => 'array',       // JSON column <-> PHP array
+            'email_verified_at' => 'datetime',
+        ];
+    }
+
+    protected function fullName(): Attribute {
+        return Attribute::make(
+            get: fn () => "{$this->first_name} {$this->last_name}",
+        );
+    }
+
+    protected function email(): Attribute {
+        return Attribute::make(
+            set: fn (string $value) => strtolower($value), // a mutator
+        );
+    }
+}
+
+$user->is_admin;          // true, not "1"
+$user->settings['theme']; // decoded from JSON
+$user->full_name;         // "Amy Lee"`,
+            },
+          ),
+          quiz(
+            "What does the 'array' cast do for a settings column?",
+            [
+              "Splits the column on commas",
+              "Decodes the stored JSON into a PHP array when reading, and encodes it back to JSON when saving",
+              "Stores each array item in a separate row",
+              "Validates that the column isn't empty",
+            ],
+            1,
+            "The array cast handles json_decode on read and json_encode on write, so your code works with a normal PHP array and the database stores JSON text.",
+          ),
+        ],
+        challenge: {
+          title: "Cast Raw Column Values",
+          description: "Complete castRow(): convert is_admin to bool, settings from JSON to an array (json_decode with true), and add a full_name built from first_name and last_name. Echo the full name, then \"admin\"/\"user\", then the theme setting, one per line.",
+          starterCode: `${PHP_MAIN}$raw = [\n    'first_name' => 'Amy',\n    'last_name' => 'Lee',\n    'is_admin' => '1',\n    'settings' => '{"theme":"dark"}',\n];\n\nfunction castRow(array $row): array {\n    // cast is_admin and settings, add full_name\n\n    return $row;\n}\n\n$user = castRow($raw);\necho $user['full_name'] . "\\n";\necho ($user['is_admin'] === true ? "admin" : "user") . "\\n";\necho $user['settings']['theme'];`,
+          solutionCode: `${PHP_MAIN}$raw = [\n    'first_name' => 'Amy',\n    'last_name' => 'Lee',\n    'is_admin' => '1',\n    'settings' => '{"theme":"dark"}',\n];\n\nfunction castRow(array $row): array {\n    $row['is_admin'] = (bool) $row['is_admin'];\n    $row['settings'] = json_decode($row['settings'], true);\n    $row['full_name'] = "{$row['first_name']} {$row['last_name']}";\n    return $row;\n}\n\n$user = castRow($raw);\necho $user['full_name'] . "\\n";\necho ($user['is_admin'] === true ? "admin" : "user") . "\\n";\necho $user['settings']['theme'];`,
+          tests: [
+            { id: 1, label: "Casts is_admin to bool", keywords: [{ pattern: "\\(bool\\)\\s*\\$row\\['is_admin'\\]|filter_var\\s*\\(\\s*\\$row\\['is_admin'\\]\\s*,\\s*FILTER_VALIDATE_BOOL" }] },
+            { id: 2, label: "Decodes settings into an array", keywords: [{ pattern: "json_decode\\s*\\(\\s*\\$row\\['settings'\\]\\s*,\\s*true\\s*\\)" }] },
+            { id: 3, label: "Adds full_name", keywords: [{ pattern: "\\$row\\['full_name'\\]\\s*=" }] },
+          ],
+        },
+      },
+      {
+        id: "laravel-19",
+        title: "Working with Collections",
+        xp: 25,
+        theory: [
+          text(
+            "Every `get()` returns an Eloquent **Collection** — a wrapper around an array with dozens of chainable methods: `filter`, `map`, `pluck`, `sum`, `groupBy`, `sortBy`, `first`. Each method returns a **new** collection, so chains read top to bottom without temporary variables. `collect([...])` wraps any plain array the same way.",
+            {
+              label: "Chaining collection methods",
+              content: `$orders = Order::all();
+
+$revenue = $orders
+    ->where('status', 'paid')
+    ->sum('total');
+
+$topCustomers = $orders
+    ->groupBy('customer_id')
+    ->map(fn ($group) => $group->sum('total'))
+    ->sortDesc()
+    ->take(3);
+
+$names = collect(['amy', 'ben'])
+    ->map(fn ($n) => ucfirst($n))
+    ->implode(', '); // "Amy, Ben"`,
+            },
+          ),
+          callout("warning", "Collection methods run in PHP on rows already loaded. Order::all()->where(...) fetches every order first; Order::where(...)->get() filters in SQL. Filter in the query when the table is large."),
+          quiz(
+            "What's the difference between Order::where('status', 'paid')->get() and Order::all()->where('status', 'paid')?",
+            [
+              "There is no difference",
+              "The first filters in the database; the second loads every order and filters the collection in PHP",
+              "The second one is always faster",
+              "The first returns an array, the second a collection",
+            ],
+            1,
+            "Before get(), where() builds SQL. After all() or get(), you're holding a Collection and its where() filters in memory — fine for small sets, wasteful for big tables.",
+          ),
+        ],
+        challenge: {
+          title: "Build a Mini Collection",
+          description: "Complete filter() and map() so each returns a NEW Collection (new static(...)) wrapping the result, keeping sum() as it is. Use them to sum the doubled prices of in-stock items and echo the total.",
+          starterCode: `${PHP_MAIN}class Collection {\n    public function __construct(private array $items) {}\n\n    public function filter(callable $fn): static {\n        // return a new collection of matching items\n\n    }\n\n    public function map(callable $fn): static {\n        // return a new collection of transformed items\n\n    }\n\n    public function sum(): float {\n        return array_sum($this->items);\n    }\n}\n\n$items = [\n    ['price' => 10, 'in_stock' => true],\n    ['price' => 5, 'in_stock' => false],\n    ['price' => 7.5, 'in_stock' => true],\n];\n\necho (new Collection($items))\n    ->filter(fn($i) => $i['in_stock'])\n    ->map(fn($i) => $i['price'] * 2)\n    ->sum();`,
+          solutionCode: `${PHP_MAIN}class Collection {\n    public function __construct(private array $items) {}\n\n    public function filter(callable $fn): static {\n        return new static(array_values(array_filter($this->items, $fn)));\n    }\n\n    public function map(callable $fn): static {\n        return new static(array_map($fn, $this->items));\n    }\n\n    public function sum(): float {\n        return array_sum($this->items);\n    }\n}\n\n$items = [\n    ['price' => 10, 'in_stock' => true],\n    ['price' => 5, 'in_stock' => false],\n    ['price' => 7.5, 'in_stock' => true],\n];\n\necho (new Collection($items))\n    ->filter(fn($i) => $i['in_stock'])\n    ->map(fn($i) => $i['price'] * 2)\n    ->sum();`,
+          tests: [
+            { id: 1, label: "filter() returns a new collection", keywords: [{ pattern: "new\\s+static\\s*\\([^;]*array_filter" }] },
+            { id: 2, label: "map() returns a new collection", keywords: [{ pattern: "new\\s+static\\s*\\([^;]*array_map" }] },
+          ],
+        },
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // CHAPTER 6 — APIs, Authorization & Testing
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "apis-authorization-testing",
+    title: "APIs, Authorization & Testing",
+    icon: "🧪",
+    color: "#ec4899",
+    lessons: [
+      {
+        id: "laravel-20",
+        title: "Named Routes & Route Groups",
+        xp: 20,
+        theory: [
+          text(
+            "Hard-coding URLs like `/admin/users/5/edit` in views breaks the moment a path changes. Give routes a **name** with `->name()` and build links with `route('name', $params)` — change the URI once and every link follows. **Route groups** share a URL prefix, middleware and name prefix across many routes, so an admin area is declared once.",
+            {
+              label: "Names and groups",
+              content: `Route::get('/posts/{post}', [PostController::class, 'show'])
+    ->name('posts.show');
+
+// In a controller or Blade view:
+route('posts.show', ['post' => 5]); // "http://your-app.test/posts/5"
+redirect()->route('posts.show', $post);
+
+Route::prefix('admin')
+    ->middleware('auth')
+    ->name('admin.')
+    ->group(function () {
+        Route::get('/users', [UserController::class, 'index'])
+            ->name('users.index'); // URL /admin/users, name admin.users.index
+    });`,
+            },
+          ),
+          callout("info", "Route::resource() from the previous chapter names its seven routes for you: posts.index, posts.create, posts.store, posts.show, posts.edit, posts.update and posts.destroy."),
+          quiz(
+            "Inside Route::prefix('admin')->name('admin.')->group(...), a route is defined as Route::get('/reports', ...)->name('reports'). What are its URL and name?",
+            [
+              "/reports and reports",
+              "/admin/reports and admin.reports",
+              "/admin/reports and reports",
+              "/reports and admin.reports",
+            ],
+            1,
+            "The group's prefix is added to the URI and its name prefix is added to the route name, so the route answers /admin/reports and is referenced as admin.reports.",
+          ),
+        ],
+        challenge: {
+          title: "Build a route() Helper",
+          description: "Complete route(): look up the named URI in $routes, replace each {key} with its value from $params (str_replace), and return the path. Echo route('posts.show', ['post' => 42]) and route('admin.users.edit', ['user' => 7]) on separate lines.",
+          starterCode: `${PHP_MAIN}$routes = [\n    'posts.show' => '/posts/{post}',\n    'admin.users.edit' => '/admin/users/{user}/edit',\n];\n\nfunction route(array $routes, string $name, array $params = []): string {\n    // look up the URI and fill in each {key}\n\n}\n\necho route($routes, 'posts.show', ['post' => 42]) . "\\n";\necho route($routes, 'admin.users.edit', ['user' => 7]);`,
+          solutionCode: `${PHP_MAIN}$routes = [\n    'posts.show' => '/posts/{post}',\n    'admin.users.edit' => '/admin/users/{user}/edit',\n];\n\nfunction route(array $routes, string $name, array $params = []): string {\n    $uri = $routes[$name];\n    foreach ($params as $key => $value) {\n        $uri = str_replace('{' . $key . '}', (string) $value, $uri);\n    }\n    return $uri;\n}\n\necho route($routes, 'posts.show', ['post' => 42]) . "\\n";\necho route($routes, 'admin.users.edit', ['user' => 7]);`,
+          tests: [
+            { id: 1, label: "Looks the route up by name", keywords: [{ pattern: "\\$routes\\[\\$name\\]" }] },
+            { id: 2, label: "Fills parameters with str_replace", keywords: [{ pattern: "str_replace\\s*\\(" }] },
+          ],
+        },
+      },
+      {
+        id: "laravel-21",
+        title: "JSON APIs & API Resources",
+        xp: 25,
+        theory: [
+          text(
+            "Returning an array or a model from a route makes Laravel send it as JSON automatically, and `response()->json($data, 201)` sets the status code too. Returning models directly exposes every column, though. An **API Resource** (`php artisan make:resource UserResource`) is a transformation layer: its `toArray()` decides the public shape, and the response is wrapped in a `data` key. API routes live in `routes/api.php` (added in Laravel 11 with `php artisan install:api`) and get the `/api` prefix.",
+            {
+              label: "Shaping API output",
+              content: `use Illuminate\\Http\\Request;
+use Illuminate\\Http\\Resources\\Json\\JsonResource;
+
+class UserResource extends JsonResource {
+    public function toArray(Request $request): array {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'member_since' => $this->created_at->toDateString(),
+        ]; // no password hash, no remember_token
+    }
+}
+
+// routes/api.php
+Route::get('/users/{user}', fn (User $user) => new UserResource($user));
+Route::get('/users', fn () => UserResource::collection(User::paginate(20)));
+
+Route::post('/users', function (Request $request) {
+    $user = User::create($request->validate(['name' => 'required']));
+    return response()->json(new UserResource($user), 201);
+});
+// GET /api/users/1 → {"data":{"id":1,"name":"Amy","member_since":"2026-01-04"}}`,
+            },
+          ),
+          quiz(
+            "Why return new UserResource($user) instead of the $user model itself?",
+            [
+              "Models can't be converted to JSON",
+              "The resource defines exactly which fields the API exposes, so hidden or internal columns can't leak",
+              "Resources make queries faster",
+              "It's required for routes/api.php",
+            ],
+            1,
+            "The resource is the API contract. Adding a column to the table no longer changes the API by accident, and fields can be renamed or formatted in one place.",
+          ),
+        ],
+        challenge: {
+          title: "Write a Resource Transformer",
+          description: "Complete UserResource::toArray() to return only id, name and email_verified (true when email_verified_at isn't null). Echo json_encode(['data' => $resource->toArray()]).",
+          starterCode: `${PHP_MAIN}class UserResource {\n    public function __construct(private array $user) {}\n\n    public function toArray(): array {\n        // expose only id, name and email_verified\n\n    }\n}\n\n$user = [\n    'id' => 1,\n    'name' => 'Amy',\n    'password' => '$2y$10$abc...',\n    'email_verified_at' => '2026-01-04 10:00:00',\n];\n\n$resource = new UserResource($user);\necho json_encode(['data' => $resource->toArray()]);`,
+          solutionCode: `${PHP_MAIN}class UserResource {\n    public function __construct(private array $user) {}\n\n    public function toArray(): array {\n        return [\n            'id' => $this->user['id'],\n            'name' => $this->user['name'],\n            'email_verified' => $this->user['email_verified_at'] !== null,\n        ];\n    }\n}\n\n$user = [\n    'id' => 1,\n    'name' => 'Amy',\n    'password' => '$2y$10$abc...',\n    'email_verified_at' => '2026-01-04 10:00:00',\n];\n\n$resource = new UserResource($user);\necho json_encode(['data' => $resource->toArray()]);`,
+          tests: [
+            { id: 1, label: "Returns id and name", keywords: [{ pattern: "'id'\\s*=>\\s*\\$this->user\\['id'\\]" }, { pattern: "'name'\\s*=>\\s*\\$this->user\\['name'\\]" }] },
+            { id: 2, label: "Derives email_verified", keywords: [{ pattern: "'email_verified'\\s*=>" }] },
+            { id: 3, label: "Never exposes the password", keywords: [{ pattern: "^(?![\\s\\S]*=>\\s*\\$this->user\\['password'\\])" }] },
+          ],
+        },
+      },
+      {
+        id: "laravel-22",
+        title: "Authorization with Gates & Policies",
+        xp: 25,
+        theory: [
+          text(
+            "Middleware decides whether someone is logged in; **authorization** decides whether *this* user may act on *this* record. A **Gate** is a closure for a one-off check. A **Policy** (`php artisan make:policy PostPolicy --model=Post`) groups the rules for one model into methods like `update()` and `delete()`. Laravel finds `PostPolicy` for `Post` by naming convention, and `Gate::authorize()` throws a 403 when a check fails.",
+            {
+              label: "Policies in controllers and views",
+              content: `class PostPolicy {
+    public function update(User $user, Post $post): bool {
+        return $user->id === $post->user_id;
+    }
+
+    public function delete(User $user, Post $post): bool {
+        return $user->id === $post->user_id || $user->is_admin;
+    }
+}
+
+// A one-off gate, e.g. in AppServiceProvider::boot()
+Gate::define('view-reports', fn (User $user) => $user->is_admin);
+
+class PostController extends Controller {
+    public function update(Request $request, Post $post) {
+        Gate::authorize('update', $post); // 403 if the policy returns false
+        $post->update($request->validate(['title' => 'required']));
+        return redirect()->route('posts.show', $post);
+    }
+}
+
+// Blade
+// @can('delete', $post) <button>Delete</button> @endcan`,
+            },
+          ),
+          diagram("Where each check lives", [
+            { id: "mw", label: "Middleware", color: "#8b5cf6", items: ["Is anyone logged in?", "Applies to whole routes"] },
+            { id: "policy", label: "Policy", color: "#ec4899", items: ["May this user change this record?", "One class per model"] },
+          ]),
+          quiz(
+            "What happens when Gate::authorize('update', $post) finds the policy returns false?",
+            [
+              "It returns false and the controller continues",
+              "It throws an authorization exception, which Laravel turns into a 403 Forbidden response",
+              "It logs the user out",
+              "It redirects to the home page",
+            ],
+            1,
+            "authorize() stops the request by throwing an AuthorizationException, rendered as 403. Use Gate::allows() instead when you want a boolean to branch on.",
+          ),
+        ],
+        challenge: {
+          title: "Write a Post Policy",
+          description: "Complete PostPolicy: update() allows only the post's owner; delete() allows the owner or an admin. Echo the four results as \"yes\"/\"no\" on one line separated by spaces: ben update, ben delete, admin update, admin delete.",
+          starterCode: `${PHP_MAIN}class PostPolicy {\n    public function update(array $user, array $post): bool {\n        // owner only\n\n    }\n\n    public function delete(array $user, array $post): bool {\n        // owner or admin\n\n    }\n}\n\n$policy = new PostPolicy();\n$post = ['id' => 9, 'user_id' => 2];\n$ben = ['id' => 2, 'is_admin' => false];\n$admin = ['id' => 1, 'is_admin' => true];\n\n$results = [\n    $policy->update($ben, $post),\n    $policy->delete($ben, $post),\n    $policy->update($admin, $post),\n    $policy->delete($admin, $post),\n];\necho implode(" ", array_map(fn($ok) => $ok ? "yes" : "no", $results));`,
+          solutionCode: `${PHP_MAIN}class PostPolicy {\n    public function update(array $user, array $post): bool {\n        return $user['id'] === $post['user_id'];\n    }\n\n    public function delete(array $user, array $post): bool {\n        return $user['id'] === $post['user_id'] || $user['is_admin'];\n    }\n}\n\n$policy = new PostPolicy();\n$post = ['id' => 9, 'user_id' => 2];\n$ben = ['id' => 2, 'is_admin' => false];\n$admin = ['id' => 1, 'is_admin' => true];\n\n$results = [\n    $policy->update($ben, $post),\n    $policy->delete($ben, $post),\n    $policy->update($admin, $post),\n    $policy->delete($admin, $post),\n];\necho implode(" ", array_map(fn($ok) => $ok ? "yes" : "no", $results));`,
+          tests: [
+            { id: 1, label: "Compares the user with the post owner", keywords: [{ pattern: "\\$user\\['id'\\]\\s*===?\\s*\\$post\\['user_id'\\]" }] },
+            { id: 2, label: "delete() also allows admins", keywords: [{ pattern: "\\|\\|\\s*\\$user\\['is_admin'\\]|\\$user\\['is_admin'\\]\\s*\\|\\|" }] },
+          ],
+        },
+      },
+      {
+        id: "laravel-23",
+        title: "Feature Tests",
+        xp: 30,
+        theory: [
+          text(
+            "A **feature test** sends a fake HTTP request through your whole app — routes, middleware, controller, database — and asserts on the response. Laravel's test case gives you `$this->get()`/`post()`, `actingAs($user)` to log in, and assertions like `assertOk()`, `assertRedirect()` and `assertDatabaseHas()`. The `RefreshDatabase` trait resets the database for each test, and `php artisan test` runs the suite. New Laravel apps can use Pest instead of PHPUnit; the assertions are the same.",
+            {
+              label: "Testing a protected route",
+              content: `use Illuminate\\Foundation\\Testing\\RefreshDatabase;
+use Tests\\TestCase;
+
+class PostTest extends TestCase {
+    use RefreshDatabase;
+
+    public function test_guests_are_redirected_to_login(): void {
+        $this->get('/posts/create')->assertRedirect('/login');
+    }
+
+    public function test_users_can_create_posts(): void {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->post('/posts', ['title' => 'Hello'])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('posts', ['title' => 'Hello', 'user_id' => $user->id]);
+    }
+
+    public function test_title_is_required(): void {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->post('/posts', ['title' => ''])
+            ->assertSessionHasErrors('title');
+    }
+}`,
+            },
+          ),
+          callout("info", "Test the behaviour a user sees — who can reach a page, what gets saved, which errors appear — rather than private methods. Those tests keep passing when you refactor the internals."),
+          quiz(
+            "What does the RefreshDatabase trait give each test?",
+            [
+              "A copy of the production database",
+              "A clean database state, so data created by one test can't affect another",
+              "Faster HTTP requests",
+              "Automatic login as an admin",
+            ],
+            1,
+            "RefreshDatabase migrates the test database and wraps each test in a transaction that is rolled back, so every test starts from the same known state.",
+          ),
+        ],
+        challenge: {
+          title: "Assert on a Fake Response",
+          description: "Complete assertStatus() and assertRedirect() so they throw an Exception with a helpful message when the response doesn't match. Run the two checks inside try/catch and echo \"PASS\" or \"FAIL: <message>\".",
+          starterCode: `${PHP_MAIN}function handle(string $method, string $uri, ?array $user): array {\n    if ($uri === '/posts/create' && $user === null) {\n        return ['status' => 302, 'location' => '/login'];\n    }\n    return ['status' => 200, 'location' => null];\n}\n\nfunction assertStatus(array $response, int $expected): void {\n    // throw an Exception if the status differs\n\n}\n\nfunction assertRedirect(array $response, string $to): void {\n    // throw an Exception unless status is 302 and location matches\n\n}\n\ntry {\n    assertRedirect(handle('GET', '/posts/create', null), '/login');\n    assertStatus(handle('GET', '/posts/create', ['id' => 1]), 200);\n    echo "PASS";\n} catch (Exception $e) {\n    echo "FAIL: " . $e->getMessage();\n}`,
+          solutionCode: `${PHP_MAIN}function handle(string $method, string $uri, ?array $user): array {\n    if ($uri === '/posts/create' && $user === null) {\n        return ['status' => 302, 'location' => '/login'];\n    }\n    return ['status' => 200, 'location' => null];\n}\n\nfunction assertStatus(array $response, int $expected): void {\n    if ($response['status'] !== $expected) {\n        throw new Exception("Expected status $expected, got {$response['status']}");\n    }\n}\n\nfunction assertRedirect(array $response, string $to): void {\n    assertStatus($response, 302);\n    if ($response['location'] !== $to) {\n        throw new Exception("Expected redirect to $to, got {$response['location']}");\n    }\n}\n\ntry {\n    assertRedirect(handle('GET', '/posts/create', null), '/login');\n    assertStatus(handle('GET', '/posts/create', ['id' => 1]), 200);\n    echo "PASS";\n} catch (Exception $e) {\n    echo "FAIL: " . $e->getMessage();\n}`,
+          tests: [
+            { id: 1, label: "Throws when an assertion fails", keywords: [{ pattern: "throw\\s+new\\s+Exception\\s*\\(" }] },
+            { id: 2, label: "Checks the status code", keywords: [{ pattern: "\\$response\\['status'\\]\\s*!==?" }] },
+            { id: 3, label: "Checks the redirect location", keywords: [{ pattern: "\\$response\\['location'\\]\\s*!==?\\s*\\$to" }] },
           ],
         },
       },
