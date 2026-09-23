@@ -1,5 +1,5 @@
 // PolyCode — C# LINQ Interactive Course
-// 3 chapters · 7 lessons · Browser sandbox validation
+// 6 chapters · 13 lessons · Browser sandbox validation
 // Follows the exact same content shape as csharp-oop/data/csharpOopCurriculum.js
 
 const ACCENT = "#179c24"; // Distinct .NET Green branding color
@@ -609,6 +609,688 @@ class Program {
               id: 3,
               label: "Uses OrderByDescending()",
               keywords: [{ pattern: "OrderByDescending\\(" }],
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: "linq-query-syntax",
+    title: "Query Syntax",
+    icon: "🗒️",
+    color: ACCENT,
+    lessons: [
+      {
+        id: "cs-linq-7",
+        title: "Query Syntax vs Method Syntax",
+        xp: 14,
+        theory: [
+          text(
+            "Everything you have written so far is **method syntax** — chained calls like `nums.Where(...).Select(...)`. C# offers a second spelling, **query syntax**, that reads like SQL and compiles to exactly the same thing.",
+            {
+              label: "The same query, two ways",
+              content: `List<int> nums = new List<int> { 1, 2, 3, 4, 5, 6 };
+
+// Method syntax
+var evensMethod = nums.Where(n => n % 2 == 0).Select(n => n * 10);
+
+// Query syntax
+var evensQuery = from n in nums
+                 where n % 2 == 0
+                 select n * 10;`,
+            },
+          ),
+          text(
+            "A query expression always starts with `from` and ends with `select` or `group`. The `from` clause names the range variable — `n` above — and every later clause uses that name.",
+            {
+              label: "Clause order",
+              content: `var result = from p in players
+             where p.Score > 50
+             orderby p.Score descending
+             select p.Name;`,
+            },
+          ),
+          text(
+            "The compiler rewrites query syntax into method calls before your program runs, so there is no performance difference — the choice is purely about readability. Query syntax wins for multi-clause queries with ordering and grouping; method syntax wins for short chains and for operators like `Count()` or `Any()` that have no query keyword.",
+          ),
+          callout(
+            "info",
+            "Query syntax needs `using System.Linq;` just like method syntax — the keywords compile down to the same extension methods.",
+          ),
+          quiz(
+            "What is the performance difference between query syntax and method syntax?",
+            [
+              "Query syntax is faster",
+              "Method syntax is faster",
+              "None — query syntax compiles to method calls",
+              "Query syntax runs on a background thread",
+            ],
+            2,
+            "The compiler translates query expressions into the same extension method calls, so the two forms are identical at runtime. Pick whichever reads better.",
+          ),
+        ],
+        challenge: {
+          title: "Filter with Query Syntax",
+          description:
+            "Using **query syntax** (`from` / `where` / `select`), select every number from `nums` greater than `3` into `big`, then print the count. Remember `ToList()` or `Count()` to see a result.",
+          starterCode: `using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program {
+    static void Main() {
+        List<int> nums = new List<int> { 1, 2, 3, 4, 5, 6 };
+
+        // Write a query expression that keeps numbers > 3
+
+
+        // Print how many matched
+
+    }
+}`,
+          solutionCode: `using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program {
+    static void Main() {
+        List<int> nums = new List<int> { 1, 2, 3, 4, 5, 6 };
+
+        var big = from n in nums
+                  where n > 3
+                  select n;
+
+        Console.WriteLine(big.Count());
+    }
+}`,
+          tests: [
+            {
+              id: 1,
+              label: "Uses a from clause",
+              keywords: [{ pattern: "from\\s+\\w+\\s+in\\s+nums" }],
+            },
+            {
+              id: 2,
+              label: "Filters with where",
+              keywords: [{ pattern: "where\\s+\\w+\\s*>\\s*3" }],
+            },
+            {
+              id: 3,
+              label: "Selects and prints a count",
+              keywords: [{ pattern: "select" }, { pattern: "Console\\.WriteLine" }],
+            },
+          ],
+        },
+      },
+      {
+        id: "cs-linq-8",
+        title: "let, orderby & into",
+        xp: 15,
+        theory: [
+          text(
+            "Query syntax has clauses with no direct method-syntax keyword. **`let`** introduces a named value computed once per element, so you do not repeat an expression in both `where` and `select`.",
+            {
+              label: "let avoids repeated work",
+              content: `var report = from n in nums
+             let square = n * n
+             where square > 10
+             select square;`,
+            },
+          ),
+          text(
+            "**`orderby`** sorts inside the query and accepts `descending` plus multiple keys separated by commas — the query-syntax equivalent of `OrderBy(...).ThenBy(...)`.",
+            {
+              label: "Sorting on two keys",
+              content: `var ranked = from p in players
+             orderby p.Score descending, p.Name
+             select p;`,
+            },
+          ),
+          text(
+            "**`into`** continues a query after a `select` or `group`, feeding the result of the first half into a fresh range variable. It is how you filter groups after grouping them.",
+            {
+              label: "Filtering groups with into",
+              content: `var busyTeams = from p in players
+                group p by p.Team into team
+                where team.Count() > 2
+                select team.Key;`,
+            },
+          ),
+          callout(
+            "tip",
+            "`let` is evaluated once per element, not once per use. Reach for it whenever the same calculation appears in more than one clause.",
+          ),
+          quiz(
+            "What does `let square = n * n` do inside a query expression?",
+            [
+              "Declares a variable reused for every element in the source",
+              "Computes a named value once per element, usable in later clauses",
+              "Sorts the results by that value",
+              "Forces the query to execute immediately",
+            ],
+            1,
+            "A let clause introduces a per-element named value, so later clauses like where and select can use it without recomputing the expression.",
+          ),
+        ],
+        challenge: {
+          title: "Square, Filter, Order",
+          description:
+            "Write a query over `nums` that uses `let` to compute each number's square, keeps only squares greater than `10`, orders them `descending`, and selects the square. Print the first result with `.First()`.",
+          starterCode: `using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program {
+    static void Main() {
+        List<int> nums = new List<int> { 2, 3, 4, 5 };
+
+        // Query with let, where, orderby descending, select
+
+
+        // Print the first result
+
+    }
+}`,
+          solutionCode: `using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program {
+    static void Main() {
+        List<int> nums = new List<int> { 2, 3, 4, 5 };
+
+        var squares = from n in nums
+                      let square = n * n
+                      where square > 10
+                      orderby square descending
+                      select square;
+
+        Console.WriteLine(squares.First());
+    }
+}`,
+          tests: [
+            {
+              id: 1,
+              label: "Uses a let clause",
+              keywords: [{ pattern: "let\\s+\\w+\\s*=" }],
+            },
+            {
+              id: 2,
+              label: "Orders descending",
+              keywords: [{ pattern: "orderby[\\s\\S]*descending" }],
+            },
+            {
+              id: 3,
+              label: "Prints the first result",
+              keywords: [{ pattern: "\\.First\\s*\\(" }],
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: "linq-combining",
+    title: "Combining & Flattening Sequences",
+    icon: "🔗",
+    color: ACCENT,
+    lessons: [
+      {
+        id: "cs-linq-9",
+        title: "SelectMany — Flattening Nested Collections",
+        xp: 15,
+        theory: [
+          text(
+            "`Select` returns one output per input. When each element *contains* a collection, that gives you a sequence of sequences — rarely what you want. **`SelectMany`** flattens them into one stream.",
+            {
+              label: "Select vs SelectMany",
+              content: `var teams = new List<List<string>> {
+    new List<string> { "Ali", "Sara" },
+    new List<string> { "Zara" }
+};
+
+// Select — a sequence of lists
+var nested = teams.Select(t => t);        // IEnumerable<List<string>>
+
+// SelectMany — one flat sequence of names
+var flat = teams.SelectMany(t => t).ToList();
+Console.WriteLine(flat.Count);            // 3
+Console.WriteLine(flat[2]);               // Zara`,
+            },
+          ),
+          text(
+            "The lambda you pass to `SelectMany` picks the inner collection out of each element. With objects, that is usually a property.",
+            {
+              label: "Flattening a property",
+              content: `class Student {
+    public string Name { get; set; }
+    public List<string> Courses { get; set; }
+}
+
+var allCourses = students
+    .SelectMany(s => s.Courses)
+    .Distinct()
+    .ToList();`,
+            },
+          ),
+          text(
+            "In query syntax, a second `from` clause does the same job — that is exactly what it compiles to.",
+            {
+              label: "Two from clauses = SelectMany",
+              content: `var pairs = from s in students
+            from c in s.Courses
+            select s.Name + " - " + c;`,
+            },
+          ),
+          callout(
+            "tip",
+            "If a result comes back as `IEnumerable<List<T>>` and you wanted `IEnumerable<T>`, you reached for `Select` where `SelectMany` was needed.",
+          ),
+          quiz(
+            "Each element of `teams` is a `List<string>`. What does `teams.SelectMany(t => t)` produce?",
+            [
+              "A list of lists, unchanged",
+              "One flat sequence of all the strings",
+              "Only the first list",
+              "A count of the inner lists",
+            ],
+            1,
+            "SelectMany concatenates every inner collection into a single sequence, turning IEnumerable<List<string>> into IEnumerable<string>.",
+          ),
+        ],
+        challenge: {
+          title: "Flatten the Teams",
+          description:
+            "Given a `List<List<string>>` named `teams`, use `SelectMany` to flatten it into a single list called `everyone`, then print the total number of names.",
+          starterCode: `using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program {
+    static void Main() {
+        List<List<string>> teams = new List<List<string>> {
+            new List<string> { "Ali", "Sara" },
+            new List<string> { "Zara" }
+        };
+
+        // Flatten with SelectMany
+
+
+        // Print the total count
+
+    }
+}`,
+          solutionCode: `using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program {
+    static void Main() {
+        List<List<string>> teams = new List<List<string>> {
+            new List<string> { "Ali", "Sara" },
+            new List<string> { "Zara" }
+        };
+
+        var everyone = teams.SelectMany(t => t).ToList();
+
+        Console.WriteLine(everyone.Count);
+    }
+}`,
+          tests: [
+            {
+              id: 1,
+              label: "Uses SelectMany",
+              keywords: [{ pattern: "\\.SelectMany\\s*\\(" }],
+            },
+            {
+              id: 2,
+              label: "Materialises the result",
+              keywords: [{ pattern: "\\.ToList\\s*\\(" }],
+            },
+            {
+              id: 3,
+              label: "Prints the count",
+              keywords: [{ pattern: "\\.Count" }],
+            },
+          ],
+        },
+      },
+      {
+        id: "cs-linq-10",
+        title: "Join & Set Operations",
+        xp: 16,
+        theory: [
+          text(
+            "**`Join`** matches elements from two sequences on a shared key — the LINQ equivalent of a SQL inner join. You supply the outer key, the inner key, and what to build from each matched pair.",
+            {
+              label: "Joining orders to customers",
+              content: `var result = orders.Join(
+    customers,
+    order => order.CustomerId,   // key from the outer sequence
+    customer => customer.Id,     // key from the inner sequence
+    (order, customer) => customer.Name + " ordered " + order.Item
+).ToList();`,
+            },
+          ),
+          text(
+            "Elements with no match on the other side are dropped — that is what makes it an *inner* join. Query syntax spells the same thing with the `join … on … equals …` clause.",
+            {
+              label: "Join in query syntax",
+              content: `var result = from o in orders
+             join c in customers on o.CustomerId equals c.Id
+             select c.Name + " ordered " + o.Item;`,
+            },
+          ),
+          text(
+            "**Set operators** combine two sequences without a key. They compare elements directly, and all of them except `Concat` remove duplicates.",
+            {
+              label: "The set operators",
+              content: `List<int> a = new List<int> { 1, 2, 3 };
+List<int> b = new List<int> { 3, 4 };
+
+a.Concat(b);      // 1,2,3,3,4 — everything, duplicates kept
+a.Union(b);       // 1,2,3,4   — everything, duplicates removed
+a.Intersect(b);   // 3         — only what appears in both
+a.Except(b);      // 1,2       — in a but not in b
+a.Distinct();     // 1,2,3     — duplicates removed from one sequence`,
+            },
+          ),
+          callout(
+            "warning",
+            "Set operators compare with the type's equality. For your own classes that means reference equality unless you override `Equals`/`GetHashCode` or pass an `IEqualityComparer<T>` — two objects with identical fields will otherwise both survive `Distinct()`.",
+          ),
+          quiz(
+            "Which operator returns the elements present in `a` but missing from `b`?",
+            ["Concat", "Union", "Intersect", "Except"],
+            3,
+            "Except performs set difference: everything in the first sequence that does not appear in the second, with duplicates removed.",
+          ),
+        ],
+        challenge: {
+          title: "Find the Difference",
+          description:
+            "Given `List<int> a = { 1, 2, 3 }` and `List<int> b = { 3, 4 }`, use `Except` to get the values in `a` that are not in `b`, store them in `only`, and print how many there are.",
+          starterCode: `using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program {
+    static void Main() {
+        List<int> a = new List<int> { 1, 2, 3 };
+        List<int> b = new List<int> { 3, 4 };
+
+        // Use Except to find values only in a
+
+
+        // Print the count
+
+    }
+}`,
+          solutionCode: `using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program {
+    static void Main() {
+        List<int> a = new List<int> { 1, 2, 3 };
+        List<int> b = new List<int> { 3, 4 };
+
+        var only = a.Except(b).ToList();
+
+        Console.WriteLine(only.Count);
+    }
+}`,
+          tests: [
+            {
+              id: 1,
+              label: "Uses Except",
+              keywords: [{ pattern: "\\.Except\\s*\\(" }],
+            },
+            {
+              id: 2,
+              label: "Materialises the result",
+              keywords: [{ pattern: "\\.ToList\\s*\\(" }],
+            },
+            {
+              id: 3,
+              label: "Prints the count",
+              keywords: [{ pattern: "\\.Count" }],
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: "linq-execution",
+    title: "Execution & Query Performance",
+    icon: "⚡",
+    color: ACCENT,
+    lessons: [
+      {
+        id: "cs-linq-11",
+        title: "Deferred vs Immediate Execution",
+        xp: 15,
+        theory: [
+          text(
+            "A LINQ query does not run when you write it. `Where`, `Select`, `OrderBy` and friends return a **description** of the query; the work happens when something iterates the result. This is **deferred execution**.",
+            {
+              label: "Nothing has run yet",
+              content: `var query = nums.Where(n => {
+    Console.WriteLine("checking " + n);
+    return n > 2;
+});
+
+Console.WriteLine("query built");   // prints first — nothing checked yet
+
+foreach (int n in query) {          // NOW the lambda runs
+    Console.WriteLine(n);
+}`,
+            },
+          ),
+          text(
+            "The consequence that bites: the source is re-read every time you iterate. Change the underlying list and the same query variable gives different answers.",
+            {
+              label: "A query is a live view, not a snapshot",
+              content: `List<int> nums = new List<int> { 1, 2, 3 };
+var big = nums.Where(n => n > 2);
+
+Console.WriteLine(big.Count());   // 1
+
+nums.Add(99);
+Console.WriteLine(big.Count());   // 2 — the query re-ran`,
+            },
+          ),
+          text(
+            "**Immediate** operators force execution on the spot. `ToList()`, `ToArray()` and `ToDictionary()` materialise a fixed snapshot; `Count()`, `Sum()`, `First()` and `Any()` must produce a single value, so they run immediately too.",
+            {
+              label: "Freezing the result",
+              content: `var snapshot = nums.Where(n => n > 2).ToList();  // runs now
+nums.Add(100);
+Console.WriteLine(snapshot.Count);              // unchanged`,
+            },
+          ),
+          callout(
+            "warning",
+            "Iterating a deferred query twice does the work twice. If you loop a query more than once, call `ToList()` first — otherwise every pass re-filters, re-sorts and re-projects the whole source.",
+          ),
+          quiz(
+            "`var q = nums.Where(n => n > 2);` then `nums.Add(99);`. What does `q.Count()` reflect?",
+            [
+              "The list as it was when q was declared",
+              "The list including 99, because the query re-runs",
+              "It throws, the collection changed",
+              "Always zero until ToList() is called",
+            ],
+            1,
+            "Deferred execution means q describes the query, not its results. Each enumeration re-reads the current contents of nums.",
+          ),
+        ],
+        challenge: {
+          title: "Freeze a Query",
+          description:
+            "Build a query over `nums` keeping values greater than `2`, materialise it immediately with `ToList()` into `snapshot`, then add `99` to `nums` and print `snapshot.Count` to show the snapshot did not change.",
+          starterCode: `using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program {
+    static void Main() {
+        List<int> nums = new List<int> { 1, 2, 3 };
+
+        // Build the query and freeze it with ToList()
+
+
+        nums.Add(99);
+
+        // Print the snapshot count
+
+    }
+}`,
+          solutionCode: `using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program {
+    static void Main() {
+        List<int> nums = new List<int> { 1, 2, 3 };
+
+        var snapshot = nums.Where(n => n > 2).ToList();
+
+        nums.Add(99);
+
+        Console.WriteLine(snapshot.Count);
+    }
+}`,
+          tests: [
+            {
+              id: 1,
+              label: "Filters with Where",
+              keywords: [{ pattern: "\\.Where\\s*\\(" }],
+            },
+            {
+              id: 2,
+              label: "Materialises with ToList",
+              keywords: [{ pattern: "\\.ToList\\s*\\(" }],
+            },
+            {
+              id: 3,
+              label: "Prints the snapshot count",
+              keywords: [{ pattern: "snapshot\\.Count" }],
+            },
+          ],
+        },
+      },
+      {
+        id: "cs-linq-12",
+        title: "Paging & Writing Efficient Queries",
+        xp: 16,
+        theory: [
+          text(
+            "**`Skip`** and **`Take`** slice a sequence, which is all paging really is: skip the pages before this one, take a page's worth.",
+            {
+              label: "Page 3, ten items per page",
+              content: `int page = 3;
+int pageSize = 10;
+
+var results = items
+    .Skip((page - 1) * pageSize)
+    .Take(pageSize)
+    .ToList();`,
+            },
+          ),
+          text(
+            "Order matters in a chain. Filter before you sort — sorting a hundred items and then throwing most away costs far more than discarding them first.",
+            {
+              label: "Cheap order vs expensive order",
+              content: `// Expensive — sorts everything, then filters
+items.OrderBy(i => i.Name).Where(i => i.IsActive);
+
+// Cheaper — filters first, sorts what survives
+items.Where(i => i.IsActive).OrderBy(i => i.Name);`,
+            },
+          ),
+          text(
+            "Pick the operator that can stop early. `Any()` returns the moment it finds one match, while `Count() > 0` walks the entire sequence to build a number it then throws away.",
+            {
+              label: "Ask the cheaper question",
+              content: `if (users.Any(u => u.IsAdmin)) { }        // stops at the first admin
+if (users.Count(u => u.IsAdmin) > 0) { }  // counts every admin first
+
+var first = users.FirstOrDefault(u => u.IsAdmin);  // stops at the first match`,
+            },
+          ),
+          callout(
+            "tip",
+            "Paging without `OrderBy` is unreliable — without a defined order, \"the second page\" has no stable meaning. Always sort before you `Skip`/`Take`.",
+          ),
+          quiz(
+            "Why is `Any(...)` usually cheaper than `Count(...) > 0`?",
+            [
+              "Any runs in parallel",
+              "Any stops at the first match; Count walks the whole sequence",
+              "Count is deferred, Any is not",
+              "There is no difference",
+            ],
+            1,
+            "Any short-circuits as soon as one element satisfies the predicate, while Count must examine every element to produce a total.",
+          ),
+        ],
+        challenge: {
+          title: "Take the Second Page",
+          description:
+            "Given a `List<int>` of `1..10` named `items`, order it ascending, then use `Skip` and `Take` with a page size of `3` to get page 2 into `page2`. Print the first value on that page.",
+          starterCode: `using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program {
+    static void Main() {
+        List<int> items = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+
+        // Order, then Skip and Take page 2 with a page size of 3
+
+
+        // Print the first value on the page
+
+    }
+}`,
+          solutionCode: `using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program {
+    static void Main() {
+        List<int> items = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+
+        var page2 = items
+            .OrderBy(i => i)
+            .Skip(3)
+            .Take(3)
+            .ToList();
+
+        Console.WriteLine(page2[0]);
+    }
+}`,
+          tests: [
+            {
+              id: 1,
+              label: "Orders before paging",
+              keywords: [{ pattern: "\\.OrderBy\\s*\\(" }],
+            },
+            {
+              id: 2,
+              label: "Uses Skip and Take",
+              keywords: [
+                { pattern: "\\.Skip\\s*\\(\\s*3\\s*\\)" },
+                { pattern: "\\.Take\\s*\\(\\s*3\\s*\\)" },
+              ],
+            },
+            {
+              id: 3,
+              label: "Prints the first value of the page",
+              keywords: [{ pattern: "page2\\s*\\[\\s*0\\s*\\]" }],
             },
           ],
         },

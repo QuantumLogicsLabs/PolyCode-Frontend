@@ -1,5 +1,5 @@
 // PolyCode — C# ASP.NET Basics Interactive Course
-// 3 chapters · 6 lessons · Pattern/theory-focused (ASP.NET needs a real web server,
+// 6 chapters · 12 lessons · Pattern/theory-focused (ASP.NET needs a real web server,
 // so this course follows the same un-runnable-content approach as Quantum Mechanics —
 // challenges are graded on code patterns, not live execution)
 
@@ -164,7 +164,7 @@ app.MapDelete("/products/{id}", (int id) => Results.NoContent());`,
         challenge: {
           title: "CRUD Routes for /tasks",
           description:
-            "Add four routes for a `/tasks` resource: `MapGet(\"/tasks/{id}\")`, `MapPost(\"/tasks\")`, `MapPut(\"/tasks/{id}\")`, and `MapDelete(\"/tasks/{id}\")`. Handler bodies can be simple placeholders.",
+            "Add four routes for a `/tasks` resource: `MapGet(\"/tasks/{id}\")`, `MapPost(\"/tasks\")`, `MapPut(\"/tasks/{id}\")`, and `MapDelete(\"/tasks/{id}\")`. Handler bodies can be minimal.",
           starterCode: `var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
@@ -582,6 +582,754 @@ app.Run();`,
               id: 3,
               label: "Calls await next()",
               keywords: [{ pattern: "await\\s+next\\(\\)" }],
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: "configuration-environments",
+    title: "Configuration & Environments",
+    icon: "⚙️",
+    color: ACCENT,
+    lessons: [
+      {
+        id: "cs-aspnet-6",
+        title: "appsettings.json & IConfiguration",
+        xp: 15,
+        theory: [
+          text(
+            "Connection strings, API keys and feature flags do not belong in source code. ASP.NET Core reads them from **`appsettings.json`** and exposes them through `IConfiguration`.",
+            {
+              label: "A typical appsettings.json",
+              content: `{
+    "ConnectionStrings": {
+        "Default": "Server=localhost;Database=Shop;"
+    },
+    "Api": {
+        "PageSize": 20,
+        "Title": "Shop API"
+    }
+}`,
+            },
+          ),
+          text(
+            "Read values with a colon-separated key path. `builder.Configuration` is available before the app is built, which is where most wiring happens.",
+            {
+              label: "Reading configuration",
+              content: `var builder = WebApplication.CreateBuilder(args);
+
+string conn = builder.Configuration.GetConnectionString("Default");
+int pageSize = builder.Configuration.GetValue<int>("Api:PageSize");
+
+var app = builder.Build();
+
+app.MapGet("/config", (IConfiguration config) => config["Api:Title"]);
+
+app.Run();`,
+            },
+          ),
+          text(
+            "Configuration is layered. Each source below overrides the one above it for the same key, so a server environment variable beats whatever is committed in the file.",
+          ),
+          diagram("Configuration precedence (last wins)", [
+            {
+              id: "appsettings",
+              label: "appsettings.json",
+              color: "#94a3b8",
+              items: ["Committed defaults"],
+            },
+            {
+              id: "envfile",
+              label: "appsettings.{Environment}.json",
+              color: "#0ea5e9",
+              items: ["Per-environment overrides"],
+            },
+            {
+              id: "secrets",
+              label: "User Secrets",
+              color: "#a855f7",
+              items: ["Local dev only", "Never committed"],
+            },
+            {
+              id: "envvars",
+              label: "Environment variables",
+              color: ACCENT,
+              items: ["Production values", "Highest priority"],
+            },
+          ]),
+          callout(
+            "warning",
+            "Never commit real secrets to `appsettings.json` — it ships with your source. Use `dotnet user-secrets` locally and environment variables in production.",
+          ),
+          quiz(
+            "A key exists in both `appsettings.json` and an environment variable. Which value wins?",
+            [
+              "appsettings.json — files are more specific",
+              "The environment variable — it is registered later",
+              "Whichever was set first",
+              "The app throws on the duplicate key",
+            ],
+            1,
+            "Configuration providers are layered in registration order and later providers override earlier ones, so environment variables beat the JSON file.",
+          ),
+        ],
+        challenge: {
+          title: "Read a Config Value",
+          description:
+            "Read the connection string named `\"Default\"` into a `conn` variable using `builder.Configuration.GetConnectionString`, and map a `GET /title` route whose handler takes `IConfiguration config` and returns `config[\"Api:Title\"]`.",
+          starterCode: `var builder = WebApplication.CreateBuilder(args);
+
+// Read the "Default" connection string
+
+
+var app = builder.Build();
+
+// Map GET /title returning the Api:Title setting
+
+
+app.Run();`,
+          solutionCode: `var builder = WebApplication.CreateBuilder(args);
+
+string conn = builder.Configuration.GetConnectionString("Default");
+
+var app = builder.Build();
+
+app.MapGet("/title", (IConfiguration config) => config["Api:Title"]);
+
+app.Run();`,
+          tests: [
+            {
+              id: 1,
+              label: "Reads the Default connection string",
+              keywords: [{ pattern: "GetConnectionString\\(\"Default\"\\)" }],
+            },
+            {
+              id: 2,
+              label: "Maps GET /title",
+              keywords: [{ pattern: "MapGet\\(\"/title\"" }],
+            },
+            {
+              id: 3,
+              label: "Reads the Api:Title key",
+              keywords: [{ pattern: "Api:Title" }],
+            },
+          ],
+        },
+      },
+      {
+        id: "cs-aspnet-7",
+        title: "Environments & the Options Pattern",
+        xp: 15,
+        theory: [
+          text(
+            "ASP.NET Core reads the `ASPNETCORE_ENVIRONMENT` variable to decide which environment it is running in — conventionally `Development`, `Staging` or `Production`. It then loads `appsettings.{Environment}.json` on top of the base file.",
+            {
+              label: "Branching on the environment",
+              content: `var app = builder.Build();
+
+if (app.Environment.IsDevelopment()) {
+    app.UseDeveloperExceptionPage();   // detailed errors, dev only
+} else {
+    app.UseExceptionHandler("/error"); // generic message in production
+}
+
+app.Run();`,
+            },
+          ),
+          text(
+            "Reading config with string keys everywhere is fragile — a typo in `\"Api:PageSize\"` fails silently. The **options pattern** binds a config section to a class once, then injects it as a typed object.",
+            {
+              label: "Binding a section to a class",
+              content: `class ApiOptions {
+    public int PageSize { get; set; }
+    public string Title { get; set; }
+}
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<ApiOptions>(
+    builder.Configuration.GetSection("Api"));`,
+            },
+          ),
+          text(
+            "Handlers then take `IOptions<T>` through dependency injection and read `.Value` — typed, autocompleted, and checked by the compiler.",
+            {
+              label: "Injecting typed options",
+              content: `app.MapGet("/info", (IOptions<ApiOptions> options) => {
+    ApiOptions api = options.Value;
+    return $"{api.Title} shows {api.PageSize} per page";
+});`,
+            },
+          ),
+          callout(
+            "tip",
+            "Property names on the options class must match the JSON keys in that section. A mismatch does not throw — the property silently keeps its default, which is why typos here are hard to spot.",
+          ),
+          quiz(
+            "What does `builder.Services.Configure<ApiOptions>(...GetSection(\"Api\"))` accomplish?",
+            [
+              "Creates the appsettings.json file",
+              "Binds the Api config section to ApiOptions so it can be injected as IOptions<ApiOptions>",
+              "Validates that every key exists",
+              "Switches the app to Development mode",
+            ],
+            1,
+            "Configure binds a configuration section to a typed class and registers it in DI, so handlers can inject IOptions<ApiOptions> instead of using string keys.",
+          ),
+        ],
+        challenge: {
+          title: "Bind Typed Options",
+          description:
+            "Register `ApiOptions` bound to the `\"Api\"` configuration section with `builder.Services.Configure`, then map `GET /info` with a handler taking `IOptions<ApiOptions> options` that returns `options.Value.Title`.",
+          starterCode: `var builder = WebApplication.CreateBuilder(args);
+
+// Bind the "Api" section to ApiOptions
+
+
+var app = builder.Build();
+
+// Map GET /info using IOptions<ApiOptions>
+
+
+app.Run();
+
+class ApiOptions {
+    public int PageSize { get; set; }
+    public string Title { get; set; }
+}`,
+          solutionCode: `var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<ApiOptions>(
+    builder.Configuration.GetSection("Api"));
+
+var app = builder.Build();
+
+app.MapGet("/info", (IOptions<ApiOptions> options) => options.Value.Title);
+
+app.Run();
+
+class ApiOptions {
+    public int PageSize { get; set; }
+    public string Title { get; set; }
+}`,
+          tests: [
+            {
+              id: 1,
+              label: "Configures ApiOptions",
+              keywords: [{ pattern: "Configure<ApiOptions>" }],
+            },
+            {
+              id: 2,
+              label: "Binds the Api section",
+              keywords: [{ pattern: "GetSection\\(\"Api\"\\)" }],
+            },
+            {
+              id: 3,
+              label: "Injects IOptions<ApiOptions>",
+              keywords: [{ pattern: "IOptions<ApiOptions>" }],
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: "data-access-ef-core",
+    title: "Data Access with EF Core",
+    icon: "🗄️",
+    color: ACCENT,
+    lessons: [
+      {
+        id: "cs-aspnet-8",
+        title: "DbContext & Entity Models",
+        xp: 16,
+        theory: [
+          text(
+            "Entity Framework Core maps C# classes to database tables. An **entity** is a plain class; a **`DbContext`** is the session that tracks those entities and talks to the database.",
+            {
+              label: "An entity and its context",
+              content: `class Product {
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public decimal Price { get; set; }
+}
+
+class ShopContext : DbContext {
+    public ShopContext(DbContextOptions<ShopContext> options)
+        : base(options) { }
+
+    public DbSet<Product> Products { get; set; }
+}`,
+            },
+          ),
+          text(
+            "Each `DbSet<T>` becomes a table, each property a column. A property named `Id` (or `ProductId`) is taken as the primary key by convention — no attribute needed.",
+          ),
+          text(
+            "Register the context in DI with its provider and connection string, exactly like any other service.",
+            {
+              label: "Registering the context",
+              content: `var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<ShopContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("Default")));
+
+var app = builder.Build();`,
+            },
+          ),
+          text(
+            "Because it is registered in DI, a route handler gets the context by simply declaring it as a parameter — the same injection you saw in the DI chapter.",
+            {
+              label: "Injecting the context into a handler",
+              content: `app.MapGet("/products", async (ShopContext db) =>
+    await db.Products.ToListAsync());`,
+            },
+          ),
+          callout(
+            "info",
+            "`DbContext` is registered **scoped** — one instance per HTTP request. That is deliberate: it tracks changes for the lifetime of a request and is not thread-safe, so never share one across requests.",
+          ),
+          quiz(
+            "What does a `DbSet<Product>` property on a DbContext represent?",
+            [
+              "A single product row",
+              "The Products table, queryable as a collection",
+              "The database connection string",
+              "A migration script",
+            ],
+            1,
+            "Each DbSet<T> maps to a table and acts as the queryable entry point for entities of that type.",
+          ),
+        ],
+        challenge: {
+          title: "Define a Context",
+          description:
+            "Create a `ShopContext` class inheriting `DbContext` with a constructor taking `DbContextOptions<ShopContext>` passed to `base`, and a `DbSet<Product> Products` property. Then register it with `builder.Services.AddDbContext<ShopContext>`.",
+          starterCode: `var builder = WebApplication.CreateBuilder(args);
+
+// Register the ShopContext with AddDbContext
+
+
+var app = builder.Build();
+app.Run();
+
+class Product {
+    public int Id { get; set; }
+    public string Name { get; set; }
+}
+
+// Define ShopContext here
+`,
+          solutionCode: `var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<ShopContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("Default")));
+
+var app = builder.Build();
+app.Run();
+
+class Product {
+    public int Id { get; set; }
+    public string Name { get; set; }
+}
+
+class ShopContext : DbContext {
+    public ShopContext(DbContextOptions<ShopContext> options)
+        : base(options) { }
+
+    public DbSet<Product> Products { get; set; }
+}`,
+          tests: [
+            {
+              id: 1,
+              label: "Declares a DbContext subclass",
+              keywords: [{ pattern: "ShopContext\\s*:\\s*DbContext" }],
+            },
+            {
+              id: 2,
+              label: "Exposes a DbSet<Product>",
+              keywords: [{ pattern: "DbSet<Product>" }],
+            },
+            {
+              id: 3,
+              label: "Registers the context in DI",
+              keywords: [{ pattern: "AddDbContext<ShopContext>" }],
+            },
+          ],
+        },
+      },
+      {
+        id: "cs-aspnet-9",
+        title: "CRUD Endpoints with EF Core",
+        xp: 16,
+        theory: [
+          text(
+            "Queries against a `DbSet` are LINQ queries translated into SQL. Use the **async** versions in a web app so the thread is freed while the database works.",
+            {
+              label: "Read endpoints",
+              content: `app.MapGet("/products", async (ShopContext db) =>
+    await db.Products.ToListAsync());
+
+app.MapGet("/products/{id}", async (int id, ShopContext db) =>
+    await db.Products.FindAsync(id) is Product p
+        ? Results.Ok(p)
+        : Results.NotFound());`,
+            },
+          ),
+          text(
+            "Writes are two steps: change the tracked graph, then call `SaveChangesAsync` once to commit. Nothing reaches the database until that call.",
+            {
+              label: "Create",
+              content: `app.MapPost("/products", async (Product product, ShopContext db) => {
+    db.Products.Add(product);
+    await db.SaveChangesAsync();
+
+    return Results.Created($"/products/{product.Id}", product);
+});`,
+            },
+          ),
+          text(
+            "Update and delete follow the same shape: load the entity, modify or remove it, save once.",
+            {
+              label: "Update and delete",
+              content: `app.MapPut("/products/{id}", async (int id, Product input, ShopContext db) => {
+    Product product = await db.Products.FindAsync(id);
+    if (product is null) return Results.NotFound();
+
+    product.Name = input.Name;
+    await db.SaveChangesAsync();
+
+    return Results.NoContent();
+});
+
+app.MapDelete("/products/{id}", async (int id, ShopContext db) => {
+    Product product = await db.Products.FindAsync(id);
+    if (product is null) return Results.NotFound();
+
+    db.Products.Remove(product);
+    await db.SaveChangesAsync();
+
+    return Results.NoContent();
+});`,
+            },
+          ),
+          callout(
+            "warning",
+            "Calling `SaveChangesAsync` inside a loop issues a round trip per iteration. Make all your changes first, then save once — EF Core batches them into a single transaction.",
+          ),
+          quiz(
+            "When does `db.Products.Add(product)` actually write a row to the database?",
+            [
+              "Immediately when Add is called",
+              "When SaveChangesAsync is called",
+              "When the response is returned",
+              "When the DbContext is disposed",
+            ],
+            1,
+            "Add only marks the entity as added in the change tracker. The INSERT is sent when SaveChangesAsync runs.",
+          ),
+        ],
+        challenge: {
+          title: "Create a Product Endpoint",
+          description:
+            "Map a `POST /products` route whose async handler takes `Product product` and `ShopContext db`, adds the product with `db.Products.Add`, awaits `db.SaveChangesAsync()`, and returns `Results.Created`.",
+          starterCode: `var builder = WebApplication.CreateBuilder(args);
+var app = builder.Build();
+
+// Map an async POST /products endpoint
+
+
+app.Run();`,
+          solutionCode: `var builder = WebApplication.CreateBuilder(args);
+var app = builder.Build();
+
+app.MapPost("/products", async (Product product, ShopContext db) => {
+    db.Products.Add(product);
+    await db.SaveChangesAsync();
+
+    return Results.Created($"/products/{product.Id}", product);
+});
+
+app.Run();`,
+          tests: [
+            {
+              id: 1,
+              label: "Maps an async POST /products",
+              keywords: [{ pattern: "MapPost\\(\"/products\"" }, { pattern: "async" }],
+            },
+            {
+              id: 2,
+              label: "Adds and saves",
+              keywords: [
+                { pattern: "db\\.Products\\.Add" },
+                { pattern: "await\\s+db\\.SaveChangesAsync" },
+              ],
+            },
+            {
+              id: 3,
+              label: "Returns 201 Created",
+              keywords: [{ pattern: "Results\\.Created" }],
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: "validation-security",
+    title: "Validation, Errors & Security Basics",
+    icon: "🔐",
+    color: ACCENT,
+    lessons: [
+      {
+        id: "cs-aspnet-10",
+        title: "Validation & Error Handling",
+        xp: 15,
+        theory: [
+          text(
+            "Never trust request bodies. **Data annotations** declare the rules on the model itself, next to the properties they constrain.",
+            {
+              label: "Annotating a DTO",
+              content: `using System.ComponentModel.DataAnnotations;
+
+class CreateProductDto {
+    [Required]
+    [StringLength(100, MinimumLength = 2)]
+    public string Name { get; set; }
+
+    [Range(0.01, 10000)]
+    public decimal Price { get; set; }
+}`,
+            },
+          ),
+          text(
+            "When validation fails, return **`Results.ValidationProblem`**. It produces an RFC-compliant `ProblemDetails` body with a 400 status and a dictionary of field errors — the shape API clients expect.",
+            {
+              label: "Returning a validation failure",
+              content: `app.MapPost("/products", (CreateProductDto dto) => {
+    if (string.IsNullOrWhiteSpace(dto.Name)) {
+        return Results.ValidationProblem(new Dictionary<string, string[]> {
+            ["Name"] = new[] { "Name is required." }
+        });
+    }
+
+    return Results.Created("/products/1", dto);
+});`,
+            },
+          ),
+          text(
+            "Unhandled exceptions are a separate concern. Register an exception handler once so a crash returns a clean error response instead of a stack trace.",
+            {
+              label: "Global exception handling",
+              content: `var app = builder.Build();
+
+if (!app.Environment.IsDevelopment()) {
+    app.UseExceptionHandler("/error");
+}
+
+app.Map("/error", () => Results.Problem("An unexpected error occurred."));`,
+            },
+          ),
+          callout(
+            "warning",
+            "A stack trace in a production response tells an attacker your framework versions, file paths and query structure. Detailed errors belong in logs and in Development only.",
+          ),
+          quiz(
+            "What does `Results.ValidationProblem(...)` return to the client?",
+            [
+              "500 with a stack trace",
+              "400 with a ProblemDetails body listing field errors",
+              "204 No Content",
+              "A redirect to an error page",
+            ],
+            1,
+            "ValidationProblem produces a 400 Bad Request with a standard ProblemDetails payload whose errors dictionary maps each field to its messages.",
+          ),
+        ],
+        challenge: {
+          title: "Validate a Product DTO",
+          description:
+            "Add `[Required]` and `[StringLength(100, MinimumLength = 2)]` to `Name`, and `[Range(0.01, 10000)]` to `Price` on `CreateProductDto`. In the handler, return `Results.ValidationProblem` when `Name` is empty.",
+          starterCode: `using System.ComponentModel.DataAnnotations;
+
+var builder = WebApplication.CreateBuilder(args);
+var app = builder.Build();
+
+app.MapPost("/products", (CreateProductDto dto) => {
+    // Return a validation problem when Name is empty
+
+
+    return Results.Created("/products/1", dto);
+});
+
+app.Run();
+
+class CreateProductDto {
+    // Annotate Name and Price
+    public string Name { get; set; }
+    public decimal Price { get; set; }
+}`,
+          solutionCode: `using System.ComponentModel.DataAnnotations;
+
+var builder = WebApplication.CreateBuilder(args);
+var app = builder.Build();
+
+app.MapPost("/products", (CreateProductDto dto) => {
+    if (string.IsNullOrWhiteSpace(dto.Name)) {
+        return Results.ValidationProblem(new Dictionary<string, string[]> {
+            ["Name"] = new[] { "Name is required." }
+        });
+    }
+
+    return Results.Created("/products/1", dto);
+});
+
+app.Run();
+
+class CreateProductDto {
+    [Required]
+    [StringLength(100, MinimumLength = 2)]
+    public string Name { get; set; }
+
+    [Range(0.01, 10000)]
+    public decimal Price { get; set; }
+}`,
+          tests: [
+            {
+              id: 1,
+              label: "Marks Name as Required",
+              keywords: [{ pattern: "\\[Required\\]" }],
+            },
+            {
+              id: 2,
+              label: "Constrains Price with Range",
+              keywords: [{ pattern: "\\[Range\\(" }],
+            },
+            {
+              id: 3,
+              label: "Returns a validation problem",
+              keywords: [{ pattern: "Results\\.ValidationProblem" }],
+            },
+          ],
+        },
+      },
+      {
+        id: "cs-aspnet-11",
+        title: "Authentication, Authorization & CORS",
+        xp: 16,
+        theory: [
+          text(
+            "**Authentication** establishes who the caller is; **authorization** decides what they may do. They are separate steps, and the middleware for each must be added in that order.",
+            {
+              label: "Wiring both into the pipeline",
+              content: `var app = builder.Build();
+
+app.UseAuthentication();   // who are you?
+app.UseAuthorization();    // are you allowed?
+
+app.Run();`,
+            },
+          ),
+          text(
+            "APIs usually authenticate with **JWT bearer tokens**: the client sends `Authorization: Bearer <token>` and the framework validates the signature and claims on every request.",
+            {
+              label: "Registering JWT authentication",
+              content: `builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer();
+
+builder.Services.AddAuthorization();`,
+            },
+          ),
+          text(
+            "Protect an endpoint with `RequireAuthorization()`. Anonymous callers then get a 401 before the handler ever runs.",
+            {
+              label: "Protecting endpoints",
+              content: `app.MapGet("/public", () => "anyone can read this");
+
+app.MapGet("/orders", () => "your orders")
+   .RequireAuthorization();
+
+app.MapDelete("/admin/users/{id}", (int id) => Results.NoContent())
+   .RequireAuthorization("AdminOnly");   // named policy`,
+            },
+          ),
+          text(
+            "Browsers block cross-origin calls unless the server opts in. **CORS** is that opt-in, and it must be configured for the front end's exact origin.",
+            {
+              label: "Allowing a front end origin",
+              content: `builder.Services.AddCors(options =>
+    options.AddPolicy("frontend", policy =>
+        policy.WithOrigins("https://app.example.com")
+              .AllowAnyHeader()
+              .AllowAnyMethod()));
+
+var app = builder.Build();
+app.UseCors("frontend");`,
+            },
+          ),
+          callout(
+            "warning",
+            "`AllowAnyOrigin()` combined with credentials is rejected by browsers and is a bad default regardless — it invites any site to call your API. Name the origins you actually serve.",
+          ),
+          quiz(
+            "What is the difference between `UseAuthentication()` and `UseAuthorization()`?",
+            [
+              "They are aliases for the same middleware",
+              "Authentication identifies the caller; authorization decides what that caller may do",
+              "Authentication is for APIs, authorization for web pages",
+              "Authorization must be registered first",
+            ],
+            1,
+            "Authentication establishes identity from the request's credentials, and authorization then evaluates policies against that identity — which is why it must run second.",
+          ),
+        ],
+        challenge: {
+          title: "Protect an Endpoint",
+          description:
+            "Add `app.UseAuthentication()` and `app.UseAuthorization()` in the correct order, then map `GET /orders` and chain `.RequireAuthorization()` so anonymous callers get a 401.",
+          starterCode: `var builder = WebApplication.CreateBuilder(args);
+var app = builder.Build();
+
+// Add authentication then authorization middleware
+
+
+// Map a protected GET /orders endpoint
+
+
+app.Run();`,
+          solutionCode: `var builder = WebApplication.CreateBuilder(args);
+var app = builder.Build();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapGet("/orders", () => "your orders")
+   .RequireAuthorization();
+
+app.Run();`,
+          tests: [
+            {
+              id: 1,
+              label: "Adds authentication middleware",
+              keywords: [{ pattern: "UseAuthentication\\s*\\(" }],
+            },
+            {
+              id: 2,
+              label: "Adds authorization middleware",
+              keywords: [{ pattern: "UseAuthorization\\s*\\(" }],
+            },
+            {
+              id: 3,
+              label: "Protects the /orders endpoint",
+              keywords: [
+                { pattern: "MapGet\\(\"/orders\"" },
+                { pattern: "RequireAuthorization\\s*\\(" },
+              ],
             },
           ],
         },

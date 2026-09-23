@@ -1,5 +1,5 @@
 // PolyCode — C# Projects Interactive Course (Capstone)
-// 2 chapters · 4 lessons · Browser sandbox validation
+// 6 chapters · 6 lessons · Browser sandbox validation
 // Combines skills from C# Fundamentals, OOP, Collections, LINQ, File Handling,
 // and ASP.NET Basics into growing, realistic projects — follows the same content
 // shape as csharp-oop/data/csharpOopCurriculum.js
@@ -27,9 +27,9 @@ function text(content, codeBlock = null) {
 
 const RAW_CSHARP_PROJECTS_CHAPTERS = [
   {
-    id: "console-projects",
-    title: "Console Projects",
-    icon: "💻",
+    id: "project-contact-book",
+    title: "Project 1: Contact Book",
+    icon: "📇",
     color: ACCENT,
     lessons: [
       {
@@ -129,6 +129,14 @@ class Program {
           ],
         },
       },
+    ],
+  },
+  {
+    id: "project-todo-list",
+    title: "Project 2: Persistent Todo List",
+    icon: "🗒️",
+    color: ACCENT,
+    lessons: [
       {
         id: "cs-proj-1",
         title: "Project 2: Persistent Todo List",
@@ -219,9 +227,9 @@ class Program {
     ],
   },
   {
-    id: "applied-projects",
-    title: "Applied Projects",
-    icon: "🚀",
+    id: "project-grade-analyzer",
+    title: "Project 3: Student Grade Analyzer",
+    icon: "📊",
     color: ACCENT,
     lessons: [
       {
@@ -335,6 +343,14 @@ class Program {
           ],
         },
       },
+    ],
+  },
+  {
+    id: "project-task-api",
+    title: "Project 4: Mini Task API",
+    icon: "🔌",
+    color: ACCENT,
+    lessons: [
       {
         id: "cs-proj-3",
         title: "Project 4: Mini Task API",
@@ -439,6 +455,355 @@ app.Run();`,
               id: 3,
               label: "Returns NotFound when missing",
               keywords: [{ pattern: "Results\\.NotFound\\(\\)" }],
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: "project-inventory-manager",
+    title: "Project 5: Inventory Manager",
+    icon: "📦",
+    color: ACCENT,
+    lessons: [
+      {
+        id: "cs-proj-4",
+        title: "Project 5: Inventory Manager",
+        xp: 24,
+        theory: [
+          text(
+            "Project 2 saved its task list as plain text lines. Real applications store **structured** data — objects with several fields, nested inside collections. This inventory manager keeps a catalogue of products on disk as JSON and reloads it on startup.",
+            {
+              label: "The model and the working set",
+              content: `public class Product {
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string Category { get; set; }
+    public int Quantity { get; set; }
+    public decimal Price { get; set; }
+}
+
+List<Product> inventory = new List<Product> {
+    new Product { Id = 1, Name = "Keyboard", Category = "Input", Quantity = 4, Price = 25.00m },
+    new Product { Id = 2, Name = "Monitor", Category = "Display", Quantity = 12, Price = 150.00m }
+};`,
+            },
+          ),
+          text(
+            "Saving is one call to the serialiser and one file write. `WriteIndented` keeps the file readable so you can inspect it while developing.",
+            {
+              label: "Saving the catalogue",
+              content: `static void SaveInventory(List<Product> items, string path) {
+    var options = new JsonSerializerOptions { WriteIndented = true };
+    string json = JsonSerializer.Serialize(items, options);
+    File.WriteAllText(path, json);
+}`,
+            },
+          ),
+          text(
+            "Loading has to survive the first run, when the file does not exist yet. Guard with `File.Exists` and return an empty list instead of letting the read throw.",
+            {
+              label: "Loading, safely",
+              content: `static List<Product> LoadInventory(string path) {
+    if (!File.Exists(path)) {
+        return new List<Product>();
+    }
+
+    string json = File.ReadAllText(path);
+    return JsonSerializer.Deserialize<List<Product>>(json);
+}`,
+            },
+          ),
+          text(
+            "With the data in memory, the reporting is pure LINQ — the same operators from earlier in the track, now answering questions a shop owner would actually ask.",
+            {
+              label: "Three reports",
+              content: `// Low stock alert
+var lowStock = inventory
+    .Where(p => p.Quantity < 5)
+    .OrderBy(p => p.Quantity)
+    .ToList();
+
+// Total value of everything on the shelves
+decimal totalValue = inventory.Sum(p => p.Quantity * p.Price);
+
+// Value broken down by category
+var byCategory = inventory
+    .GroupBy(p => p.Category)
+    .Select(g => new {
+        Category = g.Key,
+        Value = g.Sum(p => p.Quantity * p.Price)
+    });`,
+            },
+          ),
+          callout(
+            "note",
+            "This is the shape of most small business tools: a model class, a collection in memory, JSON on disk, and LINQ for every question you ask of the data. Swap the JSON file for a database and the reporting code does not change.",
+          ),
+          quiz(
+            "Why does `LoadInventory` check `File.Exists` before reading?",
+            [
+              "Reading is faster when the file exists",
+              "On the first run the file does not exist yet, and reading it would throw",
+              "File.Exists creates the file if missing",
+              "JSON files must be validated before reading",
+            ],
+            1,
+            "Before the first save there is no file. Without the guard, ReadAllText throws FileNotFoundException and the app crashes on startup instead of beginning with an empty catalogue.",
+          ),
+        ],
+        challenge: {
+          title: "Save and Load the Catalogue",
+          description:
+            "Implement `SaveInventory` to serialise `items` with `JsonSerializer.Serialize` and write it using `File.WriteAllText`. Then implement `LoadInventory` to return a new empty list when the file is missing, otherwise read it and return `JsonSerializer.Deserialize<List<Product>>`.",
+          starterCode: `using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
+
+public class Product {
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public int Quantity { get; set; }
+}
+
+class Program {
+    static void SaveInventory(List<Product> items, string path) {
+        // Serialise items and write them to path
+
+    }
+
+    static List<Product> LoadInventory(string path) {
+        // Return an empty list if the file is missing, otherwise load it
+
+        return new List<Product>();
+    }
+
+    static void Main() {
+        List<Product> inventory = new List<Product>();
+        SaveInventory(inventory, "inventory.json");
+        Console.WriteLine(LoadInventory("inventory.json").Count);
+    }
+}`,
+          solutionCode: `using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
+
+public class Product {
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public int Quantity { get; set; }
+}
+
+class Program {
+    static void SaveInventory(List<Product> items, string path) {
+        string json = JsonSerializer.Serialize(items);
+        File.WriteAllText(path, json);
+    }
+
+    static List<Product> LoadInventory(string path) {
+        if (!File.Exists(path)) {
+            return new List<Product>();
+        }
+
+        string json = File.ReadAllText(path);
+        return JsonSerializer.Deserialize<List<Product>>(json);
+    }
+
+    static void Main() {
+        List<Product> inventory = new List<Product>();
+        SaveInventory(inventory, "inventory.json");
+        Console.WriteLine(LoadInventory("inventory.json").Count);
+    }
+}`,
+          tests: [
+            {
+              id: 1,
+              label: "Serialises the catalogue",
+              keywords: [{ pattern: "JsonSerializer\\.Serialize" }],
+            },
+            {
+              id: 2,
+              label: "Writes the JSON to disk",
+              keywords: [{ pattern: "File\\.WriteAllText" }],
+            },
+            {
+              id: 3,
+              label: "Guards on File.Exists and deserialises the list",
+              keywords: [
+                { pattern: "File\\.Exists" },
+                { pattern: "Deserialize<List<Product>>" },
+              ],
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: "project-library-lending",
+    title: "Project 6: Library Lending System",
+    icon: "📚",
+    color: ACCENT,
+    lessons: [
+      {
+        id: "cs-proj-5",
+        title: "Project 6: Library Lending System",
+        xp: 26,
+        theory: [
+          text(
+            "The final project pulls in the parts of the track the earlier projects never touched: **records** for immutable facts, **custom comparers** for sorting, **nested collections** for grouping, and LINQ for the reports.",
+            {
+              label: "Books and loans",
+              content: `public class Book : IComparable<Book> {
+    public int Id { get; set; }
+    public string Title { get; set; }
+    public string Author { get; set; }
+
+    public int CompareTo(Book other) {
+        return Title.CompareTo(other.Title);
+    }
+}
+
+// A loan is a historical fact — once recorded it should not mutate
+public record Loan(int BookId, string Member, DateTime DueDate, bool Returned);`,
+            },
+          ),
+          text(
+            "Because `Book` implements `IComparable<Book>`, the catalogue sorts itself by title. A separate `IComparer<Book>` handles the alternative order without touching the class.",
+            {
+              label: "Two orderings, one type",
+              content: `books.Sort();                      // by title, the natural order
+
+class ByAuthor : IComparer<Book> {
+    public int Compare(Book a, Book b) {
+        return a.Author.CompareTo(b.Author);
+    }
+}
+
+books.Sort(new ByAuthor());        // by author, on demand`,
+            },
+          ),
+          text(
+            "Loans per member is the dictionary-of-lists pattern. The inner list has to exist before you add to it, so create it on demand.",
+            {
+              label: "Grouping loans by member",
+              content: `Dictionary<string, List<Loan>> byMember = new Dictionary<string, List<Loan>>();
+
+static void Record(Dictionary<string, List<Loan>> store, Loan loan) {
+    if (!store.ContainsKey(loan.Member)) {
+        store[loan.Member] = new List<Loan>();
+    }
+
+    store[loan.Member].Add(loan);
+}`,
+            },
+          ),
+          text(
+            "The reports are LINQ queries over those loans — overdue items first, then a ranking of what gets borrowed most.",
+            {
+              label: "Overdue and most-borrowed",
+              content: `// Still out, and past the due date
+var overdue = loans
+    .Where(l => !l.Returned && l.DueDate < DateTime.Today)
+    .OrderBy(l => l.DueDate)
+    .ToList();
+
+// Which books circulate most
+var popular = loans
+    .GroupBy(l => l.BookId)
+    .Select(g => new { BookId = g.Key, Times = g.Count() })
+    .OrderByDescending(x => x.Times)
+    .ToList();`,
+            },
+          ),
+          callout(
+            "note",
+            "Notice how little new machinery this needs. Records, comparers, nested collections and LINQ were each taught separately — a real project is mostly deciding which of them fits each part of the problem.",
+          ),
+          quiz(
+            "Why is `Loan` declared as a `record` rather than a class?",
+            [
+              "Records are faster than classes",
+              "A loan is an immutable fact with value equality — two identical loans are the same loan",
+              "Only records can go in a Dictionary",
+              "Records are required for LINQ queries",
+            ],
+            1,
+            "A recorded loan should not change after the fact, and comparing loans by their contents rather than by object identity is exactly the value semantics a record provides.",
+          ),
+        ],
+        challenge: {
+          title: "Build the Overdue Report",
+          description:
+            "Implement `OverdueLoans(List<Loan> loans)` so it returns every loan that has **not** been returned and whose `DueDate` is earlier than `DateTime.Today`, ordered by `DueDate` with the oldest first.",
+          starterCode: `using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public record Loan(int BookId, string Member, DateTime DueDate, bool Returned);
+
+class Program {
+    static List<Loan> OverdueLoans(List<Loan> loans) {
+        // Filter out returned loans, keep those past their due date,
+        // order by DueDate oldest first
+
+        return new List<Loan>();
+    }
+
+    static void Main() {
+        List<Loan> loans = new List<Loan> {
+            new Loan(1, "Ali", DateTime.Today.AddDays(-3), false),
+            new Loan(2, "Sara", DateTime.Today.AddDays(5), false)
+        };
+
+        Console.WriteLine(OverdueLoans(loans).Count);
+    }
+}`,
+          solutionCode: `using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public record Loan(int BookId, string Member, DateTime DueDate, bool Returned);
+
+class Program {
+    static List<Loan> OverdueLoans(List<Loan> loans) {
+        return loans
+            .Where(l => !l.Returned && l.DueDate < DateTime.Today)
+            .OrderBy(l => l.DueDate)
+            .ToList();
+    }
+
+    static void Main() {
+        List<Loan> loans = new List<Loan> {
+            new Loan(1, "Ali", DateTime.Today.AddDays(-3), false),
+            new Loan(2, "Sara", DateTime.Today.AddDays(5), false)
+        };
+
+        Console.WriteLine(OverdueLoans(loans).Count);
+    }
+}`,
+          tests: [
+            {
+              id: 1,
+              label: "Filters unreturned, overdue loans",
+              keywords: [
+                { pattern: "\\.Where\\s*\\(" },
+                { pattern: "!l\\.Returned" },
+                { pattern: "DateTime\\.Today" },
+              ],
+            },
+            {
+              id: 2,
+              label: "Orders by due date",
+              keywords: [{ pattern: "OrderBy\\s*\\(\\s*l\\s*=>\\s*l\\.DueDate" }],
+            },
+            {
+              id: 3,
+              label: "Returns a materialised list",
+              keywords: [{ pattern: "\\.ToList\\s*\\(" }],
             },
           ],
         },
