@@ -11,16 +11,21 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const frontendRoot = path.resolve(__dirname, "..");
 const learnRoot = path.join(frontendRoot, "src", "features", "learn");
 const registryPath = path.join(learnRoot, "shared", "courseRegistry.js");
-const backendCourseIdsPath = path.resolve(
-  frontendRoot,
-  "..",
-  "backend",
-  "src",
-  "modules",
-  "auth",
-  "constants",
-  "courseIds.js",
+const backendCourseIdsCandidates = ["PolyCode-Backend", "backend"].map((dir) =>
+  path.resolve(
+    frontendRoot,
+    "..",
+    dir,
+    "src",
+    "modules",
+    "auth",
+    "constants",
+    "courseIds.js",
+  ),
 );
+const backendCourseIdsPath =
+  backendCourseIdsCandidates.find((candidate) => fs.existsSync(candidate)) ??
+  backendCourseIdsCandidates[0];
 
 const PROFILE_FEATURED_TRACKS = [
   "oops-cpp",
