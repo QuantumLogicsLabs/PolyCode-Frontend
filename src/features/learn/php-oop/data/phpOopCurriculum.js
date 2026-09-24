@@ -1134,7 +1134,7 @@ $list = new Playlist();
 $list->add("Intro");
 $list->add("Outro");
 
-echo count($list); // 2
+echo "Songs: " . count($list) . "\\n"; // Songs: 2
 foreach ($list as $song) {
     echo $song . "\\n";
 }`,
