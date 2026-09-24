@@ -53,6 +53,7 @@ export const COURSE_PROGRESS_REGISTRY = [
   { courseId: "ruby-fundamentals", storagePrefix: "ruby_fundamentals", scoped: false, notes: false },
   { courseId: "ruby-gems", storagePrefix: "ruby_gems", scoped: false, notes: false },
   { courseId: "ruby-file-handling", storagePrefix: "ruby_file_handling", scoped: false, notes: false },
+  { courseId: "ruby-oop", storagePrefix: "ruby_oop", scoped: false, notes: false },
   { courseId: "csharp-fundamentals", storagePrefix: "csharp", scoped: false, notes: false },
   { courseId: "csharp-oop", storagePrefix: "csharp_oop", scoped: false, notes: false },
   { courseId: "csharp-collections", storagePrefix: "csharp_collections", scoped: false, notes: false },
