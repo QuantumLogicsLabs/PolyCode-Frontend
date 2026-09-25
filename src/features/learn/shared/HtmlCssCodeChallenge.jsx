@@ -4,7 +4,11 @@ import Editor from "@monaco-editor/react";
 import { useAuth } from "../../auth/context/AuthContext";
 import { getVSCodeEditorOptions } from "../../../shared/utils/monacoTheme";
 import { useSiteMonacoTheme } from "../../../shared/hooks/useSiteMonacoTheme";
-import { runHTML, runCSS } from "../../playground/services/BrowserExecutor";
+import {
+  runHTML,
+  runCSS,
+  runSCSS,
+} from "../../playground/services/BrowserExecutor";
 import ChallengeCompleteCelebration from "./ChallengeCompleteCelebration";
 import { useChallengeCelebration } from "./useChallengeCelebration";
 import { useChallengeTelemetry } from "./challengeTelemetry";
@@ -14,7 +18,9 @@ function normalizeWhitespace(value = "") {
   return value.replace(/\s+/g, "");
 }
 
-function testPasses(test, code) {
+// A keyword with target: "css" is matched against the compiled CSS of an SCSS
+// challenge instead of the learner's source.
+function testPasses(test, code, compiledCSS = "") {
   const keywords = test.keywords || [];
   if (!keywords.length) return true;
 
@@ -26,14 +32,21 @@ function testPasses(test, code) {
       );
     }
     if (keyword?.pattern) {
-      return new RegExp(keyword.pattern, keyword.flags || "i").test(code);
+      const subject = keyword.target === "css" ? compiledCSS || "" : code;
+      return new RegExp(keyword.pattern, keyword.flags || "i").test(subject);
     }
     return true;
   });
 }
 
-async function buildPreview(code, language = "html") {
+async function buildPreview(code, language = "html", challenge = {}) {
   const lang = String(language || "html").toLowerCase();
+  if (lang === "scss") {
+    return runSCSS(code, {
+      markup: challenge.previewHtml,
+      modules: challenge.modules,
+    });
+  }
   if (lang === "css") {
     return runCSS(code);
   }
@@ -51,17 +64,21 @@ export default function HtmlCssCodeChallenge({
   const { loading: authLoading, isAuthenticated } = useAuth();
   const canRun = isAuthenticated && !authLoading;
   const reportChallengeResult = useChallengeTelemetry();
-  const editorLanguage =
-    String(challenge.language || "html").toLowerCase() === "css"
-      ? "css"
-      : "html";
-  const fileLabel =
-    editorLanguage === "css" ? "CSS · styles.css" : "HTML · index.html";
+  const challengeLanguage = String(challenge.language || "html").toLowerCase();
+  const editorLanguage = ["css", "scss"].includes(challengeLanguage)
+    ? challengeLanguage
+    : "html";
+  const fileLabel = {
+    css: "CSS · styles.css",
+    scss: "SCSS · styles.scss",
+    html: "HTML · index.html",
+  }[editorLanguage];
 
   const [code, setCode] = useState(initialCode || challenge.starterCode);
   const [results, setResults] = useState(null);
   const [output, setOutput] = useState(null);
   const [previewHTML, setPreviewHTML] = useState(null);
+  const [compiled, setCompiled] = useState(null);
   const [showSolution, setShowSolution] = useState(false);
   // Read by the editor's onChange: Monaco fires it with the solution text when
   // swapping it in, before the handler closure sees showSolution=true.
@@ -84,6 +101,7 @@ export default function HtmlCssCodeChallenge({
       setResults(null);
       setOutput(null);
       setPreviewHTML(null);
+      setCompiled(null);
       setShowSolution(false);
       setSubmitGeneration(0);
       return;
@@ -101,17 +119,22 @@ export default function HtmlCssCodeChallenge({
 
     setRunning(true);
     setResults(null);
+    setCompiled(null);
     setOutput({
       status: "running",
-      stdout: "Building preview and checking your markup…",
+      stdout:
+        editorLanguage === "scss"
+          ? "Compiling your SCSS and checking it…"
+          : "Building preview and checking your markup…",
     });
 
     window.setTimeout(async () => {
       const activeCode = code;
       let previewDoc = null;
+      let runResult = null;
 
       try {
-        const runResult = await buildPreview(activeCode, editorLanguage);
+        runResult = await buildPreview(activeCode, editorLanguage, challenge);
         previewDoc = runResult?.previewHTML || null;
         if (runResult?.error) {
           setResults({
@@ -166,12 +189,18 @@ export default function HtmlCssCodeChallenge({
 
       const testResults = (challenge.tests || []).map((test) => ({
         ...test,
-        passed: testPasses(test, activeCode),
+        passed: testPasses(test, activeCode, runResult?.compiledCSS),
       }));
       const allPassed = testResults.every((test) => test.passed);
 
       setResults({ passed: allPassed, tests: testResults });
       setPreviewHTML(previewDoc);
+      if (typeof runResult?.compiledCSS === "string") {
+        setCompiled({
+          css: runResult.compiledCSS,
+          warnings: runResult.warnings || [],
+        });
+      }
       setOutput({
         status: allPassed ? "pass" : "fail",
         stdout: allPassed
@@ -212,6 +241,7 @@ export default function HtmlCssCodeChallenge({
     setResults(null);
     setOutput(null);
     setPreviewHTML(null);
+    setCompiled(null);
     setShowSolution(false);
   }
 
@@ -303,6 +333,23 @@ export default function HtmlCssCodeChallenge({
             <pre className="oops-output-body">
               {output?.stdout || "Run your code to see a live preview here."}
             </pre>
+          )}
+          {compiled && (
+            <details className="oops-compiled-css" open>
+              <summary>
+                Compiled CSS
+                {compiled.warnings.length > 0 &&
+                  ` · ${compiled.warnings.length} message${compiled.warnings.length === 1 ? "" : "s"} from Sass`}
+              </summary>
+              {compiled.warnings.length > 0 && (
+                <pre className="oops-output-body oops-compiled-warnings">
+                  {compiled.warnings.join("\n\n")}
+                </pre>
+              )}
+              <pre className="oops-output-body">
+                {compiled.css || "/* Your SCSS produced no CSS output. */"}
+              </pre>
+            </details>
           )}
           <PolyGuardPanel
             code={showSolution ? challenge.solutionCode : code}

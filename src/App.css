@@ -8619,6 +8619,30 @@ body {
   white-space: pre-wrap;
 }
 
+/* SCSS challenges: the CSS the learner's Sass compiled to */
+.oops-compiled-css {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.oops-compiled-css summary {
+  padding: 8px 14px;
+  cursor: pointer;
+  color: var(--txt-3, #3a4260);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.oops-compiled-warnings {
+  min-height: 0;
+  color: #f59e0b;
+}
+
+.app.theme-light .oops-compiled-css {
+  border-top-color: #e2e8f0;
+}
+
 .oops-output-stack {
   display: flex;
   flex-direction: column;

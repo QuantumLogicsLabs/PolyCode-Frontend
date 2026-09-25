@@ -95,6 +95,85 @@ export function runHTML(code) {
   return Promise.resolve(preview(code));
 }
 
+// ─── SCSS (Dart Sass compiled in the browser) ─────────────────────────────────
+
+const SASS_URL = 'https://cdn.jsdelivr.net/npm/sass@1.105.0/sass.dart.js';
+const IMMUTABLE_URL = 'https://cdn.jsdelivr.net/npm/immutable@5.1.9/dist/immutable.min.js';
+let sassPromise = null;
+
+// sass.dart.js is a classic script: it registers a loader on
+// window._cliPkgExports and needs the immutable library passed in.
+function loadSass() {
+  if (!sassPromise) {
+    sassPromise = (async () => {
+      await loadScript(IMMUTABLE_URL);
+      await loadScript(SASS_URL);
+      const library = window._cliPkgExports?.pop();
+      if (!library) throw new Error('The Sass compiler failed to start.');
+      if (window._cliPkgExports?.length === 0) delete window._cliPkgExports;
+      const sass = {};
+      library.load({ immutable: window.Immutable }, sass);
+      return sass;
+    })().catch((e) => {
+      sassPromise = null;
+      document.querySelector(`script[src="${SASS_URL}"]`)?.remove();
+      throw e;
+    });
+  }
+  return sassPromise;
+}
+
+// Serves in-memory partials so `@use "tokens"` works without a filesystem.
+// Keys are file paths such as "_tokens.scss" or "components/_index.scss".
+function virtualImporter(modules) {
+  return {
+    canonicalize(url) {
+      const path = url.replace(/^virtual:\/*/, '').replace(/\.scss$/, '');
+      const slash = path.lastIndexOf('/');
+      const dir = slash === -1 ? '' : path.slice(0, slash + 1);
+      const base = path.slice(dir.length).replace(/^_/, '');
+      const key = [`${dir}_${base}.scss`, `${dir}${base}.scss`, `${dir}${base}/_index.scss`]
+        .find((candidate) => Object.prototype.hasOwnProperty.call(modules, candidate));
+      return key ? new URL(`virtual:/${key}`) : null;
+    },
+    load(canonicalUrl) {
+      return { contents: modules[canonicalUrl.pathname.replace(/^\/+/, '')], syntax: 'scss' };
+    },
+  };
+}
+
+/**
+ * Compiles SCSS and, when `markup` is given, returns a preview document that
+ * applies the compiled CSS to it. `modules` supplies partials for `@use`.
+ */
+export async function runSCSS(code, { markup = '', modules = {} } = {}) {
+  let sass;
+  try {
+    sass = await loadSass();
+  } catch (e) {
+    return err(`${e.message} Check your connection and run again.`);
+  }
+
+  const warnings = [];
+  try {
+    const { css } = sass.compileString(code, {
+      style: 'expanded',
+      alertColor: false,
+      importers: [virtualImporter(modules)],
+      logger: {
+        warn: (message) => warnings.push(`Warning: ${message}`),
+        debug: (message, { span }) => warnings.push(`@debug (line ${span.start.line + 1}): ${message}`),
+      },
+    });
+    const previewHTML = markup
+      ? `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body { font-family: system-ui, sans-serif; padding: 1rem; }</style><style>${css.replace(/<\/style/gi, '<\\/style')}</style></head><body>${markup}</body></html>`
+      : null;
+    return { stdout: css, stderr: '', error: null, compiledCSS: css, warnings, previewHTML };
+  } catch (e) {
+    return err(e.message);
+  }
+}
+
 // ─── JSON ─────────────────────────────────────────────────────────────────────
 
 export function runJSON(code) {

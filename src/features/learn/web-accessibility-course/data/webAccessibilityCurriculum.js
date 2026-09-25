@@ -1,5 +1,5 @@
 // PolyCode — Web Accessibility (a11y) interactive course
-// 4 chapters · 12 lessons
+// 6 chapters · 18 lessons
 // Content follows WCAG 2.1/2.2 (W3C) guidance for semantics, keyboard access,
 // ARIA, and color contrast.
 
@@ -130,7 +130,7 @@ const RAW_WEB_ACCESSIBILITY_CHAPTERS = [
           },
           {
             type: "callout",
-            variant: "warn",
+            variant: "warning",
             content:
               "Avoid writing alt text like \"image123.jpg\" or \"picture of a thing\" — it must describe what the image communicates, not just that it exists.",
           },
@@ -185,7 +185,7 @@ const RAW_WEB_ACCESSIBILITY_CHAPTERS = [
           },
           {
             type: "callout",
-            variant: "warn",
+            variant: "warning",
             content:
               "Avoid `tabindex` values greater than 0 — they force a custom tab order that's easy to get wrong and hard to maintain. Use `tabindex=\"0\"` to make a normally non-focusable element focusable, and `tabindex=\"-1\"` to remove something from the tab order while still allowing it to be focused programmatically.",
           },
@@ -662,6 +662,489 @@ const RAW_WEB_ACCESSIBILITY_CHAPTERS = [
           tests: [
             { id: 1, label: "Adds a <label> element", keywords: [{ pattern: "<label[^>]*for=\"[^\"]+\"" }] },
             { id: 2, label: "Input id matches the label's for", keywords: [{ pattern: "for=\"full-name\"[\\s\\S]*id=\"full-name\"" }] },
+          ],
+        },
+      },
+    ],
+  },
+  // ─────────────────────────────────────────────────────────────
+  // CHAPTER 5 — Meaningful Content
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "a11y-meaningful-content",
+    title: "Meaningful Content",
+    icon: "🧭",
+    color: "#0891b2",
+    lessons: [
+      {
+        id: "a11y-12",
+        title: "Descriptive Link Text & Page Titles",
+        xp: 15,
+        theory: [
+          {
+            type: "text",
+            content:
+              "Screen reader users often pull up a **list of every link on the page** and jump straight to one. In that list, \"Click here\", \"Read more\" and \"here\" are meaningless — link text should say where the link goes on its own. The same goes for the page's `<title>`: it's the first thing announced when a page loads, so make it unique and specific, like \"Pricing – Acme\". In a nav bar, mark the link for the page you're on with `aria-current=\"page\"` so it's announced as the current page.",
+          },
+          {
+            type: "code",
+            lang: "html",
+            label: "Links that make sense out of context",
+            content: `<title>Pricing – Acme</title>
+
+<nav aria-label="Main">
+  <a href="/">Home</a>
+  <a href="/pricing" aria-current="page">Pricing</a>
+</nav>
+
+<!-- Vague: a links list just says "Click here" -->
+<p>New plans are out. <a href="/pricing">Click here</a>.</p>
+
+<!-- Descriptive: the link text alone explains the destination -->
+<p>New plans are out. <a href="/pricing">Compare our pricing plans</a>.</p>`,
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "aria-current=\"page\" also gives you a styling hook: a selector like a[aria-current=\"page\"] can highlight the current nav item without needing a separate .active class.",
+          },
+          {
+            type: "quiz",
+            question: "Why is \"Click here\" poor link text for accessibility?",
+            options: [
+              "Screen readers can't read the word \"click\"",
+              "Links are often read as a list out of context, where \"Click here\" gives no clue about the destination",
+              "It's too short to be clickable on mobile",
+              "Search engines penalize the word \"here\"",
+            ],
+            answer: 1,
+            explanation:
+              "WCAG's Link Purpose criterion asks that a link's purpose be clear from its text (or its immediate context). In a screen reader's links list, five \"Click here\" links are indistinguishable.",
+          },
+        ],
+        challenge: {
+          id: "a11y-12-challenge",
+          language: "html",
+          title: "Fix Vague Links",
+          description:
+            "The learner is on the Pricing page. Mark the Pricing nav link with `aria-current=\"page\"`, and replace the \"Click here\" link text with text that describes where it goes.",
+          starterCode: `<nav aria-label="Main">
+  <a href="/">Home</a>
+  <a href="/pricing">Pricing</a>
+</nav>
+
+<p>Our new plans are out. <a href="/pricing">Click here</a> to compare them.</p>`,
+          solutionCode: `<nav aria-label="Main">
+  <a href="/">Home</a>
+  <a href="/pricing" aria-current="page">Pricing</a>
+</nav>
+
+<p>Our new plans are out. <a href="/pricing">Compare our pricing plans</a>.</p>`,
+          tests: [
+            { id: 1, label: "Pricing nav link has aria-current=\"page\"", keywords: [{ pattern: "<a[^>]*href=\"/pricing\"[^>]*aria-current=\"page\"[^>]*>\\s*Pricing|<a[^>]*aria-current=\"page\"[^>]*href=\"/pricing\"[^>]*>\\s*Pricing" }] },
+            { id: 2, label: "No \"click here\" link text", keywords: [{ pattern: "^(?![\\s\\S]*>\\s*click here\\s*<)" }] },
+            { id: 3, label: "Paragraph link text describes the destination", keywords: [{ pattern: "<p>[\\s\\S]*<a[^>]*href=\"/pricing\"[^>]*>[^<]{12,}</a>" }] },
+          ],
+        },
+      },
+      {
+        id: "a11y-13",
+        title: "Accessible Data Tables",
+        xp: 20,
+        theory: [
+          {
+            type: "text",
+            content:
+              "A sighted user reads a table by glancing up to the column header. A screen reader can do the same — announcing \"Price, $12\" as you move between cells — but only if the markup says which cells are headers. Use `<th>` for header cells with `scope=\"col\"` or `scope=\"row\"`, and give the table a `<caption>` (the first element inside `<table>`) that names what it shows. Use tables for tabular data only, never for page layout.",
+          },
+          {
+            type: "code",
+            lang: "html",
+            label: "Header cells with scope, plus a caption",
+            content: `<table>
+  <caption>Monthly plans compared</caption>
+  <thead>
+    <tr>
+      <th scope="col">Plan</th>
+      <th scope="col">Price</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">Basic</th>
+      <td>$5</td>
+    </tr>
+  </tbody>
+</table>`,
+          },
+          {
+            type: "quiz",
+            question: "What does scope=\"row\" on a <th> tell assistive technology?",
+            options: [
+              "The cell spans the whole row visually",
+              "The cell should be read before the caption",
+              "The cell is the header for the other cells in its row",
+              "The row can be sorted",
+            ],
+            answer: 2,
+            explanation:
+              "scope links a header to the cells it describes: scope=\"col\" for everything below it, scope=\"row\" for everything beside it. Screen readers then announce the right header with each data cell.",
+          },
+        ],
+        challenge: {
+          id: "a11y-13-challenge",
+          language: "html",
+          title: "Give a Table Real Headers",
+          description:
+            "This pricing table uses only `<td>`. Add a `<caption>` as the first child of the table, turn the first row into `<th scope=\"col\">` headers, and make each plan name a `<th scope=\"row\">`.",
+          starterCode: `<table>
+  <tr>
+    <td>Plan</td>
+    <td>Price</td>
+    <td>Storage</td>
+  </tr>
+  <tr>
+    <td>Basic</td>
+    <td>$5</td>
+    <td>10 GB</td>
+  </tr>
+  <tr>
+    <td>Pro</td>
+    <td>$12</td>
+    <td>100 GB</td>
+  </tr>
+</table>`,
+          solutionCode: `<table>
+  <caption>Monthly plans compared</caption>
+  <thead>
+    <tr>
+      <th scope="col">Plan</th>
+      <th scope="col">Price</th>
+      <th scope="col">Storage</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">Basic</th>
+      <td>$5</td>
+      <td>10 GB</td>
+    </tr>
+    <tr>
+      <th scope="row">Pro</th>
+      <td>$12</td>
+      <td>100 GB</td>
+    </tr>
+  </tbody>
+</table>`,
+          tests: [
+            { id: 1, label: "Caption is the first element in the table", keywords: [{ pattern: "<table[^>]*>\\s*<caption>[^<]+</caption>" }] },
+            { id: 2, label: "Three column headers with scope=\"col\"", keywords: [{ pattern: "(<th[^>]*scope=\"col\"[\\s\\S]*){3}" }] },
+            { id: 3, label: "Plan names are row headers with scope=\"row\"", keywords: [{ pattern: "<th[^>]*scope=\"row\"[^>]*>\\s*Basic" }, { pattern: "<th[^>]*scope=\"row\"[^>]*>\\s*Pro" }] },
+          ],
+        },
+      },
+      {
+        id: "a11y-14",
+        title: "Visually Hidden Text vs aria-hidden",
+        xp: 20,
+        theory: [
+          {
+            type: "text",
+            content:
+              "Sometimes screen readers need text sighted users don't — like \"Rated 4 out of 5\" next to a row of star icons. `display: none` won't work: it hides content from **everyone**, screen readers included. Instead, use a **visually hidden** utility class that shrinks the text to a 1px clipped box. The opposite tool is `aria-hidden=\"true\"`, which hides something from assistive technology but leaves it on screen — right for decorative icons whose meaning is already given in text.",
+          },
+          {
+            type: "code",
+            lang: "html",
+            label: "Hidden from eyes vs hidden from screen readers",
+            content: `<p>
+  <span aria-hidden="true">★★★★☆</span>
+  <span class="visually-hidden">Rated 4 out of 5</span>
+</p>
+
+<style>
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>`,
+          },
+          {
+            type: "callout",
+            variant: "warning",
+            content:
+              "Never put aria-hidden=\"true\" on a focusable element such as a link or button. Keyboard users can still Tab to it, but screen readers announce nothing — a silent, confusing stop.",
+          },
+          {
+            type: "quiz",
+            question: "You want text that screen readers announce but sighted users don't see. What should you use?",
+            options: [
+              "display: none",
+              "aria-hidden=\"true\"",
+              "visibility: hidden",
+              "A visually hidden class that clips the text to a 1px box",
+            ],
+            answer: 3,
+            explanation:
+              "display: none and visibility: hidden remove content from the accessibility tree too, and aria-hidden hides it from screen readers specifically. The clipped 1px technique keeps the text readable by assistive technology while hiding it visually.",
+          },
+        ],
+        challenge: {
+          id: "a11y-14-challenge",
+          language: "css",
+          title: "Write a Visually Hidden Utility",
+          description:
+            "This `.visually-hidden` class uses `display: none`, which hides the text from screen readers too. Rewrite it with the clipping technique: absolute positioning, a 1px × 1px box, `overflow: hidden` and `clip`.",
+          starterCode: `/* Should hide text visually but keep it for screen readers */
+.visually-hidden {
+  display: none;
+}`,
+          solutionCode: `/* Should hide text visually but keep it for screen readers */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}`,
+          tests: [
+            { id: 1, label: "No longer uses display: none", keywords: [{ pattern: "^(?![\\s\\S]*display:\\s*none)" }] },
+            { id: 2, label: "Positioned absolutely in a 1px box", keywords: [{ pattern: "position:\\s*absolute" }, { pattern: "width:\\s*1px" }, { pattern: "height:\\s*1px" }] },
+            { id: 3, label: "Clips the overflow", keywords: [{ pattern: "overflow:\\s*hidden" }, { pattern: "clip(-path)?:" }] },
+          ],
+        },
+      },
+    ],
+  },
+  // ─────────────────────────────────────────────────────────────
+  // CHAPTER 6 — Accessible Interactive Components
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "a11y-interactive-components",
+    title: "Accessible Interactive Components",
+    icon: "🧩",
+    color: "#db2777",
+    lessons: [
+      {
+        id: "a11y-15",
+        title: "Accessible Modal Dialogs",
+        xp: 20,
+        theory: [
+          {
+            type: "text",
+            content:
+              "A modal built from a plain `<div>` is one of the hardest things to make accessible: focus has to move into it, stay trapped inside, close on Escape, and return to the button that opened it. The native `<dialog>` element opened with `showModal()` handles most of that for you — the rest of the page becomes inert, focus moves to the first focusable element inside, and Escape closes it. You still add the parts only you know: an accessible name via `aria-labelledby` pointing at its heading, and a close button with a clear label. Then test it with the keyboard, including where focus lands after the dialog closes.",
+          },
+          {
+            type: "code",
+            lang: "html",
+            label: "A native modal dialog",
+            content: `<button type="button" id="open-settings">Settings</button>
+
+<dialog id="settings-dialog" aria-labelledby="settings-title">
+  <h2 id="settings-title">Settings</h2>
+  <p>Choose your notification preferences.</p>
+  <form method="dialog">
+    <button>Close</button>
+  </form>
+</dialog>
+
+<script>
+  const dialog = document.getElementById("settings-dialog");
+  document.getElementById("open-settings")
+    .addEventListener("click", () => dialog.showModal());
+</script>`,
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "A button inside <form method=\"dialog\"> closes the dialog without any JavaScript. Use show() only for non-modal dialogs — it doesn't make the rest of the page inert.",
+          },
+          {
+            type: "quiz",
+            question: "What does showModal() give you that a styled <div> doesn't?",
+            options: [
+              "A default blue border",
+              "An inert background, focus moved into the dialog, and Escape to close — built in",
+              "Automatic translation of the dialog text",
+              "Nothing — they behave the same",
+            ],
+            answer: 1,
+            explanation:
+              "showModal() makes everything outside the dialog inert, moves focus inside and wires up Escape. Recreating that on a <div> takes careful focus-trapping code that's easy to get wrong.",
+          },
+        ],
+        challenge: {
+          id: "a11y-15-challenge",
+          language: "html",
+          title: "Turn a Div into a Dialog",
+          description:
+            "Replace the `<div class=\"modal\">` with a `<dialog>` whose `aria-labelledby` points at the heading (give the `<h2>` the id `settings-title`), and give the \"X\" close button an accessible name with `aria-label`.",
+          starterCode: `<button type="button" id="open-settings">Settings</button>
+
+<div class="modal">
+  <h2>Settings</h2>
+  <p>Choose your notification preferences.</p>
+  <button type="button">X</button>
+</div>`,
+          solutionCode: `<button type="button" id="open-settings">Settings</button>
+
+<dialog id="settings-dialog" aria-labelledby="settings-title">
+  <h2 id="settings-title">Settings</h2>
+  <p>Choose your notification preferences.</p>
+  <form method="dialog">
+    <button aria-label="Close settings">X</button>
+  </form>
+</dialog>`,
+          tests: [
+            { id: 1, label: "Uses a <dialog> instead of the div", keywords: [{ pattern: "<dialog" }, { pattern: "^(?![\\s\\S]*class=\"modal\")" }] },
+            { id: 2, label: "Dialog is labelled by its heading", keywords: [{ pattern: "<dialog[^>]*aria-labelledby=\"settings-title\"" }, { pattern: "<h2[^>]*id=\"settings-title\"" }] },
+            { id: 3, label: "Close button has an accessible name", keywords: [{ pattern: "<button[^>]*aria-label=\"[^\"]+\"[^>]*>\\s*X\\s*</button>" }] },
+          ],
+        },
+      },
+      {
+        id: "a11y-16",
+        title: "Disclosure Buttons with aria-expanded",
+        xp: 20,
+        theory: [
+          {
+            type: "text",
+            content:
+              "A **disclosure** is a button that shows and hides a section — FAQ answers, \"Show more\" panels, mobile menus. Sighted users see the panel open; screen reader users need to *hear* it. Put `aria-expanded` on the button (`\"false\"` when collapsed, `\"true\"` when open), point `aria-controls` at the panel's `id`, and hide the collapsed panel with the `hidden` attribute. When the button is clicked, update both together. If you don't need custom styling or behaviour, the native `<details>`/`<summary>` pair (covered in Forms & Semantic HTML) does all of this for you.",
+          },
+          {
+            type: "code",
+            lang: "html",
+            label: "A disclosure button that stays in sync",
+            content: `<button type="button" aria-expanded="false" aria-controls="shipping-info">
+  Shipping details
+</button>
+<div id="shipping-info" hidden>
+  Orders ship within 2 business days.
+</div>
+
+<script>
+  const toggle = document.querySelector("[aria-controls='shipping-info']");
+  const panel = document.getElementById("shipping-info");
+
+  toggle.addEventListener("click", () => {
+    const isOpen = toggle.getAttribute("aria-expanded") === "true";
+    toggle.setAttribute("aria-expanded", String(!isOpen));
+    panel.hidden = isOpen;
+  });
+</script>`,
+          },
+          {
+            type: "quiz",
+            question: "A screen reader announces a button as \"Shipping details, collapsed\". Which attribute produced \"collapsed\"?",
+            options: [
+              "aria-controls=\"shipping-info\"",
+              "aria-expanded=\"false\"",
+              "hidden on the panel",
+              "type=\"button\"",
+            ],
+            answer: 1,
+            explanation:
+              "aria-expanded exposes the open/closed state. \"false\" is announced as collapsed and \"true\" as expanded, which is why it must be updated every time the panel is toggled.",
+          },
+        ],
+        challenge: {
+          id: "a11y-16-challenge",
+          language: "html",
+          title: "Mark Up a Collapsed FAQ",
+          description:
+            "Make this FAQ start collapsed: give the button `aria-expanded=\"false\"` and `aria-controls=\"faq-refund\"`, and give the answer `id=\"faq-refund\"` plus the `hidden` attribute.",
+          starterCode: `<button type="button" class="faq-question">
+  What is your refund policy?
+</button>
+<div class="faq-answer">
+  Full refunds within 30 days of purchase.
+</div>`,
+          solutionCode: `<button type="button" class="faq-question" aria-expanded="false" aria-controls="faq-refund">
+  What is your refund policy?
+</button>
+<div class="faq-answer" id="faq-refund" hidden>
+  Full refunds within 30 days of purchase.
+</div>`,
+          tests: [
+            { id: 1, label: "Button has aria-expanded=\"false\"", keywords: [{ pattern: "<button[^>]*aria-expanded=\"false\"" }] },
+            { id: 2, label: "Button points at the answer with aria-controls", keywords: [{ pattern: "<button[^>]*aria-controls=\"faq-refund\"" }] },
+            { id: 3, label: "Answer has the matching id and is hidden", keywords: [{ pattern: "<div[^>]*id=\"faq-refund\"" }, { pattern: "<div[^>]*\\shidden[\\s>]" }] },
+          ],
+        },
+      },
+      {
+        id: "a11y-17",
+        title: "Captions & Transcripts for Media",
+        xp: 20,
+        theory: [
+          {
+            type: "text",
+            content:
+              "Video with speech needs **captions** for people who are deaf or hard of hearing — and for anyone watching with the sound off. Captions are a text track, usually a WebVTT (`.vtt`) file, added with `<track kind=\"captions\">`. Unlike subtitles, captions also describe meaningful sounds and who is speaking. A **transcript** (the full text of the audio, linked next to the player) helps people who use braille displays or prefer to read. Always include `controls`, and don't autoplay media with sound: audio that starts on its own talks over screen readers.",
+          },
+          {
+            type: "code",
+            lang: "html",
+            label: "A captioned video with a transcript",
+            content: `<video src="intro-talk.mp4" controls>
+  <track kind="captions" src="intro-talk.en.vtt" srclang="en" label="English" default>
+</video>
+<p><a href="intro-talk-transcript.html">Read the transcript of the intro talk</a></p>
+
+<!-- intro-talk.en.vtt
+WEBVTT
+
+00:00.000 --> 00:03.500
+[upbeat music]
+
+00:03.500 --> 00:07.000
+MAYA: Welcome to the accessibility workshop!
+-->`,
+          },
+          {
+            type: "quiz",
+            question: "What's the difference between captions and subtitles?",
+            options: [
+              "There is no difference",
+              "Captions also describe meaningful sounds and speakers, for viewers who can't hear the audio",
+              "Subtitles are only for live video",
+              "Captions must be burned into the video image",
+            ],
+            answer: 1,
+            explanation:
+              "Subtitles translate the dialogue for viewers who can hear. Captions assume the viewer can't hear, so they include sound cues like [door slams] and speaker names.",
+          },
+        ],
+        challenge: {
+          id: "a11y-17-challenge",
+          language: "html",
+          title: "Caption a Video",
+          description:
+            "Remove `autoplay` and add `controls` to the video, add an English captions track (`kind=\"captions\"`, `srclang=\"en\"`, `src=\"intro-talk.en.vtt\"`), and add a link to a transcript page below the player.",
+          starterCode: `<video src="intro-talk.mp4" autoplay></video>`,
+          solutionCode: `<video src="intro-talk.mp4" controls>
+  <track kind="captions" src="intro-talk.en.vtt" srclang="en" label="English" default>
+</video>
+<p><a href="intro-talk-transcript.html">Read the transcript of the intro talk</a></p>`,
+          tests: [
+            { id: 1, label: "Video has controls and no autoplay", keywords: [{ pattern: "<video[^>]*\\scontrols" }, { pattern: "^(?![\\s\\S]*autoplay)" }] },
+            { id: 2, label: "Adds an English captions track", keywords: [{ pattern: "<track[^>]*kind=\"captions\"" }, { pattern: "<track[^>]*srclang=\"en\"" }, { pattern: "<track[^>]*src=\"intro-talk\\.en\\.vtt\"" }] },
+            { id: 3, label: "Links to a transcript", keywords: [{ pattern: "<a[^>]*href=\"[^\"]*transcript[^\"]*\"" }] },
           ],
         },
       },
