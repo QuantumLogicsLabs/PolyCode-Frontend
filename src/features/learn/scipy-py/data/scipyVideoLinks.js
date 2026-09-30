@@ -32,7 +32,7 @@ export const SCIPY_VIDEO_LINKS = {
   // ── Ch 4: Optimization ───────────────────────────────────────────────
   "scipy-10": "", // What is Optimization?
   "scipy-11": "https://youtu.be/Q2YVbTNheEk?si=LvIXglmGX51gE8nD", // Find a Minimum with minimize
-  "scipy-12": "", // Roots and Curve Fitting Basics
+  "scipy-12": "https://youtu.be/USpX_uW185o?si=uz9VOci0BXkMuxp4", // Roots and Curve Fitting Basics
 
   // ── Ch 5: Interpolation ──────────────────────────────────────────────
   "scipy-13": "https://youtu.be/RzbaLvgKibQ?si=sTq1m6a1KAOrjPRW", // What is Interpolation?
