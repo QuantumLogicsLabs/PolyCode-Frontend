@@ -36,8 +36,8 @@ export const SCIPY_VIDEO_LINKS = {
 
   // ── Ch 5: Interpolation ──────────────────────────────────────────────
   "scipy-13": "https://youtu.be/RzbaLvgKibQ?si=sTq1m6a1KAOrjPRW", // What is Interpolation?
-  "scipy-14": "", // Fill Gaps with interp1d
-  "scipy-15": "", // Smooth Paths with Splines
+  "scipy-14": "https://youtu.be/E_0umBZ2M9c?si=H9Wg8w-ylDJmwpO5", // Fill Gaps with interp1d
+  "scipy-15": "https://youtu.be/c42-kLCmCK8?si=ZsA9IHCrri9U_65j", // Smooth Paths with Splines
 
   // ── Ch 6: Statistics ─────────────────────────────────────────────────
   "scipy-16": "", // Distributions in Plain Words
