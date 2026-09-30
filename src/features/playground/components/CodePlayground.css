@@ -199,6 +199,32 @@
   box-shadow: 0 0 16px color-mix(in srgb, var(--pg-accent) 25%, transparent);
 }
 
+.pg-fullscreen-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Fullscreen ── */
+
+.playground-root:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  min-height: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.playground-root:-webkit-full-screen {
+  width: 100vw;
+  height: 100vh;
+  min-height: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
 .pg-font-size {
   font-size: 0.68rem;
   color: var(--pg-text-faint);

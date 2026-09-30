@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import Editor from "@monaco-editor/react";
+import { Maximize, Minimize } from "lucide-react";
 import { useAuth } from "../../auth/context/AuthContext";
 import { runPlaygroundCode } from "../services/playgroundExecutor";
 import { codeNeedsStdin, resolveEngine } from "../services/BrowserExecutor";
@@ -262,6 +263,7 @@ export default function CodePlayground({
   const [runHistory, setRunHistory] = useState([]);
   const [runHistoryLoading, setRunHistoryLoading] = useState(false);
   const [historyScope, setHistoryScope] = useState("all");
+  const rootRef = useRef(null);
   const outputRef = useRef(null);
   const panesRef = useRef(null);
   const paneDragRef = useRef(null);
@@ -1131,13 +1133,47 @@ export default function CodePlayground({
     [],
   );
 
+  // Fullscreen: the same button enters and exits, like a video player.
+  // Esc (handled by the browser) also exits; the listener keeps the icon in sync.
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const fullscreenSupported =
+    typeof document !== "undefined" &&
+    Boolean(document.fullscreenEnabled || document.webkitFullscreenEnabled);
+
+  useEffect(() => {
+    const syncFullscreen = () => {
+      const current = document.fullscreenElement || document.webkitFullscreenElement;
+      setIsFullscreen(Boolean(current) && current === rootRef.current);
+    };
+    document.addEventListener("fullscreenchange", syncFullscreen);
+    document.addEventListener("webkitfullscreenchange", syncFullscreen);
+    return () => {
+      document.removeEventListener("fullscreenchange", syncFullscreen);
+      document.removeEventListener("webkitfullscreenchange", syncFullscreen);
+    };
+  }, []);
+
+  const toggleFullscreen = useCallback(async () => {
+    const root = rootRef.current;
+    if (!root) return;
+    try {
+      if (document.fullscreenElement || document.webkitFullscreenElement) {
+        await (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+      } else {
+        await (root.requestFullscreen || root.webkitRequestFullscreen).call(root);
+      }
+    } catch (error) {
+      console.error("Unable to toggle fullscreen:", error?.message || error);
+    }
+  }, []);
+
   const langInfo = resolveEngine(language);
   const isServerBased = langInfo.engine === "server";
   const hasPreview = previewHTML !== null;
   const editorLanguage = monacoLanguageForFile(activeFile?.name, langInfo.mono);
 
   return (
-    <div className="playground-root" data-ide-theme={ideTheme}>
+    <div ref={rootRef} className="playground-root" data-ide-theme={ideTheme}>
       <div className="pg-toolbar">
         <div className="pg-toolbar-left">
           <span className="pg-logo">⬡ IDE</span>
@@ -1208,6 +1244,18 @@ export default function CodePlayground({
             ideTheme={ideTheme}
             onIdeThemeChange={setIdeTheme}
           />
+          {fullscreenSupported && (
+            <button
+              type="button"
+              className={`pg-icon-btn pg-fullscreen-btn ${isFullscreen ? "active" : ""}`}
+              onClick={toggleFullscreen}
+              title={isFullscreen ? "Exit full screen (Esc)" : "Full screen"}
+              aria-label={isFullscreen ? "Exit full screen" : "Full screen"}
+              aria-pressed={isFullscreen}
+            >
+              {isFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
+            </button>
+          )}
           <button
             type="button"
             className={`pg-run-btn ${currentIsRunning ? "running" : ""}`}

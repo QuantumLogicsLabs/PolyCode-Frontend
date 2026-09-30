@@ -156,7 +156,13 @@ export default function PlaygroundSettingsMenu({ ideTheme, onIdeThemeChange }) {
       </button>
 
       {typeof document !== "undefined" && panel
-        ? createPortal(panel, document.body)
+        ? createPortal(
+            panel,
+            // In fullscreen only the fullscreen element is rendered, so portal into it.
+            document.fullscreenElement ||
+              document.webkitFullscreenElement ||
+              document.body,
+          )
         : null}
     </div>
   );
