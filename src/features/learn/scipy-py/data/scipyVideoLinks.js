@@ -16,7 +16,7 @@ export const SCIPY_VIDEO_LINKS = {
   // ── Ch 1: Welcome to SciPy ───────────────────────────────────────────
   "scipy-0": "", // What is SciPy?
   "scipy-1": "", // Why Scientists Love SciPy
-  "scipy-2": "", // SciPy and NumPy Together
+  "scipy-2": "https://youtu.be/RIW4amx4sr4?si=R8gLH8193g0f1IBn", // SciPy and NumPy Together
   "scipy-3": "", // Your First SciPy Import
 
   // ── Ch 2: Special Functions ──────────────────────────────────────────
@@ -26,8 +26,8 @@ export const SCIPY_VIDEO_LINKS = {
 
   // ── Ch 3: Integration ────────────────────────────────────────────────
   "scipy-7": "", // What is Numerical Integration?
-  "scipy-8": "", // Area Under a Curve with quad
-  "scipy-9": "", // Tips for Reliable Integrals
+  "scipy-8": "https://youtu.be/Ryx0NmcCAO4?si=IOYLz6w51kOAS_q-", // Area Under a Curve with quad
+  "scipy-9": "https://youtu.be/dQn1PhUsb_w?si=1Oi3FD92s_noCrLM", // Tips for Reliable Integrals
 
   // ── Ch 4: Optimization ───────────────────────────────────────────────
   "scipy-10": "", // What is Optimization?
