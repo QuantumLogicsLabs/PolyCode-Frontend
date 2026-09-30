@@ -2141,28 +2141,79 @@ print(linalg.eigvals(A))`,
           {
             type: "text",
             content:
-              "**Definition:** An **FFT** (Fast Fourier Transform) splits a signal into **frequency pieces** — like hearing which notes are inside a sound.\n\n**Real-life example:** A tuning app shows which pitch a guitar string is playing. FFT ideas power that view.",
+              "**Introduction:** A **signal** is just a list of numbers over time — like volume samples of a sound, or readings from a sensor.\n\nAn **FFT** (Fast Fourier Transform) answers a friendly question: **“Which repeating patterns (frequencies) are hiding inside this signal?”**\n\nIn simple words:\n\n• Time view = how the number changes step by step\n• Frequency view = which “notes” or speeds are strong inside it\n• FFT is the tool that switches from time view → frequency view\n\n**Real-life example:** A guitar-tuner app shows which pitch a string is playing. FFT ideas power that kind of view: the phone hears a wiggly wave and reports the strongest note.",
           },
           {
             type: "text",
             content:
-              "**In this topic you will learn:**\n\n• Build a simple sine signal\n• Run an FFT\n• Spot a strong frequency bin",
+              "**In this topic you will learn:**\n\n• What a signal is in beginner words\n• What FFT means without heavy math\n• How to build a tiny sine wave with NumPy\n• How to run `scipy.fft.fft` and spot a strong frequency",
+          },
+          {
+            type: "scenario",
+            title: "Think of it like this",
+            content:
+              "Imagine a smoothie made of banana, mango, and strawberry. You taste one blended drink (the signal). FFT is like a magic blender that separates the flavors and tells you “lots of mango, a little banana.” You still have one drink — but now you know what went into it.",
+          },
+          {
+            type: "table",
+            title: "Words you will see",
+            columns: ["Word", "Plain meaning", "Beginner tip"],
+            rows: [
+              {
+                label: "1",
+                values: [
+                  "Signal",
+                  "A list of numbers over time",
+                  "Start with a short NumPy array",
+                ],
+              },
+              {
+                label: "2",
+                values: [
+                  "FFT",
+                  "Splits the signal into frequencies",
+                  "Use `from scipy.fft import fft`",
+                ],
+              },
+              {
+                label: "3",
+                values: [
+                  "Magnitude",
+                  "How strong each frequency is",
+                  "Often use `np.abs(fft(sig))`",
+                ],
+              },
+            ],
           },
           {
             type: "code",
             lang: "python",
-            label: "Tiny FFT demo",
+            label: "Try it: tiny FFT demo",
             content: `import numpy as np
 from scipy.fft import fft, fftfreq
 
 n = 64
 t = np.arange(n)
+# a simple wave that repeats 3 times across the window
 sig = np.sin(2 * np.pi * 3 * t / n)
+
 spec = np.abs(fft(sig))
 freqs = fftfreq(n, d=1)
 peak = np.argmax(spec[: n // 2])
 print("Peak bin:", peak)
 print("Peak freq:", freqs[peak])`,
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "**Remember:** You usually look at the first half of the FFT result (`[: n // 2]`). That is enough to see the useful positive frequencies for many beginner demos.",
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "**Tip:** Keep your first signals short and clean (like one sine wave). Once that works, add noise or mix two tones.",
           },
           quiz(
             "FFT helps you see…",
@@ -2173,7 +2224,7 @@ print("Peak freq:", freqs[peak])`,
               "Git commits",
             ],
             0,
-            "FFT reveals frequency components.",
+            "FFT reveals which frequencies are strong inside a signal — like hearing the notes in a sound.",
           ),
         ],
         challenge: challenge(
@@ -2201,17 +2252,54 @@ print(np.abs(fft(sig)))`,
           {
             type: "text",
             content:
-              "**Definition:** **Peak finding** locates local highs in a signal — heartbeats, drum hits, or sensor spikes.\n\n**Real-life example:** A fitness watch finds pulse peaks in a noisy light sensor signal.",
+              "**Introduction:** Sometimes you do not need every sample — you only need the **high points**.\n\n**Peak finding** means: look along a signal and mark the local highs (places that are taller than their neighbors).\n\nIn simple words:\n\n• A peak is a local maximum — a bump that sticks up\n• SciPy’s `find_peaks` returns the **indexes** of those bumps\n• You can then read `sig[peaks]` to get the values\n\n**Real-life example:** A fitness watch looks at a noisy light sensor. The pulse is the repeating high points. Finding those peaks helps estimate heartbeats.",
           },
           {
             type: "text",
             content:
-              "**In this topic you will learn:**\n\n• Use `find_peaks`\n• Print peak indexes\n• Keep signals short for practice",
+              "**In this topic you will learn:**\n\n• What a peak means in plain words\n• How to call `scipy.signal.find_peaks`\n• How to print peak indexes and peak values\n• Why short practice signals are easier to check by eye",
+          },
+          {
+            type: "scenario",
+            title: "Think of it like this",
+            content:
+              "Walk along a row of hills. You only write down the hilltops, not every step of the path. `find_peaks` does the same for a list of numbers: it points to the tops so you can study the important moments.",
+          },
+          {
+            type: "table",
+            title: "Peak-finding checklist",
+            columns: ["Step", "What you do", "Why it helps"],
+            rows: [
+              {
+                label: "1",
+                values: [
+                  "Make a short signal",
+                  "`sig = np.array([...])`",
+                  "Easy to check by hand",
+                ],
+              },
+              {
+                label: "2",
+                values: [
+                  "Call find_peaks",
+                  "`peaks, _ = find_peaks(sig)`",
+                  "Gets indexes of local highs",
+                ],
+              },
+              {
+                label: "3",
+                values: [
+                  "Read the values",
+                  "`sig[peaks]`",
+                  "Shows how tall each peak is",
+                ],
+              },
+            ],
           },
           {
             type: "code",
             lang: "python",
-            label: "Find peaks",
+            label: "Try it: find peaks",
             content: `import numpy as np
 from scipy.signal import find_peaks
 
@@ -2219,6 +2307,18 @@ sig = np.array([0, 1, 0, 2, 0, 3, 0])
 peaks, _ = find_peaks(sig)
 print("Peak indexes:", peaks)
 print("Peak values:", sig[peaks])`,
+          },
+          {
+            type: "callout",
+            variant: "info",
+            content:
+              "**Remember:** `find_peaks` returns two things. Beginners usually keep the first one — the peak indexes — and ignore the second with `_`.",
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "**Tip:** Start with clear bumps like `[0, 1, 0, 2, 0]`. Later you can add options (height, distance) when real data is noisy.",
           },
           quiz(
             "A watch signal looks like [0, 1, 0, 2, 0, 3, 0]. What does `find_peaks(sig)` help you find?",
@@ -2256,12 +2356,18 @@ print(find_peaks(sig)[0])`,
           {
             type: "text",
             content:
-              "**Definition:** This **capstone** combines skills: describe data, integrate a curve, and minimize a cost — a mini science report.\n\n**Real-life example:** A lab notebook page: summarize measurements, total a quantity under a curve, then find a best setting.",
+              "**Introduction:** This **capstone** is your mini science report. You already met the tools one by one. Now you **combine** three of them in one short script:\n\n1. **Describe** a small data set (`stats.describe`)\n2. **Integrate** a simple curve (`integrate.quad`) — find area under it\n3. **Optimize** a cost (`optimize.minimize`) — find a best value\n\nIn simple words: summarize → total → improve → print.\n\n**Real-life example:** A lab notebook page. First you write the average of today’s measurements. Then you total a quantity under a curve. Then you find the best setting for a machine. That is a tiny science toolkit.",
           },
           {
             type: "text",
             content:
-              "**In this topic you will learn:**\n\n• Chain stats + integrate + optimize\n• Print a tiny report\n• Celebrate finishing SciPy Mastery",
+              "**In this topic you will learn:**\n\n• How to chain stats + integrate + optimize in one file\n• How to print a tiny readable report\n• A simple habit: NumPy data → right SciPy tool → print checks\n• A clear finish line for SciPy Mastery",
+          },
+          {
+            type: "scenario",
+            title: "Think of it like this",
+            content:
+              "Cooking dinner from leftover ingredients. You already practiced chopping, simmering, and seasoning alone. The capstone is making one plate that uses all three skills — still simple food, just combined on purpose.",
           },
           {
             type: "diagram",
@@ -2271,43 +2377,77 @@ print(find_peaks(sig)[0])`,
                 id: "data",
                 label: "Describe data",
                 color: "#6366f1",
-                items: ["stats.describe"],
+                items: ["stats.describe", "Mean & spread"],
               },
               {
                 id: "area",
                 label: "Integrate",
                 color: "#06b6d4",
-                items: ["integrate.quad"],
+                items: ["integrate.quad", "Area under curve"],
               },
               {
                 id: "best",
                 label: "Optimize",
                 color: "#8b5cf6",
-                items: ["optimize.minimize"],
+                items: ["optimize.minimize", "Best setting"],
               },
               {
                 id: "report",
                 label: "Report",
                 color: "#0d9488",
-                items: ["Print results"],
+                items: ["Print results", "Check by eye"],
+              },
+            ],
+          },
+          {
+            type: "table",
+            title: "Your three tools",
+            columns: ["Tool", "Job in plain words", "What you print"],
+            rows: [
+              {
+                label: "1",
+                values: [
+                  "`stats.describe`",
+                  "Summarize the numbers",
+                  "Mean (and more)",
+                ],
+              },
+              {
+                label: "2",
+                values: [
+                  "`integrate.quad`",
+                  "Find area under a curve",
+                  "Area value",
+                ],
+              },
+              {
+                label: "3",
+                values: [
+                  "`optimize.minimize`",
+                  "Find a best input value",
+                  "`best.x[0]`",
+                ],
               },
             ],
           },
           {
             type: "code",
             lang: "python",
-            label: "Mini science toolkit",
+            label: "Try it: mini science toolkit",
             content: `import numpy as np
 from scipy import stats, integrate, optimize
 
+# 1) Describe
 data = np.array([2.0, 3.0, 4.0, 5.0])
 print("Mean:", stats.describe(data).mean)
 
+# 2) Integrate (area under y = x from 0 to 2)
 def f(x):
     return x
 area, _ = integrate.quad(f, 0, 2)
 print("Area:", area)
 
+# 3) Optimize (lowest point of (x - 1)^2 is near x = 1)
 def cost(x):
     return (x - 1) ** 2
 best = optimize.minimize(cost, x0=0.0)
@@ -2317,7 +2457,13 @@ print("Best x:", best.x[0])`,
             type: "callout",
             variant: "success",
             content:
-              "**Key takeaways:** SciPy extends NumPy with integrate, optimize, interpolate, stats, linalg, and signal/FFT tools. Start from a definition, try a tiny example, then combine tools into pipelines.",
+              "**Key takeaways:** SciPy extends NumPy with integrate, optimize, interpolate, stats, linalg, and signal/FFT tools. Start from a clear question, try a tiny example, then combine tools into small pipelines.",
+          },
+          {
+            type: "callout",
+            variant: "tip",
+            content:
+              "**Tip:** Always print a check. A short `print(...)` after each step catches mistakes early — that habit matters more than memorizing every function name.",
           },
           quiz(
             "A strong SciPy habit is…",
@@ -2328,7 +2474,7 @@ print("Best x:", best.x[0])`,
               "Only memorize theory with no code",
             ],
             1,
-            "Combine clear data, the right tool, and readable checks.",
+            "Combine clear NumPy data, the right SciPy tool, and readable print checks.",
           ),
         ],
         challenge: challenge(
