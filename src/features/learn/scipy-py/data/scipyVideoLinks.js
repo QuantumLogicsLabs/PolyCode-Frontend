@@ -21,7 +21,7 @@ export const SCIPY_VIDEO_LINKS = {
 
   // ── Ch 2: Special Functions ──────────────────────────────────────────
   "scipy-4": "", // What Are Special Functions?
-  "scipy-5": "", // Gamma, erf, and Everyday Helpers
+  "scipy-5": "https://youtu.be/Ai1HIDvAw-I?si=H02Aa-v7Y2Qgtfca", // Gamma, erf, and Everyday Helpers
   "scipy-6": "", // Using Special Functions in Practice
 
   // ── Ch 3: Integration ────────────────────────────────────────────────
