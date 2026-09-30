@@ -15,7 +15,7 @@
 export const SCIPY_VIDEO_LINKS = {
   // ── Ch 1: Welcome to SciPy ───────────────────────────────────────────
   "scipy-0": "", // What is SciPy?
-  "scipy-1": "", // Why Scientists Love SciPy
+  "scipy-1": "https://youtu.be/7x5mbzmkYLY?si=O5qj36XPc9RUwSMW", // Why Scientists Love SciPy
   "scipy-2": "https://youtu.be/RIW4amx4sr4?si=R8gLH8193g0f1IBn", // SciPy and NumPy Together
   "scipy-3": "", // Your First SciPy Import
 
