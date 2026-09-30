@@ -20,7 +20,7 @@
 | File | Role |
 |------|------|
 | `data/scipyCurriculum.js` | Lessons, theory, quizzes, challenges |
-| `data/scipyVideoLinks.js` | YouTube URLs |
+| `data/scipyVideoLinks.js` | Paste YouTube lecture URLs here (one per lesson) |
 | `data/scipyLessonOutcomes.js` | Outcomes per lesson |
 | `pages/ScipyHub.jsx` | Distinctive lab hub UI |
 | `pages/ScipyLessonPage.jsx` | Theory + challenge |
