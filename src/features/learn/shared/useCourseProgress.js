@@ -151,18 +151,25 @@ export default function useCourseProgress({
   );
 
   const mirrorRemoteToLocal = useCallback(
-    (progress, { allowEmptyWipe = false } = {}) => {
+    (progress, { allowEmptyWipe = false, replaceCompletions = false } = {}) => {
       if (!progress || !token) return;
       const remoteMap = progressToMap(progress);
+      const localMap = readProgressLocal();
       if (
         !allowEmptyWipe &&
         Object.keys(remoteMap).length === 0 &&
-        Object.keys(readProgressLocal()).length > 0
+        Object.keys(localMap).length > 0
       ) {
         // Empty GET shell must not erase local completions before first DB write.
         return;
       }
-      writeProgressLocal(remoteMap);
+      // Save responses can arrive out of order, or come from a save that ran
+      // before /complete landed, so they must never remove a local tick. Only
+      // the initial course load replaces the list (unscoped storage is shared
+      // between accounts on the same browser).
+      writeProgressLocal(
+        replaceCompletions ? remoteMap : mergeCompletionMaps(localMap, remoteMap),
+      );
       writeCodeLocal(savedCodeToMap(progress));
       writeBookmarksLocal(progress.bookmarks || []);
       if (supportsNotes) writeNotesLocal(notesToMap(progress));
@@ -223,7 +230,10 @@ export default function useCourseProgress({
           return;
         }
         setRemoteProgress(progress);
-        mirrorRemoteToLocal(progress, { allowEmptyWipe: true });
+        mirrorRemoteToLocal(progress, {
+          allowEmptyWipe: true,
+          replaceCompletions: true,
+        });
         setSyncState("synced");
       })
       .catch(() => {
