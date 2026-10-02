@@ -11255,6 +11255,12 @@ body {
   color: var(--txt-3, #6e7891);
 }
 
+/* Options lock after an answer: no hover highlight or pointer (both themes). */
+.lesson-quiz-slider .numpy-quiz-option:disabled,
+.lesson-quiz-slider .oops-quiz-option:disabled {
+  pointer-events: none;
+}
+
 .lesson-quiz-summary {
   margin-top: 16px;
   padding: 14px 16px;

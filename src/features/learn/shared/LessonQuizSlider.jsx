@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 
 function InlineText({ text, codeClassName = "numpy-inline-code" }) {
   const parts = String(text ?? "").split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
@@ -26,7 +26,7 @@ function QuizSlide({
   selected,
   answered,
   correct,
-  retrying,
+  practicing,
   onSelect,
   onRetry,
   variant = "numpy",
@@ -66,6 +66,7 @@ function QuizSlide({
                 answered && isAnswer ? "answer" : ""
               } ${isSelected ? "selected" : ""}`}
               onClick={() => onSelect(index)}
+              disabled={answered}
             >
               {isNumpy ? (
                 <>
@@ -85,6 +86,7 @@ function QuizSlide({
       {answered ? (
         <>
           <p className={feedbackClass}>
+            {practicing ? <em>Practice – not scored. </em> : null}
             <strong>{correct ? "Nice!" : "Not quite — that's okay."}</strong>{" "}
             <InlineText
               text={block.explanation}
@@ -98,9 +100,9 @@ function QuizSlide({
           </div>
         </>
       ) : null}
-      {!answered && retrying ? (
+      {!answered && practicing ? (
         <p className="lesson-quiz-retry-hint">
-          Give it another go — pick an answer.
+          Practice round – not scored. Your first answer still counts.
         </p>
       ) : null}
     </article>
@@ -111,10 +113,11 @@ function QuizSlide({
  * Carousel for lesson MCQs — one question visible at a time, with a score
  * summary once every question has been answered.
  *
- * Retries are tracked here rather than inside a slide so they survive
- * navigation between questions. A retry only clears the *on-screen* answer;
- * the recorded attempt stays put, so lesson progress and the read gate are
- * never rolled back.
+ * Only the learner's first answer to each question is scored and recorded.
+ * After it, the options lock. "Solve again" starts an unscored practice
+ * round for that question: picks show right/wrong but are never recorded,
+ * so the score, lesson progress and the read gate always reflect the first
+ * answer. Practice state lives here so it survives moving between questions.
  */
 export default function LessonQuizSlider({
   quizzes = [],
@@ -124,8 +127,12 @@ export default function LessonQuizSlider({
   variant = "numpy",
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [retrying, setRetrying] = useState({});
+  // key -> null (practising, no pick yet) or the practice pick.
+  const [practice, setPractice] = useState({});
   const [localSelections, setLocalSelections] = useState({});
+  // Questions already sent to onQuizAnswer, so a fast double-click can't
+  // record a second answer before the parent's state catches up.
+  const recordedKeys = useRef(new Set());
   const total = quizzes.length;
 
   if (!total) return null;
@@ -133,39 +140,47 @@ export default function LessonQuizSlider({
 
   const slides = quizzes.map(({ block, quizIndex }, index) => {
     const key = String(quizIndex ?? index);
+    // The slider can stay mounted when the lesson changes, so per-question
+    // state is keyed by the question too, not just its position.
+    const stateKey = `${key}:${block.question}`;
     const recorded = getSelection?.(quizIndex);
-    const stored =
+    const firstAnswer =
       recorded !== null && recorded !== undefined
         ? recorded
-        : localSelections[key] ?? null;
-    const isRetrying = Boolean(retrying[key]);
-    const selected = isRetrying ? null : stored;
+        : localSelections[stateKey] ?? null;
+    // Practice is only possible after the scored first answer exists.
+    const isPracticing = firstAnswer !== null && stateKey in practice;
+    const selected = isPracticing ? practice[stateKey] : firstAnswer;
     return {
       key,
+      stateKey,
       index,
       block,
       quizIndex,
       selected,
-      isRetrying,
+      isPracticing,
       answered: selected !== null,
       correct: selected !== null && selected === block.answer,
+      scored: firstAnswer !== null,
+      scoredCorrect: firstAnswer !== null && firstAnswer === block.answer,
     };
   });
 
-  const answeredCount = slides.filter((slide) => slide.answered).length;
-  const correctCount = slides.filter((slide) => slide.correct).length;
+  // Progress, dots and the summary always use the first (scored) answer.
+  const answeredCount = slides.filter((slide) => slide.scored).length;
+  const correctCount = slides.filter((slide) => slide.scoredCorrect).length;
   const wrongCount = answeredCount - correctCount;
   const complete = answeredCount === total;
   const allCorrect = complete && wrongCount === 0;
   const current = slides[activeIndex];
 
   function handleSelect(slide, optionIndex) {
-    setRetrying((prev) => {
-      if (!prev[slide.key]) return prev;
-      const next = { ...prev };
-      delete next[slide.key];
-      return next;
-    });
+    if (slide.isPracticing) {
+      setPractice((prev) => ({ ...prev, [slide.stateKey]: optionIndex }));
+      return;
+    }
+    if (slide.scored || recordedKeys.current.has(slide.stateKey)) return;
+    recordedKeys.current.add(slide.stateKey);
 
     const isCorrect = optionIndex === slide.block.answer;
     if (
@@ -175,25 +190,25 @@ export default function LessonQuizSlider({
     ) {
       onQuizAnswer(slide.quizIndex, optionIndex, isCorrect);
     } else {
-      setLocalSelections((prev) => ({ ...prev, [slide.key]: optionIndex }));
+      setLocalSelections((prev) => ({ ...prev, [slide.stateKey]: optionIndex }));
     }
   }
 
   function handleRetry(slide) {
-    setRetrying((prev) => ({ ...prev, [slide.key]: true }));
+    setPractice((prev) => ({ ...prev, [slide.stateKey]: null }));
   }
 
   function startOver() {
     const all = {};
     slides.forEach((slide) => {
-      all[slide.key] = true;
+      if (slide.scored) all[slide.stateKey] = null;
     });
-    setRetrying(all);
+    setPractice(all);
     setActiveIndex(0);
   }
 
   function reviewMissed() {
-    const firstWrong = slides.find((slide) => slide.answered && !slide.correct);
+    const firstWrong = slides.find((slide) => slide.scored && !slide.scoredCorrect);
     if (firstWrong) setActiveIndex(firstWrong.index);
   }
 
@@ -234,7 +249,7 @@ export default function LessonQuizSlider({
           selected={current.selected}
           answered={current.answered}
           correct={current.correct}
-          retrying={current.isRetrying}
+          practicing={current.isPracticing}
           onSelect={(optionIndex) => handleSelect(current, optionIndex)}
           onRetry={() => handleRetry(current)}
           variant={variant}
@@ -315,13 +330,13 @@ export default function LessonQuizSlider({
               role="tab"
               aria-selected={slide.index === activeIndex}
               aria-label={`Question ${slide.index + 1}${
-                slide.answered ? (slide.correct ? ", correct" : ", incorrect") : ""
+                slide.scored ? (slide.scoredCorrect ? ", correct" : ", incorrect") : ""
               }`}
               className={`lesson-quiz-slider-dot${
                 slide.index === activeIndex ? " lesson-quiz-slider-dot--active" : ""
-              }${slide.answered ? " lesson-quiz-slider-dot--done" : ""}${
-                slide.answered
-                  ? slide.correct
+              }${slide.scored ? " lesson-quiz-slider-dot--done" : ""}${
+                slide.scored
+                  ? slide.scoredCorrect
                     ? " lesson-quiz-slider-dot--right"
                     : " lesson-quiz-slider-dot--wrong"
                   : ""
