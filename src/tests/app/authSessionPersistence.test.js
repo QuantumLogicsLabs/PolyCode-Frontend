@@ -8,6 +8,8 @@ jest.mock("../../features/learn/shared/mergeLearnProgressOnLogin", () => ({
 }));
 jest.mock("../../features/learn/shared/scopedProgressStorage", () => ({
   isolateLearnProgressForUser: jest.fn(),
+  clearSharedLearnProgress: jest.fn(),
+  getLearnProgressOwner: jest.fn(() => null),
 }));
 jest.mock("../../features/profile/services/profileApi", () => ({
   updateProfile: jest.fn(),

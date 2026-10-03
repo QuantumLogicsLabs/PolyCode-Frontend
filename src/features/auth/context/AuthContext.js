@@ -24,7 +24,11 @@ import {
   updateProfile as updateProfileApi,
   uploadProfileAvatar,
 } from "../../profile/services/profileApi";
-import { isolateLearnProgressForUser } from "../../learn/shared/scopedProgressStorage";
+import {
+  clearSharedLearnProgress,
+  getLearnProgressOwner,
+  isolateLearnProgressForUser,
+} from "../../learn/shared/scopedProgressStorage";
 import { mergeLearnProgressOnLogin } from "../../learn/shared/mergeLearnProgressOnLogin";
 
 const AuthContext = createContext(null);
@@ -68,8 +72,12 @@ async function applySession(setToken, setUser, token, user) {
   setUser(user);
 }
 
-function clearSession(setToken, setUser) {
+function clearSession(setToken, setUser, { signedOut = false } = {}) {
   clearStoredSession();
+  // Shared learn keys still hold the last account's progress; clear them so the
+  // next person on this browser doesn't see it or upload it on login. Guest
+  // progress (no owner) is left alone.
+  if (signedOut || getLearnProgressOwner()) clearSharedLearnProgress();
   setToken(null);
   setUser(null);
 }
@@ -145,7 +153,7 @@ export function AuthProvider({ children }) {
 
         if (isSessionRejected(error)) {
           // The token really is dead — this is the only path that signs out.
-          clearSession(setToken, setUser);
+          clearSession(setToken, setUser, { signedOut: true });
           retryAttemptRef.current = 0;
           return;
         }
@@ -234,7 +242,7 @@ export function AuthProvider({ children }) {
       if (isTokenExpired(token)) {
         bootstrapRequestId.current += 1;
         cancelScheduledRetry();
-        clearSession(setToken, setUser);
+        clearSession(setToken, setUser, { signedOut: true });
       }
     }, 60000);
     return () => clearInterval(interval);
@@ -329,7 +337,7 @@ export function AuthProvider({ children }) {
     bootstrapRequestId.current += 1;
     retryAttemptRef.current = 0;
     cancelScheduledRetry();
-    clearSession(setToken, setUser);
+    clearSession(setToken, setUser, { signedOut: true });
     setLoading(false);
   }, [cancelScheduledRetry]);
 

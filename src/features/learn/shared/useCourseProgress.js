@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "../../auth/context/AuthContext";
+import { AUTH_STORAGE_KEYS } from "../../../lib/authSession";
 import { recordLessonXp } from "./recordLessonXp";
 import {
   readScopedJson,
@@ -45,6 +46,11 @@ function mergeCompletionMaps(localMap = {}, remoteMap = {}) {
   return { ...localMap, ...remoteMap };
 }
 
+/** False once the session that sent a request has signed out or changed. */
+function isCurrentSession(token) {
+  return Boolean(token) && localStorage.getItem(AUTH_STORAGE_KEYS.TOKEN_KEY) === token;
+}
+
 /**
  * Shared course progress hook: MongoDB when signed in, localStorage for guests.
  */
@@ -56,6 +62,12 @@ export default function useCourseProgress({
 }) {
   const { user, isAuthenticated, token, loading } = useAuth();
   const [remoteProgress, setRemoteProgress] = useState(null);
+  // Read through a ref so adoptRemoteProgress (and rememberLesson) keep the
+  // same identity after each response; otherwise the lesson page's
+  // rememberLesson effect re-runs and posts last-lesson in a loop.
+  const remoteProgressRef = useRef(null);
+  remoteProgressRef.current = remoteProgress;
+  const rememberedLessonRef = useRef(null);
   const [syncState, setSyncState] = useState(token ? "syncing" : "local");
   const [localVersion, setLocalVersion] = useState(0);
   const [activeLessonId, setActiveLessonId] = useState(null);
@@ -152,7 +164,9 @@ export default function useCourseProgress({
 
   const mirrorRemoteToLocal = useCallback(
     (progress, { allowEmptyWipe = false, replaceCompletions = false } = {}) => {
-      if (!progress || !token) return;
+      // A response that lands after sign-out must not write the previous
+      // account's progress back into shared storage.
+      if (!progress || !isCurrentSession(token)) return;
       const remoteMap = progressToMap(progress);
       const localMap = readProgressLocal();
       if (
@@ -189,14 +203,14 @@ export default function useCourseProgress({
 
   const adoptRemoteProgress = useCallback(
     (progress, { allowEmptyWipe = false } = {}) => {
-      if (!progress) return;
+      if (!progress || !isCurrentSession(token)) return;
       const remoteMap = progressToMap(progress);
       const localMap = readProgressLocal();
       if (
         !allowEmptyWipe &&
         Object.keys(remoteMap).length === 0 &&
         (Object.keys(localMap).length > 0 ||
-          remoteCompletionCount(remoteProgress) > 0)
+          remoteCompletionCount(remoteProgressRef.current) > 0)
       ) {
         return;
       }
@@ -204,7 +218,7 @@ export default function useCourseProgress({
       mirrorRemoteToLocal(progress, { allowEmptyWipe });
       setSyncState("synced");
     },
-    [mirrorRemoteToLocal, readProgressLocal, remoteProgress],
+    [mirrorRemoteToLocal, readProgressLocal, token],
   );
 
   useEffect(() => {
@@ -379,20 +393,23 @@ export default function useCourseProgress({
   const rememberLesson = useCallback(
     async (lessonId) => {
       setActiveLessonId(lessonId || null);
+      const alreadyRemembered = rememberedLessonRef.current === lessonId;
+      rememberedLessonRef.current = lessonId;
       if (token) {
         try {
           const progress = await setLastCourseLesson(token, courseId, lessonId);
           adoptRemoteProgress(progress);
-          writeLastLocal(lessonId);
-          refreshLocal();
         } catch {
           setSyncState("error");
-          writeLastLocal(lessonId);
-          refreshLocal();
         }
+        if (!isCurrentSession(token)) return;
+        writeLastLocal(lessonId);
+        refreshLocal();
         return;
       }
-      if (scoped && !scopeReady) return;
+      // Signing out re-runs this for the lesson still on screen; don't save the
+      // previous account's last lesson as guest progress.
+      if (alreadyRemembered || (scoped && !scopeReady)) return;
       writeLastLocal(lessonId);
       refreshLocal();
     },
