@@ -12693,6 +12693,34 @@ body {
   max-width: 100%;
 }
 
+/* Loading / not-verified / error messages in place of a certificate */
+.certificate-status {
+  width: 100%;
+  max-width: 640px;
+  box-sizing: border-box;
+  border: 1px solid var(--border, #1e2433);
+  border-radius: 16px;
+  background: var(--ink-2, #0d1117);
+  color: var(--txt-1, #cbd5e1);
+  padding: 24px;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.certificate-status h1 {
+  margin: 0 0 10px;
+  font-size: 1.4rem;
+  color: var(--txt-0, #f8fafc);
+}
+
+.certificate-status p {
+  margin: 0 0 12px;
+}
+
+.certificate-status-error {
+  border-color: #ef4444;
+}
+
 /* =========================
    MAIN CERTIFICATE
 ========================= */
