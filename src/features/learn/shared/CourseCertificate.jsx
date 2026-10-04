@@ -1,251 +1,122 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { useAuth } from "../../auth/context/AuthContext";
+import { networkErrorMessage } from "../../../lib/apiClient";
+import CertificateDocument from "./CertificateDocument";
+import {
+  certificateCourseIdForPath,
+  issueCertificate,
+} from "./certificatesApi";
 
-function stableHash(input) {
-  let hash = 2166136261;
-  const str = String(input || "");
-  for (let i = 0; i < str.length; i += 1) {
-    hash ^= str.charCodeAt(i);
-    hash = Math.imul(hash, 16777619);
-  }
-  return (hash >>> 0).toString(36).toUpperCase().padStart(8, "0").slice(0, 8);
-}
-
-function generateLocalCertId(userId, courseName) {
-  const slug = courseName
-    .toUpperCase()
-    .replace(/[^A-Z0-9]+/g, "-")
-    .slice(0, 20);
-  const suffix = String(userId || "guest")
-    .slice(-6)
-    .toUpperCase();
-  const stable = stableHash(`${userId || "guest"}:${courseName}`);
-  return `PC-${slug}-${suffix}-${stable}`;
-}
-
-export default function CourseCertificate({
-  courseName,
-  totalLessons,
-  completedCount,
-  earnedXP,
-  recipient,
-}) {
-  const { user } = useAuth();
-  const certificateUser = recipient || user;
-  const certificateRef = useRef();
-  const certId = useRef(null);
-
-  const [qrDataUrl, setQrDataUrl] = useState(null);
-  const [downloading, setDownloading] = useState(false);
-
-  const isComplete = completedCount >= totalLessons;
-
-  const userName =
-    certificateUser?.firstName && certificateUser?.lastName
-      ? `${certificateUser.firstName} ${certificateUser.lastName}`
-      : certificateUser?.name || certificateUser?.username || "Learner";
-
-  const issueDate = new Date().toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-
-  useEffect(() => {
-    if (!isComplete) return;
-    let cancelled = false;
-
-    if (!certId.current) {
-      certId.current = generateLocalCertId(
-        certificateUser?._id || certificateUser?.id,
-        courseName,
-      );
-    }
-
-    const queryParams = new URLSearchParams({
-      id: certId.current,
-      name: userName,
-      course: courseName,
-      date: issueDate,
-      lessons: totalLessons.toString(),
-      xp: earnedXP.toString(),
-    }).toString();
-
-    const qrUrl = `https://poly-code-frontend-tau.vercel.app/verify-certificate?${queryParams}`;
-
-    async function generateQrCode() {
-      try {
-        const qrcodeModule = await import("qrcode");
-        const toDataURL =
-          qrcodeModule.toDataURL || qrcodeModule.default?.toDataURL;
-        if (!toDataURL) throw new Error("QR generator unavailable");
-
-        const dataUrl = await toDataURL(qrUrl, {
-          width: 120,
-          margin: 1,
-          color: { dark: "#1e293b", light: "#ffffff" },
-        });
-        if (!cancelled) setQrDataUrl(dataUrl);
-      } catch (err) {
-        console.error("QR Generation Error:", err);
-      }
-    }
-
-    generateQrCode();
-    return () => {
-      cancelled = true;
-    };
-  }, [
-    isComplete,
-    courseName,
-    certificateUser,
-    userName,
-    issueDate,
-    totalLessons,
-    earnedXP,
-  ]);
-
-  async function downloadPDF() {
-    if (!certificateRef.current) return;
-    setDownloading(true);
-    try {
-      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
-        import("html2canvas"),
-        import("jspdf"),
-      ]);
-      const canvas = await html2canvas(certificateRef.current, {
-        scale: 4,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-      });
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({
-        orientation: "landscape",
-        unit: "mm",
-        format: "a4",
-      });
-      pdf.addImage(
-        imgData,
-        "PNG",
-        0,
-        0,
-        pdf.internal.pageSize.getWidth(),
-        pdf.internal.pageSize.getHeight(),
-      );
-      pdf.setProperties({
-        title: `${courseName} Certificate`,
-        subject: `Certificate ID: ${certId.current}`,
-        author: "PolyCode",
-      });
-      pdf.save(`${courseName.replace(/\s+/g, "-")}-${certId.current}.pdf`);
-    } catch (err) {
-      console.error("PDF error:", err.message);
-    } finally {
-      setDownloading(false);
-    }
-  }
-
-  if (!isComplete) return null;
-
+function CertificateStatus({ tone = "info", children }) {
   return (
-    <div id="course-certificate" className="certificate-wrapper">
-      <div className="certificate" ref={certificateRef}>
-        <div className="certificate-watermark">
-          <img src="/images/polycode-logo.png" alt="" />
-        </div>
-
-        <div className="certificate-header">
-          <img
-            src="/images/polycode-logo.png"
-            alt="PolyCode"
-            className="certificate-logo1"
-          />
-          <img
-            src="/images/logo.png"
-            alt="QuantumLogics"
-            className="certificate-logo2"
-          />
-        </div>
-
-        <div className="certificate-company">
-          PolyCode powered by QuantumLogics
-        </div>
-        <h1 className="certificate-title">CERTIFICATE OF COMPLETION</h1>
-        <div className="cert-divider">✦ ✦ ✦</div>
-        <p className="certificate-awarded">
-          This certificate is proudly awarded to
-        </p>
-        <h2 className="certificate-name">{userName}</h2>
-        <p className="certificate-text">For successfully completing</p>
-        <h3 className="certificate-course">{courseName}</h3>
-
-        <div className="certificate-stats">
-          <div>
-            <strong>{completedCount}</strong>
-            <span>Lessons Completed</span>
-          </div>
-          <div>
-            <strong>{earnedXP}</strong>
-            <span>XP Earned</span>
-          </div>
-        </div>
-
-        <div className="certificate-info">
-          <div>
-            <strong>Issued On</strong>
-            <p>{issueDate}</p>
-          </div>
-          <div>
-            <strong>Certificate ID</strong>
-            <p style={{ fontSize: "0.7em", wordBreak: "break-all" }}>
-              {certId.current}
-            </p>
-          </div>
-        </div>
-
-        <div className="certificate-footer">
-          <div className="signature-block">
-            <img
-              src="/images/aminasign.png"
-              alt="Signature"
-              className="signature-image"
-            />
-            <div className="signature-line" />
-            <p className="signature-name">Amina</p>
-            <p className="signature-role">Course Instructor</p>
-          </div>
-
-          <div className="certificate-footer-right">
-            {qrDataUrl && (
-              <div className="certificate-qr-footer">
-                <img
-                  src={qrDataUrl}
-                  alt="Scan to verify"
-                  width={80}
-                  height={80}
-                />
-                <p>Scan to verify</p>
-              </div>
-            )}
-
-            <img
-              src="/images/stamp.png"
-              alt="Official Stamp"
-              className="official-stamp"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="certificate-actions">
-        <button
-          className="download-btn"
-          onClick={downloadPDF}
-          disabled={downloading}
-        >
-          {downloading ? "Generating PDF…" : "⬇ Download PDF"}
-        </button>
+    <div className="certificate-wrapper">
+      <div
+        className={`certificate-status certificate-status-${tone}`}
+        role={tone === "error" ? "alert" : "status"}
+      >
+        {children}
       </div>
     </div>
   );
+}
+
+/**
+ * Course certificate shown at the bottom of a course hub. Once the learner's
+ * progress looks complete it asks the server to issue (or return) their
+ * certificate; the server decides eligibility and supplies every detail shown.
+ *
+ * - courseId: optional; worked out from the hub route when omitted.
+ * - certificate: an already-issued certificate to show as-is (profile pages).
+ */
+export default function CourseCertificate({
+  courseId: courseIdProp,
+  totalLessons,
+  completedCount,
+  certificate: providedCertificate,
+}) {
+  const { token, isAuthenticated } = useAuth();
+  const location = useLocation();
+  const courseId =
+    courseIdProp || certificateCourseIdForPath(location.pathname);
+  const isComplete = totalLessons > 0 && completedCount >= totalLessons;
+  const shouldIssue =
+    !providedCertificate && isComplete && isAuthenticated && Boolean(courseId);
+
+  const [state, setState] = useState({ status: "idle" });
+  const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
+    if (!shouldIssue) return undefined;
+    let cancelled = false;
+    setState({ status: "loading" });
+
+    issueCertificate(courseId, token)
+      .then((certificate) => {
+        if (!cancelled) setState({ status: "ready", certificate });
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        if (error.status === 403 && error.data?.code === "COURSE_INCOMPLETE") {
+          setState({
+            status: "incomplete",
+            completed: error.data.completed,
+            required: error.data.required,
+          });
+        } else {
+          setState({ status: "error", message: networkErrorMessage(error) });
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [shouldIssue, courseId, token, attempt]);
+
+  if (providedCertificate) {
+    return <CertificateDocument certificate={providedCertificate} />;
+  }
+  if (!isComplete || !isAuthenticated) return null;
+
+  if (!courseId) {
+    return (
+      <CertificateStatus>
+        Certificates aren't available for this course yet.
+      </CertificateStatus>
+    );
+  }
+
+  if (state.status === "ready") {
+    return <CertificateDocument certificate={state.certificate} />;
+  }
+
+  if (state.status === "incomplete") {
+    return (
+      <CertificateStatus>
+        <p>
+          Your progress for this course isn't fully saved to your account yet
+          (the server has {state.completed} of {state.required} lessons
+          recorded), so a certificate can't be issued.
+        </p>
+        <p>If you just finished, reload the page to sync your progress.</p>
+      </CertificateStatus>
+    );
+  }
+
+  if (state.status === "error") {
+    return (
+      <CertificateStatus tone="error">
+        <p>Could not load your certificate: {state.message}</p>
+        <button
+          type="button"
+          className="download-btn"
+          onClick={() => setAttempt((n) => n + 1)}
+        >
+          Try again
+        </button>
+      </CertificateStatus>
+    );
+  }
+
+  return <CertificateStatus>Preparing your certificate…</CertificateStatus>;
 }

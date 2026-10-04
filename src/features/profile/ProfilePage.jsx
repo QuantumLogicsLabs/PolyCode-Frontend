@@ -28,10 +28,8 @@ import { OPENCV_LESSONS } from "../learn/opencv-py/data/opencvCurriculum";
 import useOpencvProgress from "../learn/opencv-py/hooks/useOpencvProgress";
 import CourseCertificate from "../learn/shared/CourseCertificate";
 import useProfileLearnProgress from "./hooks/useProfileLearnProgress";
-import {
-  PROFILE_FEATURED_TRACKS,
-  slugifyCourseName,
-} from "./profileCourseCatalog";
+import { PROFILE_FEATURED_TRACKS } from "./profileCourseCatalog";
+import useProfileCertificates from "./hooks/useProfileCertificates";
 import {
   getFollowStatus,
   getProfileConnections,
@@ -230,24 +228,6 @@ function TrackProgressCard({
   );
 }
 
-function getCompletedTrackCertificate(track) {
-  const completedCount = Object.keys(track.progress).length;
-  if (completedCount < track.lessons.length || track.lessons.length === 0) {
-    return null;
-  }
-
-  const earnedXP = track.lessons
-    .filter((lesson) => track.progress[lesson.id])
-    .reduce((sum, lesson) => sum + lesson.xp, 0);
-
-  return {
-    ...track,
-    slug: slugifyCourseName(track.courseName),
-    completedCount,
-    earnedXP,
-  };
-}
-
 export default function ProfilePage() {
   const { username } = useParams();
   const location = useLocation();
@@ -299,6 +279,9 @@ export default function ProfilePage() {
     username: routeUsername || profileUser?.username || "",
     token,
   });
+  const profileCertificates = useProfileCertificates(
+    routeUsername || profileUser?.username || "",
+  );
 
   const trackMaps = {
     "oops-cpp":
@@ -383,17 +366,10 @@ export default function ProfilePage() {
     isAuthenticated,
     isOwnProfile,
   ]);
-  const completedCertificates = PROFILE_FEATURED_TRACKS.map((track) =>
-    getCompletedTrackCertificate({
-      courseName: track.courseName,
-      lessons: track.lessons,
-      totalXP: track.totalXP,
-      progress: trackMaps[track.courseId] || {},
-    }),
-  ).filter(Boolean);
+  const completedCertificates = profileCertificates.certificates;
   const certificateOwnerPath = `/@${routeUsername || signedInUsername || profileUser?.username}`;
   const routeCertificate = certificateSlug
-    ? completedCertificates.find((certificate) => certificate.slug === certificateSlug)
+    ? completedCertificates.find((certificate) => certificate.courseId === certificateSlug)
     : null;
 
   React.useEffect(() => {
@@ -541,21 +517,26 @@ export default function ProfilePage() {
             <h1>
               {routeCertificate
                 ? routeCertificate.courseName
-                : "Certificate not found"}
+                : profileCertificates.loading
+                  ? "Certificate"
+                  : "Certificate not found"}
             </h1>
           </div>
           <Link to={certificateOwnerPath}>Back to profile</Link>
         </div>
 
         {routeCertificate ? (
-          <CourseCertificate
-            courseName={routeCertificate.courseName}
-            totalLessons={routeCertificate.lessons.length}
-            completedCount={routeCertificate.completedCount}
-            earnedXP={routeCertificate.earnedXP}
-            totalXP={routeCertificate.totalXP}
-            recipient={profileUser}
-          />
+          <CourseCertificate certificate={routeCertificate} />
+        ) : profileCertificates.loading ? (
+          <section className="profile-empty-state">
+            <p>Loading certificate…</p>
+          </section>
+        ) : profileCertificates.error ? (
+          <section className="profile-empty-state">
+            <h1>Could not load this certificate</h1>
+            <p>{profileCertificates.error}</p>
+            <Link to={certificateOwnerPath}>Back to profile</Link>
+          </section>
         ) : (
           <section className="profile-empty-state">
             <h1>Certificate not available</h1>
@@ -661,19 +642,19 @@ export default function ProfilePage() {
           <div className="profile-certificates-list">
             {completedCertificates.map((certificate) => (
               <article
-                key={certificate.courseName}
+                key={certificate.id}
                 className="profile-certificate-card"
               >
                 <div>
                   <span>Course completed</span>
                   <h3>{certificate.courseName}</h3>
                   <p>
-                    {certificate.completedCount}/{certificate.lessons.length} lessons
-                    completed · {certificate.earnedXP}/{certificate.totalXP} XP earned
+                    {certificate.lessonsCompleted} lessons completed ·{" "}
+                    {certificate.xp} XP earned
                   </p>
                 </div>
                 <Link
-                  to={`${certificateOwnerPath}/certificates/${certificate.slug}`}
+                  to={`${certificateOwnerPath}/certificates/${certificate.courseId}`}
                   className="profile-certificate-link"
                 >
                   View certificate
