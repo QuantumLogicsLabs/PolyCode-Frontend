@@ -9,6 +9,7 @@ import {
   mergeLocalCourseProgress,
 } from "./courseProgressApi";
 import {
+  claimSharedLearnProgress,
   decodeUserIdFromToken,
   readScopedJson,
   readScopedString,
@@ -154,6 +155,8 @@ export async function mergeLearnProgressOnLogin(token, user) {
 
   const userId =
     user?._id || user?.id || decodeUserIdFromToken(token) || null;
+  // Drop shared keys left by another account so they aren't uploaded to this one.
+  claimSharedLearnProgress(userId);
   const courses = {};
 
   for (const entry of COURSE_PROGRESS_REGISTRY) {

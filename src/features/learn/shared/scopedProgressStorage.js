@@ -12,6 +12,18 @@ const LEARN_PROGRESS_BASE_KEYS = COURSE_PROGRESS_REGISTRY.flatMap((entry) => {
   return list;
 });
 
+/** Account whose progress the shared (unscoped) learn keys currently hold. */
+const LEARN_PROGRESS_OWNER_KEY = "polycode_learn_progress_owner";
+
+const ANNOTATION_KEY_PREFIX = "polycode_annotations_";
+
+// Per-lesson engagement keys: `${prefix}_read_<id>`, `_confidence_<id>`, `_quiz_attempts_<id>`.
+const ENGAGEMENT_KEY_PREFIXES = COURSE_PROGRESS_REGISTRY.flatMap((entry) => [
+  `${entry.storagePrefix}_read_`,
+  `${entry.storagePrefix}_confidence_`,
+  `${entry.storagePrefix}_quiz_attempts_`,
+]);
+
 function decodeUserIdFromToken(token) {
   if (!token || typeof token !== "string") return null;
   try {
@@ -94,8 +106,55 @@ function isolateLearnProgressForUser(userId) {
   });
 }
 
+function getLearnProgressOwner() {
+  return localStorage.getItem(LEARN_PROGRESS_OWNER_KEY);
+}
+
+/**
+ * Remove every learn key that isn't scoped to a user: course progress, guest
+ * buckets, read / confidence / quiz-attempt flags and annotations. Signed-in
+ * learners get all of it back from the server, so this only drops the copy
+ * the next person on this browser would otherwise see and upload.
+ */
+function clearSharedLearnProgress() {
+  LEARN_PROGRESS_BASE_KEYS.forEach((baseKey) => {
+    localStorage.removeItem(baseKey);
+    localStorage.removeItem(`${baseKey}:guest`);
+  });
+
+  const keys = [];
+  for (let index = 0; index < localStorage.length; index += 1) {
+    const key = localStorage.key(index);
+    if (key) keys.push(key);
+  }
+  keys
+    .filter(
+      (key) =>
+        key.startsWith(ANNOTATION_KEY_PREFIX) ||
+        ENGAGEMENT_KEY_PREFIXES.some((prefix) => key.startsWith(prefix)),
+    )
+    .forEach((key) => localStorage.removeItem(key));
+
+  localStorage.removeItem(LEARN_PROGRESS_OWNER_KEY);
+}
+
+/**
+ * Called when `userId` signs in, before local progress is uploaded. Shared
+ * keys written while another account was signed in are dropped, not uploaded;
+ * guest progress (no owner) is kept so the login merge can save it.
+ */
+function claimSharedLearnProgress(userId) {
+  const owner = getLearnProgressOwner();
+  if (owner && owner !== String(userId)) clearSharedLearnProgress();
+  if (userId) localStorage.setItem(LEARN_PROGRESS_OWNER_KEY, String(userId));
+}
+
 export {
   LEARN_PROGRESS_BASE_KEYS,
+  LEARN_PROGRESS_OWNER_KEY,
+  getLearnProgressOwner,
+  clearSharedLearnProgress,
+  claimSharedLearnProgress,
   decodeUserIdFromToken,
   resolveLearnUserScope,
   getLearnUserScope,
