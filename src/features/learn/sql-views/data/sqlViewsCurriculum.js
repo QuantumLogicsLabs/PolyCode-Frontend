@@ -26,25 +26,16 @@ export const SQLVIEWS_CHAPTERS = [
           id: "challenge-1",
           title: "Querying a View",
           description: "Once a view is created, you query it exactly like a normal table. Query the `active_users` view to get all columns.",
-          starter: "-- Query the active_users view here\n",
+          starterCode: "-- Write your query here\n",
+          solutionCode: "SELECT *\nFROM active_users;",
           tests: [
             {
-              id: "test-1",
-              description: "Must query the view",
-              dbState: {
-                // Mocking the view as a table for the test runner
-                active_users: [
-                  { id: 1, name: "Alice", status: "active" },
-                  { id: 2, name: "Bob", status: "active" }
-                ]
-              },
-              expected: [
-                { id: 1, name: "Alice", status: "active" },
-                { id: 2, name: "Bob", status: "active" }
-              ]
+              id: "t1",
+              label: "Selects all columns from active_users",
+              keywords: [{ pattern: "\\bSELECT\\s+\\*\\s+FROM\\s+active_users\\b", flags: "i" }],
+              hint: "Query the view like a table: SELECT * FROM active_users."
             }
-          ],
-          keywords: ["SELECT", "*", "FROM", "active_users"]
+          ]
         }
       },
       {
@@ -68,16 +59,28 @@ export const SQLVIEWS_CHAPTERS = [
           id: "challenge-2",
           title: "Create High Scores View",
           description: "Write a query to create a view called `high_scores` that selects `player_name` and `score` from the `game_scores` table where `score > 1000`.",
-          starter: "-- Write your CREATE VIEW statement here\n",
+          starterCode: "-- Write your statement here\n",
+          solutionCode: "CREATE VIEW high_scores AS\nSELECT player_name, score\nFROM game_scores\nWHERE score > 1000;",
           tests: [
             {
-              id: "test-1",
-              description: "Must use CREATE VIEW",
-              dbState: {},
-              expected: []
+              id: "t1",
+              label: "Creates a view named high_scores",
+              keywords: [{ pattern: "\\bCREATE\\s+VIEW\\s+high_scores\\s+AS\\s+SELECT\\b", flags: "i" }],
+              hint: "Start with CREATE VIEW high_scores AS SELECT ..."
+            },
+            {
+              id: "t2",
+              label: "Selects player_name and score from game_scores",
+              keywords: [{ pattern: "\\bSELECT\\s+player_name\\s*,\\s*score\\s+FROM\\s+game_scores\\b", flags: "i" }],
+              hint: "Use SELECT player_name, score FROM game_scores."
+            },
+            {
+              id: "t3",
+              label: "Keeps only scores over 1000",
+              keywords: [{ pattern: "\\bWHERE\\s+score\\s*>\\s*1000\\b", flags: "i" }],
+              hint: "Add WHERE score > 1000."
             }
-          ],
-          keywords: ["CREATE", "VIEW", "high_scores", "AS", "SELECT", "WHERE", "score", ">", "1000"]
+          ]
         }
       }
     ]
@@ -109,16 +112,28 @@ export const SQLVIEWS_CHAPTERS = [
           id: "challenge-3",
           title: "Replace the View",
           description: "Update the `high_scores` view to also include the `game_date` column. (Assume the table is `game_scores` and condition is `score > 1000`).",
-          starter: "-- Write your CREATE OR REPLACE VIEW statement here\n",
+          starterCode: "-- Write your statement here\n",
+          solutionCode: "CREATE OR REPLACE VIEW high_scores AS\nSELECT player_name, score, game_date\nFROM game_scores\nWHERE score > 1000;",
           tests: [
             {
-              id: "test-1",
-              description: "Must use CREATE OR REPLACE VIEW",
-              dbState: {},
-              expected: []
+              id: "t1",
+              label: "Replaces the high_scores view",
+              keywords: [{ pattern: "\\bCREATE\\s+OR\\s+REPLACE\\s+VIEW\\s+high_scores\\s+AS\\s+SELECT\\b", flags: "i" }],
+              hint: "Start with CREATE OR REPLACE VIEW high_scores AS SELECT ..."
+            },
+            {
+              id: "t2",
+              label: "Selects player_name, score and game_date",
+              keywords: [{ pattern: "\\bSELECT\\s+[\\w\\s,]*\\bplayer_name\\b[\\w\\s,]*\\bFROM\\s+game_scores\\b", flags: "i" }, { pattern: "\\bSELECT\\s+[\\w\\s,]*\\bgame_date\\b[\\w\\s,]*\\bFROM\\s+game_scores\\b", flags: "i" }],
+              hint: "Use SELECT player_name, score, game_date FROM game_scores."
+            },
+            {
+              id: "t3",
+              label: "Keeps only scores over 1000",
+              keywords: [{ pattern: "\\bWHERE\\s+score\\s*>\\s*1000\\b", flags: "i" }],
+              hint: "Keep WHERE score > 1000."
             }
-          ],
-          keywords: ["CREATE", "OR", "REPLACE", "VIEW", "high_scores", "AS", "SELECT", "game_date"]
+          ]
         }
       },
       {
@@ -136,16 +151,16 @@ export const SQLVIEWS_CHAPTERS = [
           id: "challenge-4",
           title: "Drop the View",
           description: "Write a command to delete the view named `old_records`.",
-          starter: "-- Drop the view here\n",
+          starterCode: "-- Write your statement here\n",
+          solutionCode: "DROP VIEW old_records;",
           tests: [
             {
-              id: "test-1",
-              description: "Must use DROP VIEW",
-              dbState: {},
-              expected: []
+              id: "t1",
+              label: "Drops the old_records view",
+              keywords: [{ pattern: "\\bDROP\\s+VIEW\\s+(IF\\s+EXISTS\\s+)?old_records\\b", flags: "i" }],
+              hint: "Use DROP VIEW old_records."
             }
-          ],
-          keywords: ["DROP", "VIEW", "old_records"]
+          ]
         }
       }
     ]
@@ -177,16 +192,28 @@ export const SQLVIEWS_CHAPTERS = [
           id: "challenge-5",
           title: "Update via View",
           description: "Write an `UPDATE` statement that changes the `status` to 'premium' for the user with `id = 1` inside the `active_users` view.",
-          starter: "-- Write your UPDATE statement here\n",
+          starterCode: "-- Write your statement here\n",
+          solutionCode: "UPDATE active_users\nSET status = 'premium'\nWHERE id = 1;",
           tests: [
             {
-              id: "test-1",
-              description: "Must update the view",
-              dbState: {},
-              expected: []
+              id: "t1",
+              label: "Updates the active_users view",
+              keywords: [{ pattern: "\\bUPDATE\\s+active_users\\s+SET\\b", flags: "i" }],
+              hint: "Start with UPDATE active_users SET ..."
+            },
+            {
+              id: "t2",
+              label: "Sets status to 'premium'",
+              keywords: [{ pattern: "\\bSET\\s+status\\s*=\\s*'premium'", flags: "i" }],
+              hint: "Use SET status = 'premium'."
+            },
+            {
+              id: "t3",
+              label: "Changes only the user with id 1",
+              keywords: [{ pattern: "\\bWHERE\\s+id\\s*=\\s*1\\b", flags: "i" }],
+              hint: "Add WHERE id = 1, or every row is changed."
             }
-          ],
-          keywords: ["UPDATE", "active_users", "SET", "status", "=", "'premium'", "WHERE", "id", "1"]
+          ]
         }
       }
     ]
@@ -222,16 +249,28 @@ export const SQLVIEWS_CHAPTERS = [
           id: "challenge-6",
           title: "Create a Secure View",
           description: "Create a view named `teens` that selects all columns from `users` where `age BETWEEN 13 AND 19`. Add `WITH CHECK OPTION` at the end.",
-          starter: "-- Write your query here\n",
+          starterCode: "-- Write your statement here\n",
+          solutionCode: "CREATE VIEW teens AS\nSELECT *\nFROM users\nWHERE age BETWEEN 13 AND 19\nWITH CHECK OPTION;",
           tests: [
             {
-              id: "test-1",
-              description: "Must use WITH CHECK OPTION",
-              dbState: {},
-              expected: []
+              id: "t1",
+              label: "Creates a view named teens over users",
+              keywords: [{ pattern: "\\bCREATE\\s+VIEW\\s+teens\\s+AS\\s+SELECT\\s+\\*\\s+FROM\\s+users\\b", flags: "i" }],
+              hint: "Use CREATE VIEW teens AS SELECT * FROM users."
+            },
+            {
+              id: "t2",
+              label: "Keeps ages 13 to 19",
+              keywords: [{ pattern: "\\bWHERE\\s+age\\s+BETWEEN\\s+13\\s+AND\\s+19\\b", flags: "i" }],
+              hint: "Add WHERE age BETWEEN 13 AND 19."
+            },
+            {
+              id: "t3",
+              label: "Ends with WITH CHECK OPTION",
+              keywords: [{ pattern: "\\bWHERE\\b[\\s\\S]*\\bWITH\\s+CHECK\\s+OPTION\\b", flags: "i" }],
+              hint: "Add WITH CHECK OPTION after the WHERE clause."
             }
-          ],
-          keywords: ["CREATE", "VIEW", "teens", "AS", "SELECT", "WHERE", "age", "BETWEEN", "WITH CHECK OPTION"]
+          ]
         }
       }
     ]

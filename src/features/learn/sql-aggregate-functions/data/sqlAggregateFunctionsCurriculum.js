@@ -32,24 +32,28 @@ export const SQLAGGREGATEFUNCTIONS_CHAPTERS = [
           id: "challenge-1",
           title: "Count the Users",
           description: "Write a query to count the total number of records in the `users` table. Alias the result as `total_users`.",
-          starter: "SELECT COUNT(*) AS -- Add alias\nFROM users;",
+          starterCode: "SELECT COUNT(*) AS -- add the alias here\nFROM users;",
+          solutionCode: "SELECT COUNT(*) AS total_users\nFROM users;",
           tests: [
             {
-              id: "test-1",
-              description: "Must count total users",
-              dbState: {
-                users: [
-                  { id: 1, name: "Alice" },
-                  { id: 2, name: "Bob" },
-                  { id: 3, name: "Charlie" }
-                ]
-              },
-              expected: [
-                { total_users: 3 }
-              ]
+              id: "t1",
+              label: "Counts every row with COUNT(*)",
+              keywords: [{ pattern: "\\bCOUNT\\s*\\(\\s*\\*\\s*\\)", flags: "i" }],
+              hint: "Use COUNT(*) to count all rows."
+            },
+            {
+              id: "t2",
+              label: "Names the result total_users",
+              keywords: [{ pattern: "\\bAS\\s+total_users\\b", flags: "i" }],
+              hint: "Add AS total_users after COUNT(*)."
+            },
+            {
+              id: "t3",
+              label: "Queries the users table",
+              keywords: [{ pattern: "\\bFROM\\s+users\\b", flags: "i" }],
+              hint: "Use FROM users."
             }
-          ],
-          keywords: ["SELECT", "COUNT", "*", "AS", "total_users", "FROM", "users"]
+          ]
         }
       },
       {
@@ -73,24 +77,28 @@ export const SQLAGGREGATEFUNCTIONS_CHAPTERS = [
           id: "challenge-2",
           title: "Calculate Total Revenue",
           description: "Find the total sum of the `amount` column in the `sales` table. Alias it as `total_revenue`.",
-          starter: "-- Write your SUM query here\n",
+          starterCode: "-- Write your query here\n",
+          solutionCode: "SELECT SUM(amount) AS total_revenue\nFROM sales;",
           tests: [
             {
-              id: "test-1",
-              description: "Must sum the amount",
-              dbState: {
-                sales: [
-                  { id: 1, amount: 150 },
-                  { id: 2, amount: 200 },
-                  { id: 3, amount: 50 }
-                ]
-              },
-              expected: [
-                { total_revenue: 400 }
-              ]
+              id: "t1",
+              label: "Adds up the amount column",
+              keywords: [{ pattern: "\\bSUM\\s*\\(\\s*amount\\s*\\)", flags: "i" }],
+              hint: "Use SUM(amount)."
+            },
+            {
+              id: "t2",
+              label: "Names the result total_revenue",
+              keywords: [{ pattern: "\\bAS\\s+total_revenue\\b", flags: "i" }],
+              hint: "Add AS total_revenue after SUM(amount)."
+            },
+            {
+              id: "t3",
+              label: "Queries the sales table",
+              keywords: [{ pattern: "\\bFROM\\s+sales\\b", flags: "i" }],
+              hint: "Use FROM sales."
             }
-          ],
-          keywords: ["SELECT", "SUM", "amount", "AS", "total_revenue", "FROM", "sales"]
+          ]
         }
       },
       {
@@ -114,24 +122,28 @@ export const SQLAGGREGATEFUNCTIONS_CHAPTERS = [
           id: "challenge-3",
           title: "Find the Average Rating",
           description: "Calculate the average `rating` of all movies in the `movies` table. Alias the result as `avg_rating`.",
-          starter: "-- Write your AVG query here\n",
+          starterCode: "-- Write your query here\n",
+          solutionCode: "SELECT AVG(rating) AS avg_rating\nFROM movies;",
           tests: [
             {
-              id: "test-1",
-              description: "Must calculate the average rating",
-              dbState: {
-                movies: [
-                  { id: 1, rating: 8.0 },
-                  { id: 2, rating: 9.0 },
-                  { id: 3, rating: 10.0 }
-                ]
-              },
-              expected: [
-                { avg_rating: 9.0 }
-              ]
+              id: "t1",
+              label: "Averages the rating column",
+              keywords: [{ pattern: "\\bAVG\\s*\\(\\s*rating\\s*\\)", flags: "i" }],
+              hint: "Use AVG(rating)."
+            },
+            {
+              id: "t2",
+              label: "Names the result avg_rating",
+              keywords: [{ pattern: "\\bAS\\s+avg_rating\\b", flags: "i" }],
+              hint: "Add AS avg_rating after AVG(rating)."
+            },
+            {
+              id: "t3",
+              label: "Queries the movies table",
+              keywords: [{ pattern: "\\bFROM\\s+movies\\b", flags: "i" }],
+              hint: "Use FROM movies."
             }
-          ],
-          keywords: ["SELECT", "AVG", "rating", "AS", "avg_rating", "FROM", "movies"]
+          ]
         }
       }
     ]
@@ -167,24 +179,28 @@ export const SQLAGGREGATEFUNCTIONS_CHAPTERS = [
           id: "challenge-4",
           title: "Find Salary Extremes",
           description: "Write a query to find the minimum `salary` (as `lowest_salary`) and maximum `salary` (as `highest_salary`) in the `employees` table.",
-          starter: "-- Write your query here\n",
+          starterCode: "-- Write your query here\n",
+          solutionCode: "SELECT MIN(salary) AS lowest_salary, MAX(salary) AS highest_salary\nFROM employees;",
           tests: [
             {
-              id: "test-1",
-              description: "Must return lowest and highest salary",
-              dbState: {
-                employees: [
-                  { id: 1, salary: 45000 },
-                  { id: 2, salary: 92000 },
-                  { id: 3, salary: 50000 }
-                ]
-              },
-              expected: [
-                { lowest_salary: 45000, highest_salary: 92000 }
-              ]
+              id: "t1",
+              label: "Finds the lowest salary as lowest_salary",
+              keywords: [{ pattern: "\\bMIN\\s*\\(\\s*salary\\s*\\)\\s+AS\\s+lowest_salary\\b", flags: "i" }],
+              hint: "Use MIN(salary) AS lowest_salary."
+            },
+            {
+              id: "t2",
+              label: "Finds the highest salary as highest_salary",
+              keywords: [{ pattern: "\\bMAX\\s*\\(\\s*salary\\s*\\)\\s+AS\\s+highest_salary\\b", flags: "i" }],
+              hint: "Use MAX(salary) AS highest_salary."
+            },
+            {
+              id: "t3",
+              label: "Queries the employees table",
+              keywords: [{ pattern: "\\bFROM\\s+employees\\b", flags: "i" }],
+              hint: "Use FROM employees."
             }
-          ],
-          keywords: ["SELECT", "MIN", "salary", "lowest_salary", "MAX", "highest_salary", "FROM", "employees"]
+          ]
         }
       },
       {
@@ -208,24 +224,28 @@ export const SQLAGGREGATEFUNCTIONS_CHAPTERS = [
           id: "challenge-5",
           title: "Round the Average",
           description: "Calculate the average `score` from the `exams` table, and round the result to 1 decimal place. Alias it as `rounded_avg`.",
-          starter: "SELECT -- Use ROUND and AVG together\nFROM exams;",
+          starterCode: "SELECT -- combine the two functions here\nFROM exams;",
+          solutionCode: "SELECT ROUND(AVG(score), 1) AS rounded_avg\nFROM exams;",
           tests: [
             {
-              id: "test-1",
-              description: "Must round the average to 1 decimal",
-              dbState: {
-                exams: [
-                  { id: 1, score: 85.333 },
-                  { id: 2, score: 92.111 },
-                  { id: 3, score: 78.777 }
-                ]
-              },
-              expected: [
-                { rounded_avg: 85.4 }
-              ]
+              id: "t1",
+              label: "Averages the score column",
+              keywords: [{ pattern: "\\bAVG\\s*\\(\\s*score\\s*\\)", flags: "i" }],
+              hint: "Use AVG(score)."
+            },
+            {
+              id: "t2",
+              label: "Rounds the average to 1 decimal place",
+              keywords: [{ pattern: "\\bROUND\\s*\\(\\s*AVG\\s*\\(\\s*score\\s*\\)\\s*,\\s*1\\s*\\)", flags: "i" }],
+              hint: "Wrap the average: ROUND(AVG(score), 1)."
+            },
+            {
+              id: "t3",
+              label: "Names the result rounded_avg",
+              keywords: [{ pattern: "\\bAS\\s+rounded_avg\\b", flags: "i" }],
+              hint: "Add AS rounded_avg."
             }
-          ],
-          keywords: ["SELECT", "ROUND", "AVG", "score", "1", "AS", "rounded_avg", "FROM", "exams"]
+          ]
         }
       }
     ]
@@ -263,25 +283,22 @@ export const SQLAGGREGATEFUNCTIONS_CHAPTERS = [
           id: "challenge-6",
           title: "Count Employees by Department",
           description: "Count the number of employees in each `department`. Return `department` and the count (as `employee_count`).",
-          starter: "SELECT department, -- Add count here\nFROM employees\n-- Add group by here;",
+          starterCode: "SELECT department, -- add the count here\nFROM employees\n-- group the rows here\n",
+          solutionCode: "SELECT department, COUNT(id) AS employee_count\nFROM employees\nGROUP BY department;",
           tests: [
             {
-              id: "test-1",
-              description: "Must return counts grouped by department",
-              dbState: {
-                employees: [
-                  { id: 1, department: "IT", name: "Alice" },
-                  { id: 2, department: "IT", name: "Bob" },
-                  { id: 3, department: "HR", name: "Charlie" }
-                ]
-              },
-              expected: [
-                { department: "IT", employee_count: 2 },
-                { department: "HR", employee_count: 1 }
-              ]
+              id: "t1",
+              label: "Counts the employees as employee_count",
+              keywords: [{ pattern: "\\bCOUNT\\s*\\(\\s*(\\*|id)\\s*\\)\\s+AS\\s+employee_count\\b", flags: "i" }],
+              hint: "Use COUNT(id) AS employee_count."
+            },
+            {
+              id: "t2",
+              label: "Groups the rows by department",
+              keywords: [{ pattern: "\\bGROUP\\s+BY\\s+department\\b", flags: "i" }],
+              hint: "Add GROUP BY department at the end."
             }
-          ],
-          keywords: ["SELECT", "department", "COUNT", "id", "employee_count", "FROM", "employees", "GROUP BY", "department"]
+          ]
         }
       },
       {
@@ -305,27 +322,28 @@ export const SQLAGGREGATEFUNCTIONS_CHAPTERS = [
           id: "challenge-7",
           title: "Granular Grouping",
           description: "Group the `sales` table by both `year` and `region`. Return `year`, `region`, and the sum of `amount` (as `total_sales`).",
-          starter: "-- Write your multi-column GROUP BY query here\n",
+          starterCode: "-- Write your query here\n",
+          solutionCode: "SELECT year, region, SUM(amount) AS total_sales\nFROM sales\nGROUP BY year, region;",
           tests: [
             {
-              id: "test-1",
-              description: "Must group by year and region",
-              dbState: {
-                sales: [
-                  { id: 1, year: 2022, region: "North", amount: 100 },
-                  { id: 2, year: 2022, region: "North", amount: 150 },
-                  { id: 3, year: 2022, region: "South", amount: 200 },
-                  { id: 4, year: 2023, region: "North", amount: 300 }
-                ]
-              },
-              expected: [
-                { year: 2022, region: "North", total_sales: 250 },
-                { year: 2022, region: "South", total_sales: 200 },
-                { year: 2023, region: "North", total_sales: 300 }
-              ]
+              id: "t1",
+              label: "Returns year and region",
+              keywords: [{ pattern: "\\bSELECT\\s+(year\\s*,\\s*region|region\\s*,\\s*year)\\b", flags: "i" }],
+              hint: "Start with SELECT year, region."
+            },
+            {
+              id: "t2",
+              label: "Sums amount as total_sales",
+              keywords: [{ pattern: "\\bSUM\\s*\\(\\s*amount\\s*\\)\\s+AS\\s+total_sales\\b", flags: "i" }],
+              hint: "Use SUM(amount) AS total_sales."
+            },
+            {
+              id: "t3",
+              label: "Groups by both year and region",
+              keywords: [{ pattern: "\\bGROUP\\s+BY\\s+(year\\s*,\\s*region|region\\s*,\\s*year)\\b", flags: "i" }],
+              hint: "List both columns: GROUP BY year, region."
             }
-          ],
-          keywords: ["GROUP BY", "year", "region", "SUM"]
+          ]
         }
       }
     ]
@@ -363,27 +381,22 @@ export const SQLAGGREGATEFUNCTIONS_CHAPTERS = [
           id: "challenge-8",
           title: "Filter the Groups",
           description: "Group `employees` by `department` and count them. Only return departments `HAVING` more than 1 employee.",
-          starter: "SELECT department, COUNT(id) AS emp_count\nFROM employees\nGROUP BY department\n-- Add having here;\n",
+          starterCode: "SELECT department, COUNT(id) AS emp_count\nFROM employees\nGROUP BY department\n-- filter the groups here\n",
+          solutionCode: "SELECT department, COUNT(id) AS emp_count\nFROM employees\nGROUP BY department\nHAVING COUNT(id) > 1;",
           tests: [
             {
-              id: "test-1",
-              description: "Must use HAVING to filter aggregated results",
-              dbState: {
-                employees: [
-                  { id: 1, department: "IT" },
-                  { id: 2, department: "IT" },
-                  { id: 3, department: "HR" },
-                  { id: 4, department: "Sales" },
-                  { id: 5, department: "Sales" }
-                ]
-              },
-              expected: [
-                { department: "IT", emp_count: 2 },
-                { department: "Sales", emp_count: 2 }
-              ]
+              id: "t1",
+              label: "Groups the rows by department",
+              keywords: [{ pattern: "\\bGROUP\\s+BY\\s+department\\b", flags: "i" }],
+              hint: "Keep GROUP BY department."
+            },
+            {
+              id: "t2",
+              label: "Keeps only departments with more than 1 employee",
+              keywords: [{ pattern: "\\bHAVING\\s+COUNT\\s*\\(\\s*(\\*|id)\\s*\\)\\s*(>\\s*1|>=\\s*2)\\b", flags: "i" }],
+              hint: "Add HAVING COUNT(id) > 1 after GROUP BY."
             }
-          ],
-          keywords: ["HAVING", "COUNT", "department", ">", "1"]
+          ]
         }
       },
       {
@@ -407,25 +420,34 @@ export const SQLAGGREGATEFUNCTIONS_CHAPTERS = [
           id: "challenge-9",
           title: "Filter Rows, Then Groups",
           description: "Calculate the total `sales_amount` by `salesperson` for all sales made in '2023' (using `WHERE year = 2023`). Only show salespeople whose total sales exceed 500 (using `HAVING`).",
-          starter: "-- Write your query here\n",
+          starterCode: "-- Write your query here\n",
+          solutionCode: "SELECT salesperson, SUM(sales_amount) AS total_sales\nFROM sales\nWHERE year = 2023\nGROUP BY salesperson\nHAVING SUM(sales_amount) > 500;",
           tests: [
             {
-              id: "test-1",
-              description: "Must combine WHERE and HAVING",
-              dbState: {
-                sales: [
-                  { id: 1, salesperson: "Alice", year: 2023, sales_amount: 300 },
-                  { id: 2, salesperson: "Alice", year: 2023, sales_amount: 300 },
-                  { id: 3, salesperson: "Bob", year: 2022, sales_amount: 1000 }, // Wrong year
-                  { id: 4, salesperson: "Charlie", year: 2023, sales_amount: 400 } // Under 500
-                ]
-              },
-              expected: [
-                { salesperson: "Alice", total_sales: 600 }
-              ]
+              id: "t1",
+              label: "Keeps only sales from 2023 with WHERE",
+              keywords: [{ pattern: "\\bWHERE\\s+year\\s*=\\s*'?2023\\b", flags: "i" }],
+              hint: "Use WHERE year = 2023."
+            },
+            {
+              id: "t2",
+              label: "Totals sales_amount for each salesperson",
+              keywords: [{ pattern: "\\bSUM\\s*\\(\\s*sales_amount\\s*\\)", flags: "i" }, { pattern: "\\bGROUP\\s+BY\\s+salesperson\\b", flags: "i" }],
+              hint: "Use SUM(sales_amount) and GROUP BY salesperson."
+            },
+            {
+              id: "t3",
+              label: "Keeps only totals over 500 with HAVING",
+              keywords: [{ pattern: "\\bHAVING\\s+SUM\\s*\\(\\s*sales_amount\\s*\\)\\s*>\\s*500\\b", flags: "i" }],
+              hint: "Add HAVING SUM(sales_amount) > 500."
+            },
+            {
+              id: "t4",
+              label: "Filters rows before grouping them",
+              keywords: [{ pattern: "\\bWHERE\\b[\\s\\S]*\\bGROUP\\s+BY\\b[\\s\\S]*\\bHAVING\\b", flags: "i" }],
+              hint: "The order is WHERE, then GROUP BY, then HAVING."
             }
-          ],
-          keywords: ["WHERE", "year", "2023", "GROUP BY", "HAVING", "SUM", ">", "500"]
+          ]
         }
       }
     ]

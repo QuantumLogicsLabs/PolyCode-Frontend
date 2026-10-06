@@ -32,24 +32,22 @@ export const SQLSUBQUERIES_CHAPTERS = [
           id: "challenge-1",
           title: "Above Average",
           description: "Write a query to find all `products` whose `price` is greater than the average price of all products. Return all columns.",
-          starter: "SELECT * \nFROM products\nWHERE price > (\n  -- Write subquery here\n);",
+          starterCode: "SELECT *\nFROM products\nWHERE price > (\n  -- write the subquery here\n);",
+          solutionCode: "SELECT *\nFROM products\nWHERE price > (\n  SELECT AVG(price)\n  FROM products\n);",
           tests: [
             {
-              id: "test-1",
-              description: "Must use a subquery to find items above average price",
-              dbState: {
-                products: [
-                  { id: 1, name: "Pen", price: 2 },
-                  { id: 2, name: "Notebook", price: 5 },
-                  { id: 3, name: "Backpack", price: 50 }
-                ]
-              },
-              expected: [
-                { id: 3, name: "Backpack", price: 50 }
-              ]
+              id: "t1",
+              label: "Compares price to a subquery",
+              keywords: [{ pattern: "\\bprice\\s*>\\s*\\(\\s*SELECT\\b", flags: "i" }],
+              hint: "Put a SELECT inside the parentheses after price >."
+            },
+            {
+              id: "t2",
+              label: "The subquery averages price across products",
+              keywords: [{ pattern: "\\bSELECT\\s+AVG\\s*\\(\\s*price\\s*\\)\\s+FROM\\s+products\\b", flags: "i" }],
+              hint: "The subquery is SELECT AVG(price) FROM products."
             }
-          ],
-          keywords: ["SELECT", "FROM", "WHERE", "price", ">", "AVG"]
+          ]
         }
       },
       {
@@ -67,25 +65,22 @@ export const SQLSUBQUERIES_CHAPTERS = [
           id: "challenge-2",
           title: "Find the Youngest",
           description: "Find the employee(s) who have the minimum `age` in the `employees` table. Return their `name` and `age`.",
-          starter: "-- Write your query here\n",
+          starterCode: "-- Write your query here\n",
+          solutionCode: "SELECT name, age\nFROM employees\nWHERE age = (\n  SELECT MIN(age)\n  FROM employees\n);",
           tests: [
             {
-              id: "test-1",
-              description: "Must find minimum age via subquery",
-              dbState: {
-                employees: [
-                  { id: 1, name: "Alice", age: 30 },
-                  { id: 2, name: "Bob", age: 22 },
-                  { id: 3, name: "Charlie", age: 22 }
-                ]
-              },
-              expected: [
-                { name: "Bob", age: 22 },
-                { name: "Charlie", age: 22 }
-              ]
+              id: "t1",
+              label: "Selects name and age from employees",
+              keywords: [{ pattern: "\\bSELECT\\s+name\\s*,\\s*age\\s+FROM\\s+employees\\b", flags: "i" }],
+              hint: "Use SELECT name, age FROM employees."
+            },
+            {
+              id: "t2",
+              label: "Matches age to the minimum age from a subquery",
+              keywords: [{ pattern: "\\bage\\s*=\\s*\\(\\s*SELECT\\s+MIN\\s*\\(\\s*age\\s*\\)\\s+FROM\\s+employees\\b", flags: "i" }],
+              hint: "Use WHERE age = (SELECT MIN(age) FROM employees)."
             }
-          ],
-          keywords: ["SELECT", "WHERE", "age", "=", "MIN"]
+          ]
         }
       }
     ]
@@ -117,30 +112,22 @@ export const SQLSUBQUERIES_CHAPTERS = [
           id: "challenge-3",
           title: "Find Active Users",
           description: "Select the `name` of all `users` who have made at least one post. Use a subquery with `IN` on the `posts` table (which has a `user_id` column).",
-          starter: "SELECT name\nFROM users\nWHERE id IN (\n  -- Select user_id from posts\n);",
+          starterCode: "SELECT name\nFROM users\nWHERE id IN (\n  -- write the subquery here\n);",
+          solutionCode: "SELECT name\nFROM users\nWHERE id IN (\n  SELECT user_id\n  FROM posts\n);",
           tests: [
             {
-              id: "test-1",
-              description: "Must use IN with a subquery",
-              dbState: {
-                users: [
-                  { id: 1, name: "Alice" },
-                  { id: 2, name: "Bob" },
-                  { id: 3, name: "Charlie" }
-                ],
-                posts: [
-                  { id: 101, user_id: 1, text: "Hello" },
-                  { id: 102, user_id: 1, text: "World" },
-                  { id: 103, user_id: 3, text: "Test" }
-                ]
-              },
-              expected: [
-                { name: "Alice" },
-                { name: "Charlie" }
-              ]
+              id: "t1",
+              label: "Uses IN with a subquery",
+              keywords: [{ pattern: "\\bid\\s+IN\\s*\\(\\s*SELECT\\b", flags: "i" }],
+              hint: "Put a SELECT inside the parentheses after id IN."
+            },
+            {
+              id: "t2",
+              label: "The subquery returns user_id from posts",
+              keywords: [{ pattern: "\\bSELECT\\s+(DISTINCT\\s+)?user_id\\s+FROM\\s+posts\\b", flags: "i" }],
+              hint: "The subquery is SELECT user_id FROM posts."
             }
-          ],
-          keywords: ["SELECT", "FROM", "WHERE", "IN", "posts"]
+          ]
         }
       },
       {
@@ -158,28 +145,28 @@ export const SQLSUBQUERIES_CHAPTERS = [
           id: "challenge-4",
           title: "Find Inactive Users",
           description: "Using the same tables, write a query to find all `users` who have **never** made a post. Return their `name`.",
-          starter: "-- Write your query here\n",
+          starterCode: "-- Write your query here\n",
+          solutionCode: "SELECT name\nFROM users\nWHERE id NOT IN (\n  SELECT user_id\n  FROM posts\n);",
           tests: [
             {
-              id: "test-1",
-              description: "Must use NOT IN with a subquery",
-              dbState: {
-                users: [
-                  { id: 1, name: "Alice" },
-                  { id: 2, name: "Bob" },
-                  { id: 3, name: "Charlie" }
-                ],
-                posts: [
-                  { id: 101, user_id: 1, text: "Hello" }
-                ]
-              },
-              expected: [
-                { name: "Bob" },
-                { name: "Charlie" }
-              ]
+              id: "t1",
+              label: "Selects name from users",
+              keywords: [{ pattern: "\\bSELECT\\s+name\\s+FROM\\s+users\\b", flags: "i" }],
+              hint: "Use SELECT name FROM users."
+            },
+            {
+              id: "t2",
+              label: "Uses NOT IN with a subquery",
+              keywords: [{ pattern: "\\bid\\s+NOT\\s+IN\\s*\\(\\s*SELECT\\b", flags: "i" }],
+              hint: "Use WHERE id NOT IN ( SELECT ... )."
+            },
+            {
+              id: "t3",
+              label: "The subquery returns user_id from posts",
+              keywords: [{ pattern: "\\bSELECT\\s+(DISTINCT\\s+)?user_id\\s+FROM\\s+posts\\b", flags: "i" }],
+              hint: "The subquery is SELECT user_id FROM posts."
             }
-          ],
-          keywords: ["NOT IN", "user_id", "posts"]
+          ]
         }
       }
     ]
@@ -217,25 +204,28 @@ export const SQLSUBQUERIES_CHAPTERS = [
           id: "challenge-5",
           title: "Highest Average Score",
           description: "Find the highest average score across all classes. First, write a subquery to calculate the average `score` (as `avg_score`) grouped by `class_id` in the `student_scores` table. Then, select the `MAX()` of that `avg_score` from the derived table. Alias the derived table as `class_averages`.",
-          starter: "SELECT -- Select max here\nFROM (\n  -- Write group by subquery here\n) AS class_averages;",
+          starterCode: "SELECT -- select the highest average here\nFROM (\n  -- write the grouped subquery here\n) AS class_averages;",
+          solutionCode: "SELECT MAX(avg_score) AS max_avg\nFROM (\n  SELECT class_id, AVG(score) AS avg_score\n  FROM student_scores\n  GROUP BY class_id\n) AS class_averages;",
           tests: [
             {
-              id: "test-1",
-              description: "Must use a derived table",
-              dbState: {
-                student_scores: [
-                  { id: 1, class_id: 10, score: 80 },
-                  { id: 2, class_id: 10, score: 90 }, // avg 85
-                  { id: 3, class_id: 20, score: 90 },
-                  { id: 4, class_id: 20, score: 100 } // avg 95
-                ]
-              },
-              expected: [
-                { max_avg: 95 }
-              ]
+              id: "t1",
+              label: "Selects MAX(avg_score)",
+              keywords: [{ pattern: "\\bSELECT\\s+MAX\\s*\\(\\s*(class_averages\\.)?avg_score\\s*\\)", flags: "i" }],
+              hint: "Start with SELECT MAX(avg_score)."
+            },
+            {
+              id: "t2",
+              label: "The subquery averages score per class as avg_score",
+              keywords: [{ pattern: "\\bAVG\\s*\\(\\s*score\\s*\\)\\s+AS\\s+avg_score\\b", flags: "i" }, { pattern: "\\bFROM\\s+student_scores\\b", flags: "i" }, { pattern: "\\bGROUP\\s+BY\\s+class_id\\b", flags: "i" }],
+              hint: "Inside FROM ( ), write SELECT class_id, AVG(score) AS avg_score FROM student_scores GROUP BY class_id."
+            },
+            {
+              id: "t3",
+              label: "Names the derived table class_averages",
+              keywords: [{ pattern: "\\)\\s*(AS\\s+)?class_averages\\b", flags: "i" }],
+              hint: "Keep AS class_averages after the closing parenthesis."
             }
-          ],
-          keywords: ["MAX", "FROM", "SELECT", "AVG", "GROUP BY", "AS"]
+          ]
         }
       }
     ]
@@ -267,24 +257,22 @@ export const SQLSUBQUERIES_CHAPTERS = [
           id: "challenge-6",
           title: "Above Department Average",
           description: "Find employees whose `salary` is greater than the average salary of their specific `department`.",
-          starter: "SELECT name\nFROM employees e1\nWHERE salary > (\n  SELECT AVG(salary)\n  FROM employees e2\n  -- Link the departments here\n);",
+          starterCode: "SELECT name\nFROM employees e1\nWHERE salary > (\n  SELECT AVG(salary)\n  FROM employees e2\n  -- link the departments here\n);",
+          solutionCode: "SELECT name\nFROM employees e1\nWHERE salary > (\n  SELECT AVG(salary)\n  FROM employees e2\n  WHERE e2.department = e1.department\n);",
           tests: [
             {
-              id: "test-1",
-              description: "Must correlate the subquery",
-              dbState: {
-                employees: [
-                  { id: 1, name: "Alice", department: "IT", salary: 80000 },
-                  { id: 2, name: "Bob", department: "IT", salary: 60000 },
-                  { id: 3, name: "Charlie", department: "HR", salary: 50000 }
-                ]
-              },
-              expected: [
-                { name: "Alice" }
-              ]
+              id: "t1",
+              label: "Compares salary to an average from a subquery",
+              keywords: [{ pattern: "\\bsalary\\s*>\\s*\\(\\s*SELECT\\s+AVG\\s*\\(\\s*salary\\s*\\)", flags: "i" }],
+              hint: "Keep WHERE salary > (SELECT AVG(salary) ...)."
+            },
+            {
+              id: "t2",
+              label: "Links the subquery to the same department",
+              keywords: [{ pattern: "\\bWHERE\\s+(e2\\.department\\s*=\\s*e1\\.department|e1\\.department\\s*=\\s*e2\\.department)\\b", flags: "i" }],
+              hint: "Inside the subquery, add WHERE e2.department = e1.department."
             }
-          ],
-          keywords: ["SELECT", "FROM", "WHERE", "AVG", "department", "="]
+          ]
         }
       },
       {
@@ -311,28 +299,35 @@ export const SQLSUBQUERIES_CHAPTERS = [
         challenge: {
           id: "challenge-7",
           title: "Find Suppliers",
-          description: "Use the `EXISTS` operator to find the `name` of all `suppliers` who supply at least one product with a `price` strictly less than 10.",
-          starter: "-- Write your EXISTS query here\n",
+          description: "Use the `EXISTS` operator to find the `name` of all `suppliers` who supply at least one product with a `price` strictly less than 10. (`products.supplier_id` links to `suppliers.id`.)",
+          starterCode: "-- Write your query here\n",
+          solutionCode: "SELECT name\nFROM suppliers s\nWHERE EXISTS (\n  SELECT 1\n  FROM products p\n  WHERE p.supplier_id = s.id\n    AND p.price < 10\n);",
           tests: [
             {
-              id: "test-1",
-              description: "Must use EXISTS",
-              dbState: {
-                suppliers: [
-                  { id: 1, name: "Cheap Co" },
-                  { id: 2, name: "Luxury Inc" }
-                ],
-                products: [
-                  { id: 101, supplier_id: 1, price: 5 },
-                  { id: 102, supplier_id: 2, price: 500 }
-                ]
-              },
-              expected: [
-                { name: "Cheap Co" }
-              ]
+              id: "t1",
+              label: "Selects name from suppliers",
+              keywords: [{ pattern: "\\bSELECT\\s+(\\w+\\.)?name\\s+FROM\\s+suppliers\\b", flags: "i" }],
+              hint: "Use SELECT name FROM suppliers s."
+            },
+            {
+              id: "t2",
+              label: "Uses EXISTS with a subquery on products",
+              keywords: [{ pattern: "\\bEXISTS\\s*\\(\\s*SELECT\\b[\\s\\S]*\\bFROM\\s+products\\b", flags: "i" }],
+              hint: "Use WHERE EXISTS (SELECT 1 FROM products p ...)."
+            },
+            {
+              id: "t3",
+              label: "Links each product to its supplier",
+              keywords: [{ pattern: "(\\b(\\w+\\.)?supplier_id\\s*=\\s*\\w+\\.id\\b|\\b\\w+\\.id\\s*=\\s*(\\w+\\.)?supplier_id\\b)", flags: "i" }],
+              hint: "In the subquery, use p.supplier_id = s.id."
+            },
+            {
+              id: "t4",
+              label: "Looks for prices under 10",
+              keywords: [{ pattern: "\\bprice\\s*<\\s*10\\b", flags: "i" }],
+              hint: "Add AND p.price < 10."
             }
-          ],
-          keywords: ["EXISTS", "SELECT", "FROM", "WHERE", "<", "10", "supplier_id"]
+          ]
         }
       }
     ]
