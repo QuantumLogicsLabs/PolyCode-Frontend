@@ -10,27 +10,48 @@ import { ALL_COURSES as COURSES } from "../../learn/shared/allCourses";
 const CARD_WIDTH = 300; // px — keep in sync with CSS
 const GAP = 20;
 const AUTO_SCROLL_INTERVAL = 3500; // ms
+const getCardsPerView = () => {
+  if (window.innerWidth <= 560) return 1;
+  if (window.innerWidth <= 900) return 2;
+  return 3;
+};
 
 export default function CoursesSlider() {
   const trackRef = useRef(null);
   const autoRef = useRef(null);
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
+  const [cardsPerView, setCardsPerView] = useState(getCardsPerView);
   const [isPaused, setIsPaused] = useState(false);
   const total = COURSES.length;
+  useEffect(() => {
+  const handleResize = () => {
+    setCardsPerView(getCardsPerView());
+  };
+
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
+const totalPages = Math.ceil(total / cardsPerView);
+
+const visibleDotIndex =
+  totalPages <= 5
+    ? activeIndex
+    : Math.round((activeIndex / (totalPages - 1)) * 4);
 
   /* ── scroll helpers ── */
   const scrollTo = useCallback(
     (index, instant = false) => {
       if (!trackRef.current) return;
-      const clamped = Math.max(0, Math.min(index, total - 1));
+      const clamped = Math.max(0, Math.min(index, totalPages - 1));
+      const cardIndex = clamped * cardsPerView;
       const track = trackRef.current;
       const firstCard = track.querySelector(".cs-card");
       const step = firstCard ? firstCard.offsetWidth + GAP : CARD_WIDTH + GAP;
 
       if (instant) {
         track.style.scrollSnapType = "none";
-        track.scrollTo({ left: clamped * step, behavior: "auto" });
+        track.scrollTo({ left: cardIndex * step, behavior: "auto" });
         setActiveIndex(clamped);
         requestAnimationFrame(() => {
           track.style.scrollSnapType = "";
@@ -38,27 +59,27 @@ export default function CoursesSlider() {
         return;
       }
 
-      track.scrollTo({ left: clamped * step, behavior: "smooth" });
+      track.scrollTo({ left: cardIndex * step, behavior: "smooth" });
       setActiveIndex(clamped);
     },
-    [total],
+    [totalPages, cardsPerView],
   );
 
   const prev = () => {
     if (activeIndex === 0) {
-      scrollTo(total - 1, true);
+      scrollTo(totalPages - 1, true);
     } else {
       scrollTo(activeIndex - 1);
     }
   };
 
   const next = useCallback(() => {
-    if (activeIndex === total - 1) {
+    if (activeIndex === totalPages - 1) {
       scrollTo(0, true);
     } else {
       scrollTo(activeIndex + 1);
     }
-  }, [activeIndex, scrollTo, total]);
+  }, [activeIndex, scrollTo, totalPages]);
 
   /* ── auto-scroll ── */
   useEffect(() => {
@@ -73,13 +94,20 @@ export default function CoursesSlider() {
     if (!track) return;
     const onScroll = () => {
       const firstCard = track.querySelector(".cs-card");
-      const step = firstCard ? firstCard.offsetWidth + GAP : CARD_WIDTH + GAP;
-      const index = Math.round(track.scrollLeft / step);
-      setActiveIndex(Math.max(0, Math.min(index, total - 1)));
+      const step = firstCard 
+        ? firstCard.offsetWidth + GAP 
+        : CARD_WIDTH + GAP;
+      const cardIndex = Math.round(track.scrollLeft / step);
+      const pageIndex = Math.floor(cardIndex / cardsPerView);
+      const newIndex = Math.max(
+        0,
+        Math.min(pageIndex, totalPages - 1)
+      );
+      setActiveIndex(newIndex);
     };
     track.addEventListener("scroll", onScroll, { passive: true });
     return () => track.removeEventListener("scroll", onScroll);
-  }, [total]);
+  }, [cardsPerView, totalPages]);
 
   return (
     <section
@@ -107,13 +135,13 @@ export default function CoursesSlider() {
 
         {/* Track */}
         <div className="cs-track" ref={trackRef}>
-          {COURSES.map((course, i) => {
+          {COURSES.map((course) => {
             const Icon = course.icon;
-            const isActive = i === activeIndex;
+           
             return (
               <article
                 key={course.title}
-                className={`cs-card${isActive ? " cs-card--active" : ""}`}
+                className="cs-card"
                 style={{ "--accent": course.accent }}
                 onClick={() => navigate(course.href)}
                 role="button"
@@ -141,16 +169,27 @@ export default function CoursesSlider() {
 
         {/* Dot indicators */}
         <div className="cs-dots" role="tablist" aria-label="Course slides">
-          {COURSES.map((course, i) => (
-            <button
-              key={course.title}
-              role="tab"
-              aria-selected={i === activeIndex}
-              aria-label={`Go to ${course.title}`}
-              className={`cs-dot${i === activeIndex ? " cs-dot--active" : ""}`}
-              onClick={() => scrollTo(i)}
-            />
-          ))}
+          {Array.from(
+            { length: Math.min(5, totalPages) }, 
+            (_, i) => (
+              <button
+                  key={i}
+                  type ="button"
+                  role="tab"
+                  aria-selected={i === visibleDotIndex}
+                  aria-label={`Go to course group ${i+1}`}
+                  className={`cs-dot${
+                    i === visibleDotIndex ? " cs-dot--active" : ""
+                  }`}
+                  onClick={() => {
+                    const pageIndex = 
+                      totalPages <= 5
+                        ? i
+                        : Math.round((i/4)* (totalPages-1));
+                    scrollTo(pageIndex);
+                  }}
+                />
+            ))}
         </div>
       </div>
     </section>
