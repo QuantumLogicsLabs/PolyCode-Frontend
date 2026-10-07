@@ -198,6 +198,7 @@ export default function SqlQueriesLessonPage() {
               markedAsRead={markedAsRead}
               onMarkAsRead={markAsRead}
               onGoChallenge={goToChallenge}
+              practiceLink
             />
           ) : (
             <SqlQueriesCodeChallenge

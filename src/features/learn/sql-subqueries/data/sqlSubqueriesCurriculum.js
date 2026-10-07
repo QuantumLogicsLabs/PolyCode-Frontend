@@ -59,6 +59,36 @@ export const SQLSUBQUERIES_CHAPTERS = [
           {
             type: "text",
             content: "If you use a comparison operator like `=`, `>`, or `<`, the subquery **must** return exactly one single value (one column, one row). If it returns multiple rows, the query will crash."
+          },
+          {
+            type: "code",
+            lang: "sql",
+            label: "Single-Value Subquery",
+            content: "SELECT name, age\nFROM employees\nWHERE age = (SELECT MIN(age) FROM employees);"
+          },
+          {
+            type: "quiz",
+            question: "With `=`, `>` or `<`, how many values must the subquery return?",
+            options: [
+              "Exactly one (one column, one row)",
+              "At least one row",
+              "Any number of rows",
+              "One column with any number of rows"
+            ],
+            answer: 0,
+            explanation: "Comparison operators compare against a single value."
+          },
+          {
+            type: "quiz",
+            question: "What happens if a subquery used with `=` returns several rows?",
+            options: [
+              "Only the first row is used",
+              "The query fails with an error",
+              "The rows are averaged",
+              "The outer query returns no rows"
+            ],
+            answer: 1,
+            explanation: "`=` can't compare against a list, so the query errors."
           }
         ],
         challenge: {
@@ -106,6 +136,30 @@ export const SQLSUBQUERIES_CHAPTERS = [
             lang: "sql",
             label: "IN with Subquery",
             content: "SELECT name FROM customers\nWHERE id IN (SELECT customer_id FROM orders WHERE amount > 100);"
+          },
+          {
+            type: "quiz",
+            question: "Which operator do you use when the subquery returns many rows?",
+            options: [
+              "`=`",
+              "`>`",
+              "`IN`",
+              "`LIKE`"
+            ],
+            answer: 2,
+            explanation: "`IN` checks whether a value is in the subquery's list."
+          },
+          {
+            type: "quiz",
+            question: "What does `WHERE id IN (SELECT customer_id FROM orders WHERE amount > 100)` find?",
+            options: [
+              "The orders over 100",
+              "Customers with no orders over 100",
+              "The total of all orders over 100",
+              "Customers who have an order over 100"
+            ],
+            answer: 3,
+            explanation: "The subquery lists customers with a big order; the outer query keeps those customers."
           }
         ],
         challenge: {
@@ -139,6 +193,36 @@ export const SQLSUBQUERIES_CHAPTERS = [
           {
             type: "text",
             content: "Conversely, `NOT IN` is used to find rows in the outer query that do *not* have a match in the subquery's result list."
+          },
+          {
+            type: "code",
+            lang: "sql",
+            label: "NOT IN with Subquery",
+            content: "SELECT name FROM customers\nWHERE id NOT IN (SELECT customer_id FROM orders);"
+          },
+          {
+            type: "quiz",
+            question: "What does `NOT IN` find?",
+            options: [
+              "Rows in the outer query with no match in the subquery's list",
+              "Rows that match the subquery's list",
+              "Rows where the subquery returns NULL",
+              "Rows that appear in both tables"
+            ],
+            answer: 0,
+            explanation: "`NOT IN` is the opposite of `IN`."
+          },
+          {
+            type: "quiz",
+            question: "Which query finds customers who have never placed an order?",
+            options: [
+              "`SELECT name FROM customers WHERE id IN (SELECT customer_id FROM orders);`",
+              "`SELECT name FROM customers WHERE id NOT IN (SELECT customer_id FROM orders);`",
+              "`SELECT name FROM customers WHERE id <> (SELECT customer_id FROM orders);`",
+              "`SELECT name FROM orders WHERE customer_id NOT IN (SELECT id FROM customers);`"
+            ],
+            answer: 1,
+            explanation: "Keep the customers whose `id` isn't in the list of ordering customers."
           }
         ],
         challenge: {
@@ -198,6 +282,30 @@ export const SQLSUBQUERIES_CHAPTERS = [
             lang: "sql",
             label: "Derived Table",
             content: "SELECT MAX(avg_salary)\nFROM (\n  SELECT department, AVG(salary) AS avg_salary\n  FROM employees\n  GROUP BY department\n) AS dept_averages;"
+          },
+          {
+            type: "quiz",
+            question: "What is a subquery in the `FROM` clause called?",
+            options: [
+              "A correlated subquery",
+              "A view",
+              "A derived table",
+              "A temporary index"
+            ],
+            answer: 2,
+            explanation: "Its result acts like a temporary table that the outer query selects from."
+          },
+          {
+            type: "quiz",
+            question: "What must a derived table have in most SQL dialects?",
+            options: [
+              "A primary key",
+              "An `ORDER BY` clause",
+              "A `GROUP BY` clause",
+              "An alias"
+            ],
+            answer: 3,
+            explanation: "For example: `) AS dept_averages`."
           }
         ],
         challenge: {

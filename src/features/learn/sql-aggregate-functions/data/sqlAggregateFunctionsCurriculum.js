@@ -71,6 +71,30 @@ export const SQLAGGREGATEFUNCTIONS_CHAPTERS = [
             lang: "sql",
             label: "Sum Example",
             content: "SELECT SUM(quantity)\nFROM order_details;"
+          },
+          {
+            type: "quiz",
+            question: "What does `SUM()` return?",
+            options: [
+              "The total of all values in a numeric column",
+              "The number of rows in the table",
+              "The average value of a numeric column",
+              "The largest value in the column"
+            ],
+            answer: 0,
+            explanation: "`SUM()` adds up every value in a numeric column and returns the total."
+          },
+          {
+            type: "quiz",
+            question: "Which query adds up every `quantity` in `order_details`?",
+            options: [
+              "`SELECT COUNT(quantity) FROM order_details;`",
+              "`SELECT SUM(quantity) FROM order_details;`",
+              "`SELECT MAX(quantity) FROM order_details;`",
+              "`SELECT quantity FROM order_details;`"
+            ],
+            answer: 1,
+            explanation: "`SUM(quantity)` totals the column. `COUNT` counts rows and `MAX` returns the largest value."
           }
         ],
         challenge: {
@@ -277,6 +301,30 @@ export const SQLAGGREGATEFUNCTIONS_CHAPTERS = [
             variant: "warning",
             title: "Rule of Thumb",
             content: "Any column in your SELECT clause that is NOT inside an aggregate function MUST be included in the GROUP BY clause."
+          },
+          {
+            type: "quiz",
+            question: "What does `GROUP BY` do?",
+            options: [
+              "Sorts the rows in ascending order",
+              "Removes duplicate rows from the result",
+              "Groups rows that have the same values into summary rows",
+              "Filters out rows that don't match a condition"
+            ],
+            answer: 2,
+            explanation: "`GROUP BY` collapses rows with the same values into one summary row, usually with an aggregate function."
+          },
+          {
+            type: "quiz",
+            question: "A query selects `country, COUNT(customer_id)` from `customers`. Which clause does it need?",
+            options: [
+              "`GROUP BY customer_id`",
+              "`ORDER BY country`",
+              "`WHERE COUNT(customer_id) > 0`",
+              "`GROUP BY country`"
+            ],
+            answer: 3,
+            explanation: "Every selected column that isn't inside an aggregate function must be in the `GROUP BY` clause, so `country` must be grouped."
           }
         ],
         challenge: {
@@ -316,6 +364,30 @@ export const SQLAGGREGATEFUNCTIONS_CHAPTERS = [
             lang: "sql",
             label: "Multiple Group By",
             content: "SELECT country, city, COUNT(id)\nFROM customers\nGROUP BY country, city;"
+          },
+          {
+            type: "quiz",
+            question: "How do you group by both `country` and `city`?",
+            options: [
+              "`GROUP BY country, city`",
+              "`GROUP BY country AND city`",
+              "`GROUP BY country GROUP BY city`",
+              "`GROUP BY country; city`"
+            ],
+            answer: 0,
+            explanation: "List the columns in one `GROUP BY`, separated by commas."
+          },
+          {
+            type: "quiz",
+            question: "Why group by more than one column?",
+            options: [
+              "To sort the results by both columns",
+              "To get more granular summaries, e.g. one row per country and city",
+              "To avoid needing an aggregate function",
+              "To join two tables together"
+            ],
+            answer: 1,
+            explanation: "Each extra column splits the groups further, giving a more detailed summary."
           }
         ],
         challenge: {
@@ -375,6 +447,30 @@ export const SQLAGGREGATEFUNCTIONS_CHAPTERS = [
             variant: "info",
             title: "WHERE vs HAVING",
             content: "`WHERE` filters individual rows BEFORE they are grouped. `HAVING` filters the summary groups AFTER they are grouped."
+          },
+          {
+            type: "quiz",
+            question: "Why was `HAVING` added to SQL?",
+            options: [
+              "Because `WHERE` can't filter text values",
+              "To sort the groups after they are created",
+              "Because `WHERE` can't be used with aggregate functions",
+              "To replace `GROUP BY` in simple queries"
+            ],
+            answer: 2,
+            explanation: "`WHERE` can't contain aggregates like `COUNT()`, so `HAVING` was added to filter on them."
+          },
+          {
+            type: "quiz",
+            question: "When does `HAVING` filter?",
+            options: [
+              "Before the rows are grouped, on individual rows",
+              "Before the table is read",
+              "Only when the query has no `GROUP BY`",
+              "After the rows are grouped, on the summary groups"
+            ],
+            answer: 3,
+            explanation: "`WHERE` filters rows before grouping. `HAVING` filters the groups after grouping."
           }
         ],
         challenge: {

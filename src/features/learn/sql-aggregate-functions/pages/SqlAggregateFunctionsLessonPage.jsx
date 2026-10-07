@@ -198,6 +198,7 @@ export default function SqlAggregateFunctionsLessonPage() {
               markedAsRead={markedAsRead}
               onMarkAsRead={markAsRead}
               onGoChallenge={goToChallenge}
+              practiceLink
             />
           ) : (
             <SqlAggregateFunctionsCodeChallenge

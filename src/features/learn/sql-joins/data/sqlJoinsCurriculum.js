@@ -20,6 +20,30 @@ export const SQLJOINS_CHAPTERS = [
             variant: "info",
             title: "Relational Example",
             content: "In a `customers` table, `customer_id` is the Primary Key. In an `orders` table, the `customer_id` column is a Foreign Key that links back to the `customers` table."
+          },
+          {
+            type: "quiz",
+            question: "What does a primary key do?",
+            options: [
+              "Uniquely identifies each record in a table",
+              "Points to a record in another table",
+              "Speeds up every query automatically",
+              "Stores each record's row number"
+            ],
+            answer: 0,
+            explanation: "Pointing to another table's record is what a foreign key does."
+          },
+          {
+            type: "quiz",
+            question: "In an `orders` table, what is the `customer_id` column?",
+            options: [
+              "The primary key of `orders`",
+              "A foreign key that refers to the `customers` table",
+              "A copy of the customer's name",
+              "An index on the `orders` table"
+            ],
+            answer: 1,
+            explanation: "It links each order back to the primary key of `customers`."
           }
         ],
         challenge: {
@@ -57,6 +81,30 @@ export const SQLJOINS_CHAPTERS = [
           {
             type: "text",
             content: "There are different types of JOINs in SQL:\n• `INNER JOIN` (Default): Returns records that have matching values in both tables.\n• `LEFT JOIN`: Returns all records from the left table, and the matched records from the right table.\n• `RIGHT JOIN`: Returns all records from the right table, and the matched records from the left table.\n• `FULL OUTER JOIN`: Returns all records when there is a match in either left or right table."
+          },
+          {
+            type: "quiz",
+            question: "What does a `JOIN` do?",
+            options: [
+              "Adds one table's rows to the end of another",
+              "Copies one table's columns into another permanently",
+              "Combines rows from two or more tables, based on a related column",
+              "Merges two databases into one"
+            ],
+            answer: 2,
+            explanation: "A `JOIN` matches rows across tables using a related column, like `customer_id`."
+          },
+          {
+            type: "quiz",
+            question: "Which `JOIN` returns only the rows with matching values in both tables?",
+            options: [
+              "`LEFT JOIN`",
+              "`RIGHT JOIN`",
+              "`FULL OUTER JOIN`",
+              "`INNER JOIN`"
+            ],
+            answer: 3,
+            explanation: "The other three also return rows that have no match."
           }
         ],
         challenge: {
@@ -104,6 +152,30 @@ export const SQLJOINS_CHAPTERS = [
             lang: "sql",
             label: "Inner Join Syntax",
             content: "SELECT orders.order_id, customers.customer_name\nFROM orders\nINNER JOIN customers ON orders.customer_id = customers.customer_id;"
+          },
+          {
+            type: "quiz",
+            question: "With an `INNER JOIN`, what happens to a left-table row with no match in the right table?",
+            options: [
+              "It's left out of the result",
+              "It appears with NULLs for the right table's columns",
+              "It appears once for every right-table row",
+              "The query fails with an error"
+            ],
+            answer: 0,
+            explanation: "`INNER JOIN` keeps only rows that match in both tables."
+          },
+          {
+            type: "quiz",
+            question: "In the lesson's example, which condition links `orders` to `customers`?",
+            options: [
+              "`orders.order_id = customers.customer_id`",
+              "`orders.customer_id = customers.customer_id`",
+              "`orders.customer_id = customers.customer_name`",
+              "`orders.order_id = customers.customer_name`"
+            ],
+            answer: 1,
+            explanation: "The two tables share the `customer_id` column."
           }
         ],
         challenge: {
@@ -149,6 +221,30 @@ export const SQLJOINS_CHAPTERS = [
             lang: "sql",
             label: "Table Alias Example",
             content: "SELECT o.order_id, c.customer_name\nFROM orders o\nINNER JOIN customers c ON o.customer_id = c.customer_id;"
+          },
+          {
+            type: "quiz",
+            question: "In `FROM orders o`, what is `o`?",
+            options: [
+              "A new table created from `orders`",
+              "The first column of `orders`",
+              "A short temporary name for the `orders` table",
+              "A filter that keeps only some orders"
+            ],
+            answer: 2,
+            explanation: "`o` is a table alias, so you can write `o.order_id` instead of `orders.order_id`."
+          },
+          {
+            type: "quiz",
+            question: "Why use table aliases?",
+            options: [
+              "To make the join return more rows",
+              "To rename the table permanently",
+              "Because joins don't work without them",
+              "To avoid typing the full table names again and again"
+            ],
+            answer: 3,
+            explanation: "Aliases are optional shorthand; they don't change the result or the table."
           }
         ],
         challenge: {
@@ -194,6 +290,30 @@ export const SQLJOINS_CHAPTERS = [
             lang: "sql",
             label: "Three Table Join",
             content: "SELECT o.order_id, c.customer_name, s.shipper_name\nFROM ((orders o\nINNER JOIN customers c ON o.customer_id = c.customer_id)\nINNER JOIN shippers s ON o.shipper_id = s.shipper_id);"
+          },
+          {
+            type: "quiz",
+            question: "How do you join three tables in one query?",
+            options: [
+              "Chain one `JOIN` clause after another",
+              "Put all three tables in a single `ON` clause",
+              "Run three separate queries",
+              "Use a `JOIN THREE` clause"
+            ],
+            answer: 0,
+            explanation: "Each extra table gets its own `JOIN ... ON ...`."
+          },
+          {
+            type: "quiz",
+            question: "In the lesson's example, which condition links `shippers`?",
+            options: [
+              "`c.customer_id = s.shipper_id`",
+              "`o.shipper_id = s.shipper_id`",
+              "`o.order_id = s.shipper_id`",
+              "`c.shipper_id = s.shipper_id`"
+            ],
+            answer: 1,
+            explanation: "`shippers` is linked through the `shipper_id` column of `orders`."
           }
         ],
         challenge: {
@@ -253,6 +373,30 @@ export const SQLJOINS_CHAPTERS = [
             lang: "sql",
             label: "Left Join Syntax",
             content: "SELECT customers.customer_name, orders.order_id\nFROM customers\nLEFT JOIN orders ON customers.customer_id = orders.customer_id;"
+          },
+          {
+            type: "quiz",
+            question: "What does a `LEFT JOIN` return?",
+            options: [
+              "Only the rows that match in both tables",
+              "All rows from the right table, plus matching rows from the left",
+              "All rows from the left table, plus matching rows from the right",
+              "Every combination of rows from both tables"
+            ],
+            answer: 2,
+            explanation: "Left-table rows are always kept, even without a match."
+          },
+          {
+            type: "quiz",
+            question: "What do the right table's columns show when a left row has no match?",
+            options: [
+              "`0`",
+              "An empty string",
+              "The previous row's values",
+              "`NULL`"
+            ],
+            answer: 3,
+            explanation: "With no match, the right side is filled with `NULL`."
           }
         ],
         challenge: {
@@ -286,6 +430,34 @@ export const SQLJOINS_CHAPTERS = [
           {
             type: "text",
             content: "The `RIGHT JOIN` keyword returns all records from the right table, and the matched records from the left table. It is the exact mirror image of the LEFT JOIN."
+          },
+          {
+            type: "text",
+            content: "For example, `FROM orders RIGHT JOIN customers` returns the same rows as `FROM customers LEFT JOIN orders`. Only the order of the columns may differ."
+          },
+          {
+            type: "quiz",
+            question: "What does a `RIGHT JOIN` return?",
+            options: [
+              "All rows from the right table, plus matching rows from the left",
+              "All rows from the left table, plus matching rows from the right",
+              "Only the rows that match in both tables",
+              "Every combination of rows from both tables"
+            ],
+            answer: 0,
+            explanation: "It's the mirror image of `LEFT JOIN`: the right table's rows are always kept."
+          },
+          {
+            type: "quiz",
+            question: "`A RIGHT JOIN B` returns the same rows as…",
+            options: [
+              "`A LEFT JOIN B`",
+              "`B LEFT JOIN A`",
+              "`A INNER JOIN B`",
+              "`A CROSS JOIN B`"
+            ],
+            answer: 1,
+            explanation: "Swapping the tables and the direction gives the same rows."
           }
         ],
         challenge: {
@@ -331,6 +503,30 @@ export const SQLJOINS_CHAPTERS = [
             variant: "warning",
             title: "Performance",
             content: "FULL OUTER JOINs can return very large result-sets and should be used cautiously!"
+          },
+          {
+            type: "quiz",
+            question: "What does a `FULL OUTER JOIN` return?",
+            options: [
+              "Only the rows that match in both tables",
+              "Only the rows that have no match",
+              "All rows from both tables, matched where possible",
+              "Every combination of rows from both tables"
+            ],
+            answer: 2,
+            explanation: "Rows from either side are kept; missing matches are filled with `NULL`."
+          },
+          {
+            type: "quiz",
+            question: "What does the lesson warn about `FULL OUTER JOIN`?",
+            options: [
+              "It can't be used with an `ON` clause",
+              "It deletes the unmatched rows",
+              "It only works on tables with the same columns",
+              "It can return very large result-sets"
+            ],
+            answer: 3,
+            explanation: "Because it keeps everything from both tables, results can get big."
           }
         ],
         challenge: {
@@ -384,6 +580,30 @@ export const SQLJOINS_CHAPTERS = [
             lang: "sql",
             label: "Self Join Syntax",
             content: "SELECT A.CustomerName AS CustomerName1, B.CustomerName AS CustomerName2\nFROM Customers A, Customers B\nWHERE A.CustomerID <> B.CustomerID;"
+          },
+          {
+            type: "quiz",
+            question: "What is a self join?",
+            options: [
+              "A table joined with itself",
+              "A join that needs no condition",
+              "A join between a table and a view",
+              "A join that runs automatically"
+            ],
+            answer: 0,
+            explanation: "The same table is used twice with different aliases."
+          },
+          {
+            type: "quiz",
+            question: "Which kind of data is a self join especially useful for?",
+            options: [
+              "Lists of unrelated products",
+              "Hierarchies, such as employees and their managers",
+              "Tables that have no primary key",
+              "Data split across two databases"
+            ],
+            answer: 1,
+            explanation: "Each employee's manager is also a row in the same table."
           }
         ],
         challenge: {
@@ -423,6 +643,30 @@ export const SQLJOINS_CHAPTERS = [
             variant: "warning",
             title: "No ON Clause",
             content: "Unlike other JOINs, CROSS JOIN does not use an ON clause because it matches every row to every row."
+          },
+          {
+            type: "quiz",
+            question: "Cross joining a 5-row table with a 10-row table returns how many rows?",
+            options: [
+              "15",
+              "10",
+              "50",
+              "5"
+            ],
+            answer: 2,
+            explanation: "Every row is paired with every row: 5 × 10 = 50."
+          },
+          {
+            type: "quiz",
+            question: "Why doesn't `CROSS JOIN` use an `ON` clause?",
+            options: [
+              "It only works on tables with one column",
+              "It matches the primary keys automatically",
+              "It only returns rows that match",
+              "It matches every row with every row"
+            ],
+            answer: 3,
+            explanation: "There's no condition to check, because every combination is returned."
           }
         ],
         challenge: {

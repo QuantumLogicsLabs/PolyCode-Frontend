@@ -20,6 +20,30 @@ export const SQLINDEXES_CHAPTERS = [
             variant: "warning",
             title: "Performance Cost",
             content: "While indexes speed up SELECT queries drastically, they slow down UPDATE, INSERT, and DELETE statements because the index must be updated every time data is changed. Don't index every column!"
+          },
+          {
+            type: "quiz",
+            question: "What is an index used for?",
+            options: [
+              "Finding rows quickly without scanning the whole table",
+              "Storing a backup copy of the table",
+              "Preventing NULL values in a column",
+              "Formatting query results for display"
+            ],
+            answer: 0,
+            explanation: "Like the index of a book, it lets the database jump to the data instead of doing a full table scan."
+          },
+          {
+            type: "quiz",
+            question: "What is the cost of adding indexes?",
+            options: [
+              "`SELECT` queries get slower",
+              "`INSERT`, `UPDATE` and `DELETE` get slower",
+              "The table can no longer be joined",
+              "Every column must then be indexed"
+            ],
+            answer: 1,
+            explanation: "Each index must be updated whenever the data changes, which slows down writes."
           }
         ],
         challenge: {
@@ -59,6 +83,30 @@ export const SQLINDEXES_CHAPTERS = [
             lang: "sql",
             label: "Unique Index Example",
             content: "CREATE UNIQUE INDEX idx_email\nON users (email);"
+          },
+          {
+            type: "quiz",
+            question: "What does a unique index add on top of a regular index?",
+            options: [
+              "It rejects NULL values",
+              "It makes the column the primary key",
+              "It rejects duplicate values in the indexed column",
+              "It sorts the table's rows permanently"
+            ],
+            answer: 2,
+            explanation: "A unique index is a regular index plus a constraint: no duplicate values."
+          },
+          {
+            type: "quiz",
+            question: "Which statement creates a unique index on `users.email`?",
+            options: [
+              "`CREATE INDEX UNIQUE idx_email ON users (email);`",
+              "`CREATE UNIQUE idx_email ON users (email);`",
+              "`CREATE INDEX idx_email ON users (UNIQUE email);`",
+              "`CREATE UNIQUE INDEX idx_email ON users (email);`"
+            ],
+            answer: 3,
+            explanation: "`UNIQUE` goes between `CREATE` and `INDEX`."
           }
         ],
         challenge: {
@@ -106,6 +154,30 @@ export const SQLINDEXES_CHAPTERS = [
             lang: "sql",
             label: "Composite Index Syntax",
             content: "CREATE INDEX idx_name\nON persons (last_name, first_name);"
+          },
+          {
+            type: "quiz",
+            question: "What is a composite index?",
+            options: [
+              "An index on a combination of columns",
+              "An index that joins two tables",
+              "An index that allows no duplicates",
+              "Two separate indexes made by one statement"
+            ],
+            answer: 0,
+            explanation: "A composite index covers several columns together, e.g. `(last_name, first_name)`."
+          },
+          {
+            type: "quiz",
+            question: "When is a composite index useful?",
+            options: [
+              "When the table has no primary key",
+              "When queries often filter or sort by those columns together",
+              "When those columns are never used in `WHERE`",
+              "When the table is written to far more than it's read"
+            ],
+            answer: 1,
+            explanation: "It speeds up queries that use the indexed columns together."
           }
         ],
         challenge: {
@@ -151,14 +223,44 @@ export const SQLINDEXES_CHAPTERS = [
           {
             type: "code",
             lang: "sql",
-            label: "Drop Index Syntax (PostgreSQL/MySQL)",
+            label: "Drop Index Syntax (PostgreSQL)",
             content: "DROP INDEX index_name;"
+          },
+          {
+            type: "code",
+            lang: "sql",
+            label: "Drop Index Syntax (MySQL)",
+            content: "DROP INDEX index_name ON table_name;"
           },
           {
             type: "code",
             lang: "sql",
             label: "Drop Index Syntax (SQL Server)",
             content: "DROP INDEX table_name.index_name;"
+          },
+          {
+            type: "quiz",
+            question: "Why might you drop an index?",
+            options: [
+              "To make `SELECT` queries faster",
+              "To delete the rows it points to",
+              "It's no longer used, or it slows down writes too much",
+              "To remove duplicate values from the column"
+            ],
+            answer: 2,
+            explanation: "Dropping an index removes only the index, not any data. It's done when the index costs more than it helps."
+          },
+          {
+            type: "quiz",
+            question: "Which syntax does SQL Server use to drop an index?",
+            options: [
+              "`DELETE INDEX table_name.index_name;`",
+              "`REMOVE INDEX table_name.index_name;`",
+              "`DROP table_name.index_name;`",
+              "`DROP INDEX table_name.index_name;`"
+            ],
+            answer: 3,
+            explanation: "SQL Server names the table and the index: `DROP INDEX table_name.index_name;`"
           }
         ],
         challenge: {

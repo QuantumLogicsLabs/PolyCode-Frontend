@@ -198,6 +198,7 @@ export default function SqlIndexesLessonPage() {
               markedAsRead={markedAsRead}
               onMarkAsRead={markAsRead}
               onGoChallenge={goToChallenge}
+              practiceLink
             />
           ) : (
             <SqlIndexesCodeChallenge

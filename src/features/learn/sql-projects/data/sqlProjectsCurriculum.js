@@ -18,6 +18,34 @@ export const SQLPROJECTS_CHAPTERS = [
           {
             type: "text",
             content: "Our first database is an E-Commerce system with `users`, `products`, and `orders`. Each order contains a `product_id`, `user_id`, and `quantity`."
+          },
+          {
+            type: "text",
+            content: "To rank products by sales, join `orders` to `products` on `product_id`, group the rows by product, and add up `quantity` with `SUM()`. Then sort the totals with `ORDER BY ... DESC` and keep the top rows with `LIMIT`."
+          },
+          {
+            type: "quiz",
+            question: "In this e-commerce database, which columns does each order have?",
+            options: [
+              "`product_id`, `user_id` and `quantity`",
+              "`product_id` and `price` only",
+              "`user_id` and `total_spent`",
+              "`name`, `price` and `quantity`"
+            ],
+            answer: 0,
+            explanation: "Each order records which product, which user, and how many."
+          },
+          {
+            type: "quiz",
+            question: "Which steps find the best-selling products?",
+            options: [
+              "Count the rows in products and sort ascending",
+              "Join orders to products, group by product, `SUM` the quantity, sort descending",
+              "Take the first rows of orders without grouping",
+              "Group orders by user and average the quantity"
+            ],
+            answer: 1,
+            explanation: "Totals per product, sorted from highest to lowest, give the best sellers."
           }
         ],
         challenge: {
@@ -69,6 +97,34 @@ export const SQLPROJECTS_CHAPTERS = [
           {
             type: "text",
             content: "A common business request is to find your most valuable customers, often called 'whales'."
+          },
+          {
+            type: "text",
+            content: "To find them, join `users` to `orders` and `orders` to `products`, then work out how much each user spent: `SUM(products.price * orders.quantity)`. Group by user, and keep only the big spenders with `HAVING`, because the filter is on a total."
+          },
+          {
+            type: "quiz",
+            question: "How do you calculate how much a user spent?",
+            options: [
+              "`SUM(orders.quantity)`",
+              "`COUNT(products.price)`",
+              "`SUM(products.price * orders.quantity)`",
+              "`MAX(products.price * orders.quantity)`"
+            ],
+            answer: 2,
+            explanation: "Each order costs price × quantity; `SUM` adds those up per user."
+          },
+          {
+            type: "quiz",
+            question: "Why filter the big spenders with `HAVING` instead of `WHERE`?",
+            options: [
+              "`WHERE` can't compare numbers",
+              "`HAVING` runs before the join",
+              "`WHERE` only works on one table",
+              "The filter is on a total, which only exists after grouping"
+            ],
+            answer: 3,
+            explanation: "`WHERE` runs before grouping, so it can't see `SUM()` totals."
           }
         ],
         challenge: {
@@ -122,6 +178,34 @@ export const SQLPROJECTS_CHAPTERS = [
           {
             type: "text",
             content: "In our HR database, we have `departments` and `employees`. You often need to analyze payroll."
+          },
+          {
+            type: "text",
+            content: "To list every department with its average salary, start from `departments` and `LEFT JOIN` `employees` on `department_id`. The `LEFT JOIN` keeps departments that have no employees. Their `AVG(salary)` is `NULL`, because there are no salaries to average."
+          },
+          {
+            type: "quiz",
+            question: "Why `LEFT JOIN` from departments to employees?",
+            options: [
+              "So departments with no employees still appear",
+              "So employees without a department still appear",
+              "Because `INNER JOIN` can't be used with `AVG`",
+              "To make the query run faster"
+            ],
+            answer: 0,
+            explanation: "An `INNER JOIN` would drop departments that have no matching employees."
+          },
+          {
+            type: "quiz",
+            question: "What is `AVG(salary)` for a department with no employees?",
+            options: [
+              "`0`",
+              "`NULL`",
+              "The company-wide average",
+              "The query fails with an error"
+            ],
+            answer: 1,
+            explanation: "There are no salaries to average, so the result is `NULL`."
           }
         ],
         challenge: {
@@ -167,6 +251,34 @@ export const SQLPROJECTS_CHAPTERS = [
           {
             type: "text",
             content: "This is it. The final challenge to prove your SQL mastery."
+          },
+          {
+            type: "text",
+            content: "A manager is an employee whose `id` appears in other employees' `manager_id` column. To find managers who manage at least one high earner, use `EXISTS` with a correlated subquery: for each manager `m`, look for an employee `e` where `e.manager_id = m.id` and the salary is above the limit."
+          },
+          {
+            type: "quiz",
+            question: "Which employees are managers in this database?",
+            options: [
+              "Employees whose `manager_id` is NULL",
+              "The employees with the highest salaries",
+              "Employees whose `id` appears in another employee's `manager_id`",
+              "Employees listed in a separate managers table"
+            ],
+            answer: 2,
+            explanation: "Managers are found through the `manager_id` links between employees."
+          },
+          {
+            type: "quiz",
+            question: "In the `EXISTS` subquery, which condition links each employee `e` to the manager `m`?",
+            options: [
+              "`e.id = m.manager_id`",
+              "`e.id = m.id`",
+              "`e.manager_id = m.manager_id`",
+              "`e.manager_id = m.id`"
+            ],
+            answer: 3,
+            explanation: "An employee reports to `m` when their `manager_id` equals `m.id`."
           }
         ],
         challenge: {
