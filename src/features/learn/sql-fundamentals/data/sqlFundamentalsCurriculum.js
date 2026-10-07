@@ -113,7 +113,7 @@ export const SQLFUNDAMENTALS_CHAPTERS = [
             {
               id: "t2",
               label: "Selects all columns (*)",
-              keywords: ["\\*"],
+              keywords: ["*"],
               hint: "Use the asterisk (*) to select all columns."
             },
             {
@@ -508,7 +508,7 @@ export const SQLFUNDAMENTALS_CHAPTERS = [
             {
               id: "t1",
               label: "Uses SUM()",
-              keywords: ["SUM\\(amount\\)"],
+              keywords: ["SUM(amount)"],
               hint: "Wrap the column name in the SUM() function."
             }
           ]
@@ -547,7 +547,7 @@ export const SQLFUNDAMENTALS_CHAPTERS = [
             {
               id: "t1",
               label: "Selects category and sum",
-              keywords: ["category", "SUM\\(sales\\)"],
+              keywords: ["category", "SUM(sales)"],
               hint: "Ensure you select both category and SUM(sales)."
             },
             {
