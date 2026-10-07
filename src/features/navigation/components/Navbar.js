@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../auth/context/AuthContext";
 import { getActiveLearnNavGroup } from "../../language/courseCatalog";
 import LearnNavDropdown from "./LearnNavDropdown";
+import ReviewNavLink from "../../learn/review/ReviewNavLink";
 import ProfileAvatar from "../../profile/components/ProfileAvatar";
 import ThemeSettingsMenu from "../../../shared/theme/ThemeSettingsMenu";
 import { THEMES } from "../../../shared/theme/themes";
@@ -136,6 +137,7 @@ export default function Navbar({
         <Link to="/search" className={isActive("/search")}>
           Search
         </Link>
+        <ReviewNavLink className={isActive("/review")} />
         <LearnNavDropdown group={learnNavGroup} pathname={location.pathname} />
       </div>
 

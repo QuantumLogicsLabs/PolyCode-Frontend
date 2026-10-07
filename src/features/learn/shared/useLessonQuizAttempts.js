@@ -12,6 +12,7 @@ import {
   loadQuizAttempts,
   prepareLessonQuizzes,
   quizAttemptsKey,
+  quizFingerprint,
   recordQuizAttempt,
   getSelectedIndex,
 } from "./lessonQuizUtils";
@@ -70,10 +71,14 @@ export default function useLessonQuizAttempts(storagePrefix, lessonId, lesson) {
   const recordAttempt = useCallback(
     (quizIndex, selectedIndex, correct = null) => {
       if (!storagePrefix || !lessonId) return;
+      const quizBlocks = (preparedLesson?.theory || []).filter(
+        (block) => block.type === "quiz",
+      );
       const payload = {
         selectedIndex,
         correct: correct === null || correct === undefined ? null : Boolean(correct),
         answeredAt: new Date().toISOString(),
+        questionHash: quizFingerprint(quizBlocks[quizIndex]),
       };
       recordQuizAttempt(storagePrefix, lessonId, quizIndex, payload);
       setAttempts((prev) => {
@@ -92,7 +97,7 @@ export default function useLessonQuizAttempts(storagePrefix, lessonId, lesson) {
         return next;
       });
     },
-    [storagePrefix, lessonId, token, courseId],
+    [storagePrefix, lessonId, token, courseId, preparedLesson],
   );
 
   const attemptedCount = countAttemptedQuizzes(attempts, quizCount);

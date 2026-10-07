@@ -990,6 +990,23 @@ export function prepareLessonQuizzes(lesson) {
   };
 }
 
+/** The lesson's MCQs in quiz-index order, as the lesson page shows them. */
+export function getLessonQuizBlocks(lesson) {
+  return (prepareLessonQuizzes(lesson)?.theory || []).filter(
+    (block) => block.type === "quiz",
+  );
+}
+
+/**
+ * Short, stable id for a question (its text and correct answer). Saved with
+ * each answer so Review can tell when the question at that position changed.
+ */
+export function quizFingerprint(block) {
+  if (!block?.question) return null;
+  const correct = block.options?.[block.answer] ?? "";
+  return `q${hashString(`${normalizeOption(block.question)}|${normalizeOption(correct)}`).toString(36)}`;
+}
+
 export function mapTheoryWithQuizIndices(theory = []) {
   let quizIndex = -1;
   return theory.map((block, theoryIndex) => {
