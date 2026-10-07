@@ -30,16 +30,22 @@ export const SQLSTOREDPROCEDURES_CHAPTERS = [
           id: "challenge-1",
           title: "Create a Basic Procedure",
           description: "Write a SQL statement to create a stored procedure named `SelectAllCustomers` that selects everything from the `customers` table.",
-          starter: "-- Write your CREATE PROCEDURE statement here\n",
+          starterCode: "-- Write your statement here\n",
+          solutionCode: "CREATE PROCEDURE SelectAllCustomers\nAS\nSELECT * FROM customers;",
           tests: [
             {
-              id: "test-1",
-              description: "Must create the procedure",
-              dbState: {},
-              expected: []
+              id: "t1",
+              label: "Creates a procedure named SelectAllCustomers",
+              keywords: [{ pattern: "\\bCREATE\\s+PROC(EDURE)?\\s+SelectAllCustomers\\b", flags: "i" }],
+              hint: "Start with CREATE PROCEDURE SelectAllCustomers."
+            },
+            {
+              id: "t2",
+              label: "Selects everything from customers after AS",
+              keywords: [{ pattern: "\\bAS\\s+(BEGIN\\s+)?SELECT\\s+\\*\\s+FROM\\s+customers\\b", flags: "i" }],
+              hint: "Follow it with AS, then SELECT * FROM customers."
             }
-          ],
-          keywords: ["CREATE", "PROCEDURE", "SelectAllCustomers", "AS", "SELECT", "*", "FROM", "customers"]
+          ]
         }
       },
       {
@@ -69,16 +75,16 @@ export const SQLSTOREDPROCEDURES_CHAPTERS = [
           id: "challenge-2",
           title: "Call the Procedure",
           description: "Write a statement to execute the stored procedure `GetDailyReport` using the standard `EXEC` keyword.",
-          starter: "-- Execute the procedure here\n",
+          starterCode: "-- Write your statement here\n",
+          solutionCode: "EXEC GetDailyReport;",
           tests: [
             {
-              id: "test-1",
-              description: "Must execute the procedure",
-              dbState: {},
-              expected: []
+              id: "t1",
+              label: "Runs GetDailyReport with EXEC",
+              keywords: [{ pattern: "\\bEXEC(UTE)?\\s+GetDailyReport\\b", flags: "i" }],
+              hint: "Use EXEC GetDailyReport."
             }
-          ],
-          keywords: ["EXEC", "GetDailyReport"]
+          ]
         }
       }
     ]
@@ -110,16 +116,28 @@ export const SQLSTOREDPROCEDURES_CHAPTERS = [
           id: "challenge-3",
           title: "Create Parameterized Procedure",
           description: "Create a stored procedure named `GetByStatus` that takes one parameter `@Status nvarchar(20)`. It should select all from `orders` where `status = @Status`.",
-          starter: "-- Write your parameterized procedure here\n",
+          starterCode: "-- Write your statement here\n",
+          solutionCode: "CREATE PROCEDURE GetByStatus @Status nvarchar(20)\nAS\nSELECT * FROM orders WHERE status = @Status;",
           tests: [
             {
-              id: "test-1",
-              description: "Must create parameterized procedure",
-              dbState: {},
-              expected: []
+              id: "t1",
+              label: "Creates a procedure named GetByStatus",
+              keywords: [{ pattern: "\\bCREATE\\s+PROC(EDURE)?\\s+GetByStatus\\b", flags: "i" }],
+              hint: "Start with CREATE PROCEDURE GetByStatus."
+            },
+            {
+              id: "t2",
+              label: "Declares @Status as nvarchar(20)",
+              keywords: [{ pattern: "\\bGetByStatus\\s*\\(?\\s*@Status\\s+nvarchar\\s*\\(\\s*20\\s*\\)", flags: "i" }],
+              hint: "Put the parameter after the name: GetByStatus @Status nvarchar(20)."
+            },
+            {
+              id: "t3",
+              label: "Selects orders where status = @Status",
+              keywords: [{ pattern: "\\bAS\\s+(BEGIN\\s+)?SELECT\\s+\\*\\s+FROM\\s+orders\\b", flags: "i" }, { pattern: "\\bWHERE\\s+status\\s*=\\s*@Status\\b", flags: "i" }],
+              hint: "After AS, write SELECT * FROM orders WHERE status = @Status."
             }
-          ],
-          keywords: ["CREATE", "PROCEDURE", "GetByStatus", "@Status", "nvarchar(20)", "AS", "SELECT", "WHERE", "status", "=", "@Status"]
+          ]
         }
       },
       {
@@ -143,16 +161,22 @@ export const SQLSTOREDPROCEDURES_CHAPTERS = [
           id: "challenge-4",
           title: "Call with Parameters",
           description: "Execute the `GetByStatus` procedure, passing the value `'Shipped'` into the `@Status` parameter.",
-          starter: "-- Execute procedure here\n",
+          starterCode: "-- Write your statement here\n",
+          solutionCode: "EXEC GetByStatus @Status = 'Shipped';",
           tests: [
             {
-              id: "test-1",
-              description: "Must execute with parameter",
-              dbState: {},
-              expected: []
+              id: "t1",
+              label: "Runs GetByStatus with EXEC",
+              keywords: [{ pattern: "\\bEXEC(UTE)?\\s+GetByStatus\\b", flags: "i" }],
+              hint: "Use EXEC GetByStatus."
+            },
+            {
+              id: "t2",
+              label: "Passes 'Shipped' to @Status",
+              keywords: [{ pattern: "@Status\\s*=\\s*'Shipped'", flags: "i" }],
+              hint: "Add @Status = 'Shipped' after the procedure name."
             }
-          ],
-          keywords: ["EXEC", "GetByStatus", "@Status", "=", "'Shipped'"]
+          ]
         }
       },
       {
@@ -176,16 +200,34 @@ export const SQLSTOREDPROCEDURES_CHAPTERS = [
           id: "challenge-5",
           title: "Multiple Param Execution",
           description: "Execute the `GetUsers` procedure passing `@City = 'Paris'` and `@PostalCode = '75000'`.",
-          starter: "-- Execute procedure here\n",
+          starterCode: "-- Write your statement here\n",
+          solutionCode: "EXEC GetUsers @City = 'Paris', @PostalCode = '75000';",
           tests: [
             {
-              id: "test-1",
-              description: "Must pass two parameters",
-              dbState: {},
-              expected: []
+              id: "t1",
+              label: "Runs GetUsers with EXEC",
+              keywords: [{ pattern: "\\bEXEC(UTE)?\\s+GetUsers\\b", flags: "i" }],
+              hint: "Use EXEC GetUsers."
+            },
+            {
+              id: "t2",
+              label: "Passes 'Paris' to @City",
+              keywords: [{ pattern: "@City\\s*=\\s*'Paris'", flags: "i" }],
+              hint: "Add @City = 'Paris'."
+            },
+            {
+              id: "t3",
+              label: "Passes '75000' to @PostalCode",
+              keywords: [{ pattern: "@PostalCode\\s*=\\s*'75000'", flags: "i" }],
+              hint: "Add @PostalCode = '75000'."
+            },
+            {
+              id: "t4",
+              label: "Separates the parameters with a comma",
+              keywords: [{ pattern: "@\\w+\\s*=\\s*'[^']*'\\s*,\\s*@\\w+\\s*=", flags: "i" }],
+              hint: "Put a comma between the two parameters."
             }
-          ],
-          keywords: ["EXEC", "GetUsers", "@City", "=", "'Paris'", ",", "@PostalCode", "=", "'75000'"]
+          ]
         }
       }
     ]
@@ -216,17 +258,23 @@ export const SQLSTOREDPROCEDURES_CHAPTERS = [
         challenge: {
           id: "challenge-6",
           title: "Write an IF Condition",
-          description: "Write an `IF` statement checking if the variable `@stock` is less than `5`. If it is, `SELECT 'Low Stock'`. (You don't need to write the ELSE).",
-          starter: "-- Write your IF block here\n",
+          description: "Write an `IF` statement checking if the variable `@stock` is less than `5`. If it is, `SELECT 'Low Stock'` inside a `BEGIN ... END` block. (You don't need to write the ELSE).",
+          starterCode: "-- Write your statement here\n",
+          solutionCode: "IF @stock < 5\nBEGIN\n  SELECT 'Low Stock';\nEND",
           tests: [
             {
-              id: "test-1",
-              description: "Must use IF statement",
-              dbState: {},
-              expected: []
+              id: "t1",
+              label: "Checks whether @stock is less than 5",
+              keywords: [{ pattern: "\\bIF\\s+\\(?\\s*@stock\\s*<\\s*5\\b", flags: "i" }],
+              hint: "Start with IF @stock < 5."
+            },
+            {
+              id: "t2",
+              label: "Selects 'Low Stock' inside BEGIN ... END",
+              keywords: [{ pattern: "\\bBEGIN\\s+SELECT\\s+'Low Stock'\\s*;?\\s*END\\b", flags: "i" }],
+              hint: "Wrap it in a block: BEGIN SELECT 'Low Stock'; END."
             }
-          ],
-          keywords: ["IF", "@stock", "<", "5", "BEGIN", "SELECT", "'Low Stock'", "END"]
+          ]
         }
       }
     ]

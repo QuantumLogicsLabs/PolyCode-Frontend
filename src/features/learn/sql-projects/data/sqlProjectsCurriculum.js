@@ -23,32 +23,41 @@ export const SQLPROJECTS_CHAPTERS = [
         challenge: {
           id: "challenge-1",
           title: "Find the Best Sellers",
-          description: "Write a query to find the top 2 best-selling `products`. Join `products` and `orders`, group by `products.name`, sum the `quantity` as `total_sold`, order by `total_sold` descending, and limit to 2.",
-          starter: "-- Write your complex query here\n",
+          description: "Write a query to find the top 2 best-selling `products`. Join `products` and `orders` (`orders.product_id` links to `products.id`), group by `products.name`, sum the `quantity` as `total_sold`, order by `total_sold` descending, and limit to 2.",
+          starterCode: "-- Write your query here\n",
+          solutionCode: "SELECT products.name, SUM(orders.quantity) AS total_sold\nFROM products\nINNER JOIN orders ON orders.product_id = products.id\nGROUP BY products.name\nORDER BY total_sold DESC\nLIMIT 2;",
           tests: [
             {
-              id: "test-1",
-              description: "Must return top 2 products by total quantity sold",
-              dbState: {
-                products: [
-                  { id: 1, name: "Laptop" },
-                  { id: 2, name: "Mouse" },
-                  { id: 3, name: "Keyboard" }
-                ],
-                orders: [
-                  { id: 101, product_id: 1, quantity: 5 },
-                  { id: 102, product_id: 2, quantity: 20 },
-                  { id: 103, product_id: 3, quantity: 15 },
-                  { id: 104, product_id: 1, quantity: 2 } // Laptop total 7
-                ]
-              },
-              expected: [
-                { name: "Mouse", total_sold: 20 },
-                { name: "Keyboard", total_sold: 15 }
-              ]
+              id: "t1",
+              label: "Joins products and orders",
+              keywords: [{ pattern: "\\bJOIN\\b", flags: "i" }, { pattern: "(\\b\\w+\\.product_id\\s*=\\s*\\w+\\.id\\b|\\b\\w+\\.id\\s*=\\s*\\w+\\.product_id\\b)", flags: "i" }],
+              hint: "Use INNER JOIN orders ON orders.product_id = products.id."
+            },
+            {
+              id: "t2",
+              label: "Sums quantity as total_sold",
+              keywords: [{ pattern: "\\bSUM\\s*\\(\\s*(\\w+\\.)?quantity\\s*\\)\\s+AS\\s+total_sold\\b", flags: "i" }],
+              hint: "Use SUM(orders.quantity) AS total_sold."
+            },
+            {
+              id: "t3",
+              label: "Groups by product name",
+              keywords: [{ pattern: "\\bGROUP\\s+BY\\s+(\\w+\\.)?name\\b", flags: "i" }],
+              hint: "Add GROUP BY products.name."
+            },
+            {
+              id: "t4",
+              label: "Sorts by total_sold, highest first",
+              keywords: [{ pattern: "\\bORDER\\s+BY\\s+(total_sold|SUM\\s*\\(\\s*(\\w+\\.)?quantity\\s*\\))\\s+DESC\\b", flags: "i" }],
+              hint: "Add ORDER BY total_sold DESC."
+            },
+            {
+              id: "t5",
+              label: "Returns only the top 2",
+              keywords: [{ pattern: "\\bLIMIT\\s+2\\b", flags: "i" }],
+              hint: "End with LIMIT 2."
             }
-          ],
-          keywords: ["SELECT", "JOIN", "GROUP BY", "SUM", "ORDER BY", "DESC", "LIMIT"]
+          ]
         }
       },
       {
@@ -65,32 +74,35 @@ export const SQLPROJECTS_CHAPTERS = [
         challenge: {
           id: "challenge-2",
           title: "Find the Whales",
-          description: "Find the `users.name` and their total amount spent (sum of `products.price * orders.quantity` as `total_spent`). Only show users who spent more than $500 (using `HAVING`).",
-          starter: "-- Write your query here\n",
+          description: "Find the `users.name` and their total amount spent (sum of `products.price * orders.quantity` as `total_spent`). Only show users who spent more than $500 (using `HAVING`). `orders` has `user_id` and `product_id` columns that link to `users.id` and `products.id`.",
+          starterCode: "-- Write your query here\n",
+          solutionCode: "SELECT users.name, SUM(products.price * orders.quantity) AS total_spent\nFROM users\nINNER JOIN orders ON orders.user_id = users.id\nINNER JOIN products ON products.id = orders.product_id\nGROUP BY users.name\nHAVING SUM(products.price * orders.quantity) > 500;",
           tests: [
             {
-              id: "test-1",
-              description: "Must calculate total spent and filter with HAVING",
-              dbState: {
-                users: [
-                  { id: 1, name: "Alice" },
-                  { id: 2, name: "Bob" }
-                ],
-                products: [
-                  { id: 10, price: 100 },
-                  { id: 20, price: 50 }
-                ],
-                orders: [
-                  { id: 101, user_id: 1, product_id: 10, quantity: 6 }, // 600
-                  { id: 102, user_id: 2, product_id: 20, quantity: 2 }  // 100
-                ]
-              },
-              expected: [
-                { name: "Alice", total_spent: 600 }
-              ]
+              id: "t1",
+              label: "Joins users, orders and products",
+              keywords: [{ pattern: "(\\b\\w+\\.user_id\\s*=\\s*\\w+\\.id\\b|\\b\\w+\\.id\\s*=\\s*\\w+\\.user_id\\b)", flags: "i" }, { pattern: "(\\b\\w+\\.product_id\\s*=\\s*\\w+\\.id\\b|\\b\\w+\\.id\\s*=\\s*\\w+\\.product_id\\b)", flags: "i" }],
+              hint: "Join orders ON orders.user_id = users.id, and products ON products.id = orders.product_id."
+            },
+            {
+              id: "t2",
+              label: "Totals price * quantity as total_spent",
+              keywords: [{ pattern: "\\bSUM\\s*\\(\\s*((\\w+\\.)?price\\s*\\*\\s*(\\w+\\.)?quantity|(\\w+\\.)?quantity\\s*\\*\\s*(\\w+\\.)?price)\\s*\\)\\s+AS\\s+total_spent\\b", flags: "i" }],
+              hint: "Use SUM(products.price * orders.quantity) AS total_spent."
+            },
+            {
+              id: "t3",
+              label: "Groups by user",
+              keywords: [{ pattern: "\\bGROUP\\s+BY\\s+(\\w+\\.)?(name|id)\\b", flags: "i" }],
+              hint: "Add GROUP BY users.name."
+            },
+            {
+              id: "t4",
+              label: "Keeps only users who spent more than 500",
+              keywords: [{ pattern: "\\bHAVING\\s+SUM\\s*\\([^)]*\\)\\s*>\\s*500\\b", flags: "i" }],
+              hint: "Add HAVING SUM(products.price * orders.quantity) > 500."
             }
-          ],
-          keywords: ["SUM", "price", "*", "quantity", "HAVING", ">", "500"]
+          ]
         }
       }
     ]
@@ -115,29 +127,35 @@ export const SQLPROJECTS_CHAPTERS = [
         challenge: {
           id: "challenge-3",
           title: "Analyze Payroll",
-          description: "List every `departments.name` and the average `salary` of its employees. Use a `LEFT JOIN` from departments to employees so that departments with 0 employees still show up (average will be NULL).",
-          starter: "-- Write your query here\n",
+          description: "List every `departments.name` and the average `salary` of its employees (as `avg_salary`). Use a `LEFT JOIN` from departments to employees (`employees.department_id` links to `departments.id`) so that departments with 0 employees still show up (average will be NULL).",
+          starterCode: "-- Write your query here\n",
+          solutionCode: "SELECT departments.name, AVG(employees.salary) AS avg_salary\nFROM departments\nLEFT JOIN employees ON employees.department_id = departments.id\nGROUP BY departments.name;",
           tests: [
             {
-              id: "test-1",
-              description: "Must use LEFT JOIN and AVG",
-              dbState: {
-                departments: [
-                  { id: 1, name: "Engineering" },
-                  { id: 2, name: "Janitorial" }
-                ],
-                employees: [
-                  { id: 101, department_id: 1, salary: 100000 },
-                  { id: 102, department_id: 1, salary: 120000 }
-                ]
-              },
-              expected: [
-                { name: "Engineering", avg_salary: 110000 },
-                { name: "Janitorial", avg_salary: null }
-              ]
+              id: "t1",
+              label: "LEFT JOINs from departments to employees",
+              keywords: [{ pattern: "\\bFROM\\s+departments(\\s+(AS\\s+)?\\w+)?\\s+LEFT\\s+(OUTER\\s+)?JOIN\\s+employees\\b", flags: "i" }],
+              hint: "Use FROM departments LEFT JOIN employees."
+            },
+            {
+              id: "t2",
+              label: "Links employees.department_id to departments.id",
+              keywords: [{ pattern: "\\bON\\b", flags: "i" }, { pattern: "(\\b\\w+\\.department_id\\s*=\\s*\\w+\\.id\\b|\\b\\w+\\.id\\s*=\\s*\\w+\\.department_id\\b)", flags: "i" }],
+              hint: "Use ON employees.department_id = departments.id."
+            },
+            {
+              id: "t3",
+              label: "Averages salary as avg_salary",
+              keywords: [{ pattern: "\\bAVG\\s*\\(\\s*(\\w+\\.)?salary\\s*\\)\\s+AS\\s+avg_salary\\b", flags: "i" }],
+              hint: "Use AVG(employees.salary) AS avg_salary."
+            },
+            {
+              id: "t4",
+              label: "Groups by department",
+              keywords: [{ pattern: "\\bGROUP\\s+BY\\s+(\\w+\\.)?(name|id)\\b", flags: "i" }],
+              hint: "Add GROUP BY departments.name."
             }
-          ],
-          keywords: ["LEFT JOIN", "AVG", "GROUP BY", "departments"]
+          ]
         }
       },
       {
@@ -155,25 +173,28 @@ export const SQLPROJECTS_CHAPTERS = [
           id: "challenge-4",
           title: "Managers with High Earners",
           description: "Find the `name` of all managers (an employee whose `id` appears in the `manager_id` column of other employees) who manage at least one employee earning more than $100,000. Use `EXISTS` and a correlated subquery.",
-          starter: "SELECT m.name\nFROM employees m\nWHERE EXISTS (\n  -- Write correlated subquery here\n);",
+          starterCode: "SELECT m.name\nFROM employees m\nWHERE EXISTS (\n  -- write the correlated subquery here\n);",
+          solutionCode: "SELECT m.name\nFROM employees m\nWHERE EXISTS (\n  SELECT 1\n  FROM employees e\n  WHERE e.manager_id = m.id\n    AND e.salary > 100000\n);",
           tests: [
             {
-              id: "test-1",
-              description: "Must use EXISTS to find managers",
-              dbState: {
-                employees: [
-                  { id: 1, name: "Boss", manager_id: null, salary: 200000 },
-                  { id: 2, name: "Mid-Manager", manager_id: 1, salary: 90000 },
-                  { id: 3, name: "Worker A", manager_id: 1, salary: 110000 }, // Boss manages A > 100k
-                  { id: 4, name: "Worker B", manager_id: 2, salary: 50000 }
-                ]
-              },
-              expected: [
-                { name: "Boss" }
-              ]
+              id: "t1",
+              label: "Uses EXISTS with a subquery",
+              keywords: [{ pattern: "\\bEXISTS\\s*\\(\\s*SELECT\\b", flags: "i" }, { pattern: "\\bEXISTS\\s*\\(\\s*SELECT\\b[\\s\\S]*\\bFROM\\s+employees\\b", flags: "i" }],
+              hint: "Inside EXISTS ( ), write SELECT 1 FROM employees e."
+            },
+            {
+              id: "t2",
+              label: "Links each employee to the manager m",
+              keywords: [{ pattern: "(\\b\\w+\\.manager_id\\s*=\\s*m\\.id\\b|\\bm\\.id\\s*=\\s*\\w+\\.manager_id\\b)", flags: "i" }],
+              hint: "In the subquery, use WHERE e.manager_id = m.id."
+            },
+            {
+              id: "t3",
+              label: "Looks for salaries over 100000",
+              keywords: [{ pattern: "\\bsalary\\s*>\\s*100000\\b", flags: "i" }],
+              hint: "Add AND e.salary > 100000."
             }
-          ],
-          keywords: ["EXISTS", "SELECT", "FROM", "employees", "WHERE", "manager_id", ">", "100000"]
+          ]
         }
       }
     ]

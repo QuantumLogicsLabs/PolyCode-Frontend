@@ -26,16 +26,22 @@ export const SQLINDEXES_CHAPTERS = [
           id: "challenge-1",
           title: "Create an Index",
           description: "Write a statement to create an index named `idx_lastname` on the `last_name` column of the `persons` table.",
-          starter: "CREATE INDEX idx_lastname\n-- specify the table and column here\n",
+          starterCode: "CREATE INDEX idx_lastname\n-- specify the table and column here\n",
+          solutionCode: "CREATE INDEX idx_lastname\nON persons (last_name);",
           tests: [
             {
-              id: "test-1",
-              description: "Must use CREATE INDEX",
-              dbState: {},
-              expected: []
+              id: "t1",
+              label: "Creates an index named idx_lastname",
+              keywords: [{ pattern: "\\bCREATE\\s+INDEX\\s+idx_lastname\\b", flags: "i" }],
+              hint: "Start with CREATE INDEX idx_lastname."
+            },
+            {
+              id: "t2",
+              label: "Indexes last_name in the persons table",
+              keywords: [{ pattern: "\\bON\\s+persons\\s*\\(\\s*last_name\\s*\\)", flags: "i" }],
+              hint: "Add ON persons (last_name)."
             }
-          ],
-          keywords: ["CREATE", "INDEX", "idx_lastname", "ON", "persons", "last_name"]
+          ]
         }
       },
       {
@@ -59,16 +65,22 @@ export const SQLINDEXES_CHAPTERS = [
           id: "challenge-2",
           title: "Enforce Unique Emails",
           description: "Create a unique index named `uq_email` on the `email` column in the `employees` table.",
-          starter: "-- Write your CREATE UNIQUE INDEX query here\n",
+          starterCode: "-- Write your statement here\n",
+          solutionCode: "CREATE UNIQUE INDEX uq_email\nON employees (email);",
           tests: [
             {
-              id: "test-1",
-              description: "Must create a unique index",
-              dbState: {},
-              expected: []
+              id: "t1",
+              label: "Creates a unique index named uq_email",
+              keywords: [{ pattern: "\\bCREATE\\s+UNIQUE\\s+INDEX\\s+uq_email\\b", flags: "i" }],
+              hint: "Start with CREATE UNIQUE INDEX uq_email."
+            },
+            {
+              id: "t2",
+              label: "Indexes email in the employees table",
+              keywords: [{ pattern: "\\bON\\s+employees\\s*\\(\\s*email\\s*\\)", flags: "i" }],
+              hint: "Add ON employees (email)."
             }
-          ],
-          keywords: ["CREATE", "UNIQUE", "INDEX", "uq_email", "ON", "employees", "email"]
+          ]
         }
       }
     ]
@@ -100,16 +112,22 @@ export const SQLINDEXES_CHAPTERS = [
           id: "challenge-3",
           title: "Create a Composite Index",
           description: "Create an index named `idx_fullname` on the `first_name` and `last_name` columns of the `customers` table.",
-          starter: "-- Write your composite index query here\n",
+          starterCode: "-- Write your statement here\n",
+          solutionCode: "CREATE INDEX idx_fullname\nON customers (first_name, last_name);",
           tests: [
             {
-              id: "test-1",
-              description: "Must create a composite index",
-              dbState: {},
-              expected: []
+              id: "t1",
+              label: "Creates an index named idx_fullname",
+              keywords: [{ pattern: "\\bCREATE\\s+INDEX\\s+idx_fullname\\b", flags: "i" }],
+              hint: "Start with CREATE INDEX idx_fullname."
+            },
+            {
+              id: "t2",
+              label: "Indexes first_name and last_name in customers",
+              keywords: [{ pattern: "\\bON\\s+customers\\s*\\(\\s*(first_name\\s*,\\s*last_name|last_name\\s*,\\s*first_name)\\s*\\)", flags: "i" }],
+              hint: "List both columns: ON customers (first_name, last_name)."
             }
-          ],
-          keywords: ["CREATE", "INDEX", "idx_fullname", "ON", "customers", "first_name", "last_name"]
+          ]
         }
       }
     ]
@@ -147,16 +165,16 @@ export const SQLINDEXES_CHAPTERS = [
           id: "challenge-4",
           title: "Drop an Old Index",
           description: "Write a standard SQL statement to drop the index named `idx_old_data`.",
-          starter: "-- Write your DROP query here\n",
+          starterCode: "-- Write your statement here\n",
+          solutionCode: "DROP INDEX idx_old_data;",
           tests: [
             {
-              id: "test-1",
-              description: "Must drop the index",
-              dbState: {},
-              expected: []
+              id: "t1",
+              label: "Drops the idx_old_data index",
+              keywords: [{ pattern: "\\bDROP\\s+INDEX\\s+(\\w+\\.)?idx_old_data\\b", flags: "i" }],
+              hint: "Use DROP INDEX idx_old_data."
             }
-          ],
-          keywords: ["DROP", "INDEX", "idx_old_data"]
+          ]
         }
       }
     ]
