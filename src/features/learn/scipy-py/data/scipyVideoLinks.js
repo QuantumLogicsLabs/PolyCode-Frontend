@@ -22,7 +22,7 @@ export const SCIPY_VIDEO_LINKS = {
   // ── Ch 2: Special Functions ──────────────────────────────────────────
   "scipy-4": "", // What Are Special Functions?
   "scipy-5": "https://youtu.be/Ai1HIDvAw-I?si=H02Aa-v7Y2Qgtfca", // Gamma, erf, and Everyday Helpers
-  "scipy-6": "", // Using Special Functions in Practice
+  "scipy-6": "https://youtu.be/59vAp7UYQ8g?si=LVT-uNLibkRbDIMj", // Using Special Functions in Practice
 
   // ── Ch 3: Integration ────────────────────────────────────────────────
   "scipy-7": "", // What is Numerical Integration?
