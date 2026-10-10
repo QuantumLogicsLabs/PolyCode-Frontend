@@ -30,7 +30,7 @@ export const SCIPY_VIDEO_LINKS = {
   "scipy-9": "https://youtu.be/dQn1PhUsb_w?si=1Oi3FD92s_noCrLM", // Tips for Reliable Integrals
 
   // ── Ch 4: Optimization ───────────────────────────────────────────────
-  "scipy-10": "", // What is Optimization?
+  "scipy-10": "https://youtu.be/rbgfFenEGXk?si=JB6mXrEGbYfZiWam", // What is Optimization?
   "scipy-11": "https://youtu.be/Q2YVbTNheEk?si=LvIXglmGX51gE8nD", // Find a Minimum with minimize
   "scipy-12": "https://youtu.be/USpX_uW185o?si=uz9VOci0BXkMuxp4", // Roots and Curve Fitting Basics
 
