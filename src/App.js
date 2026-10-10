@@ -98,6 +98,9 @@ const SignupPage = lazyWithChunkRetry(
 const DailyChallenge = lazyWithChunkRetry(
   () => import("./pages/DailyChallenges"),
 );
+const ReviewPage = lazyWithChunkRetry(
+  () => import("./features/learn/review/ReviewPage"),
+);
 const ProfilePage = lazyWithChunkRetry(
   () => import("./features/profile/ProfilePage"),
 );
@@ -3116,6 +3119,19 @@ function AppRoutes() {
               selectedLanguage={selectedLanguage}
             >
               <CoursesPage />
+            </LearnRoute>
+          }
+        />
+        <Route
+          path="/review"
+          element={
+            <LearnRoute
+              theme={theme}
+              onThemeChange={handleThemeChange}
+              onGoToStackPicker={goToStackPicker}
+              selectedLanguage={selectedLanguage}
+            >
+              <ReviewPage />
             </LearnRoute>
           }
         />

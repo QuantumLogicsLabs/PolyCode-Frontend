@@ -1,0 +1,103 @@
+/* ── Review my mistakes (/review) ── */
+.review-page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 28px 16px 88px;
+  display: grid;
+  gap: 20px;
+}
+
+.review-page h1 {
+  margin: 0 0 6px;
+  font-size: 1.6rem;
+  color: var(--txt-0);
+}
+
+.review-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.review-intro {
+  margin: 0;
+  color: var(--txt-2);
+  line-height: 1.55;
+}
+
+.review-filter {
+  display: grid;
+  gap: 4px;
+  font-size: 0.82rem;
+  color: var(--txt-2);
+}
+
+.review-filter select {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--txt-1);
+  font: inherit;
+}
+
+.review-filter option {
+  color: initial;
+}
+
+.review-card-source {
+  margin: 0 0 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--txt-2);
+}
+
+.review-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.review-link {
+  color: var(--txt-1);
+  font-weight: 600;
+}
+
+.review-link-btn {
+  justify-self: start;
+  text-decoration: none;
+}
+
+.review-error {
+  margin: 8px 0 0;
+  color: #ff4d6d;
+  font-size: 0.88rem;
+}
+
+.review-empty {
+  display: grid;
+  gap: 6px;
+}
+
+.review-empty p {
+  margin: 0;
+}
+
+.navbar-review-count {
+  display: inline-block;
+  min-width: 18px;
+  margin-left: 6px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #ff4d6d;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
