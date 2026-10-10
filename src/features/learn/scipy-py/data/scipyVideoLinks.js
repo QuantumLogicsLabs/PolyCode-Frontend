@@ -14,7 +14,7 @@
 
 export const SCIPY_VIDEO_LINKS = {
   // ── Ch 1: Welcome to SciPy ───────────────────────────────────────────
-  "scipy-0": "", // What is SciPy?
+  "scipy-0": "https://youtu.be/0zroO8xh46E?si=3raCLgrM5KGDXUZe", // What is SciPy?
   "scipy-1": "https://youtu.be/7x5mbzmkYLY?si=O5qj36XPc9RUwSMW", // Why Scientists Love SciPy
   "scipy-2": "https://youtu.be/RIW4amx4sr4?si=R8gLH8193g0f1IBn", // SciPy and NumPy Together
   "scipy-3": "", // Your First SciPy Import
@@ -41,8 +41,8 @@ export const SCIPY_VIDEO_LINKS = {
 
   // ── Ch 6: Statistics ─────────────────────────────────────────────────
   "scipy-16": "", // Distributions in Plain Words
-  "scipy-17": "", // Describe Your Data
-  "scipy-18": "", // A Gentle Hypothesis Test
+  "scipy-17": "https://youtu.be/BKyVhlCk13Y?si=pXfAtEppgtUnMgv-", // Describe Your Data
+  "scipy-18": "https://youtu.be/JYubkBOjaYo?si=keS9ZSrAFC01lBp-", // A Gentle Hypothesis Test
 
   // ── Ch 7: Linear Algebra ─────────────────────────────────────────────
   "scipy-19": "", // SciPy linalg vs NumPy
