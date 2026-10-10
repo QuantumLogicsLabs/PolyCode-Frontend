@@ -40,7 +40,7 @@ export const SCIPY_VIDEO_LINKS = {
   "scipy-15": "https://youtu.be/c42-kLCmCK8?si=ZsA9IHCrri9U_65j", // Smooth Paths with Splines
 
   // ── Ch 6: Statistics ─────────────────────────────────────────────────
-  "scipy-16": "", // Distributions in Plain Words
+  "scipy-16": "https://youtu.be/S3lAcTXx7o8?si=ROKo7F5ALls_PMZj", // Distributions in Plain Words
   "scipy-17": "https://youtu.be/BKyVhlCk13Y?si=pXfAtEppgtUnMgv-", // Describe Your Data
   "scipy-18": "https://youtu.be/JYubkBOjaYo?si=keS9ZSrAFC01lBp-", // A Gentle Hypothesis Test
 
