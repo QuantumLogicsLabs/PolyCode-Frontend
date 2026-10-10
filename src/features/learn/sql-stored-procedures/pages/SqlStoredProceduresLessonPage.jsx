@@ -198,6 +198,7 @@ export default function SqlStoredProceduresLessonPage() {
               markedAsRead={markedAsRead}
               onMarkAsRead={markAsRead}
               onGoChallenge={goToChallenge}
+              practiceLink
             />
           ) : (
             <SqlStoredProceduresCodeChallenge

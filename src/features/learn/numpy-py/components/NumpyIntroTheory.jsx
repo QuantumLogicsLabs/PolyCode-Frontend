@@ -656,6 +656,8 @@ export default function NumpyIntroTheory({
   markedAsRead = false,
   onMarkAsRead = () => {},
   onGoChallenge,
+  // Opt-in: makes the overview's "Try it yourself" open the challenge.
+  practiceLink = false,
   introVariant = "default",
   accentColor: accentColorProp,
   autoW3 = true,
@@ -732,6 +734,8 @@ export default function NumpyIntroTheory({
           lesson={activeLesson}
           accentColor={accentColor}
           autoW3={autoW3}
+          onPracticeClick={practiceLink ? onGoChallenge : undefined}
+          practiceUnlocked={markedAsRead}
         />
       ) : null}
 

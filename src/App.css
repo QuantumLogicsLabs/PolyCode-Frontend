@@ -10426,6 +10426,21 @@ body {
   color: var(--lesson-overview-accent, var(--accent, var(--acid)));
 }
 
+.lesson-topic-w3-practice-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.lesson-topic-w3-practice-link:hover strong,
+.lesson-topic-w3-practice-link:focus-visible strong {
+  text-decoration: underline;
+}
+
 .numpy-intro-theory--w3 .numpy-path-label {
   margin-top: 4px;
 }

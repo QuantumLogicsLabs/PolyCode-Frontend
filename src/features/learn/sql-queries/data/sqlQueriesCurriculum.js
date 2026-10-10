@@ -26,6 +26,30 @@ export const SQLQUERIES_CHAPTERS = [
             variant: "warning",
             title: "Avoid SELECT *",
             content: "You can select all columns using the asterisk `*` character (e.g., `SELECT * FROM users;`). However, it is generally considered a bad practice in production systems because it retrieves unnecessary data, consuming extra memory and network bandwidth."
+          },
+          {
+            type: "quiz",
+            question: "What is the table of data returned by a `SELECT` called?",
+            options: [
+              "The result-set",
+              "The schema",
+              "The index",
+              "The view"
+            ],
+            answer: 0,
+            explanation: "`SELECT` returns its rows in a result table called the result-set."
+          },
+          {
+            type: "quiz",
+            question: "Why is `SELECT *` considered bad practice in production?",
+            options: [
+              "It isn't valid SQL",
+              "It fetches columns you don't need, wasting memory and bandwidth",
+              "It only returns the first row",
+              "It changes the data in the table"
+            ],
+            answer: 1,
+            explanation: "`SELECT *` is valid, but it retrieves unnecessary data."
           }
         ],
         challenge: {
@@ -114,6 +138,30 @@ export const SQLQUERIES_CHAPTERS = [
             variant: "info",
             title: "Quotes in Aliases",
             content: "If your alias contains spaces (e.g., 'First Name'), you must wrap it in quotes."
+          },
+          {
+            type: "quiz",
+            question: "What does `first_name AS Name` do?",
+            options: [
+              "Renames the column in the table permanently",
+              "Copies the column into a new column",
+              "Shows the column as `Name` in the result-set",
+              "Keeps only rows where first_name is Name"
+            ],
+            answer: 2,
+            explanation: "An alias is a temporary name used only in the query's result."
+          },
+          {
+            type: "quiz",
+            question: "When must an alias be wrapped in quotes?",
+            options: [
+              "Always",
+              "When it's longer than 10 characters",
+              "When it's used on a numeric column",
+              "When it contains spaces"
+            ],
+            answer: 3,
+            explanation: "For example: `first_name AS 'First Name'`."
           }
         ],
         challenge: {
@@ -173,6 +221,30 @@ export const SQLQUERIES_CHAPTERS = [
             lang: "sql",
             label: "Where Clause Example",
             content: "SELECT * FROM users\nWHERE country = 'Mexico';"
+          },
+          {
+            type: "quiz",
+            question: "What does the `WHERE` clause do?",
+            options: [
+              "Extracts only the records that meet a condition",
+              "Sorts the records",
+              "Chooses which columns to return",
+              "Groups records that have the same values"
+            ],
+            answer: 0,
+            explanation: "`WHERE` filters the rows."
+          },
+          {
+            type: "quiz",
+            question: "How should text and numbers be written in a `WHERE` condition?",
+            options: [
+              "Both in single quotes",
+              "Text in single quotes, numbers without quotes",
+              "Both without quotes",
+              "Numbers in quotes, text without"
+            ],
+            answer: 1,
+            explanation: "For example: `WHERE country = 'Mexico' AND age = 30`."
           }
         ],
         challenge: {
@@ -216,6 +288,30 @@ export const SQLQUERIES_CHAPTERS = [
             lang: "sql",
             label: "Numeric Comparison",
             content: "SELECT title, rating\nFROM movies\nWHERE rating >= 8.5;"
+          },
+          {
+            type: "quiz",
+            question: "Which operator means 'greater than or equal'?",
+            options: [
+              "`=>`",
+              "`>>`",
+              "`>=`",
+              "`+=`"
+            ],
+            answer: 2,
+            explanation: "`>=` is greater than or equal; `<=` is less than or equal."
+          },
+          {
+            type: "quiz",
+            question: "Which two operators both mean 'not equal'?",
+            options: [
+              "`<>` and `=!`",
+              "`!=` and `><`",
+              "`<=` and `>=`",
+              "`<>` and `!=`"
+            ],
+            answer: 3,
+            explanation: "Both `<>` and `!=` mean not equal."
           }
         ],
         challenge: {
@@ -259,6 +355,30 @@ export const SQLQUERIES_CHAPTERS = [
             lang: "sql",
             label: "Logical Operators Example",
             content: "SELECT *\nFROM movies\nWHERE rating > 8.0 AND release_year < 2010;"
+          },
+          {
+            type: "quiz",
+            question: "When does `OR` include a record?",
+            options: [
+              "When any of its conditions is true",
+              "Only when all of its conditions are true",
+              "Only when exactly one condition is true",
+              "When none of its conditions are true"
+            ],
+            answer: 0,
+            explanation: "`OR` needs at least one true condition. `AND` needs all of them."
+          },
+          {
+            type: "quiz",
+            question: "`WHERE rating > 8.0 AND release_year < 2010` returns movies that are…",
+            options: [
+              "Rated above 8.0 or released before 2010",
+              "Rated above 8.0 and released before 2010",
+              "Rated 8.0 or below and released before 2010",
+              "Rated above 8.0 and released in or after 2010"
+            ],
+            answer: 1,
+            explanation: "With `AND`, both conditions must be true."
           }
         ],
         challenge: {
@@ -324,6 +444,30 @@ export const SQLQUERIES_CHAPTERS = [
             variant: "info",
             title: "NOT IN",
             content: "You can also use `NOT IN` to exclude records that match the list of values."
+          },
+          {
+            type: "quiz",
+            question: "What is `IN` a shorthand for?",
+            options: [
+              "Several `AND` conditions",
+              "A `BETWEEN` range",
+              "Several `OR` conditions on the same column",
+              "A join with another table"
+            ],
+            answer: 2,
+            explanation: "`country IN ('Germany', 'France')` means `country = 'Germany' OR country = 'France'`."
+          },
+          {
+            type: "quiz",
+            question: "Which keyword excludes the listed values?",
+            options: [
+              "`OUT`",
+              "`EXCEPT IN`",
+              "`IN NOT`",
+              "`NOT IN`"
+            ],
+            answer: 3,
+            explanation: "`NOT IN` keeps the rows whose value isn't in the list."
           }
         ],
         challenge: {
@@ -367,6 +511,30 @@ export const SQLQUERIES_CHAPTERS = [
             lang: "sql",
             label: "BETWEEN Operator Example",
             content: "SELECT *\nFROM products\nWHERE price BETWEEN 10 AND 20;"
+          },
+          {
+            type: "quiz",
+            question: "Does `price BETWEEN 10 AND 20` include 10 and 20?",
+            options: [
+              "Yes, both ends are included",
+              "No, both ends are excluded",
+              "Only 10 is included",
+              "Only 20 is included"
+            ],
+            answer: 0,
+            explanation: "`BETWEEN` is inclusive."
+          },
+          {
+            type: "quiz",
+            question: "Which kinds of values can `BETWEEN` compare?",
+            options: [
+              "Numbers only",
+              "Numbers, text and dates",
+              "Dates only",
+              "Numbers and dates, but not text"
+            ],
+            answer: 1,
+            explanation: "`BETWEEN` works on any values that can be ordered."
           }
         ],
         challenge: {
@@ -412,6 +580,30 @@ export const SQLQUERIES_CHAPTERS = [
             lang: "sql",
             label: "NULL Checking Example",
             content: "SELECT name\nFROM employees\nWHERE manager_id IS NULL;"
+          },
+          {
+            type: "quiz",
+            question: "What is a NULL value?",
+            options: [
+              "Zero",
+              "A field that contains spaces",
+              "A field with no value",
+              "The text 'NULL'"
+            ],
+            answer: 2,
+            explanation: "NULL means no value. It's different from zero or spaces."
+          },
+          {
+            type: "quiz",
+            question: "How do you find rows where `manager_id` is missing?",
+            options: [
+              "`WHERE manager_id = NULL`",
+              "`WHERE manager_id = 0`",
+              "`WHERE manager_id = ''`",
+              "`WHERE manager_id IS NULL`"
+            ],
+            answer: 3,
+            explanation: "Comparison operators like `=` don't work with NULL; use `IS NULL`."
           }
         ],
         challenge: {
@@ -463,6 +655,30 @@ export const SQLQUERIES_CHAPTERS = [
           {
             type: "text",
             content: "To sort the records in descending order, use the `DESC` keyword."
+          },
+          {
+            type: "quiz",
+            question: "What order does `ORDER BY country` use?",
+            options: [
+              "Ascending (A to Z)",
+              "Descending (Z to A)",
+              "The order the rows were added",
+              "Random"
+            ],
+            answer: 0,
+            explanation: "`ORDER BY` sorts in ascending order by default."
+          },
+          {
+            type: "quiz",
+            question: "Which keyword sorts in descending order?",
+            options: [
+              "`DOWN`",
+              "`DESC`",
+              "`REVERSE`",
+              "`LOWEST`"
+            ],
+            answer: 1,
+            explanation: "Add `DESC` after the column, e.g. `ORDER BY country DESC`."
           }
         ],
         challenge: {

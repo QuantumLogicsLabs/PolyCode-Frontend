@@ -43,6 +43,30 @@ export const SQLFUNDAMENTALS_CHAPTERS = [
             type: "callout",
             variant: "info",
             content: "A relational database usually contains multiple tables that are linked (related) to each other."
+          },
+          {
+            type: "quiz",
+            question: "What does SQL stand for?",
+            options: [
+              "Structured Query Language",
+              "Simple Query Language",
+              "Sequential Question Language",
+              "Structured Question Logic"
+            ],
+            answer: 0,
+            explanation: "SQL is the Structured Query Language, used to talk to relational databases."
+          },
+          {
+            type: "quiz",
+            question: "In a database table, what do the rows hold?",
+            options: [
+              "The property names, like 'Name' or 'Age'",
+              "The actual data for each entry",
+              "The links to other databases",
+              "The SQL commands to run"
+            ],
+            answer: 1,
+            explanation: "Columns define the properties; each row holds the data for one entry."
           }
         ],
         challenge: {
@@ -93,6 +117,30 @@ export const SQLFUNDAMENTALS_CHAPTERS = [
           {
             type: "text",
             content: "Don't forget the semicolon `;` at the end of your query! It tells the database engine that the statement is complete."
+          },
+          {
+            type: "quiz",
+            question: "In `SELECT * FROM users;`, what does `*` mean?",
+            options: [
+              "Multiply the values",
+              "Select only the first row",
+              "Select every column",
+              "Select only the rows that aren't empty"
+            ],
+            answer: 2,
+            explanation: "The asterisk means 'everything': all columns of the table."
+          },
+          {
+            type: "quiz",
+            question: "What does the semicolon `;` at the end of a query do?",
+            options: [
+              "Comments out the rest of the line",
+              "Selects all columns",
+              "Makes the query case-sensitive",
+              "Tells the database the statement is complete"
+            ],
+            answer: 3,
+            explanation: "The semicolon marks the end of the statement."
           }
         ],
         challenge: {
@@ -152,6 +200,30 @@ export const SQLFUNDAMENTALS_CHAPTERS = [
             type: "callout",
             variant: "info",
             content: "Retrieving only the columns you need makes your queries faster and reduces the amount of data transferred across the network."
+          },
+          {
+            type: "quiz",
+            question: "How do you separate column names in a `SELECT`?",
+            options: [
+              "With commas",
+              "With semicolons",
+              "With the `AND` keyword",
+              "With spaces only"
+            ],
+            answer: 0,
+            explanation: "For example: `SELECT first_name, email FROM employees;`"
+          },
+          {
+            type: "quiz",
+            question: "Why select only the columns you need?",
+            options: [
+              "`*` isn't valid SQL",
+              "Queries run faster and transfer less data",
+              "It sorts the results automatically",
+              "It removes duplicate rows"
+            ],
+            answer: 1,
+            explanation: "Fewer columns means less data to read and send over the network."
           }
         ],
         challenge: {
@@ -213,6 +285,30 @@ export const SQLFUNDAMENTALS_CHAPTERS = [
             type: "callout",
             variant: "warning",
             content: "SQL requires single quotes around text values (most database systems will accept double quotes, but single quotes are the standard). Numeric fields should not be enclosed in quotes."
+          },
+          {
+            type: "quiz",
+            question: "What does the `WHERE` clause do?",
+            options: [
+              "Sorts the records",
+              "Chooses which columns to return",
+              "Returns only the records that meet a condition",
+              "Groups records that have the same values"
+            ],
+            answer: 2,
+            explanation: "`WHERE` keeps only the rows where its condition is true."
+          },
+          {
+            type: "quiz",
+            question: "Which condition matches customers from Mexico?",
+            options: [
+              "`country = Mexico`",
+              "`country == 'Mexico'`",
+              "`'country' = Mexico`",
+              "`country = 'Mexico'`"
+            ],
+            answer: 3,
+            explanation: "Text values go in single quotes, and SQL uses a single `=` for equality."
           }
         ],
         challenge: {
@@ -274,6 +370,30 @@ export const SQLFUNDAMENTALS_CHAPTERS = [
             lang: "sql",
             label: "Finding expensive products",
             content: "SELECT name, price FROM products WHERE price > 50;"
+          },
+          {
+            type: "quiz",
+            question: "Which operator means 'not equal'?",
+            options: [
+              "`<>`",
+              "`=!`",
+              "`><`",
+              "`=<>`"
+            ],
+            answer: 0,
+            explanation: "`<>` means not equal. Most databases also accept `!=`."
+          },
+          {
+            type: "quiz",
+            question: "What does `WHERE price > 50` return?",
+            options: [
+              "Rows where the price is 50 or more",
+              "Rows where the price is greater than 50",
+              "Rows where the price is less than 50",
+              "The first 50 rows"
+            ],
+            answer: 1,
+            explanation: "`>` is strictly greater than, so a price of exactly 50 isn't included."
           }
         ],
         challenge: {
@@ -325,6 +445,30 @@ export const SQLFUNDAMENTALS_CHAPTERS = [
             lang: "sql",
             label: "Using AND & OR",
             content: "SELECT * FROM customers WHERE country = 'Germany' AND (city = 'Berlin' OR city = 'Munich');"
+          },
+          {
+            type: "quiz",
+            question: "When does `AND` include a record?",
+            options: [
+              "When any one of its conditions is true",
+              "When none of its conditions are true",
+              "When all of its conditions are true",
+              "When only the first condition is true"
+            ],
+            answer: 2,
+            explanation: "`AND` needs every condition to be true. `OR` needs just one."
+          },
+          {
+            type: "quiz",
+            question: "`WHERE country = 'Germany' AND (city = 'Berlin' OR city = 'Munich')` returns customers who are…",
+            options: [
+              "In Germany, in Berlin, or in Munich",
+              "In both Berlin and Munich at once",
+              "In Germany but not in Berlin or Munich",
+              "In Germany, and in either Berlin or Munich"
+            ],
+            answer: 3,
+            explanation: "The parentheses group the `OR`, so the city must be Berlin or Munich and the country must be Germany."
           }
         ],
         challenge: {
@@ -386,6 +530,30 @@ export const SQLFUNDAMENTALS_CHAPTERS = [
             lang: "sql",
             label: "Sorting by highest price",
             content: "SELECT * FROM products ORDER BY price DESC;"
+          },
+          {
+            type: "quiz",
+            question: "What order does `ORDER BY` use by default?",
+            options: [
+              "Ascending",
+              "Descending",
+              "The order the rows were inserted",
+              "Random"
+            ],
+            answer: 0,
+            explanation: "Without `ASC` or `DESC`, `ORDER BY` sorts in ascending order."
+          },
+          {
+            type: "quiz",
+            question: "Which query lists products from the highest price to the lowest?",
+            options: [
+              "`SELECT * FROM products ORDER BY price ASC;`",
+              "`SELECT * FROM products ORDER BY price DESC;`",
+              "`SELECT * FROM products ORDER BY price;`",
+              "`SELECT * FROM products SORT BY price DESC;`"
+            ],
+            answer: 1,
+            explanation: "`DESC` sorts from highest to lowest. The keyword is `ORDER BY`, not `SORT BY`."
           }
         ],
         challenge: {
@@ -432,6 +600,30 @@ export const SQLFUNDAMENTALS_CHAPTERS = [
             lang: "sql",
             label: "Top 3 highest paid employees",
             content: "SELECT * FROM employees ORDER BY salary DESC LIMIT 3;"
+          },
+          {
+            type: "quiz",
+            question: "What does `LIMIT 3` do?",
+            options: [
+              "Skips the first 3 rows",
+              "Returns rows whose value is under 3",
+              "Returns at most 3 rows",
+              "Splits the result into 3 pages"
+            ],
+            answer: 2,
+            explanation: "`LIMIT` sets the maximum number of rows returned."
+          },
+          {
+            type: "quiz",
+            question: "Which syntax does SQL Server use instead of `LIMIT`?",
+            options: [
+              "`SELECT FIRST`",
+              "`ROWNUM`",
+              "`MAX ROWS`",
+              "`SELECT TOP`"
+            ],
+            answer: 3,
+            explanation: "SQL Server uses `SELECT TOP n`. PostgreSQL and MySQL use `LIMIT`, and Oracle uses `FETCH FIRST`."
           }
         ],
         challenge: {

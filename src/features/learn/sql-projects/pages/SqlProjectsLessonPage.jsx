@@ -198,6 +198,7 @@ export default function SqlProjectsLessonPage() {
               markedAsRead={markedAsRead}
               onMarkAsRead={markAsRead}
               onGoChallenge={goToChallenge}
+              practiceLink
             />
           ) : (
             <SqlProjectsCodeChallenge

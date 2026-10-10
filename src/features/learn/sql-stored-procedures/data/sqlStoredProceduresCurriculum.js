@@ -24,6 +24,30 @@ export const SQLSTOREDPROCEDURES_CHAPTERS = [
             variant: "info",
             title: "Performance",
             content: "Stored procedures can improve performance because the database engine compiles them once and caches the execution plan."
+          },
+          {
+            type: "quiz",
+            question: "What is a stored procedure?",
+            options: [
+              "Saved SQL code that can be reused again and again",
+              "A copy of a table kept as a backup",
+              "A query that runs automatically every night",
+              "A virtual table based on a `SELECT`"
+            ],
+            answer: 0,
+            explanation: "Save a query you write often as a procedure, then just call it."
+          },
+          {
+            type: "quiz",
+            question: "Why can stored procedures improve performance?",
+            options: [
+              "They save their results, so the query never runs again",
+              "The engine compiles them once and caches the execution plan",
+              "They skip the database's permission checks",
+              "They run on the user's computer instead of the server"
+            ],
+            answer: 1,
+            explanation: "Reusing the cached plan saves work on every call."
           }
         ],
         challenge: {
@@ -69,6 +93,30 @@ export const SQLSTOREDPROCEDURES_CHAPTERS = [
             lang: "sql",
             label: "Execution Syntax (MySQL)",
             content: "CALL SelectAllCustomers();"
+          },
+          {
+            type: "quiz",
+            question: "How do you run the `SelectAllCustomers` procedure in SQL Server?",
+            options: [
+              "`RUN SelectAllCustomers;`",
+              "`START SelectAllCustomers;`",
+              "`EXEC SelectAllCustomers;`",
+              "`SELECT SelectAllCustomers;`"
+            ],
+            answer: 2,
+            explanation: "SQL Server uses `EXEC` (or `EXECUTE`)."
+          },
+          {
+            type: "quiz",
+            question: "How do you run it in MySQL?",
+            options: [
+              "`RUN SelectAllCustomers();`",
+              "`START SelectAllCustomers();`",
+              "`EXECUTE PROCEDURE SelectAllCustomers;`",
+              "`CALL SelectAllCustomers();`"
+            ],
+            answer: 3,
+            explanation: "MySQL uses `CALL`, followed by parentheses."
           }
         ],
         challenge: {
@@ -110,6 +158,30 @@ export const SQLSTOREDPROCEDURES_CHAPTERS = [
             lang: "sql",
             label: "Parameter Example",
             content: "CREATE PROCEDURE SelectCustomersByCity @City nvarchar(30)\nAS\nSELECT * FROM Customers WHERE City = @City;"
+          },
+          {
+            type: "quiz",
+            question: "What does a parameter do in a stored procedure?",
+            options: [
+              "Acts as a variable the procedure's queries can use",
+              "Stores the procedure's result permanently",
+              "Names the table the procedure is saved in",
+              "Sets how often the procedure runs"
+            ],
+            answer: 0,
+            explanation: "The value passed in is used in the queries, e.g. `WHERE City = @City`."
+          },
+          {
+            type: "quiz",
+            question: "In `CREATE PROCEDURE SelectCustomersByCity @City nvarchar(30)`, what is `nvarchar(30)`?",
+            options: [
+              "The parameter's default value",
+              "The parameter's data type: text of up to 30 characters",
+              "The number of rows to return",
+              "The name of the column to filter on"
+            ],
+            answer: 1,
+            explanation: "Each parameter is declared with a name and a data type."
           }
         ],
         challenge: {
@@ -155,6 +227,30 @@ export const SQLSTOREDPROCEDURES_CHAPTERS = [
             lang: "sql",
             label: "Execution with Params",
             content: "EXEC SelectCustomersByCity @City = 'London';"
+          },
+          {
+            type: "quiz",
+            question: "How do you pass 'London' to the `@City` parameter?",
+            options: [
+              "`EXEC SelectCustomersByCity WHERE City = 'London';`",
+              "`EXEC SelectCustomersByCity(@City) = 'London';`",
+              "`EXEC SelectCustomersByCity @City = 'London';`",
+              "`EXEC SelectCustomersByCity; @City = 'London'`"
+            ],
+            answer: 2,
+            explanation: "Name the parameter and give it a value after the procedure name."
+          },
+          {
+            type: "quiz",
+            question: "Where do the parameter values go when you execute a procedure?",
+            options: [
+              "Before the `EXEC` keyword",
+              "Inside the `CREATE PROCEDURE` statement",
+              "In a separate query that runs first",
+              "After the procedure name"
+            ],
+            answer: 3,
+            explanation: "For example: `EXEC SelectCustomersByCity @City = 'London';`"
           }
         ],
         challenge: {
@@ -194,6 +290,30 @@ export const SQLSTOREDPROCEDURES_CHAPTERS = [
             lang: "sql",
             label: "Multiple Params",
             content: "CREATE PROCEDURE GetUsers @City nvarchar(30), @PostalCode nvarchar(10)\nAS\nSELECT * FROM Customers WHERE City = @City AND PostalCode = @PostalCode;"
+          },
+          {
+            type: "quiz",
+            question: "How do you define more than one parameter?",
+            options: [
+              "Separate them with commas",
+              "Separate them with `AND`",
+              "Write one `CREATE PROCEDURE` per parameter",
+              "Wrap them in square brackets"
+            ],
+            answer: 0,
+            explanation: "For example: `@City nvarchar(30), @PostalCode nvarchar(10)`."
+          },
+          {
+            type: "quiz",
+            question: "Which parameters does the lesson's `GetUsers` procedure define?",
+            options: [
+              "`@City` only",
+              "`@City` and `@PostalCode`",
+              "`@PostalCode` and `@Country`",
+              "`@Name` and `@City`"
+            ],
+            answer: 1,
+            explanation: "Both are used in its `WHERE` clause."
           }
         ],
         challenge: {
@@ -253,6 +373,30 @@ export const SQLSTOREDPROCEDURES_CHAPTERS = [
             lang: "sql",
             label: "IF ELSE Example",
             content: "IF @count > 10\nBEGIN\n  PRINT 'Too many'\nEND\nELSE\nBEGIN\n  PRINT 'Acceptable'\nEND"
+          },
+          {
+            type: "quiz",
+            question: "What do `IF...ELSE` blocks let a stored procedure do?",
+            options: [
+              "Repeat a query a set number of times",
+              "Return more than one result-set",
+              "Run different code depending on a condition",
+              "Undo changes when an error happens"
+            ],
+            answer: 2,
+            explanation: "They control the flow of execution based on a condition."
+          },
+          {
+            type: "quiz",
+            question: "In the lesson's example, what is printed when `@count` is 5?",
+            options: [
+              "`Too many`",
+              "Nothing",
+              "Both messages",
+              "`Acceptable`"
+            ],
+            answer: 3,
+            explanation: "`5 > 10` is false, so the `ELSE` block runs."
           }
         ],
         challenge: {
